@@ -1,0 +1,69 @@
+# Local research: saves, decompiled code, extracted assets, reference checkouts
+local/
+artifacts/
+backups/
+
+# .NET build output
+[Bb]in/
+[Oo]bj/
+TestResults/
+.vs/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Python caches and test output
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node, Vite and Tauri output
+node_modules/
+.vite/
+launcher/dist/
+launcher/src-tauri/target/
+launcher/src-tauri/gen/
+
+# Package and release output
+build/
+dist/
+outputs/
+*.apworld
+*.dll
+*.exe
+*.pdb
+*.nupkg
+*.snupkg
+*.zip
+*.rar
+*.7z
+
+# Local configuration and game paths
+.env
+.env.*
+!.env.example
+Directory.Build.props
+GamePaths.props
+
+# Logs, saves and temporary files
+*.log
+*.dat
+*.randomizersave
+*.randomizerdata
+*.bak
+*.tmp
+
+# Editor and operating-system files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+Desktop.ini
