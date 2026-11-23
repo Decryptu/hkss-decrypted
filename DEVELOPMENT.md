@@ -71,7 +71,7 @@ python -m http.server 8766 --directory site
 
 Open <http://localhost:8766/>. Pushing to `main` deploys `site/` through `.github/workflows/pages.yml`. The site is a game UI: reuse the existing components (title menu with fleur cursors, ornamental rules, panels, diamond checkboxes) and colour tokens in `site/style.css` rather than adding new visual styles.
 
-The logo is `site/assets/logo.png` (1024×1024, transparent), with `logo-256.png` (README) and `favicon.png` (64×64) resized from it.
+The logo is `site/assets/logo.png` (1024×1024, transparent). `logo.webp` (512, used by the page), `logo-256.png` (README) and `favicon.png` (64×64) are resized from it.
 
 ## Conventions
 
