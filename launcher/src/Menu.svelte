@@ -18,8 +18,9 @@
   let draft = $state<Room>(blankRoom());
   let message = $state("");
   let update = $state<string | null>(null);
+  type CheckResult = { world_version: string | null; version_warning: string | null };
   let testing = $state(false);
-  let connection = $state<{ text: string; failed: boolean } | null>(null);
+  let connection = $state<{ text: string; kind: "ok" | "warn" | "error" } | null>(null);
   let activeRun = $state<number | null>(null);
   let failedRun = $state<number | null>(null);
   let showSettings = $state(false);
@@ -51,12 +52,23 @@
   async function testConnection(form: HTMLFormElement | null) {
     if (testing || !form?.reportValidity()) return;
     testing = true;
-    connection = { text: "Checking room…", failed: false };
+    connection = { text: "Checking room…", kind: "ok" };
     try {
-      await invoke("test_connection", { room: { ...draft, port: Number(draft.port) } });
-      connection = { text: "The room accepted your slot. Save room to use these settings.", failed: false };
+      const result = await invoke<CheckResult>("test_connection", { room: { ...draft, port: Number(draft.port) } });
+      if (result.version_warning) {
+        connection = {
+          text: `The room accepted your slot. Warning: ${result.version_warning}`,
+          kind: "warn",
+        };
+      } else {
+        const version = result.world_version ? ` (apworld v${result.world_version})` : "";
+        connection = {
+          text: `The room accepted your slot${version}. Save room to use these settings.`,
+          kind: "ok",
+        };
+      }
     } catch (e) {
-      connection = { text: String(e), failed: true };
+      connection = { text: String(e), kind: "error" };
     } finally {
       testing = false;
     }
@@ -70,20 +82,31 @@
       act("remove_game_folders", {}, "Modded game folders removed.");
   }
 
+  const parseVersion = (v: string) => {
+    const match = /^v?(\d+)\.(\d+)\.(\d+)/.exec(v.trim());
+    return match ? [Number(match[1]), Number(match[2]), Number(match[3])] : null;
+  };
+
   const newer = (a: string, b: string) => {
-    const pa = a.split(".").map(Number), pb = b.split(".").map(Number);
-    for (let i = 0; i < 3; i++) if ((pa[i] ?? 0) !== (pb[i] ?? 0)) return (pa[i] ?? 0) > (pb[i] ?? 0);
+    const pa = parseVersion(a), pb = parseVersion(b);
+    if (!pa || !pb) return false;
+    for (let i = 0; i < 3; i++) if (pa[i] !== pb[i]) return pa[i] > pb[i];
     return false;
   };
 
   async function checkUpdate(version: string) {
     try {
-      const r = await fetch("https://api.github.com/repos/Decryptu/hkss-decrypted/releases/latest");
+      const r = await fetch("https://api.github.com/repos/Decryptu/hkss-decrypted/releases/latest", {
+        headers: { Accept: "application/vnd.github+json" },
+        signal: AbortSignal.timeout(5000),
+      });
       if (!r.ok) return;
-      const tag = String((await r.json()).tag_name ?? "").replace(/^v/, "");
+      const release = await r.json();
+      if (release.draft || release.prerelease) return;
+      const tag = String(release.tag_name ?? "").replace(/^v/, "");
       if (tag && newer(tag, version)) update = tag;
     } catch {
-      // Offline: nothing to report.
+      // Offline or rate-limited: nothing to report.
     }
   }
 
@@ -187,7 +210,7 @@
                 {#if slot.current}<button type="button" class="danger" onclick={() => deleteRun(slot.id)}>Delete run</button>{/if}
               </div>
               </fieldset>
-              {#if connection}<p class:error={connection.failed} role="status">{connection.text}</p>{/if}
+              {#if connection}<p class:error={connection.kind === "error"} class:warn={connection.kind === "warn"} role="status">{connection.text}</p>{/if}
             </form>
           </li>
         {/if}
@@ -217,7 +240,7 @@
         <button type="button" disabled={playing || testing} onclick={refresh}>Recheck</button>
       </div>
     {/if}
-    {#if update}<p class="notice">Version {update} is out. <button class="link" onclick={() => invoke("open_releases")}>Get it</button></p>{/if}
+    {#if update}<p class="notice update" role="status">Update available: v{update} (current: v{status.version}). <button class="link" onclick={() => invoke("open_releases")}>Download release</button></p>{/if}
     <p class="footer">v{status.version}</p>
   {/if}
   {#if message}<p class="notice" role="status">{message}</p>{/if}

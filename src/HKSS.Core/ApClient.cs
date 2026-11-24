@@ -93,6 +93,7 @@ public sealed class ApClient : IDisposable
     public string GamesMode { get; private set; } = GoalTracker.GamesBoth;
     public string ComboGoal { get; private set; } = GoalTracker.ComboGoalBoth;
     public bool DeathLinkEnabled { get; private set; }
+    public string? WorldVersion { get; private set; }
     public Dictionary<string, object>? SlotData { get; private set; }
     public ArchipelagoSession? Session { get { lock (_gate) return _session; } }
     public bool IsConnected => State == ApConnectionState.Connected && _session != null;
@@ -169,6 +170,8 @@ public sealed class ApClient : IDisposable
             string gamesMode = ReadString(ok.SlotData, "games", GoalTracker.GamesBoth);
             string comboGoal = ReadString(ok.SlotData, "combo_goal", GoalTracker.ComboGoalBoth);
             bool deathLink = ReadBool(ok.SlotData, "death_link", false);
+            string rawWorldVersion = ReadString(ok.SlotData, "world_version", string.Empty).Trim();
+            string? worldVersion = rawWorldVersion.Length > 0 ? rawWorldVersion : null;
 
             lock (_gate)
             {
@@ -185,6 +188,7 @@ public sealed class ApClient : IDisposable
                 GamesMode = gamesMode;
                 ComboGoal = comboGoal;
                 DeathLinkEnabled = deathLink;
+                WorldVersion = worldVersion;
                 SlotData = ok.SlotData;
                 State = ApConnectionState.Connected;
                 StatusDetail = $"Connected to {settings.FormatAddress()} as {settings.Slot}";

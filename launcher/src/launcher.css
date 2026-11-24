@@ -20,6 +20,7 @@ body { overflow: clip; }
 .preflight .notice { margin: 0; max-width: none; }
 .notice { color: var(--dim); font-style: italic; margin: 1rem auto 0; max-width: 52ch; }
 .notice.error { color: #f0928a; }
+.notice.update { color: #f0c97a; font-style: normal; }
 
 /* Travel screen: hides one game closing and the other starting. */
 .cover { position: fixed; inset: 0; display: grid; place-content: center; justify-items: center; gap: 1rem; cursor: none; background: #040406; opacity: 0; transition: opacity .45s ease; }
@@ -39,6 +40,7 @@ body { overflow: clip; }
 .panel form { margin: .5rem auto 1rem; text-align: left; user-select: text; }
 .panel fieldset { display: grid; grid-template-columns: repeat(2, minmax(0, 14rem)); gap: .6rem 1rem; border: 0; margin: 0; padding: 0; }
 .panel p[role=status] { margin: .6rem 0 0; text-align: center; }
+.panel p.warn { color: #f0c97a; }
 .panel p.error { color: #f0928a; }
 .panel label { display: grid; gap: .2rem; font-size: .9rem; color: var(--dim); }
 .panel label.check { grid-column: 1 / -1; display: flex; gap: .5rem; align-items: center; }

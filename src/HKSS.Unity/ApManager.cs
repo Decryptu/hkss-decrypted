@@ -217,6 +217,7 @@ internal sealed class ApManager : MonoBehaviour
             case ApEventKind.Connected:
                 HkssPlugin.Log.LogInfo(evt.Message);
                 PushToast($"Connected as {Client.ConnectedSlot}", ToastKind.Info);
+                CheckWorldVersion();
                 FlushQueuedChecks();
                 OnConnected?.Invoke(Client);
                 break;
@@ -260,6 +261,26 @@ internal sealed class ApManager : MonoBehaviour
                 _pendingItems.Enqueue(evt);
                 break;
         }
+    }
+
+    private void CheckWorldVersion()
+    {
+        string? worldVersion = Client.WorldVersion?.TrimStart('v', 'V');
+        if (string.IsNullOrEmpty(worldVersion))
+        {
+            string msg = $"Room did not report an apworld version (0.1.2 or earlier); mod is v{HkssPlugin.PluginVersion}.";
+            HkssPlugin.Log.LogWarning(msg);
+            PushToast(msg, ToastKind.Error);
+            return;
+        }
+        if (!string.Equals(worldVersion, HkssPlugin.PluginVersion, StringComparison.OrdinalIgnoreCase))
+        {
+            string msg = $"Version mismatch: room uses apworld v{worldVersion}, mod is v{HkssPlugin.PluginVersion}.";
+            HkssPlugin.Log.LogWarning(msg);
+            PushToast(msg, ToastKind.Error);
+            return;
+        }
+        HkssPlugin.Log.LogInfo($"Room apworld version matches mod: v{worldVersion}");
     }
 
     private void FlushQueuedChecks()

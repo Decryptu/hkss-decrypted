@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import pkgutil
 from typing import Any, ClassVar, Union
 
 from BaseClasses import CollectionState, Item, MultiWorld, Region, Tutorial
@@ -109,6 +111,17 @@ def _build_location_name_groups(all_locations: dict[str, int]) -> dict[str, set[
     return groups
 
 
+def _load_world_version() -> str:
+    raw = pkgutil.get_data(__name__, "archipelago.json")
+    if raw:
+        data = json.loads(raw.decode("utf-8"))
+        version = str(data.get("world_version", "")).strip()
+        if version:
+            return version
+    return "0.0.0"
+
+
+WORLD_VERSION: str = _load_world_version()
 _ALL_ITEMS = _build_item_name_to_id()
 _ALL_LOCATIONS = _build_location_name_to_id()
 
@@ -361,6 +374,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
 
     def fill_slot_data(self) -> dict[str, Any]:
         return {
+            "world_version": WORLD_VERSION,
             "games": self.options.games.current_key,
             "combo_goal": self.options.combo_goal.current_key,
             "death_link": bool(self.options.death_link.value),

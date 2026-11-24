@@ -143,7 +143,7 @@ fn idle() -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn test_connection(room: room::Room) -> Result<(), String> {
+async fn test_connection(room: room::Room) -> Result<room_check::CheckResult, String> {
     idle()?;
     room_check::check(room).await
 }

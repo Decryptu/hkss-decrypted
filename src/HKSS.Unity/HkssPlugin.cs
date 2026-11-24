@@ -8,9 +8,10 @@ using UnityEngine;
 
 namespace HKSS.Unity;
 
-[BepInPlugin("decryptu.hkss", "HKSS Decrypted", "0.1.2")]
+[BepInPlugin("decryptu.hkss", "HKSS Decrypted", PluginVersion)]
 public sealed class HkssPlugin : BaseUnityPlugin
 {
+    public const string PluginVersion = "0.1.2";
 #if HOLLOW_KNIGHT
     public const GameId ThisGame = GameId.HollowKnight;
 #elif SILKSONG
