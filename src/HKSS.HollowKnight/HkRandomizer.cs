@@ -61,7 +61,9 @@ internal sealed class HkRandomizer
     {
         ItemChangerMod.CreateSettingsProfile(overwrite: true);
 
+        ApplyStartLocation();
         AddModules();
+        AddHelperPlatforms();
         ApplyTransitionOverrides();
         ApplyCharmCosts();
         InitializeDefaultShops();
@@ -93,15 +95,53 @@ internal sealed class HkRandomizer
         return placedCount;
     }
 
+    private void ApplyStartLocation()
+    {
+        string? start = _slotData.Options.StartLocationName;
+        if (string.IsNullOrWhiteSpace(start) || string.Equals(start, HkStartLocationNames.KingsPass, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (HkStartDef.Lookup.TryGetValue(start, out HkStartDef? def) && def != null)
+        {
+            ItemChangerMod.ChangeStartGame(def.ToItemChangerStartDef());
+            HkssPlugin.Log.LogInfo($"[HK] Set alternate start location to '{start}'.");
+        }
+        else
+        {
+            HkssPlugin.Log.LogWarning($"[HK] Unsupported start location '{start}', starting in King's Pass.");
+        }
+    }
+
+    private void AddHelperPlatforms()
+    {
+        HkHelperPlatformBuilder.AddConveniencePlatforms(_slotData);
+        HkHelperPlatformBuilder.AddStartLocationRequiredPlatforms(_slotData.Options);
+    }
+
     private void AddModules()
     {
         ItemChangerMod.Modules.Add<HkDupeHandlingModule>();
         ItemChangerMod.Modules.Add<HkRepositionShadeModule>();
+        ItemChangerMod.Modules.Add<HkHintTracker>();
         ItemChangerMod.Modules.Add<CompletionPercentOverride>();
+
+        var startEdits = ItemChangerMod.Modules.Add<HkStartLocationSceneEditsModule>();
+        startEdits.StartLocationName = _slotData.Options.StartLocationName ?? HkStartLocationNames.KingsPass;
+        startEdits.RandomizeNail = _slotData.Options.RandomizeNail;
 
         var goalModule = ItemChangerMod.Modules.Add<HkGoalModule>();
         goalModule.SelectedGoal = _slotData.Options.Goal;
         goalModule.GrubsRequired = _slotData.GrubsRequired ?? 46;
+
+        bool deathLinkEnabled = _slotData.Options.DeathLink || (ApManager.Instance?.Client.DeathLinkEnabled ?? false);
+        if (deathLinkEnabled)
+        {
+            var deathLink = ItemChangerMod.Modules.Add<HkDeathLinkModule>();
+            deathLink.ShadeHandling = _slotData.Options.DeathLinkShade;
+            deathLink.BreakFragileCharms = _slotData.Options.DeathLinkBreaksFragileCharms;
+        }
 
         if (_slotData.Options.RandomizeElevatorPass)
             ItemChangerMod.Modules.Add<ElevatorPass>();

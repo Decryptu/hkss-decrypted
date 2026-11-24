@@ -46,6 +46,7 @@ internal sealed class ApManager : MonoBehaviour
     internal static bool DeferProcessedPersistence { get; set; }
     internal static event Action<ApClient>? OnConnected;
     internal static event Action? OnDisconnected;
+    internal static event Action<string, ToastKind>? OnItemNotice;
     internal static Func<ApEvent, RoutedItem, bool>? LocalItemGrantHandler { get; set; }
 
     internal ApSettingsStore SettingsStore { get; private set; } = null!;
@@ -405,6 +406,7 @@ internal sealed class ApManager : MonoBehaviour
                             HkssPlugin.State.SetProcessedItems(HkssPlugin.ThisGame, processed);
                         HkssPlugin.Log.LogInfo($"[AP] Applied local item #{evt.ItemIndex}: {routed.RawName}");
                         PushToast(routed.Message, ToastKind.LocalItem);
+                        OnItemNotice?.Invoke(routed.Message, ToastKind.LocalItem);
                     }
                     catch (Exception e)
                     {
@@ -423,6 +425,7 @@ internal sealed class ApManager : MonoBehaviour
                         HkssPlugin.State.SetProcessedItems(HkssPlugin.ThisGame, processed);
                     HkssPlugin.Log.LogInfo($"[AP] Cross-game item #{evt.ItemIndex}: {routed.Message}");
                     PushToast(routed.Message, ToastKind.CrossGameItem);
+                    OnItemNotice?.Invoke(routed.Message, ToastKind.CrossGameItem);
                     break;
 
                 case RouteAction.SkipOtherGameBacklog:

@@ -9,5 +9,6 @@
     <ProjectReference Include="..\HKSS.HollowKnight.ModApi\HKSS.HollowKnight.ModApi.csproj" />
     <ProjectReference Include="..\HKSS.HollowKnight.ItemChanger\HKSS.HollowKnight.ItemChanger.csproj" />
     <Reference Include="TeamCherry.Localization" HintPath="$(GameManaged)\TeamCherry.Localization.dll" Private="false" />
+    <EmbeddedResource Include="Data\starts.json" LogicalName="HKSS.HollowKnight.Data.starts.json" />
   </ItemGroup>
 </Project>

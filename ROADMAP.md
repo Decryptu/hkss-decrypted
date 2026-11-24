@@ -27,6 +27,8 @@ v0.1.2 fixes the diagnostic ZIP archive writer, adds pre-launch checks for legac
 
 v0.1.3 fixes `CustomSkillItem` assembly resolution in Hollow Knight (which prevented randomized placements from loading on seeds with Focus/Swim/split skills), adds an in-game placement load error alert, hardens the startup update check, adds `.apworld` vs. launcher/plugin version mismatch warnings, clarifies automatic mod bundling in the launcher, and stops warning on Steam's default `"public"` beta key.
 
+v0.1.4 fixes Hollow Knight ItemChanger lifecycle, Archipelago state sync, and launcher reliability bugs, and ports Hollow Knight DeathLink, shop and preview auto-hinting, helper and start platforms, alternate start locations, repickable Delicate Flower, and the `F9` recent items feed.
+
 Still to verify during playtesting: clean-PC installer test, gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, a game that crashes during travel, and the Silksong plugin's refusal to run without the launcher.
 
 ## Feature Parity & Missing Ports
@@ -34,15 +36,10 @@ Still to verify during playtesting: clean-PC installer test, gate placement in a
 Both games should offer a seamless, matching experience: any randomizer, UI, or QoL feature available in one game should exist in the other with consistent controls and visuals.
 
 ### Missing from `Archipelago.HollowKnight` (in `HKSS.HollowKnight`)
-- **DeathLink (`DeathLinkModule` + `DeathLinkMessages`):** wire Hollow Knight into the shared `death_link` option (currently only Silksong handles DeathLink).
-- **Shop & preview auto-hinting (`HintTracker`):** automatically scout and create Archipelago hints when opening shops or inspecting previewed checks.
-- **Helper & start platforms (`HelperPlatformBuilder`):** spawn `ExtraPlatforms` and start-location convenience platforms so seeds that expect them cannot softlock.
-- **Alternate start locations (`StartDef` + `StartLocationSceneEditsModule`):** apply `StartLocationName` for `hollow_knight_only` and optional custom starts.
-- **Bench sync (`BenchSyncModule`), Gifting (`GiftingModule`), and Repickable Flower (`RepickableFlowerModule`).**
+- **Bench sync (`BenchSyncModule`) and Gifting (`GiftingModule`).**
 
 ### Cross-game parity (Silksong features missing in Hollow Knight)
 - **In-game check map & logic markers (Hollow Knight):** Silksong already shows unchecked items, shops, category pins, clusters, and logic state (`F10`) on the in-game map. Build a clean-room MIT/LGPL in-game check map for Hollow Knight (using ItemChanger location coordinates and `worlds/hk` logic, without GPL-3.0 code) with matching pins, filters, and hotkeys.
-- **Recent items feed (`F9`):** port or share a unified recent-items history overlay across both games (currently Silksong only; Hollow Knight only has temporary toasts).
 - **In-game Archipelago progress & hints view:** bring an AP inventory/progress and hints view to Hollow Knight matching Silksong's.
 - **Additional links:** optional Soul/Geo/Knockback links in Hollow Knight to match Silksong's SilkLink, CurrencyLink, and KnockbackLink.
 - **Unified in-game settings panel:** one consistent, player-configurable options menu (in the pause menu or `F6` overlay) controlling client-side toggles and hotkeys across both games.

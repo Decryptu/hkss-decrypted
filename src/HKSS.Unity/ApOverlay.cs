@@ -10,6 +10,8 @@ namespace HKSS.Unity;
 /// </summary>
 internal sealed class ApOverlay : MonoBehaviour
 {
+    internal static bool IsPanelOpen { get; private set; }
+
     private bool _panelOpen;
     private string _addressInput = $"{ApSettings.DefaultHost}:{ApSettings.DefaultPort}";
     private string _slotInput = string.Empty;
@@ -31,6 +33,7 @@ internal sealed class ApOverlay : MonoBehaviour
         if (kb != null && kb.f6Key.wasPressedThisFrame)
         {
             _panelOpen = !_panelOpen;
+            IsPanelOpen = _panelOpen;
             if (_panelOpen) SyncInputsFromSettings();
         }
     }
@@ -142,6 +145,7 @@ internal sealed class ApOverlay : MonoBehaviour
         if (GUI.Button(rect, text, _badgeStyle))
         {
             _panelOpen = !_panelOpen;
+            IsPanelOpen = _panelOpen;
             if (_panelOpen) SyncInputsFromSettings();
         }
         GUI.contentColor = prev;

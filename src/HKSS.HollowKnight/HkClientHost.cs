@@ -61,9 +61,13 @@ internal sealed class HkClientHost : MonoBehaviour
     };
 
     private static ItemChangerMod? _icMod;
+    private static GameObject? _flowerPickupPrefab;
     private static bool _preloaded;
     private static bool _icActive;
     private static int _pendingStartingGeo;
+
+    internal static GameObject? CreateFlowerPickup() =>
+        _flowerPickupPrefab != null ? UnityEngine.Object.Instantiate(_flowerPickupPrefab) : null;
 
     private bool _preloadStarted;
     private bool _connectWaitDone;
@@ -107,6 +111,8 @@ internal sealed class HkClientHost : MonoBehaviour
         ModHooks.SavegameSaveHook += OnSaveGame;
         Events.OnEnterGame += OnEnterGame;
         Events.OnSettingsLoadError += OnSettingsLoadError;
+        if (gameObject.GetComponent<HkRecentItemsDisplay>() == null)
+            gameObject.AddComponent<HkRecentItemsDisplay>();
     }
 
     private void OnDestroy()
@@ -177,8 +183,16 @@ internal sealed class HkClientHost : MonoBehaviour
 
         // Reduce non-essential preloads (geo rocks / soul totems) only if desired; Core + Grub + Mimic are fast.
         List<(string, string)> preloads = _icMod.GetPreloadNames();
+        preloads.Add((SceneNames.Fungus3_49, "gg_white_flower"));
         Dictionary<string, Dictionary<string, GameObject>>? loaded = null;
         yield return HKSS.HollowKnight.ModApi.ScenePreloader.PreloadAsync(preloads, HkssPlugin.Log, dict => loaded = dict);
+
+        if (loaded != null
+            && loaded.TryGetValue(SceneNames.Fungus3_49, out Dictionary<string, GameObject>? flowerScene)
+            && flowerScene.TryGetValue("gg_white_flower", out GameObject? flowerPrefab))
+        {
+            _flowerPickupPrefab = flowerPrefab;
+        }
 
         try
         {

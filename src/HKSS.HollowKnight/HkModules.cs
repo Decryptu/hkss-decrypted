@@ -1,4 +1,4 @@
-// Ported from ArchipelagoMW/Archipelago.HollowKnight, Goals.cs & IC/Modules/{GoalModule,DupeHandlingModule,RepositionShadeModule}.cs, commit 373cc00 (MIT)
+// Ported from ArchipelagoMW/Archipelago.HollowKnight, Goals.cs & IC/Modules/{GoalModule,DupeHandlingModule,RepositionShadeModule,RepickableFlowerModule}.cs, commit 373cc00 (MIT)
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +12,8 @@ using ItemChanger.Placements;
 using ItemChanger.Tags;
 using ItemChanger.UIDefs;
 using Modding;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace HKSS.HollowKnight;
 
@@ -45,6 +47,7 @@ public sealed class HkGoalModule : Module
         }
         else
         {
+            ItemChangerMod.Modules.GetOrAdd<HkRepickableFlowerModule>();
             Events.OnSceneChange += OnSceneChanged;
         }
     }
@@ -168,5 +171,26 @@ public sealed class HkRepositionShadeModule : Module
             pd.shadePositionX = pos.x;
             pd.shadePositionY = pos.y;
         }
+    }
+}
+
+public sealed class HkRepickableFlowerModule : Module
+{
+    public override void Initialize()
+    {
+        Events.AddSceneChangeEdit(SceneNames.Room_Mansion, SpawnFlower);
+    }
+
+    public override void Unload()
+    {
+        Events.RemoveSceneChangeEdit(SceneNames.Room_Mansion, SpawnFlower);
+    }
+
+    private static void SpawnFlower(Scene scene)
+    {
+        GameObject? flowerSource = HkClientHost.CreateFlowerPickup();
+        if (flowerSource == null) return;
+        flowerSource.transform.position = new Vector3(25.0f, 6.4f, 2f);
+        flowerSource.SetActive(true);
     }
 }

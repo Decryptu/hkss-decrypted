@@ -116,11 +116,12 @@ public sealed class HkRemoteItem : AbstractItem
     public override void GiveImmediate(GiveInfo info) { }
 }
 
-public sealed class HkItemTag : Tag
+public sealed class HkItemTag : Tag, IInteropTag
 {
     public long Location { get; set; }
     public int Player { get; set; }
     public ItemFlags Flags { get; set; }
+    public bool Hinted { get; set; }
     public bool IsItemForMe { get; set; }
 
     public void ReadItemInfo(ScoutedItemInfo itemInfo, bool isLocalHkItem)
@@ -151,11 +152,26 @@ public sealed class HkItemTag : Tag
             ApManager.Instance?.ReportCheckById(Location);
         }
     }
+
+    string IInteropTag.Message => "RandoSupplementalMetadata";
+
+    bool IInteropTag.TryGetProperty<T>(string propertyName, out T value)
+    {
+        if (propertyName == "ForceEnablePreview" && Hinted is T t)
+        {
+            value = t;
+            return true;
+        }
+        value = default!;
+        return false;
+    }
 }
 
 public sealed class HkPlacementTag : Tag
 {
     public static readonly Dictionary<long, AbstractPlacement> PlacementsByLocationId = new();
+
+    public bool Hinted { get; set; }
 
     public override void Load(object parent)
     {
@@ -165,16 +181,31 @@ public sealed class HkPlacementTag : Tag
         {
             PlacementsByLocationId[locId] = pmt;
         }
+
+        pmt.OnVisitStateChanged += OnVisitStateChanged;
+        if (!Hinted && pmt.Visited.HasFlag(VisitState.Previewed))
+        {
+            ItemChangerMod.Modules.Get<HkHintTracker>()?.HintPlacement(pmt);
+        }
     }
 
     public override void Unload(object parent)
     {
         var pmt = (AbstractPlacement)parent;
+        pmt.OnVisitStateChanged -= OnVisitStateChanged;
         foreach (long locId in GetLocationIds(pmt))
         {
             PlacementsByLocationId.Remove(locId);
         }
         base.Unload(parent);
+    }
+
+    private void OnVisitStateChanged(VisitStateChangedEventArgs args)
+    {
+        if (!Hinted && args.NewFlags.HasFlag(VisitState.Previewed))
+        {
+            ItemChangerMod.Modules.Get<HkHintTracker>()?.HintPlacement(args.Placement);
+        }
     }
 
     public static IEnumerable<long> GetLocationIds(AbstractPlacement pmt)
