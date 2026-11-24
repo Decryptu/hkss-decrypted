@@ -36,6 +36,9 @@ build/
 dist/
 outputs/
 *.apworld
+apworld/hkss/hk/
+apworld/hkss/silksong/
+apworld/hkss/VENDORED.json
 *.dll
 *.exe
 *.pdb

@@ -12,7 +12,7 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first. This file covers the lo
 | `local/` | Ignored: reference checkouts, decompiled code, extracted assets, save backups |
 | `src/`, `tests/` | Plugins, shared code and tests, see the architecture's [layout](docs/ARCHITECTURE.md#2-one-codebase-shared-as-far-as-possible) |
 | `launcher/` | HKSS Launcher (Tauri 2) |
-| `apworld/` | Planned |
+| `apworld/hkss/` | Combined Archipelago world (`hk/` and `silksong/` are vendored at build time) |
 
 ## Requirements
 
@@ -36,6 +36,8 @@ pwsh tools/backup-saves.ps1
 
 ```powershell
 dotnet test tests/HKSS.Core.Tests
+python tools/build_apworld.py                # vendors worlds/hk and silksong into dist/hkss.apworld
+python tools/test_apworld.py                 # verifies IDs, archive, solo and multiworld generation on AP 0.6.8
 pwsh tools/build-payload.ps1                 # BepInEx and both plugins into local/payload
 cd launcher
 npm install

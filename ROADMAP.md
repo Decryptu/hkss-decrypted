@@ -11,7 +11,6 @@ A combo randomizer and Archipelago world for Hollow Knight and Hollow Knight: Si
 | Phase | Work | Done when |
 |---|---|---|
 | 1. Gates | Town gates in Dirtmouth and Bone Bottom with the game's own prompt, arrival at the gate, first-trip rules, warp to town. | Walking through a gate travels both ways, and each gate is checked in every state of its town. |
-| 2. Combined world prototype | `apworld/hkss` composing `worlds/hk` and the Silksong Decrypted world: prefixed names, ID blocks, shared options, goals. Includes separating the two rule sets' names, logic mixins and stage hooks. | Solo and multiworld seeds generate on Archipelago 0.6.8 for `both`, `hollow_knight_only` and `silksong_only`. |
 | 3. Thin slice | Archipelago session, item routing and shared connection and message interface in `HKSS.Core` / `HKSS.Unity`; one real pickup per game. | A pickup in Hallownest unlocks something in Pharloom and the reverse, in one slot. |
 | 4. Hollow Knight | Hook layer replacing the Modding API, then the ItemChanger port and the rest of the client. | A full HK logic seed plays on the current build. |
 | 5. Silksong | Silksong Decrypted's features ported onto the shared code, tracked in a parity table. | A full Silksong seed plays from this repository. |
@@ -32,8 +31,6 @@ Travel works between both games, triggered by F8 or a timer in debug plugins. In
 7. Decide whether combo runs skip Silksong's opening, which waits for the player's first Bind.
 
 Not tested yet: exclusive full screen, several monitors, controllers, a slower PC, a save that fails, and a game that crashes during travel. The Silksong plugin's refusal to run without the launcher is only tested on Hollow Knight. A release also needs the launcher to bundle the mod files (it reads `HKSS_PAYLOAD` today).
-
-The combined world prototype (phase 2) needs no running game and can go alongside the gates.
 
 ## Later
 
