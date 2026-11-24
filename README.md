@@ -13,11 +13,11 @@ An unofficial combo randomizer and [Archipelago](https://archipelago.gg) world f
 
 ## Status
 
-Foundations. The design is in place and nothing is playable yet. The plan:
+Foundations. The launcher starts both games modded and changes between them in separate saves; there is no randomizer yet. The plan:
 
-- **Both games on BepInEx 5.** Hollow Knight's randomizer and Archipelago client are ported to the current Hollow Knight build (Unity 6), next to [Silksong Decrypted](https://github.com/Decryptu/silksong-decrypted) for Silksong.
+- **One unified mod for both games**, on BepInEx 5. The code needed from Hollow Knight's randomizer and from [Silksong Decrypted](https://github.com/Decryptu/silksong-decrypted) is ported to the current builds with the same features on both sides.
 - **One Archipelago game**, `Hollow Knight x Silksong`: one YAML and one slot covering both games, with single-game modes.
-- **HKSS Launcher**: installs everything into separate profiles (your Steam installs stay vanilla), starts the right game in the right save, and hands over when you travel between games.
+- **HKSS Launcher**: runs modded copies of both games (your Steam installs stay vanilla), opens straight into the right save, and hands over behind a travel screen when you change games.
 - **Player hub**: setup checklist, YAML generator, and an item map of both worlds.
 
 ## Credits & license

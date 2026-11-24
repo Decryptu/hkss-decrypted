@@ -10,12 +10,14 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first. This file covers the lo
 | `site/` | GitHub Pages player hub (static, no build step) |
 | `tools/` | Publication checker, reference fetcher, decompiler wrapper, save backup |
 | `local/` | Ignored: reference checkouts, decompiled code, extracted assets, save backups |
-| `src/`, `apworld/`, `launcher/` | Planned, see the architecture's [layout](docs/ARCHITECTURE.md#2-monorepo-shared-core-one-plugin-per-game) |
+| `src/`, `tests/` | Plugins, shared code and tests, see the architecture's [layout](docs/ARCHITECTURE.md#2-one-codebase-shared-as-far-as-possible) |
+| `launcher/` | HKSS Launcher (Tauri 2) |
+| `apworld/` | Planned |
 
 ## Requirements
 
 - Windows 10/11 with both games installed through Steam.
-- .NET 9 SDK (plugins and `HKSS.Core`), Python 3.12+ (world and tools), Node 22+ and Rust stable (launcher, when it starts).
+- .NET 10 SDK (plugins and tests), Python 3.12+ (world and tools), Node 22+, Rust stable and the Visual Studio C++ build tools (launcher).
 - Archipelago 0.6.8 or newer.
 - `ilspycmd` for decompiling. Set `ILSPYCMD_PATH` if it is not at the default path in `tools/decompile.ps1`.
 - Python packages for asset work: `UnityPy`, `Pillow`.
@@ -29,6 +31,41 @@ pwsh tools/backup-saves.ps1
 ```
 
 `fetch-references.ps1` clones the upstream projects we port from into `local/reference/`: the Hollow Knight Archipelago client, ItemChanger, RandomizerMod, RandomizerCore, MenuChanger, Benchwarp, the HK Modding API (to see which hooks we must rebuild), Silksong Decrypted, and Archipelago 0.6.8's `worlds/hk`.
+
+## Building and running
+
+```powershell
+dotnet test tests/HKSS.Core.Tests
+pwsh tools/build-payload.ps1                 # BepInEx and both plugins into local/payload
+cd launcher
+npm install
+npm run tauri build -- --debug --no-bundle   # src-tauri/target/debug/hkss-launcher.exe
+cargo test --manifest-path src-tauri/Cargo.toml
+```
+
+`tools/fetch-deps.ps1` (called by `build-payload.ps1`) downloads the pinned BepInEx and checks its hash. Set `STEAM_COMMON` if the games are not in the default Steam library.
+
+| Variable | Effect |
+|---|---|
+| `HKSS_PAYLOAD` | Mod files to use, normally `local/payload`. Required until the launcher bundles them. |
+| `HKSS_HOME` | Replaces `%LOCALAPPDATA%\HKSS`. Use a short path for tests. |
+| `HKSS_DEV_PLAY` | Starts that run slot without a click; the launcher exits when it ends. |
+| `HKSS_DEV_AUTOTRAVEL` | Debug plugins only: travels this many seconds after the game is ready, once the player has control. F8 travels at once. |
+
+Run logs are in `runs/slot-<n>/logs/`: `launcher.log` has timings and memory, `<game>-player.log` is Unity's log. BepInEx logs to `games/<game>/BepInEx/LogOutput.log`.
+
+To delete a test home, first remove each junction in `games/<game>/` with `cmd /c rmdir <link>`. A recursive delete that follows junctions would delete the Steam install.
+
+### Travel measurements
+
+Hollow Knight 1.5.12620 and Silksong 1.0.30000, debug build, laptop with an RTX 3060 and 16 GB of memory, windowed:
+
+| | Start to playable | Close | Working set | Private memory |
+|---|---|---|---|---|
+| Hollow Knight | 7.6 to 8.7 s | 0.4 to 0.5 s | 0.7 GB | 1.3 GB |
+| Silksong | 10.4 to 12.2 s | 0.6 to 0.7 s | 1.0 GB | 2.1 GB |
+
+A new Silksong game then waits for the player's first Bind, as in normal play. The travel screen owned every sampled point of the display from the first game closing to the second being ready. Save files, Steam folders and game settings were unchanged by the tests, apart from Unity's session counters and `Player.log` rotation.
 
 ## Decompiling
 
@@ -56,12 +93,12 @@ Both games keep saves under `%USERPROFILE%\AppData\LocalLow\Team Cherry\`. Other
 
 - Run `tools/backup-saves.ps1` before any test that can write saves. It copies both folders into `local/saves/<timestamp>/` and never writes to the live folders.
 - Never write, delete or load-and-save another player's or project's files: vanilla `userN.dat`, Silksong Decrypted's `userN.randomizersave`, `userN.randomizerdata` and `randomizer_userN_*.dat`.
-- HKSS code writes only `hkss_*` files ([saves](docs/ARCHITECTURE.md#5-saves)).
+- HKSS code writes only inside its own run folders ([saves](docs/ARCHITECTURE.md#5-saves)).
 - Restore by hand with both games closed, copying back only the files you changed.
 
 ## Game folders
 
-Leave both Steam installs launchable as vanilla. When testing a plugin, use a profile directory with Doorstop disabled in the game folder and enabled per launch (as described in the [launcher](docs/ARCHITECTURE.md#6-hkss-launcher) design), or remove the loader files when you are done.
+Never put a loader or any other file in the Steam installs. Test through the launcher, which runs the games from mirror folders ([launcher](docs/ARCHITECTURE.md#6-hkss-launcher)).
 
 ## Player hub
 
