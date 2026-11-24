@@ -19,6 +19,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
 
     internal static ManualLogSource Log { get; private set; } = null!;
     internal static RunContext Run { get; private set; } = null!;
+    internal static RunStateStore State { get; private set; } = null!;
     internal static SignalChannel Signals { get; private set; } = null!;
 
     private void Awake()
@@ -27,12 +28,14 @@ public sealed class HkssPlugin : BaseUnityPlugin
         try
         {
             Run = RunContext.Create(ThisGame, Environment.GetEnvironmentVariable);
+            State = new RunStateStore(Run);
             Signals = new SignalChannel(Run);
             Signals.Send(Signal.Booting);
 
             var harmony = new Harmony("decryptu.hkss");
             SaveIsolation.Install(harmony);
             FastBoot.Install(harmony);
+            TownGate.Install(harmony);
         }
         catch (Exception e)
         {
@@ -44,6 +47,8 @@ public sealed class HkssPlugin : BaseUnityPlugin
         Application.runInBackground = true;
         gameObject.AddComponent<AutoLoad>();
         gameObject.AddComponent<Travel>();
+        gameObject.AddComponent<TownGate>();
+        gameObject.AddComponent<TownWarp>();
         Log.LogInfo($"Run folder {Run.RunDir}");
     }
 

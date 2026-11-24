@@ -5,4 +5,7 @@
     <GameManaged>$(SilksongManaged)</GameManaged>
   </PropertyGroup>
   <Import Project="..\Plugin.targets" />
+  <ItemGroup>
+    <Reference Include="TeamCherry.SharedUtils" HintPath="$(GameManaged)\TeamCherry.SharedUtils.dll" Private="false" />
+  </ItemGroup>
 </Project>

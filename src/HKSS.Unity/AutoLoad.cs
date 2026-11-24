@@ -28,6 +28,9 @@ internal sealed class AutoLoad : MonoBehaviour
     private float _nextSkip;
     private float _inLevelSince = -1f;
     private float _menuFadeSpeed;
+#if DEBUG
+    private bool _devTownWarpSent;
+#endif
 
     internal static bool IsReady { get; private set; }
 
@@ -51,6 +54,9 @@ internal sealed class AutoLoad : MonoBehaviour
                 break;
             case Step.Loading:
                 SkipOpening();
+#if DEBUG
+                if (TryDevStartInTown()) break;
+#endif
                 if (PlayerIsInGame()) Finish(Signal.Ready, null);
                 break;
         }
@@ -128,8 +134,81 @@ internal sealed class AutoLoad : MonoBehaviour
         AudioListener.volume = 1f;
         Mark(state);
         HkssPlugin.Signals.Send(state, detail: detail);
+#if DEBUG
+        string? shotDir = System.Environment.GetEnvironmentVariable("HKSS_DEV_SCREENSHOT_DIR");
+        if (!string.IsNullOrWhiteSpace(shotDir))
+            StartCoroutine(CaptureDevScreenshot(shotDir!));
+#endif
     }
+
+#if DEBUG
+    private System.Collections.IEnumerator CaptureDevScreenshot(string dir)
+    {
+        yield return new WaitForSecondsRealtime(3.5f);
+        yield return new WaitForEndOfFrame();
+        System.IO.Directory.CreateDirectory(dir);
+        string path = System.IO.Path.Combine(dir, HkssPlugin.ThisGame.Key() + ".png");
+        ScreenCapture.CaptureScreenshot(path);
+        HkssPlugin.Log.LogInfo($"[dev] saved screenshot to {path}");
+    }
+#endif
 
     private void Mark(string what) =>
         HkssPlugin.Log.LogInfo($"[boot] {what} at {Time.realtimeSinceStartup:0.00} s");
+
+#if DEBUG
+    private static bool ShouldDevStartInTown()
+    {
+        string? mode = System.Environment.GetEnvironmentVariable("HKSS_DEV_START_IN_TOWN");
+        if (string.IsNullOrWhiteSpace(mode)) return false;
+#if HOLLOW_KNIGHT
+        return mode.Equals("hk", System.StringComparison.OrdinalIgnoreCase)
+            || mode.Equals("both", System.StringComparison.OrdinalIgnoreCase);
+#elif SILKSONG
+        return mode.Equals("both", System.StringComparison.OrdinalIgnoreCase)
+            || mode.Equals("ss", System.StringComparison.OrdinalIgnoreCase);
+#endif
+    }
+
+    private bool TryDevStartInTown()
+    {
+        if (!ShouldDevStartInTown()) return false;
+        GameManager gm = GameManager._instance;
+        HeroController hero = HeroController.instance;
+        if (gm == null || hero == null || gm.IsInSceneTransition || !gm.IsGameplayScene()) return false;
+
+        string scene = gm.sceneName;
+        if (string.Equals(scene, TownGate.TownScene, System.StringComparison.Ordinal)) return false;
+
+#if HOLLOW_KNIGHT
+        const string openingScene = "Tutorial_01";
+#elif SILKSONG
+        const string openingScene = "Tut_01";
+#endif
+        if (!string.Equals(scene, openingScene, System.StringComparison.Ordinal)) return false;
+
+        if (!_devTownWarpSent)
+        {
+            if (_inLevelSince < 0f) _inLevelSince = Time.unscaledTime;
+            if (!hero.CanInput() && Time.unscaledTime - _inLevelSince < 0.8f) return true;
+
+            _devTownWarpSent = true;
+            _inLevelSince = -1f;
+            TownGate.SetGateAsRespawnPoint();
+            Mark($"dev start-in-town warp from {scene} to {TownGate.TownScene}");
+#if HOLLOW_KNIGHT
+            gm.ReadyForRespawn(isFirstLevelForPlayer: false);
+#elif SILKSONG
+            HkssPlugin.State.MarkBonetownGateOpen();
+            gm.RespawningHero = true;
+            gm.BeginSceneTransition(new GameManager.SceneLoadInfo
+            {
+                SceneName = TownGate.TownScene,
+                EntryGateName = TownGate.RespawnMarkerName,
+            });
+#endif
+        }
+        return true;
+    }
+#endif
 }

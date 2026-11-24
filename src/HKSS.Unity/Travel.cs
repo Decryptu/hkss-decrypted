@@ -13,31 +13,40 @@ internal sealed class Travel : MonoBehaviour
 
     private bool _travelling;
 
+    internal static Travel? Instance { get; private set; }
+
 #if DEBUG
     private float _autoTravelAt = -1f;
     private float _nextReport;
 #endif
 
-    internal static bool CanTravel()
+    private void Awake() => Instance = this;
+
+    private void OnDestroy()
     {
-        GameManager gm = GameManager._instance;
-        HeroController hero = HeroController.instance;
-        return AutoLoad.IsReady && gm != null && hero != null && hero.CanInput()
-            && !gm.IsInSceneTransition && gm.IsGameplayScene() && Time.timeScale > 0f;
+        if (Instance == this) Instance = null;
     }
 
-    internal bool Begin()
+    internal static bool CanTravel() => TravelGuard.CanLeave(out _);
+
+    internal bool Begin(bool fromGate = false)
     {
-        if (_travelling || !CanTravel()) return false;
+        if (_travelling) return false;
+        if (!TravelGuard.CanLeave(out string reason))
+        {
+            HkssPlugin.Log.LogInfo($"Travel refused: {reason}.");
+            return false;
+        }
         _travelling = true;
-        StartCoroutine(Run());
+        StartCoroutine(Run(fromGate));
         return true;
     }
 
-    private IEnumerator Run()
+    private IEnumerator Run(bool fromGate)
     {
         GameManager gm = GameManager._instance;
         HeroController hero = HeroController.instance;
+        PlayerData pd = PlayerData.instance;
         hero.RelinquishControl();
         gm.cameraCtrl.FadeOut(CameraFadeType.LEVEL_TRANSITION);
 
@@ -48,12 +57,41 @@ internal sealed class Travel : MonoBehaviour
         }
         AudioListener.volume = 0f;
 
+        string prevRespawnScene = pd != null ? pd.respawnScene : string.Empty;
+        string prevRespawnMarker = pd != null ? pd.respawnMarkerName : string.Empty;
+        int prevRespawnType = pd != null ? pd.respawnType : 0;
+        MapZone prevMapZone = pd != null ? pd.mapZone : MapZone.NONE;
+        bool prevAtBench = pd != null && pd.atBench;
+#if SILKSONG
+        string prevTempScene = pd != null ? pd.tempRespawnScene : string.Empty;
+        string prevTempMarker = pd != null ? pd.tempRespawnMarker : string.Empty;
+        int prevTempType = pd != null ? pd.tempRespawnType : 0;
+#endif
+
+        if (fromGate)
+        {
+            TownGate.SetGateAsRespawnPoint();
+        }
+
         bool? saved = null;
         gm.SaveGame(ok => saved = ok);
         while (saved == null) yield return null;
 
         if (saved != true)
         {
+            if (fromGate && pd != null)
+            {
+                pd.respawnScene = prevRespawnScene;
+                pd.respawnMarkerName = prevRespawnMarker;
+                pd.respawnType = prevRespawnType;
+                pd.mapZone = prevMapZone;
+                pd.atBench = prevAtBench;
+#if SILKSONG
+                pd.tempRespawnScene = prevTempScene;
+                pd.tempRespawnMarker = prevTempMarker;
+                pd.tempRespawnType = prevTempType;
+#endif
+            }
             // Never leave with unsaved progress: give the player the game back.
             HkssPlugin.Log.LogError("Saving failed, so travel was cancelled.");
             AudioListener.volume = 1f;
