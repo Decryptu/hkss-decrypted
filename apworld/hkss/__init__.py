@@ -367,3 +367,10 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             "hollow_knight": self.hk.fill_slot_data() if self.has_hk else None,
             "silksong": SilksongWorld.fill_slot_data(self) if self.has_silksong else None,
         }
+
+    def modify_multidata(self, multidata: dict) -> None:
+        if self.has_silksong:
+            # The standalone world encodes its map logic at the root of its slot data.
+            # Pass the nested object by reference so the combo envelope stays intact.
+            silksong_data = multidata["slot_data"][self.player]["silksong"]
+            SilksongWorld.modify_multidata(self, {"slot_data": {self.player: silksong_data}})

@@ -7,6 +7,7 @@ import importlib.util
 import logging
 import os
 import re
+import shutil
 import sys
 import tempfile
 import types
@@ -61,7 +62,7 @@ def check_apworld_archive(apworld_path: Path) -> None:
     print(f"PASS archive ({apworld_path.name}, {len(names)} files)")
 
 
-def run_generation_suite(ap_dir: Path, seed: int) -> None:
+def run_generation_suite(ap_dir: Path, apworld_path: Path, seed: int) -> None:
     logging.disable(logging.CRITICAL)
     sys.modules.setdefault("bsdiff4", types.ModuleType("bsdiff4"))
     mu = types.ModuleType("ModuleUpdate")
@@ -73,16 +74,17 @@ def run_generation_suite(ap_dir: Path, seed: int) -> None:
     assert lib_zip.is_file(), f"Archipelago library.zip not found at {lib_zip}"
     sys.path.insert(0, str(lib_zip))
     sys.path.insert(0, str(lib_dir))
-    sys.path.insert(0, str(REPO_ROOT / "apworld"))
 
     with tempfile.TemporaryDirectory() as settings_td:
         import Utils
 
         Utils.user_path = lambda *parts: str(Path(settings_td, *parts))
-        import hkss  # noqa: F401
+        world_dir = Path(settings_td, "worlds")
+        world_dir.mkdir()
+        shutil.copyfile(apworld_path, world_dir / "hkss.apworld")
         from Generate import main as gen_main
         from Main import main as run_main
-        from hkss.ids import HK_BLOCK_END, HK_BLOCK_START, SS_BLOCK_END, SS_BLOCK_START
+        from worlds.hkss.ids import HK_BLOCK_END, HK_BLOCK_START, SS_BLOCK_END, SS_BLOCK_START
 
         _run_cases(gen_main, run_main, seed, HK_BLOCK_START, HK_BLOCK_END, SS_BLOCK_START, SS_BLOCK_END)
 
@@ -116,13 +118,18 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
                     csv_output=False,
                     plando=None,
                     skip_prog_balancing=False,
-                    skip_output=True,
+                    skip_output=False,
                     spoiler_only=False,
                 )
                 erargs, rolled_seed = gen_main(args)
                 mw = run_main(erargs, rolled_seed)
             finally:
                 os.chdir(prev_cwd)
+            archives = list(odir.glob("*.zip"))
+            assert len(archives) == 1, (label, archives)
+            with zipfile.ZipFile(archives[0]) as seed_zip:
+                assert seed_zip.testzip() is None
+                assert any(name.endswith(".archipelago") for name in seed_zip.namelist()), label
             for p in mw.player_ids:
                 w = mw.worlds[p]
                 sd = w.fill_slot_data()
@@ -225,7 +232,7 @@ def main() -> None:
 
     check_id_space_mirror()
     check_apworld_archive(args.apworld)
-    run_generation_suite(args.ap_dir, args.seed)
+    run_generation_suite(args.ap_dir, args.apworld, args.seed)
 
 
 if __name__ == "__main__":
