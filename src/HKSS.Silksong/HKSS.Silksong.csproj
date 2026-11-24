@@ -3,9 +3,37 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);SILKSONG</DefineConstants>
     <GameManaged>$(SilksongManaged)</GameManaged>
+    <SilksongApWorldDir>$(MSBuildThisFileDirectory)..\..\local\reference\silksong-decrypted\APWorld\silksong</SilksongApWorldDir>
+    <!-- Ported SilksongRandomizer code has legacy unused/obsolete patterns under TreatWarningsAsErrors -->
+    <NoWarn>$(NoWarn);CS0169;CS0414;CS0649;CS0168;CS0219;CS0618</NoWarn>
   </PropertyGroup>
   <Import Project="..\Plugin.targets" />
   <ItemGroup>
     <Reference Include="TeamCherry.SharedUtils" HintPath="$(GameManaged)\TeamCherry.SharedUtils.dll" Private="false" />
+    <Reference Include="TeamCherry.TK2D" HintPath="$(GameManaged)\TeamCherry.TK2D.dll" Private="false" />
+    <Reference Include="TeamCherry.NestedFadeGroup" HintPath="$(GameManaged)\TeamCherry.NestedFadeGroup.dll" Private="false" />
+    <Reference Include="TeamCherry.Localization" HintPath="$(GameManaged)\TeamCherry.Localization.dll" Private="false" />
+    <Reference Include="Unity.Addressables" HintPath="$(GameManaged)\Unity.Addressables.dll" Private="false" />
+    <Reference Include="Unity.ResourceManager" HintPath="$(GameManaged)\Unity.ResourceManager.dll" Private="false" />
+    <Reference Include="UnityEngine.AssetBundleModule" HintPath="$(GameManaged)\UnityEngine.AssetBundleModule.dll" Private="false" />
+    <Reference Include="UnityEngine.DirectorModule" HintPath="$(GameManaged)\UnityEngine.DirectorModule.dll" Private="false" />
+    <Reference Include="UnityEngine.ImageConversionModule" HintPath="$(GameManaged)\UnityEngine.ImageConversionModule.dll" Private="false" />
+    <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(GameManaged)\UnityEngine.InputLegacyModule.dll" Private="false" />
+    <Reference Include="UnityEngine.InputModule" HintPath="$(GameManaged)\UnityEngine.InputModule.dll" Private="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets/CheckIcons/*.png" LogicalName="SilksongRandomizer.CheckIcons.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Assets/MapPins/*.png" LogicalName="SilksongRandomizer.MapPins.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Assets/MultiworldIcons.zip" LogicalName="SilksongRandomizer.MultiworldIcons.zip" />
+    <EmbeddedResource Include="Assets/LiteracyTrap.txt" LogicalName="SilksongRandomizer.LiteracyTrap.txt" />
+    <EmbeddedResource Include="Assets/Shaders/ShaderTrapShaders.Windows" LogicalName="SilksongRandomizer.ShaderTrapShaders.Windows" />
+    <EmbeddedResource Include="Assets/Shaders/ShaderTrapShaders.Linux" LogicalName="SilksongRandomizer.ShaderTrapShaders.Linux" />
+    <EmbeddedResource Include="Assets/Shaders/ShaderTrapShaders.Mac" LogicalName="SilksongRandomizer.ShaderTrapShaders.Mac" />
+    <EmbeddedResource Include="$(SilksongApWorldDir)\npc_souls.json" LogicalName="SilksongRandomizer.NpcSouls.json" Condition="Exists('$(SilksongApWorldDir)\npc_souls.json')" />
+    <EmbeddedResource Include="$(SilksongApWorldDir)\enemy_souls.json" LogicalName="SilksongRandomizer.EnemySouls.json" Condition="Exists('$(SilksongApWorldDir)\enemy_souls.json')" />
+    <EmbeddedResource Include="$(SilksongApWorldDir)\map_logic.json" LogicalName="SilksongRandomizer.MapLogic.json" Condition="Exists('$(SilksongApWorldDir)\map_logic.json')" />
+    <EmbeddedResource Include="$(SilksongApWorldDir)\progression_catalogue.json" LogicalName="SilksongRandomizer.ProgressionCatalogue.json" Condition="Exists('$(SilksongApWorldDir)\progression_catalogue.json')" />
+    <EmbeddedResource Include="$(SilksongApWorldDir)\boss_souls.json" LogicalName="SilksongRandomizer.BossSouls.json" Condition="Exists('$(SilksongApWorldDir)\boss_souls.json')" />
+    <EmbeddedResource Include="$(SilksongApWorldDir)\boss_journal.json" LogicalName="SilksongRandomizer.BossJournal.json" Condition="Exists('$(SilksongApWorldDir)\boss_journal.json')" />
   </ItemGroup>
 </Project>

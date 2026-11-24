@@ -21,6 +21,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
     internal static RunContext Run { get; private set; } = null!;
     internal static RunStateStore State { get; private set; } = null!;
     internal static SignalChannel Signals { get; private set; } = null!;
+    private Harmony _harmony = null!;
 
     private void Awake()
     {
@@ -32,15 +33,15 @@ public sealed class HkssPlugin : BaseUnityPlugin
             Signals = new SignalChannel(Run);
             Signals.Send(Signal.Booting);
 
-            var harmony = new Harmony("decryptu.hkss");
-            ArchipelagoJsonCompatibility.Install(harmony);
+            _harmony = new Harmony("decryptu.hkss");
+            ArchipelagoJsonCompatibility.Install(_harmony);
 #if HOLLOW_KNIGHT
-            HKSS.HollowKnight.HkClientHost.InstallEarly(harmony, Log);
+            HKSS.HollowKnight.HkClientHost.InstallEarly(_harmony, Log);
 #endif
-            SaveIsolation.Install(harmony);
-            FastBoot.Install(harmony);
-            TownGate.Install(harmony);
-            ThinSlice.Install(harmony);
+            SaveIsolation.Install(_harmony);
+            FastBoot.Install(_harmony);
+            TownGate.Install(_harmony);
+            ThinSlice.Install(_harmony);
         }
         catch (Exception e)
         {
@@ -58,6 +59,8 @@ public sealed class HkssPlugin : BaseUnityPlugin
         gameObject.AddComponent<ApOverlay>();
 #if HOLLOW_KNIGHT
         gameObject.AddComponent<HKSS.HollowKnight.HkClientHost>();
+#elif SILKSONG
+        HKSS.Silksong.SsClientHost.Install(gameObject, _harmony, Log, Config);
 #endif
         Log.LogInfo($"Run folder {Run.RunDir}");
     }

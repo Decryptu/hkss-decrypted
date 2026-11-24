@@ -1,0 +1,14 @@
+# Feature parity
+
+Tracks features ported from [Silksong Decrypted](https://github.com/Decryptu/silksong-decrypted) (commit `34857d0`, MIT) into `HKSS.Silksong`, wired onto `HKSS.Core` and `HKSS.Unity`.
+
+| Feature area | Upstream source | Status | Combo adaptation |
+|---|---|---|---|
+| Archipelago session & slot data | `Archipelago.cs` | Ported | Attaches to `HKSS.Core.ApClient.Session`, reads `slot_data["silksong"]`, prefixes/strips `SS `, filters IDs via `IdSpace.IsSilksong`, routes goals via `ApClient.ReportLocalGoalComplete()`. |
+| Cross-game item & scout display | `Archipelago.cs`, `ItemPreview.cs` | Ported | Hollow Knight items in Silksong shops/pickups strip `HK ` and show `Hallownest` / `Hollow Knight`; cross-game received items surface in the shared `ApOverlay` toast feed without double-granting. |
+| Save metadata & isolation | `SaveState.cs`, `SaveFolderManager.cs`, `Patches/SavePatches.cs` | Ported | Writes `silksong_randomizer.xml` exclusively inside `<RunDir>/saves/silksong/` alongside `hkss_user1.dat`; conflicting `.randomizersave` filename patches disabled in favor of `HKSS.Unity.SaveIsolation`. |
+| Item grants & reconciliation | `ItemGrants.cs`, `Item.cs`, `ItemSet.cs`, `ReceivedItemReceipt.cs`, `ReceivedItemReconciliation.cs`, `StartingCrestFix.cs` | Ported | Full Silksong item pool (skills, silk skills, directional/split abilities, crests, crest slots, tools, masks, spools, silk hearts, pale oil, needle upgrades, melodies, keys, fleas, bellways, ventricas, maps, pins, relics, bellhome, bind, traps, souls). |
+| Collectible, shop, quest & world patches | `Location.cs`, `LocationSet.cs`, manifests, `Patches/*` (86 files) | Ported | All core and optional randomization modes, Shakra stock/maps, price modes, bell shrines, wishes, bosses, lore tablets, journal, starting locations, Steel Soul settings, softlock/warp safety, faster dialogue/animations. |
+| Map markers, logic & inventory page | `CheckMapMarkerManager.cs`, `CategoryMapIcons.cs`, `MapLogicEvaluator.cs`, `ArchipelagoInventoryPage.cs`, `RecentItemsDisplay.cs` | Ported | Embedded check icons, map pins, multiworld icons, and APWorld JSON data; `F3`/`F4`/`F6` remapped to avoid HKSS collisions (`F6` = shared AP overlay, `F4` = town warp, `F9` = recent items, `F10` = map marker logic). |
+| Links & special modes | `DeathLinkManager.cs`, `SilkLinkManager.cs`, `CurrencyLinkManager.cs`, `KnockbackLinkManager.cs`, `EntranceRandomization.cs`, `ProgressionShuffleState.cs`, `AlphabetMode/*`, `BossSoulState.cs`, `NpcSoulState.cs`, `EnemySoulState.cs` | Ported | Wired onto the shared session; ready for single-game and combo play. |
+| Standalone F3 connection GUI & launcher | `Plugin.cs` | Replaced | Replaced by `HKSS.Unity.ApManager`, `HKSS.Unity.ApOverlay` (`F6`), `HKSS.Unity.AutoLoad`, and the HKSS Launcher. |

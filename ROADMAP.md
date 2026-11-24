@@ -10,18 +10,17 @@ A combo randomizer and Archipelago world for Hollow Knight and Hollow Knight: Si
 
 | Phase | Work | Done when |
 |---|---|---|
-| 5. Silksong | Silksong Decrypted's features ported onto the shared code, tracked in a parity table. | A full Silksong seed plays from this repository. |
 | 6. Launcher release | Installer with bundled mod files, updates, room settings per run, diagnostics ZIP, uninstall. | A fresh Windows profile goes from download to a running combo seed without manual file copying. |
 | 7. Player hub | Setup checklist, YAML generator from the exported option schema, item map of both worlds. | Every page is generated from the shipped world and passes a clean-profile browser check. |
 | 8. First playtest release | Matched launcher, plugins and `.apworld`. | A full combo run completes in a multiworld. |
 
 ## Next
 
-Phase 4 (Hollow Knight) is built and verified on Hollow Knight 1.5.12620: the BepInEx/Harmony/MonoMod `HKSS.HollowKnight.ModApi` hook layer (including additive scene preloading and `TeamCherry.Localization` compatibility), the separate LGPL-2.1 `HKSS.HollowKnight.ItemChanger` assembly, and the Hollow Knight Archipelago client wired onto `HKSS.Core` (`slot_data["hollow_knight"]`, prefix-stripped location scouting, cross-game Pharloom placeholders, shop/cost/notch/module configuration, goal reporting, and isolated `itemchanger.json` persistence). Next up is **Phase 5 (Silksong)**:
+Phase 5 (Silksong) is built and verified on Silksong 1.0.30000: Silksong Decrypted's item grants, manifests, 596 Harmony patch groups, map markers, links, and modes are ported into `HKSS.Silksong` (tracked in [docs/PARITY.md](docs/PARITY.md)) and wired onto `HKSS.Core` (`slot_data["silksong"]`, `SS ` prefixing, `IdSpace.IsSilksong` filtering, cross-game Hallownest display, shared goal reporting, and isolated `silksong_randomizer.xml` persistence). Next up is **Phase 6 (Launcher release)**:
 
-1. Audit Silksong Decrypted's features and track them in a parity table.
-2. Port Silksong Decrypted's item grants, collectible source patches, shop/quest/ability hooks, and goal detection onto `HKSS.Core` and `HKSS.Silksong`.
-3. Verify a full generated Silksong seed from this repository on Silksong 1.0.30000.
+1. Bundle the built BepInEx and plugin payload with the launcher installer (removing the `HKSS_PAYLOAD` requirement for players).
+2. Add per-run Archipelago room settings (`ap.json` host/port/slot/password) and run management (create/delete/status) in the launcher UI.
+3. Add diagnostics ZIP export, update checks, and clean uninstall (removing mirror junctions safely without touching Steam installs).
 
 Still to verify later: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, and a game that crashes during travel. The Silksong plugin's refusal to run without the launcher is only tested on Hollow Knight. A release also needs the launcher to bundle the mod files (it reads `HKSS_PAYLOAD` today).
 

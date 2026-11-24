@@ -106,6 +106,8 @@ internal sealed class AutoLoad : MonoBehaviour
         var chain = Traverse.Create(opening).Field("chainSequence").GetValue<ChainSequence>();
         if (chain == null || !chain.IsPlaying) return;
 #if SILKSONG
+        // Wait until OpeningSequence finishes loading the hero prefab and first scene before skipping.
+        if (!Traverse.Create(opening).Field("isLevelReady").GetValue<bool>()) return;
         // Silksong locks parts of its opening until they have been watched.
         Traverse.Create(chain).Property("CurrentSequence").GetValue<SkippableSequence>()?.AllowSkip();
 #endif
