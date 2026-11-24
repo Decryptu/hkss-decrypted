@@ -44,6 +44,14 @@ html, body { overflow-y: auto; cursor: default; user-select: none; }
 .launcher .actions button { font: 400 .9rem var(--display); color: var(--dim); background: none; border: 1px solid #ffffff22; border-radius: 3px; padding: .3rem .8rem; }
 .launcher .actions button:hover:enabled { color: #fff; border-color: var(--soul); }
 .launcher .actions button:disabled { opacity: .4; }
+.launcher-settings { position: absolute; z-index: 2; inset: 1rem 1rem auto auto; text-align: right; }
+.settings-cog { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; color: var(--dim); background: #0c0c12; border: 1px solid #ffffff22; border-radius: 50%; }
+.settings-cog:hover:enabled, .settings-cog:focus-visible, .settings-cog[aria-expanded=true] { color: var(--soul); border-color: var(--soul); }
+.settings-panel { width: min(17rem, calc(100vw - 2rem)); margin-top: .5rem; padding: .9rem; color: var(--dim); background: #0c0c12; border: 1px solid #ffffff33; border-radius: 4px; text-align: left; box-shadow: 0 .4rem 1.2rem #0009; }
+.settings-panel h2 { margin: 0; font: 400 1rem var(--display); color: var(--soul); }
+.settings-panel p { margin: .5rem 0 .75rem; }
+.settings-panel .actions { justify-content: flex-start; }
+.settings-panel .actions button:hover:enabled { color: #f0928a; border-color: #f0928a; }
 .panel .actions button.danger:hover { border-color: #f0928a; color: #f0928a; }
 button.link { font: inherit; color: var(--soul); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
 button.link:disabled { opacity: .4; cursor: default; }

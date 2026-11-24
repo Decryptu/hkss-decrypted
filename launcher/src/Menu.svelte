@@ -21,8 +21,10 @@
   let connection = $state<{ text: string; failed: boolean } | null>(null);
   let activeRun = $state<number | null>(null);
   let failedRun = $state<number | null>(null);
+  let showSettings = $state(false);
 
   function edit(slot: Slot) {
+    showSettings = false;
     error = message = "";
     connection = null;
     if (editing === slot.id) { editing = null; return; }
@@ -103,6 +105,7 @@
     failedRun = null;
     activeRun = slot;
     editing = null;
+    showSettings = false;
     playing = true;
     try {
       await invoke("play", { slot });
@@ -138,6 +141,23 @@
   </svg>
 
   {#if status}
+    <div class="launcher-settings">
+      <button type="button" class="settings-cog" title="Launcher settings" aria-label="Launcher settings"
+        aria-expanded={showSettings} aria-controls="launcher-settings" disabled={playing || testing}
+        onclick={() => { showSettings = !showSettings; }}>
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path stroke-linejoin="round" d="M10 3h4l.5 2.5 1.6.9 2.4-.8 2 3.4-1.9 1.7v1.8l1.9 1.7-2 3.4-2.4-.8-1.6.9L14 20h-4l-.5-2.3-1.6-.9-2.4.8-2-3.4 1.9-1.7v-1.8L3.5 9l2-3.4 2.4.8 1.6-.9z"/>
+          <circle cx="12" cy="11.5" r="3"/>
+        </svg>
+      </button>
+      <div id="launcher-settings" class="settings-panel" hidden={!showSettings}>
+        <h2>Launcher settings</h2>
+        <p>Free up disk space. The launcher rebuilds these folders the next time you play.</p>
+        <div class="actions">
+          <button type="button" disabled={playing || testing} onclick={removeGameFolders}>Remove modded game folders</button>
+        </div>
+      </div>
+    </div>
     <ul class="menu" role="list">
       {#each status.slots as slot (slot.id)}
         <li>
@@ -181,7 +201,7 @@
     </ul>
     {#if !status.steam_running}<p class="notice">Start Steam to play.</p>{/if}
     {#if update}<p class="notice">Version {update} is out. <button class="link" onclick={() => invoke("open_releases")}>Get it</button></p>{/if}
-    <p class="footer">v{status.version} · <button class="link" disabled={playing || testing} onclick={removeGameFolders}>Remove modded game folders</button></p>
+    <p class="footer">v{status.version}</p>
   {/if}
   {#if message}<p class="notice" role="status">{message}</p>{/if}
   {#if error}<p class="notice error" role="alert">{error}</p>{/if}
