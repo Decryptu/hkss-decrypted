@@ -25,6 +25,17 @@ def check(label, value):
     return True
 
 
+def check_release(tag, title, body=""):
+    valid = check("release tag", tag)
+    valid &= check("release title", title)
+    valid &= check("release body", body)
+    expected = f"HKSS Decrypted {tag.removeprefix('v')}"
+    if title != expected:
+        print(f"Release title must be {expected!r}.", file=sys.stderr)
+        return False
+    return valid
+
+
 def git(*args):
     return subprocess.check_output(["git", *args], encoding="utf-8", errors="replace")
 
@@ -55,6 +66,9 @@ def check_push():
 
 def check_event(path):
     event = json.loads(path.read_text(encoding="utf-8"))
+    if "release" in event:
+        release = event["release"]
+        return check_release(release["tag_name"], release.get("name") or "", release.get("body") or "")
     if "pull_request" in event:
         pr = event["pull_request"]
         values = {"PR title": pr["title"], "PR body": pr.get("body") or "",
@@ -75,6 +89,7 @@ def main():
     checks.add_argument("--event", type=Path)
     checks.add_argument("--history")
     checks.add_argument("--text")
+    checks.add_argument("--release", nargs=2, metavar=("TAG", "TITLE"))
     checks.add_argument("--pre-push", action="store_true")
     args = parser.parse_args()
     if args.message is not None:
@@ -88,6 +103,8 @@ def main():
         valid = history(args.history)
     elif args.text is not None:
         valid = check("supplied text", args.text)
+    elif args.release is not None:
+        valid = check_release(*args.release)
     else:
         valid = check_push()
     return 0 if valid else 1

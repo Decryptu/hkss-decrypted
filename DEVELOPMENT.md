@@ -131,6 +131,7 @@ The logo is `site/assets/logo.png` (1024×1024, transparent). `logo.webp` (512, 
 ## Conventions
 
 - Branches: `feature/<task>`. Commit messages are plain, imperative and human-written; the hooks reject tool or vendor names and co-author trailers. Check PR and release text with `python tools/check_public_metadata.py --text "<text>"`.
+- Release titles use `HKSS Decrypted <version>`, with the version taken from the tag without its leading `v`. Use the same title when creating or editing a release. Before publishing, run `python tools/check_public_metadata.py --release v0.1.1 "HKSS Decrypted 0.1.1"` with the actual tag and title. The Public metadata workflow checks releases on publication and edits.
 - Ported files start with a comment naming the upstream repository, path, commit and license.
 - Start with the smallest test that exercises a change and say what was verified.
 - Update docs when commands, interfaces or behavior change; update `ROADMAP.md` when a roadmap item changes.
