@@ -107,3 +107,5 @@ code { font-family: ui-monospace, Consolas, monospace; font-size: .85em; color: 
   .menu .cur { width: 1.2rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.phase.done::before { border-color: var(--soul); background: #a9c8f055; }
+.journey code { font-size: .92em; color: #fff; }

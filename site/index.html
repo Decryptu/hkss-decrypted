@@ -27,7 +27,7 @@
     <a class="brand" href="./">HKSS Decrypted</a>
     <nav aria-label="Project">
       <a href="#kingdoms">The Idea</a>
-      <a href="#journey">How It Plays</a>
+      <a href="#journey">How to Play</a>
       <a href="#status">Status</a>
       <a href="https://github.com/Decryptu/hkss-decrypted">GitHub</a>
     </nav>
@@ -40,8 +40,9 @@
       <svg class="rule" aria-hidden="true"><use href="#rule"/></svg>
       <p class="lede">Two kingdoms, one seed. Randomize Hallownest and Pharloom together and share items with friends in an Archipelago multiworld.</p>
       <ul class="menu" role="list">
+        <li><a href="https://github.com/Decryptu/hkss-decrypted/releases/latest"><svg class="cur" aria-hidden="true"><use href="#fleur"/></svg><span>Download</span><svg class="cur r" aria-hidden="true"><use href="#fleur"/></svg></a></li>
         <li><a href="#kingdoms"><svg class="cur" aria-hidden="true"><use href="#fleur"/></svg><span>The idea</span><svg class="cur r" aria-hidden="true"><use href="#fleur"/></svg></a></li>
-        <li><a href="#journey"><svg class="cur" aria-hidden="true"><use href="#fleur"/></svg><span>How a run plays</span><svg class="cur r" aria-hidden="true"><use href="#fleur"/></svg></a></li>
+        <li><a href="#journey"><svg class="cur" aria-hidden="true"><use href="#fleur"/></svg><span>How to play</span><svg class="cur r" aria-hidden="true"><use href="#fleur"/></svg></a></li>
         <li><a href="#status"><svg class="cur" aria-hidden="true"><use href="#fleur"/></svg><span>Progress</span><svg class="cur r" aria-hidden="true"><use href="#fleur"/></svg></a></li>
         <li><a href="https://github.com/Decryptu/hkss-decrypted/blob/main/docs/ARCHITECTURE.md"><svg class="cur" aria-hidden="true"><use href="#fleur"/></svg><span>Architecture</span><svg class="cur r" aria-hidden="true"><use href="#fleur"/></svg></a></li>
       </ul>
@@ -55,7 +56,7 @@
         <article class="kingdom hk">
           <h3>Hallownest</h3>
           <p class="eyebrow">Hollow Knight</p>
-          <p>The Knight's checks, built on the Hollow Knight randomizer community's work and brought to the current game version.</p>
+          <p>The Knight's checks, built on the Hollow Knight randomizer community's work and brought to the current Steam version.</p>
         </article>
         <article class="kingdom ss">
           <h3>Pharloom</h3>
@@ -66,38 +67,40 @@
     </section>
 
     <section id="journey" class="panel" aria-labelledby="journey-h">
-      <h2 id="journey-h">How a Run Plays</h2>
+      <h2 id="journey-h">How to Play</h2>
       <svg class="rule small" aria-hidden="true"><use href="#rule"/></svg>
-      <p>The plan for the first release.</p>
+      <p>Windows, with both games on Steam: Hollow Knight 1.5.12620 and Silksong 1.0.30000. Archipelago 0.6.8 or newer.</p>
       <ol class="journey">
-        <li><div><b>Make one YAML</b><span>Pick both games or just one, set the goal and shuffles, and download your options from the hub.</span></div></li>
-        <li><div><b>Install with the launcher</b><span>The HKSS Launcher finds both games through Steam and runs modded copies of its own. Your normal Steam games stay vanilla.</span></div></li>
-        <li><div><b>Begin in Hallownest</b><span>Pick a run in the launcher and it opens straight into the game, with no menus. Saves are separate from your own slots.</span></div></li>
-        <li><div><b>Travel between kingdoms</b><span>Enter the gate in Dirtmouth to reach Pharloom. Once you find Bone Bottom, its gate leads back, and from then on you travel town to town with everything you found meanwhile.</span></div></li>
-        <li><div><b>Finish both</b><span>Reach the goal in both games (or the one you chose) to complete your slot.</span></div></li>
+        <li><div><b>Install the launcher</b><span>Run the installer from the <a href="https://github.com/Decryptu/hkss-decrypted/releases/latest">latest release</a>. It finds both games through Steam and plays modded copies of its own; your Steam installs and saves stay vanilla.</span></div></li>
+        <li><div><b>Add the world to Archipelago</b><span>Open <code>hkss.apworld</code> from the same release with the Archipelago Launcher, then use <i>Generate Template Options</i> to get a YAML for <i>Hollow Knight x Silksong</i>. Choose both games or just one, and the goal.</span></div></li>
+        <li><div><b>Join the room</b><span>Generate and host the seed as usual. In the launcher, open a run's <i>Settings</i> and enter the host, port and your slot name.</span></div></li>
+        <li><div><b>Begin in Hallownest</b><span>Pick the run and it opens straight into the game. Each run keeps its own saves for both games.</span></div></li>
+        <li><div><b>Travel between kingdoms</b><span>Enter the gate in Dirtmouth to reach Pharloom. Once you find Bone Bottom, its gate leads back, and from then on you travel town to town.</span></div></li>
+        <li><div><b>Finish your slot</b><span>Reach the goal in both games, or the one you chose.</span></div></li>
       </ol>
+      <ul class="menu small" role="list" style="margin-top:2rem">
+        <li><a href="https://github.com/Decryptu/hkss-decrypted/releases/latest"><svg class="cur" aria-hidden="true"><use href="#fleur"/></svg><span>Download</span><svg class="cur r" aria-hidden="true"><use href="#fleur"/></svg></a></li>
+      </ul>
     </section>
 
     <section id="status" class="panel" aria-labelledby="status-h">
       <h2 id="status-h">Progress</h2>
       <svg class="rule small" aria-hidden="true"><use href="#rule"/></svg>
-      <p>Laying the foundations. Nothing is playable yet.</p>
+      <p>The first playtest release is out. Expect rough edges, and send a bug report from the launcher when something breaks.</p>
       <ol class="phases" role="list">
-        <li class="phase now"><b>Gates between towns<span class="tag">Now</span></b><span>Dirtmouth and Bone Bottom, with a seamless change of game.</span></li>
-        <li class="phase"><b>Combined world</b><span>One Archipelago game covering both kingdoms, with single-game modes.</span></li>
-        <li class="phase"><b>First shared items</b><span>A find in one kingdom unlocks something in the other.</span></li>
-        <li class="phase"><b>Hollow Knight</b><span>The full randomizer on the current Hollow Knight.</span></li>
-        <li class="phase"><b>Silksong</b><span>Silksong Decrypted's features in the shared mod.</span></li>
-        <li class="phase"><b>Launcher</b><span>One-click install, runs, and travel between games.</span></li>
-        <li class="phase"><b>Player hub</b><span>Setup checklist, YAML generator, item map of both worlds.</span></li>
-        <li class="phase"><b>First playtest release</b></li>
+        <li class="phase done"><b>Gates between towns</b><span>Dirtmouth and Bone Bottom, with a seamless change of game.</span></li>
+        <li class="phase done"><b>Combined world</b><span>One Archipelago game covering both kingdoms, with single-game modes.</span></li>
+        <li class="phase done"><b>Hollow Knight</b><span>The randomizer on the current Hollow Knight.</span></li>
+        <li class="phase done"><b>Silksong</b><span>Silksong Decrypted's features in the shared mod.</span></li>
+        <li class="phase done"><b>Launcher</b><span>Installer, runs with room settings, bug reports, and update checks.</span></li>
+        <li class="phase now"><b>Playtesting<span class="tag">Now</span></b><span>Altered town states, controllers, multiple monitors, and slower PCs.</span></li>
+        <li class="phase"><b>Player hub</b><span>Setup checklist, YAML generator, and an item map of both worlds.</span></li>
       </ol>
       <ul class="menu small" role="list" style="margin-top:2rem">
         <li><a href="https://github.com/Decryptu/hkss-decrypted/blob/main/ROADMAP.md"><svg class="cur" aria-hidden="true"><use href="#fleur"/></svg><span>Full roadmap</span><svg class="cur r" aria-hidden="true"><use href="#fleur"/></svg></a></li>
-        <li><a href="https://decryptu.github.io/silksong-decrypted/"><svg class="cur" aria-hidden="true"><use href="#fleur"/></svg><span>Play Silksong Decrypted today</span><svg class="cur r" aria-hidden="true"><use href="#fleur"/></svg></a></li>
+        <li><a href="https://github.com/Decryptu/hkss-decrypted/issues"><svg class="cur" aria-hidden="true"><use href="#fleur"/></svg><span>Report a bug</span><svg class="cur r" aria-hidden="true"><use href="#fleur"/></svg></a></li>
       </ul>
-    </section>
-  </main>
+    </section>  </main>
 
   <footer class="bar foot"><span>Unofficial fan project. Not affiliated with Team Cherry.</span></footer>
 </body>
