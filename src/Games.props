@@ -1,0 +1,17 @@
+<Project>
+  <!-- Game and loader reference paths. Override with the STEAM_COMMON environment variable. -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Version>0.1.0</Version>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <SteamCommon Condition="'$(STEAM_COMMON)' != ''">$(STEAM_COMMON)</SteamCommon>
+    <SteamCommon Condition="'$(SteamCommon)' == ''">C:\Program Files (x86)\Steam\steamapps\common</SteamCommon>
+    <BepInExCore>$(MSBuildThisFileDirectory)..\local\deps\bepinex-5.4.23.6\BepInEx\core</BepInExCore>
+    <HollowKnightManaged>$(SteamCommon)\Hollow Knight\hollow_knight_Data\Managed</HollowKnightManaged>
+    <SilksongManaged>$(SteamCommon)\Hollow Knight Silksong\Hollow Knight Silksong_Data\Managed</SilksongManaged>
+    <!-- The plugins run on the game's own framework assemblies. -->
+    <NoWarn>$(NoWarn);MSB3277</NoWarn>
+  </PropertyGroup>
+</Project>

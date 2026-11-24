@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Games.props" />
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);SILKSONG</DefineConstants>
+    <GameManaged>$(SilksongManaged)</GameManaged>
+  </PropertyGroup>
+  <Import Project="..\Plugin.targets" />
+</Project>
