@@ -131,14 +131,13 @@ If a game closes or crashes without asking to travel, the run stays in that game
 
 `site/` is a static site deployed from `main` by GitHub Actions. It is styled as a game menu: Silksong Decrypted's title-screen layout recoloured to mix Hollow Knight's blue soul light with Silksong's red embers.
 
-Planned pages, all generated from the shipped world so they cannot drift:
+The pages share a catalog exported from the shipped `.apworld`. The setup and download links use the catalog’s release version. See [Development](../DEVELOPMENT.md#player-hub) for the refresh and verification commands.
 
-- **Setup**: branching checklist (launcher or manual, join or host).
-- **YAML generator**: schema exported from the world's options (`tools/export_yaml_schema.py`, as in Silksong Decrypted), presets, validation, import and export.
-- **Item map**: both worlds' maps with every location, filterable by game, area and check type; later, live tracking from a spoiler log or the room.
-- **Downloads and status**: latest launcher, plugins and `.apworld`, tested game builds.
+- **Setup** offers separate steps for players, hosts and hosts who also play. Hosts can install the world through Archipelago Launcher or copy it into `custom_worlds` manually.
+- **YAML generator** builds its form from the world’s Archipelago template options and supports presets, validation, single-slot import and download.
+- **Item map** uses schematic area layouts, world connection data and all registered check IDs. Players can filter by game, area or check type. The atlas uses project styling and does not require game artwork.
 
-Map images are generated locally from the game files; whether they are published is decided before the map page ships.
+Live tracking from a spoiler log or room is planned for later.
 
 ### Licensing
 

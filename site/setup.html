@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Setup Checklist | HKSS Decrypted</title>
+  <link rel="icon" href="./assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./hub.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+  <script src="./embers.js" defer></script>
+  <script type="module" src="./setup.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <a class="brand" href="./">HKSS Decrypted</a>
+    <nav aria-label="Player hub">
+      <a href="./setup.html" aria-current="page">Setup</a>
+      <a href="./yaml.html">YAML Generator</a>
+      <a href="./map.html">Item Map</a>
+    </nav>
+  </header>
+  <main class="hub-main">
+    <header class="hub-heading">
+      <h1>Setup Checklist</h1>
+      <p data-world-version></p>
+    </header>
+    <p data-load-error role="alert"></p>
+    <form id="setup" hidden class="hub-controls">
+      <label>I'm here to
+        <select name="role">
+          <option value="join">Join as a player</option>
+          <option value="both">Host and play</option>
+          <option value="host">Host for other players</option>
+        </select>
+      </label>
+      <label id="install-method">Install the world
+        <select name="method">
+          <option value="file">Open the APWorld file</option>
+          <option value="manual">Copy the APWorld manually</option>
+        </select>
+      </label>
+    </form>
+    <p id="progress" role="status"></p>
+    <ol id="steps" class="checklist"></ol>
+  </main>
+  <footer class="bar foot"><a data-release href="https://github.com/Decryptu/hkss-decrypted/releases/latest">Downloads</a><span>Unofficial fan project</span></footer>
+</body>
+</html>

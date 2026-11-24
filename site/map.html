@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Item Map | HKSS Decrypted</title>
+  <link rel="icon" href="./assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./hub.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+  <script src="./embers.js" defer></script>
+  <script type="module" src="./map.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <a class="brand" href="./">HKSS Decrypted</a>
+    <nav aria-label="Player hub">
+      <a href="./setup.html">Setup</a>
+      <a href="./yaml.html">YAML Generator</a>
+      <a href="./map.html" aria-current="page">Item Map</a>
+    </nav>
+  </header>
+  <main class="hub-main wide">
+    <header class="hub-heading">
+      <h1>Item Map</h1>
+      <p data-world-version></p>
+    </header>
+    <p data-load-error role="alert"></p>
+    <form id="map-filters" hidden class="hub-controls" role="search" aria-label="Filter checks">
+      <label>Game
+        <select name="game">
+          <option value="">Both games</option>
+          <option value="HK">Hollow Knight</option>
+          <option value="SS">Silksong</option>
+        </select>
+      </label>
+      <label>Area <select name="area"></select></label>
+      <label>Check type <select name="type"></select></label>
+      <label>Find a check <input type="search" name="query" placeholder="Name, room or ID"></label>
+    </form>
+    <p class="hub-note">Select an area on the schematic map to filter the <a href="#map-count">check list</a>. Lines show connections between areas. Available checks vary with seed settings.</p>
+    <div id="atlas" class="atlas"></div>
+    <p id="map-count" class="hub-status" role="status"></p>
+    <ul id="map-results" class="check-results"></ul>
+    <button id="map-more" type="button" hidden>Show more checks</button>
+  </main>
+  <footer class="bar foot"><a data-release href="https://github.com/Decryptu/hkss-decrypted/releases/latest">Downloads</a><span>Unofficial fan project</span></footer>
+</body>
+</html>

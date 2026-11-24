@@ -117,6 +117,15 @@ python -m http.server 8766 --directory site
 
 Open <http://localhost:8766/>. Pushing to `main` deploys `site/` through `.github/workflows/pages.yml`. The site is a game UI: reuse the existing components (title menu with fleur cursors, ornamental rules, panels, diamond checkboxes) and colour tokens in `site/style.css` rather than adding new visual styles.
 
+Refresh the hub catalog when shipping a world update. Use the exact `.apworld` for that release. The exporter reads the packaged world with the installed Archipelago libraries and uses the Hollow Knight reference checkout for map area labels.
+
+```powershell
+python tools/export_hub_data.py --apworld dist/hkss.apworld
+python tools/export_hub_data.py --apworld dist/hkss.apworld --check
+```
+
+Review and include `site/world.json` with the update. It records the world version and archive digest. In a fresh browser profile, check the setup paths, import and download a YAML, and filter the map for each game. The hub works under the project path on GitHub Pages.
+
 The logo is `site/assets/logo.png` (1024×1024, transparent). `logo.webp` (512, used by the page), `logo-256.png` (README) and `favicon.png` (64×64) are resized from it.
 
 ## Conventions

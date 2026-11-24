@@ -1,0 +1,124 @@
+.hub-main { width: min(50rem, 100% - 2rem); }
+.hub-main.wide { width: min(70rem, 100% - 2rem); }
+.hub-heading { text-align: center; padding-block: clamp(2rem, 6vw, 4rem) 1.5rem; }
+.hub-heading h1 { font-size: clamp(1.9rem, 7.5vw, 4rem); line-height: 1.1; overflow-wrap: anywhere; }
+.hub-heading p, .hub-note { color: var(--dim); }
+.hub-heading p { margin: .55rem 0 0; }
+.hub-heading::after {
+  content: "";
+  display: block;
+  width: min(16rem, 75%);
+  height: 1px;
+  margin: 1.3rem auto 0;
+  background: linear-gradient(90deg, transparent, var(--soul), var(--red), transparent);
+}
+.bar [aria-current="page"] { color: var(--soul); }
+.hub-main [hidden] { display: none !important; }
+[data-load-error]:empty { display: none; }
+[data-load-error] { color: #f0928a; text-align: center; }
+.hub-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr));
+  gap: .85rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  background: #ffffff05;
+}
+.hub-controls label, .yaml-output { display: grid; align-content: start; gap: .25rem; }
+.hub-main :is(input, select, textarea, button) { font: inherit; color: inherit; }
+.hub-main :is(input:not([type="checkbox"]), select, textarea, button) {
+  max-width: 100%;
+  min-width: 0;
+  min-height: 2.35rem;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: .25rem .6rem;
+  background-color: #0b0c11;
+}
+.hub-main :is(select, textarea) { width: 100%; }
+.hub-main select {
+  appearance: none;
+  padding-right: 1.7rem;
+  background-image: linear-gradient(45deg, transparent 50%, var(--soul) 50%),
+    linear-gradient(135deg, var(--soul) 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-position: right .83rem center, right .55rem center;
+  background-size: .29rem .29rem;
+}
+.hub-main textarea { resize: vertical; }
+.hub-main [aria-invalid="true"] { border-color: #f0928a !important; }
+.hub-main button { cursor: pointer; }
+.hub-main button:not(:disabled):is(:hover, :focus-visible) { border-color: var(--soul); }
+.hub-main button:disabled { opacity: .5; cursor: default; }
+.hub-main :is(input, select, textarea, button, summary):focus-visible { outline-offset: .15rem; }
+.hub-note, .hub-status { margin-block: 1rem; }
+.checklist, .check-results { list-style: none; padding: 0; }
+.check-step, .check-result { border-bottom: 1px solid var(--line); padding: .7rem .3rem; }
+.check-step label { display: flex; gap: .75rem; align-items: center; cursor: pointer; }
+.check-step input {
+  appearance: none;
+  flex: 0 0 auto;
+  width: .86rem;
+  height: .86rem;
+  margin-inline: .18rem;
+  border: 1px solid var(--soul);
+  transform: rotate(45deg);
+  cursor: pointer;
+}
+.check-step input:checked { background: var(--soul); box-shadow: inset 0 0 0 .13rem var(--bg); }
+.check-step p, .check-step a { margin: 0 0 0 2rem; }
+.check-step p { color: var(--dim); }
+.option-group { border: 1px solid var(--line); margin-block: .65rem; background: #ffffff05; }
+.option-group > summary { font-family: var(--display); color: var(--soul); padding: .6rem .75rem; cursor: pointer; }
+.option-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: .15rem .8rem;
+  padding: .65rem .75rem;
+  border-top: 1px solid var(--line);
+}
+.option-help { grid-column: 1 / -1; font-size: .89rem; color: var(--dim); overflow-wrap: anywhere; }
+.option-help summary { cursor: pointer; }
+.option-help p { max-width: 70ch; margin: .25rem 0; white-space: pre-line; }
+.yaml-output { margin-top: 1.5rem; }
+.yaml-output textarea { font-family: ui-monospace, Consolas, monospace; font-size: .86rem; }
+.atlas { display: grid; gap: .85rem; }
+.atlas-kingdom { min-width: 0; }
+.atlas-scroll { overflow-x: auto; margin-top: .65rem; }
+.atlas-areas { position: relative; margin-inline: auto; }
+.atlas-route {
+  position: absolute;
+  height: 1px;
+  background: var(--soul);
+  opacity: .36;
+  transform-origin: left center;
+}
+.ss .atlas-route { background: #f0928a; }
+.atlas-areas button {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-content: center;
+  font-size: .9rem;
+  line-height: 1.15;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.atlas-areas small { color: var(--dim); margin-top: .15rem; }
+.atlas-areas [aria-pressed="true"] { background: #294264; border-color: var(--soul); }
+.ss .atlas-areas [aria-pressed="true"] { background: #632723; border-color: #f0928a; }
+.check-result {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: .15rem 1rem;
+  overflow-wrap: anywhere;
+}
+.check-result strong { color: var(--soul); }
+.check-result.ss strong { color: #f0928a; }
+.check-result span { color: var(--dim); }
+.check-result code { justify-self: start; }
+@media (max-width: 36rem) {
+  .option-row, .check-result { grid-template-columns: minmax(0, 1fr); }
+}

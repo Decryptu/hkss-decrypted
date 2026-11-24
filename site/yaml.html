@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YAML Generator | HKSS Decrypted</title>
+  <link rel="icon" href="./assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./hub.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+  <script src="./embers.js" defer></script>
+  <script src="./vendor/js-yaml.min.js"></script>
+  <script type="module" src="./yaml.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <a class="brand" href="./">HKSS Decrypted</a>
+    <nav aria-label="Player hub">
+      <a href="./setup.html">Setup</a>
+      <a href="./yaml.html" aria-current="page">YAML Generator</a>
+      <a href="./map.html">Item Map</a>
+    </nav>
+  </header>
+  <main class="hub-main">
+    <header class="hub-heading">
+      <h1>YAML Generator</h1>
+      <p data-world-version></p>
+    </header>
+    <p data-load-error role="alert"></p>
+    <form id="yaml-form" hidden>
+      <div class="hub-controls">
+        <label>Slot name <input name="slot" value="Knight" autocomplete="off"></label>
+        <label>Description <input name="description" autocomplete="off"></label>
+        <label>Preset
+          <select name="preset">
+            <option value="">Choose a preset</option>
+            <option value="defaults">Combo · Both goals</option>
+            <option value="either">Combo · Either goal</option>
+            <option value="hk">Hollow Knight only</option>
+            <option value="ss">Silksong only</option>
+          </select>
+        </label>
+        <label>Import YAML <input type="file" name="file" accept=".yaml,.yml"></label>
+      </div>
+      <p class="hub-note">The download uses world defaults for settings you leave unchanged. You can enter a weighted choice as a mapping, such as <code>{both: 2, either: 1}</code>.</p>
+      <div id="option-groups"></div>
+      <label class="yaml-output">YAML preview <textarea id="yaml-preview" rows="9" readonly spellcheck="false"></textarea></label>
+      <p id="yaml-status" class="hub-status" role="status"></p>
+      <button type="submit" id="yaml-download" disabled>Download YAML</button>
+    </form>
+  </main>
+  <footer class="bar foot"><a data-release href="https://github.com/Decryptu/hkss-decrypted/releases/latest">Downloads</a><span>Unofficial fan project</span></footer>
+</body>
+</html>
