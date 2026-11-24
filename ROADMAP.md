@@ -17,7 +17,7 @@ A combo randomizer and Archipelago world for Hollow Knight and Hollow Knight: Si
 
 Phase 5 (Silksong) is built and verified on Silksong 1.0.30000: Silksong Decrypted's item grants, manifests, 596 Harmony patch groups, map markers, links, and modes are ported into `HKSS.Silksong` (tracked in [docs/PARITY.md](docs/PARITY.md)) and wired onto `HKSS.Core` (`slot_data["silksong"]`, `SS ` prefixing, `IdSpace.IsSilksong` filtering, cross-game Hallownest display, shared goal reporting, and isolated `silksong_randomizer.xml` persistence).
 
-Phase 6 (Launcher release) is built: `npm run release` makes a per-user NSIS installer with BepInEx and both plugins bundled (`HKSS_PAYLOAD` is now only a development override). Each run has Archipelago room settings (`ap.json`) and can be deleted from the launcher; a bug report ZIP collects the run's logs, BepInEx logs, and settings with the password hidden; the launcher checks GitHub Releases for a newer version; and the modded game folders can be removed without following their junctions into the Steam installs. v0.1.0 is the first playtest release. Next up: test the installer on a clean PC and the cases below.
+Phase 6 (Launcher release) is built: `npm run release` makes a per-user NSIS installer with BepInEx and both plugins bundled (`HKSS_PAYLOAD` is now only a development override). Each run has Archipelago room settings (`ap.json`) and can be deleted from the launcher; a bug report ZIP collects the run's logs, BepInEx logs, and settings with the password hidden; the launcher checks GitHub Releases for a newer version; and the modded game folders can be removed without following their junctions into the Steam installs. v0.1.0 is the first playtest release.
 
 Phase 7 (Player hub) is built and verified in a clean browser profile. The checklist, YAML generator and item map use the packaged world catalog. All four YAML presets passed generation in Archipelago 0.6.8.
 
@@ -25,13 +25,52 @@ v0.1.1 adds a launcher connection check, retry and bug report actions after laun
 
 v0.1.2 fixes the diagnostic ZIP archive writer, adds pre-launch checks for legacy Unity versions, leftover Lumafly/Modding API files, incomplete Steam installs, and running games, and captures BepInEx preloader logs and install diagnostics.
 
-Still to verify later: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, and a game that crashes during travel. The Silksong plugin's refusal to run without the launcher is only tested on Hollow Knight.
+v0.1.3 fixes `CustomSkillItem` assembly resolution in Hollow Knight (which prevented randomized placements from loading on seeds with Focus/Swim/split skills), adds an in-game placement load error alert, hardens the startup update check, adds `.apworld` vs. launcher/plugin version mismatch warnings, clarifies automatic mod bundling in the launcher, and stops warning on Steam's default `"public"` beta key.
+
+Still to verify during playtesting: clean-PC installer test, gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, a game that crashes during travel, and the Silksong plugin's refusal to run without the launcher.
+
+## Feature Parity & Missing Ports
+
+Both games should offer a seamless, matching experience: any randomizer, UI, or QoL feature available in one game should exist in the other with consistent controls and visuals.
+
+### Missing from `Archipelago.HollowKnight` (in `HKSS.HollowKnight`)
+- **DeathLink (`DeathLinkModule` + `DeathLinkMessages`):** wire Hollow Knight into the shared `death_link` option (currently only Silksong handles DeathLink).
+- **Shop & preview auto-hinting (`HintTracker`):** automatically scout and create Archipelago hints when opening shops or inspecting previewed checks.
+- **Helper & start platforms (`HelperPlatformBuilder`):** spawn `ExtraPlatforms` and start-location convenience platforms so seeds that expect them cannot softlock.
+- **Alternate start locations (`StartDef` + `StartLocationSceneEditsModule`):** apply `StartLocationName` for `hollow_knight_only` and optional custom starts.
+- **Bench sync (`BenchSyncModule`), Gifting (`GiftingModule`), and Repickable Flower (`RepickableFlowerModule`).**
+
+### Cross-game parity (Silksong features missing in Hollow Knight)
+- **In-game check map & logic markers (Hollow Knight):** Silksong already shows unchecked items, shops, category pins, clusters, and logic state (`F10`) on the in-game map. Build a clean-room MIT/LGPL in-game check map for Hollow Knight (using ItemChanger location coordinates and `worlds/hk` logic, without GPL-3.0 code) with matching pins, filters, and hotkeys.
+- **Recent items feed (`F9`):** port or share a unified recent-items history overlay across both games (currently Silksong only; Hollow Knight only has temporary toasts).
+- **In-game Archipelago progress & hints view:** bring an AP inventory/progress and hints view to Hollow Knight matching Silksong's.
+- **Additional links:** optional Soul/Geo/Knockback links in Hollow Knight to match Silksong's SilkLink, CurrencyLink, and KnockbackLink.
+- **Unified in-game settings panel:** one consistent, player-configurable options menu (in the pause menu or `F6` overlay) controlling client-side toggles and hotkeys across both games.
+
+## Optional QoL Features (Player-Toggleable, Both Games)
+
+All QoL features below are opt-in per player so casual and competitive runs can choose their preferred experience:
+
+- **Pause-menu bench warping:**
+  - **Warp to Last Bench** button in the pause menu (and optional hotkey) in both games.
+  - Optional **Benchwarp** panel to warp to any discovered bench (port LGPL-2.1 `Benchwarp` for Hollow Knight; match it in Silksong alongside `FastTravelUtil`).
+- **Pacing & dialogue speedups:**
+  - Fast text / instant dialogue reveal (already in Silksong; add to Hollow Knight).
+  - Skippable cutscenes and boss intros (already in Silksong; add to Hollow Knight).
+  - Faster menus, faster Stag / Bellway arrivals, and bulk selling for relics/eggs (Lemm, Jinn, Scrounge).
+- **Map & navigation helpers:**
+  - Always-on compass without using a charm notch or tool slot (already in Silksong; add to Hollow Knight).
+  - Optional auto-quill / full area map reveal and customizable map pin filters.
+- **Economy & death options:**
+  - Optional enemy currency drop multiplier (already in Silksong; add to Hollow Knight).
+  - Configurable DeathLink shade/cocoon behavior and optional softlock-recovery safeguards.
+- **Customizable hotkeys:** rebindable shortcuts for Town Warp (`F4`), AP Panel (`F6`), Recent Items (`F9`), Map Logic (`F10`), and Last-Bench Warp.
 
 ## Later
 
-- More shuffles: entrances and rooms in both games, charms/crests, shops, grubs/fleas, journal entries, lore tablets.
+- More unified shuffles: entrances and rooms in combo mode, charms/crests, shops, grubs/fleas, journal entries, lore tablets.
 - Cross-game rules and items (abilities that unlock routes in the other game) as opt-in options.
-- Suspending the other game for instant travel as an option, PopTracker pack, live tracking on the map page.
+- Suspending the other game for instant travel as an option, PopTracker pack, live tracking on the player hub's map page.
 
 ## Decisions
 

@@ -51,6 +51,11 @@ namespace ItemChanger
         public static event Action? OnItemChangerUnhook;
 
         /// <summary>
+        /// Called if <see cref="Settings.Load"/> throws while entering a save.
+        /// </summary>
+        public static event Action<Exception>? OnSettingsLoadError;
+
+        /// <summary>
         /// Called on starting or continuing a save.
         /// <br/>If continuing or starting with a custom start, it is called before GM.ContinueGame.
         /// <br/>If starting with the base start, it is called before GM.StartNewGame.
@@ -381,6 +386,7 @@ namespace ItemChanger
             catch (Exception e)
             {
                 LogError($"Error loading settings:\n{e}");
+                OnSettingsLoadError?.Invoke(e);
             }
             
             try

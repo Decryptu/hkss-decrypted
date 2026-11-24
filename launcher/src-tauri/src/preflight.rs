@@ -133,17 +133,20 @@ pub fn inspect(game: Game, install: &Install) -> Report {
     }
 
     // 4. Steam beta opted in (when not already flagged as wrong Unity version).
+    // Steam writes BetaKey="public" after switching back to the default branch, so ignore it.
     if !wrong_version {
         if let Some(beta) = &install.beta {
-            report.issues.push(Issue {
-                severity: Severity::Warning,
-                code: "steam_beta",
-                summary: format!("Steam beta \"{beta}\""),
-                detail: format!(
-                    "{name} is opted into Steam beta \"{beta}\". If the game fails to start, switch Properties -> Betas to None in Steam.",
-                    name = game.name(),
-                ),
-            });
+            if !beta.eq_ignore_ascii_case("public") {
+                report.issues.push(Issue {
+                    severity: Severity::Warning,
+                    code: "steam_beta",
+                    summary: format!("Steam beta \"{beta}\""),
+                    detail: format!(
+                        "{name} is opted into Steam beta \"{beta}\". If the game fails to start, switch Properties -> Betas to None in Steam.",
+                        name = game.name(),
+                    ),
+                });
+            }
         }
     }
 

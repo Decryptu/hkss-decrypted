@@ -11,9 +11,22 @@ namespace ItemChanger.Items
 
         protected override void OnLoad()
         {
-            Type T = Type.GetType(moduleName);
+            Type T = ResolveModuleType(moduleName);
             if (T == null || !T.IsSubclassOf(typeof(Modules.Module))) throw new InvalidOperationException($"Module type {moduleName} was not found.");
             ItemChangerMod.Modules.GetOrAdd(T);
+        }
+
+        private static Type ResolveModuleType(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return null;
+            Type t = Type.GetType(name);
+            if (t != null) return t;
+
+            // Embedded ItemChanger JSON references ", ItemChanger" as the assembly name,
+            // whereas HKSS compiles ItemChanger into HKSS.HollowKnight.ItemChanger.
+            int comma = name.IndexOf(',');
+            string typeNameOnly = comma >= 0 ? name.Substring(0, comma).Trim() : name.Trim();
+            return typeof(CustomSkillItem).Assembly.GetType(typeNameOnly);
         }
 
         public override void GiveImmediate(GiveInfo info)

@@ -70,11 +70,26 @@ internal sealed class HkClientHost : MonoBehaviour
     private float _connectWaitStart = -1f;
     private string _icSavePath = string.Empty;
 
+    private static bool _assemblyResolverInstalled;
+
     internal static void InstallEarly(Harmony harmony, ManualLogSource log)
     {
+        if (!_assemblyResolverInstalled)
+        {
+            _assemblyResolverInstalled = true;
+            AppDomain.CurrentDomain.AssemblyResolve += ResolveItemChangerAssembly;
+        }
         Mod.Logger = log;
         ModHooks.Install(harmony, log);
         _icMod = new ItemChangerMod();
+    }
+
+    private static System.Reflection.Assembly? ResolveItemChangerAssembly(object sender, ResolveEventArgs args)
+    {
+        string requested = new System.Reflection.AssemblyName(args.Name).Name;
+        if (string.Equals(requested, "ItemChanger", StringComparison.OrdinalIgnoreCase))
+            return typeof(ItemChangerMod).Assembly;
+        return null;
     }
 
     private void Awake()
@@ -85,6 +100,7 @@ internal sealed class HkClientHost : MonoBehaviour
         ApManager.OnConnected += OnApConnected;
         ApManager.LocalItemGrantHandler = TryGrantViaItemChanger;
         ModHooks.SavegameSaveHook += OnSaveGame;
+        Events.OnSettingsLoadError += OnSettingsLoadError;
     }
 
     private void OnDestroy()
@@ -93,6 +109,15 @@ internal sealed class HkClientHost : MonoBehaviour
         if (ApManager.LocalItemGrantHandler == TryGrantViaItemChanger)
             ApManager.LocalItemGrantHandler = null;
         ModHooks.SavegameSaveHook -= OnSaveGame;
+        Events.OnSettingsLoadError -= OnSettingsLoadError;
+    }
+
+    private static void OnSettingsLoadError(Exception ex)
+    {
+        HkssPlugin.Log.LogError($"[HK] ItemChanger failed to load placements: {ex.Message}");
+        ApManager.Instance?.PushToast(
+            $"Randomizer failed to load placements ({ex.Message}). Export a bug report from the launcher.",
+            ToastKind.Error);
     }
 
     private void Update()

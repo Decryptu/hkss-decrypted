@@ -241,7 +241,7 @@
       </div>
     {/if}
     {#if update}<p class="notice update" role="status">Update available: v{update} (current: v{status.version}). <button class="link" onclick={() => invoke("open_releases")}>Download release</button></p>{/if}
-    <p class="footer">v{status.version}</p>
+    <p class="footer">Mods &amp; Archipelago are bundled automatically · Steam installs stay vanilla · v{status.version}</p>
   {/if}
   {#if message}<p class="notice" role="status">{message}</p>{/if}
   {#if error}<p class="notice error" role="alert">{error}</p>{/if}
