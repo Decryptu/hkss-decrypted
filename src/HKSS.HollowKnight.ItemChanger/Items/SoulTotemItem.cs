@@ -1,0 +1,22 @@
+// Ported from HomothetyHk/HollowKnight.ItemChanger, ItemChanger/Items/SoulTotemItem.cs, commit e57bc4e (LGPL-2.1)
+namespace ItemChanger.Items
+{
+    public class SoulTotemItem : SoulItem
+    {
+        public SoulTotemSubtype soulTotemSubtype;
+        /// <summary>
+        /// The number of hits to contribute to the soul totem. A negative number will result in an infinite totem.
+        /// </summary>
+        public int hitCount;
+
+        public override string GetPreferredContainer() => Container.Totem;
+
+        public override void GiveImmediate(GiveInfo info)
+        {
+            if (info.Container != Container.Totem)
+            {
+                base.GiveImmediate(info);
+            }
+        }
+    }
+}

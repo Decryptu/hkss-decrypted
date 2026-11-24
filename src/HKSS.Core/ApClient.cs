@@ -38,6 +38,8 @@ public sealed class ApEvent
     public string Message { get; }
     public int ItemIndex { get; }
     public long ItemId { get; }
+    public long LocationId { get; }
+    public int SenderSlot { get; }
     public string ItemName { get; }
     public string SenderName { get; }
     public bool IsLiveReceipt { get; }
@@ -47,6 +49,8 @@ public sealed class ApEvent
         string message = "",
         int itemIndex = -1,
         long itemId = 0,
+        long locationId = 0,
+        int senderSlot = -1,
         string itemName = "",
         string senderName = "",
         bool isLiveReceipt = false)
@@ -55,6 +59,8 @@ public sealed class ApEvent
         Message = message;
         ItemIndex = itemIndex;
         ItemId = itemId;
+        LocationId = locationId;
+        SenderSlot = senderSlot;
         ItemName = itemName;
         SenderName = senderName;
         IsLiveReceipt = isLiveReceipt;
@@ -87,6 +93,8 @@ public sealed class ApClient : IDisposable
     public string GamesMode { get; private set; } = GoalTracker.GamesBoth;
     public string ComboGoal { get; private set; } = GoalTracker.ComboGoalBoth;
     public bool DeathLinkEnabled { get; private set; }
+    public Dictionary<string, object>? SlotData { get; private set; }
+    public ArchipelagoSession? Session { get { lock (_gate) return _session; } }
     public bool IsConnected => State == ApConnectionState.Connected && _session != null;
 
     public ApClient(GameId thisGame)
@@ -177,6 +185,7 @@ public sealed class ApClient : IDisposable
                 GamesMode = gamesMode;
                 ComboGoal = comboGoal;
                 DeathLinkEnabled = deathLink;
+                SlotData = ok.SlotData;
                 State = ApConnectionState.Connected;
                 StatusDetail = $"Connected to {settings.FormatAddress()} as {settings.Slot}";
 
@@ -222,6 +231,8 @@ public sealed class ApClient : IDisposable
                 ApEventKind.ItemReceived,
                 itemIndex: idx,
                 itemId: info.ItemId,
+                locationId: info.LocationId,
+                senderSlot: info.Player?.Slot ?? -1,
                 itemName: itemName,
                 senderName: senderName,
                 isLiveReceipt: isLive));
@@ -255,6 +266,26 @@ public sealed class ApClient : IDisposable
         }
         if (notify)
             _events.Enqueue(new ApEvent(ApEventKind.Disconnected, StatusDetail));
+    }
+
+    public long[] GetOwnLocationIds()
+    {
+        ArchipelagoSession? session;
+        lock (_gate) session = _session;
+        if (session == null) return Array.Empty<long>();
+        return session.Locations.AllLocations
+            .Where(id => IdSpace.GameForId(id) == _thisGame)
+            .ToArray();
+    }
+
+    public long[] GetOwnCheckedLocationIds()
+    {
+        ArchipelagoSession? session;
+        lock (_gate) session = _session;
+        if (session == null) return Array.Empty<long>();
+        return session.Locations.AllLocationsChecked
+            .Where(id => IdSpace.GameForId(id) == _thisGame)
+            .ToArray();
     }
 
     public long? ResolveLocationId(string locationName)

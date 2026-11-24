@@ -33,6 +33,7 @@ internal sealed class AutoLoad : MonoBehaviour
 #endif
 
     internal static bool IsReady { get; private set; }
+    internal static bool HoldAutoLoad { get; set; }
 
     private void Update()
     {
@@ -73,6 +74,7 @@ internal sealed class AutoLoad : MonoBehaviour
             ui.MENU_FADE_SPEED = 100f;
         }
         if (ui.menuState != MainMenuState.MAIN_MENU) return;
+        if (HoldAutoLoad) return;
         if (!Platform.Current.IsSaveStoreMounted) return;
 
 #if SILKSONG

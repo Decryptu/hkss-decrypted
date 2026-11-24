@@ -15,7 +15,11 @@ foreach ($pair in @(@('HKSS.HollowKnight', 'hollow_knight'), @('HKSS.Silksong', 
     if ($LASTEXITCODE) { throw "Building $($pair[0]) failed" }
     $dest = Join-Path $payload $pair[1]
     New-Item -ItemType Directory -Force -Path $dest | Out-Null
-    foreach ($dll in "$($pair[0]).dll", 'HKSS.Core.dll', 'Archipelago.MultiClient.Net.dll') {
+    $dlls = @("$($pair[0]).dll", 'HKSS.Core.dll', 'Archipelago.MultiClient.Net.dll')
+    if ($pair[0] -eq 'HKSS.HollowKnight') {
+        $dlls += @('HKSS.HollowKnight.ModApi.dll', 'HKSS.HollowKnight.ItemChanger.dll')
+    }
+    foreach ($dll in $dlls) {
         Copy-Item (Join-Path $project "bin/$Configuration/netstandard2.1/$dll") $dest
     }
 }

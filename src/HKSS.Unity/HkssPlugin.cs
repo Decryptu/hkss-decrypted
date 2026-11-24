@@ -34,6 +34,9 @@ public sealed class HkssPlugin : BaseUnityPlugin
 
             var harmony = new Harmony("decryptu.hkss");
             ArchipelagoJsonCompatibility.Install(harmony);
+#if HOLLOW_KNIGHT
+            HKSS.HollowKnight.HkClientHost.InstallEarly(harmony, Log);
+#endif
             SaveIsolation.Install(harmony);
             FastBoot.Install(harmony);
             TownGate.Install(harmony);
@@ -53,6 +56,9 @@ public sealed class HkssPlugin : BaseUnityPlugin
         gameObject.AddComponent<TownWarp>();
         gameObject.AddComponent<ApManager>();
         gameObject.AddComponent<ApOverlay>();
+#if HOLLOW_KNIGHT
+        gameObject.AddComponent<HKSS.HollowKnight.HkClientHost>();
+#endif
         Log.LogInfo($"Run folder {Run.RunDir}");
     }
 

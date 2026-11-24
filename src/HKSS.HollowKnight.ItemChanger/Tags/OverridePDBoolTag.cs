@@ -1,0 +1,38 @@
+// Ported from HomothetyHk/HollowKnight.ItemChanger, ItemChanger/Tags/OverridePDBoolTag.cs, commit e57bc4e (LGPL-2.1)
+using Modding;
+
+namespace ItemChanger.Tags
+{
+    public class OverridePDBoolTag : Tag
+    {
+        public string boolName;
+        public IBool value;
+        public bool overrideSet;
+
+        public override void Load(object parent)
+        {
+            base.Load(parent);
+            ModHooks.GetPlayerBoolHook += GetPlayerBoolHook;
+            if (overrideSet) ModHooks.SetPlayerBoolHook += SetPlayerBoolHook;
+        }
+
+        public override void Unload(object parent)
+        {
+            base.Unload(parent);
+            ModHooks.GetPlayerBoolHook -= GetPlayerBoolHook;
+            if (overrideSet) ModHooks.SetPlayerBoolHook -= SetPlayerBoolHook;
+        }
+
+        private bool GetPlayerBoolHook(string name, bool orig)
+        {
+            if (name == boolName) return value.Value;
+            else return orig;
+        }
+
+        private bool SetPlayerBoolHook(string name, bool orig)
+        {
+            if (name == boolName) ((IWritableBool)value).Value = orig;
+            return orig;
+        }
+    }
+}

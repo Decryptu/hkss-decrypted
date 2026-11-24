@@ -1,0 +1,24 @@
+// Ported from HomothetyHk/HollowKnight.ItemChanger, ItemChanger/Items/MapItem.cs, commit e57bc4e (LGPL-2.1)
+namespace ItemChanger.Items
+{
+    /// <summary>
+    /// BoolItem which unlocks the map panel and opens Iselda.
+    /// </summary>
+    public class MapItem : AbstractItem
+    {
+        public string fieldName;
+
+        public override void GiveImmediate(GiveInfo info)
+        {
+            PlayerData.instance.SetBool(nameof(PlayerData.hasMap), true);
+            PlayerData.instance.SetBool(nameof(PlayerData.openedMapperShop), true);
+            PlayerData.instance.SetBool(fieldName, true);
+        }
+
+        public override bool Redundant()
+        {
+            return PlayerData.instance.GetBool(fieldName);
+        }
+
+    }
+}

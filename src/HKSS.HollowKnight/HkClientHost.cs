@@ -1,0 +1,392 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using BepInEx.Logging;
+using HarmonyLib;
+using HKSS.Core;
+using HKSS.HollowKnight.ModApi;
+using HKSS.Unity;
+using ItemChanger;
+using ItemChanger.Internal;
+using Modding;
+using Newtonsoft.Json;
+using UnityEngine;
+
+namespace HKSS.HollowKnight;
+
+/// <summary>
+/// Hosts ItemChanger and the Hollow Knight Archipelago client inside the BepInEx plugin.
+/// Persists ItemChanger state exclusively inside the isolated run folder (<c>saves/hollow_knight/itemchanger.json</c>).
+/// </summary>
+internal sealed class HkClientHost : MonoBehaviour
+{
+    private const float ConnectWaitBudgetSeconds = 12f;
+
+    private sealed class HkIcSerializationBinder : Newtonsoft.Json.Serialization.DefaultSerializationBinder
+    {
+        private static readonly string IcAssemblyName = typeof(ItemChangerMod).Assembly.GetName().Name;
+
+        public override Type BindToType(string? assemblyName, string typeName)
+        {
+            if (assemblyName == "ItemChanger") assemblyName = IcAssemblyName;
+            return base.BindToType(assemblyName, typeName);
+        }
+    }
+
+    private static readonly JsonSerializerSettings IcJsonSettings = new()
+    {
+        DefaultValueHandling = DefaultValueHandling.Include,
+        Formatting = Formatting.Indented,
+        TypeNameHandling = TypeNameHandling.Auto,
+        ObjectCreationHandling = ObjectCreationHandling.Replace,
+        SerializationBinder = new HkIcSerializationBinder(),
+    };
+
+    private static readonly GiveInfo RemoteGiveInfo = new()
+    {
+        FlingType = FlingType.DirectDeposit,
+        Callback = null,
+        Container = Container.Unknown,
+        MessageType = MessageType.Corner,
+    };
+
+    private static readonly GiveInfo SilentGiveInfo = new()
+    {
+        FlingType = FlingType.DirectDeposit,
+        Callback = null,
+        Container = Container.Unknown,
+        MessageType = MessageType.None,
+    };
+
+    private static ItemChangerMod? _icMod;
+    private static bool _preloaded;
+    private static bool _icActive;
+    private static int _pendingStartingGeo;
+
+    private bool _preloadStarted;
+    private bool _connectWaitDone;
+    private float _connectWaitStart = -1f;
+    private string _icSavePath = string.Empty;
+
+    internal static void InstallEarly(Harmony harmony, ManualLogSource log)
+    {
+        Mod.Logger = log;
+        ModHooks.Install(harmony, log);
+        _icMod = new ItemChangerMod();
+    }
+
+    private void Awake()
+    {
+        _icSavePath = Path.Combine(HkssPlugin.Run.SaveDir, "itemchanger.json");
+        AutoLoad.HoldAutoLoad = true;
+        ApManager.DeferAutoConnect = true;
+        ApManager.OnConnected += OnApConnected;
+        ApManager.LocalItemGrantHandler = TryGrantViaItemChanger;
+        ModHooks.SavegameSaveHook += OnSaveGame;
+    }
+
+    private void OnDestroy()
+    {
+        ApManager.OnConnected -= OnApConnected;
+        if (ApManager.LocalItemGrantHandler == TryGrantViaItemChanger)
+            ApManager.LocalItemGrantHandler = null;
+        ModHooks.SavegameSaveHook -= OnSaveGame;
+    }
+
+    private void Update()
+    {
+        if (!_preloadStarted && GameManager._instance != null && GameManager._instance.IsMenuScene())
+        {
+            _preloadStarted = true;
+            StartCoroutine(RunPreloadAndRestore());
+        }
+
+        if (_preloaded && !_connectWaitDone && AutoLoad.HoldAutoLoad)
+        {
+            ApManager? ap = ApManager.Instance;
+            bool shouldWait = !_icActive
+                && ap != null
+                && ap.Settings.AutoConnect
+                && ap.Settings.IsConfigured
+                && ap.Client.State != ApConnectionState.Failed;
+
+            if (!shouldWait)
+            {
+                ReleaseAutoLoad();
+            }
+            else
+            {
+                if (_connectWaitStart < 0f) _connectWaitStart = Time.unscaledTime;
+                if (Time.unscaledTime - _connectWaitStart > ConnectWaitBudgetSeconds)
+                {
+                    HkssPlugin.Log.LogWarning("[HK] Continuing boot without waiting further for Archipelago connection.");
+                    ReleaseAutoLoad();
+                }
+            }
+        }
+
+        if (_pendingStartingGeo > 0 && HeroController.instance != null && GameManager._instance != null && GameManager._instance.IsGameplayScene())
+        {
+            int geo = _pendingStartingGeo;
+            _pendingStartingGeo = 0;
+            HeroController.instance.AddGeo(geo);
+            HkssPlugin.Log.LogInfo($"[HK] Granted starting geo: {geo}");
+        }
+    }
+
+    private IEnumerator RunPreloadAndRestore()
+    {
+        if (_icMod == null)
+        {
+            _preloaded = true;
+            ReleaseAutoLoad();
+            yield break;
+        }
+
+        // Reduce non-essential preloads (geo rocks / soul totems) only if desired; Core + Grub + Mimic are fast.
+        List<(string, string)> preloads = _icMod.GetPreloadNames();
+        Dictionary<string, Dictionary<string, GameObject>>? loaded = null;
+        yield return HKSS.HollowKnight.ModApi.ScenePreloader.PreloadAsync(preloads, HkssPlugin.Log, dict => loaded = dict);
+
+        try
+        {
+            _icMod.Initialize(loaded ?? new Dictionary<string, Dictionary<string, GameObject>>());
+            HkssPlugin.Log.LogInfo("[HK] ItemChanger initialized.");
+        }
+        catch (Exception ex)
+        {
+            HkssPlugin.Log.LogError($"[HK] ItemChanger.Initialize failed: {ex}");
+        }
+
+        TryLoadSavedItemChangerProfile();
+        _preloaded = true;
+        ApManager.DeferAutoConnect = false;
+    }
+
+    private void ReleaseAutoLoad()
+    {
+        _connectWaitDone = true;
+        AutoLoad.HoldAutoLoad = false;
+    }
+
+    private void OnApConnected(ApClient client)
+    {
+        if (!_preloaded || _icMod == null)
+        {
+            StartCoroutine(DeferredOnApConnected(client));
+            return;
+        }
+        ApplyApSessionToItemChanger(client);
+    }
+
+    private IEnumerator DeferredOnApConnected(ApClient client)
+    {
+        while (!_preloaded) yield return null;
+        ApplyApSessionToItemChanger(client);
+    }
+
+    private void ApplyApSessionToItemChanger(ApClient client)
+    {
+        try
+        {
+            if (!_icActive)
+            {
+                HkSlotData? hkSlot = ExtractHkSlotData(client.SlotData);
+                if (hkSlot != null && client.Session != null)
+                {
+                    long[] hkLocs = client.GetOwnLocationIds();
+                    var randomizer = new HkRandomizer(hkSlot, client.Session);
+                    randomizer.Randomize(hkLocs);
+                    _icActive = true;
+
+                    if (hkSlot.Options.StartingGeo > 0)
+                        _pendingStartingGeo = hkSlot.Options.StartingGeo;
+
+                    if (GameManager._instance != null && GameManager._instance.IsGameplayScene())
+                    {
+                        ItemChangerMod.EnsureSettingsLoaded();
+                    }
+                    SaveItemChangerProfile();
+                }
+                else
+                {
+                    HkssPlugin.Log.LogInfo("[HK] No slot_data['hollow_knight'] present; using thin-slice fallback.");
+                }
+            }
+
+            if (_icActive)
+            {
+                SyncRemoteCheckedLocations(client);
+            }
+        }
+        catch (Exception ex)
+        {
+            HkssPlugin.Log.LogError($"[HK] Failed to configure ItemChanger for AP session: {ex}");
+        }
+        finally
+        {
+            ReleaseAutoLoad();
+        }
+    }
+
+    private static void SyncRemoteCheckedLocations(ApClient client)
+    {
+        if (!ItemChangerMod.IsSettingsLoaded) return;
+        foreach (long locId in client.GetOwnCheckedLocationIds())
+        {
+            MarkLocationAsChecked(locId, silent: true);
+        }
+    }
+
+    private static void MarkLocationAsChecked(long locationId, bool silent)
+    {
+        if (!HkPlacementTag.PlacementsByLocationId.TryGetValue(locationId, out AbstractPlacement? pmt) || pmt == null)
+            return;
+
+        bool newlyObtained = false;
+        bool anyUnobtained = false;
+
+        foreach (AbstractItem item in pmt.Items)
+        {
+            if (!item.GetTag<HkItemTag>(out HkItemTag tag) || tag == null)
+            {
+                anyUnobtained = true;
+                continue;
+            }
+            if (item.WasEverObtained()) continue;
+            if (tag.Location != locationId)
+            {
+                anyUnobtained = true;
+                continue;
+            }
+
+            newlyObtained = true;
+            pmt.AddVisitFlag(VisitState.ObtainedAnyItem);
+            item.Give(pmt, (silent ? SilentGiveInfo : RemoteGiveInfo).Clone());
+        }
+
+        if (newlyObtained && !anyUnobtained)
+        {
+            pmt.AddVisitFlag(VisitState.Opened | VisitState.Dropped | VisitState.Accepted | VisitState.ObtainedAnyItem);
+        }
+    }
+
+    private bool TryGrantViaItemChanger(ApEvent evt, RoutedItem routed)
+    {
+        if (!_icActive || !ItemChangerMod.IsSettingsLoaded) return false;
+
+        ApClient? client = ApManager.Instance?.Client;
+        bool fromOwnHkLocation = client != null
+            && evt.SenderSlot == client.Slot
+            && IdSpace.IsHollowKnight(evt.LocationId);
+
+        if (fromOwnHkLocation)
+        {
+            // If we already picked this item up locally in HK, avoid double-granting.
+            if (HkPlacementTag.PlacementsByLocationId.TryGetValue(evt.LocationId, out AbstractPlacement? pmt))
+            {
+                foreach (AbstractItem existing in pmt.Items)
+                {
+                    if (existing.GetTag<HkItemTag>(out HkItemTag tag) && tag != null && tag.Location == evt.LocationId)
+                    {
+                        if (existing.WasEverObtained())
+                        {
+                            HkssPlugin.Log.LogDebug($"[HK] Skipping echo of already-obtained local check {evt.LocationId} ({routed.RawName}).");
+                            return true;
+                        }
+                        MarkLocationAsChecked(evt.LocationId, silent: !evt.IsLiveReceipt);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        string icItemName = IdSpace.StripPrefix(routed.DisplayName);
+        AbstractItem? item = Finder.GetItem(icItemName);
+        if (item == null)
+        {
+            HkssPlugin.Log.LogWarning($"[HK] Finder.GetItem('{icItemName}') returned null; falling back to thin-slice.");
+            return false;
+        }
+
+        if (item.UIDef != null && !string.IsNullOrEmpty(evt.SenderName))
+        {
+            item.UIDef = HkUIDef.CreateForReceivedItem(item, evt.SenderName);
+        }
+
+        HkRemotePlacement remotePmt = HkRemotePlacement.GetOrAddSingleton();
+        remotePmt.Add(item);
+        GiveInfo giveInfo = (evt.IsLiveReceipt ? RemoteGiveInfo : SilentGiveInfo).Clone();
+        item.Give(remotePmt, giveInfo);
+        return true;
+    }
+
+    private void OnSaveGame(int saveSlot)
+    {
+        if (_icActive)
+        {
+            SaveItemChangerProfile();
+        }
+    }
+
+    private void SaveItemChangerProfile()
+    {
+        if (_icMod == null || string.IsNullOrEmpty(_icSavePath)) return;
+        try
+        {
+            SaveSettings save = ((ILocalSettings<SaveSettings>)_icMod).OnSaveLocal();
+            if (save.value == null) return;
+
+            string dir = Path.GetDirectoryName(_icSavePath)!;
+            Directory.CreateDirectory(dir);
+            string tmp = _icSavePath + ".tmp";
+            string json = JsonConvert.SerializeObject(save, IcJsonSettings);
+            File.WriteAllText(tmp, json);
+            if (File.Exists(_icSavePath)) File.Delete(_icSavePath);
+            File.Move(tmp, _icSavePath);
+            HkssPlugin.Log.LogDebug($"[HK] Saved ItemChanger state to {_icSavePath}");
+        }
+        catch (Exception ex)
+        {
+            HkssPlugin.Log.LogError($"[HK] Failed to save ItemChanger state: {ex}");
+        }
+    }
+
+    private void TryLoadSavedItemChangerProfile()
+    {
+        if (_icMod == null || string.IsNullOrEmpty(_icSavePath) || !File.Exists(_icSavePath)) return;
+        try
+        {
+            string json = File.ReadAllText(_icSavePath);
+            SaveSettings loaded = JsonConvert.DeserializeObject<SaveSettings>(json, IcJsonSettings);
+            if (loaded.value != null)
+            {
+                ((ILocalSettings<SaveSettings>)_icMod).OnLoadLocal(loaded);
+                _icActive = true;
+                HkssPlugin.Log.LogInfo($"[HK] Restored ItemChanger state from {_icSavePath} ({loaded.value.Placements.Count} placements).");
+            }
+        }
+        catch (Exception ex)
+        {
+            HkssPlugin.Log.LogError($"[HK] Failed to load ItemChanger state from {_icSavePath}: {ex}");
+        }
+    }
+
+    private static HkSlotData? ExtractHkSlotData(Dictionary<string, object>? slotData)
+    {
+        if (slotData == null) return null;
+        if (!slotData.TryGetValue("hollow_knight", out object? raw) || raw == null) return null;
+        try
+        {
+            string json = JsonConvert.SerializeObject(raw);
+            return JsonConvert.DeserializeObject<HkSlotData>(json);
+        }
+        catch (Exception ex)
+        {
+            HkssPlugin.Log.LogError($"[HK] Failed to parse slot_data['hollow_knight']: {ex}");
+            return null;
+        }
+    }
+}

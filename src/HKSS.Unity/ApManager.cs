@@ -41,6 +41,9 @@ internal sealed class ApManager : MonoBehaviour
     private const int MaxLogLines = 12;
 
     internal static ApManager? Instance { get; private set; }
+    internal static bool DeferAutoConnect { get; set; }
+    internal static event Action<ApClient>? OnConnected;
+    internal static Func<ApEvent, RoutedItem, bool>? LocalItemGrantHandler { get; set; }
 
     internal ApSettingsStore SettingsStore { get; private set; } = null!;
     internal ApSettings Settings { get; private set; } = null!;
@@ -178,6 +181,7 @@ internal sealed class ApManager : MonoBehaviour
 
     private void TryAutoConnect()
     {
+        if (DeferAutoConnect) return;
         if (_autoConnectAttempted || !Settings.AutoConnect || !Settings.IsConfigured) return;
         if (GetGameManagerQuietly() == null) return;
         if (Time.unscaledTime < _nextAutoConnectTime) return;
@@ -214,6 +218,7 @@ internal sealed class ApManager : MonoBehaviour
                 HkssPlugin.Log.LogInfo(evt.Message);
                 PushToast($"Connected as {Client.ConnectedSlot}", ToastKind.Info);
                 FlushQueuedChecks();
+                OnConnected?.Invoke(Client);
                 break;
 
             case ApEventKind.Disconnected:
@@ -310,7 +315,8 @@ internal sealed class ApManager : MonoBehaviour
                 case RouteAction.ApplyLocally:
                     try
                     {
-                        ThinSlice.GrantItem(routed);
+                        bool handled = LocalItemGrantHandler != null && LocalItemGrantHandler(evt, routed);
+                        if (!handled) ThinSlice.GrantItem(routed);
                         grantedAny = true;
                         processed = evt.ItemIndex + 1;
                         HkssPlugin.State.SetProcessedItems(HkssPlugin.ThisGame, processed);

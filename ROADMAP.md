@@ -10,7 +10,6 @@ A combo randomizer and Archipelago world for Hollow Knight and Hollow Knight: Si
 
 | Phase | Work | Done when |
 |---|---|---|
-| 4. Hollow Knight | Hook layer replacing the Modding API, then the ItemChanger port and the rest of the client. | A full HK logic seed plays on the current build. |
 | 5. Silksong | Silksong Decrypted's features ported onto the shared code, tracked in a parity table. | A full Silksong seed plays from this repository. |
 | 6. Launcher release | Installer with bundled mod files, updates, room settings per run, diagnostics ZIP, uninstall. | A fresh Windows profile goes from download to a running combo seed without manual file copying. |
 | 7. Player hub | Setup checklist, YAML generator from the exported option schema, item map of both worlds. | Every page is generated from the shipped world and passes a clean-profile browser check. |
@@ -18,11 +17,11 @@ A combo randomizer and Archipelago world for Hollow Knight and Hollow Knight: Si
 
 ## Next
 
-The Phase 3 thin slice is working across both games in one Archipelago slot: shared `ap.json` room settings, `IdSpace`-based item/location routing, independent per-game processed item cursors, the shared `F6` connection panel and toast feed, and live cross-game check/grant verification between Hollow Knight and Silksong. Next up is **Phase 4 (Hollow Knight)**:
+Phase 4 (Hollow Knight) is built and verified on Hollow Knight 1.5.12620: the BepInEx/Harmony/MonoMod `HKSS.HollowKnight.ModApi` hook layer (including additive scene preloading and `TeamCherry.Localization` compatibility), the separate LGPL-2.1 `HKSS.HollowKnight.ItemChanger` assembly, and the Hollow Knight Archipelago client wired onto `HKSS.Core` (`slot_data["hollow_knight"]`, prefix-stripped location scouting, cross-game Pharloom placeholders, shop/cost/notch/module configuration, goal reporting, and isolated `itemchanger.json` persistence). Next up is **Phase 5 (Silksong)**:
 
-1. Rebuild the small HK Modding API hook layer (`ModHooks` events for save/load, `PlayerData`, `LanguageGet`, scene change, `AfterSavegameLoad`) on top of Harmony/MonoMod in `HKSS.HollowKnight`.
-2. Port `ItemChanger` (and the parts of `RandomizerMod` / `Benchwarp` needed) into the separate LGPL-2.1 assembly `HKSS.HollowKnight.ItemChanger` against Hollow Knight 1.5.12620.
-3. Wire the Hollow Knight client to full location checks, item placements, and goal reporting.
+1. Audit Silksong Decrypted's features and track them in a parity table.
+2. Port Silksong Decrypted's item grants, collectible source patches, shop/quest/ability hooks, and goal detection onto `HKSS.Core` and `HKSS.Silksong`.
+3. Verify a full generated Silksong seed from this repository on Silksong 1.0.30000.
 
 Still to verify later: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, and a game that crashes during travel. The Silksong plugin's refusal to run without the launcher is only tested on Hollow Knight. A release also needs the launcher to bundle the mod files (it reads `HKSS_PAYLOAD` today).
 
