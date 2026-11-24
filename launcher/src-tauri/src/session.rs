@@ -1,0 +1,235 @@
+//! Plays a run: starts the current game behind the travel screen, and swaps games on request.
+
+use crate::{game::Game, mirror, process, runs, steam};
+use serde::Deserialize;
+use std::{
+    fs::{self, File, OpenOptions},
+    io::{self, Write},
+    path::{Path, PathBuf},
+    process::{Child, Command},
+    thread::sleep,
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+};
+
+const POLL: Duration = Duration::from_millis(30);
+/// The game's own boot timeout is 120 s; this only catches a game that stopped answering.
+const READY_TIMEOUT: Duration = Duration::from_secs(150);
+/// A game whose plugin never reports in is running unmodified, on the player's normal saves.
+const PLUGIN_TIMEOUT: Duration = Duration::from_secs(20);
+/// The save is already confirmed on disk when a game asks to travel.
+const CLOSE_TIMEOUT: Duration = Duration::from_secs(8);
+const FADE: Duration = Duration::from_millis(500);
+
+/// The launcher windows, so the loop can be read without Tauri.
+pub trait Screen {
+    fn raise_cover(&self, to: Game);
+    fn lower_cover(&self);
+    fn hide_cover(&self);
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+struct Signal {
+    session: String,
+    state: String,
+    to: Option<Game>,
+    detail: Option<String>,
+}
+
+enum Outcome {
+    Closed,
+    Travel(Game),
+}
+
+pub fn play(slot: u8, payload: &Path, screen: &dyn Screen) -> Result<(), String> {
+    let result = play_run(slot, payload, screen);
+    screen.hide_cover();
+    result.map_err(|e| e.to_string())
+}
+
+fn play_run(slot: u8, payload: &Path, screen: &dyn Screen) -> io::Result<()> {
+    let dir = runs::dir(slot)?;
+    let mut run = runs::load(&dir)?.unwrap_or(runs::Run { current: Game::HollowKnight });
+    runs::save(&dir, &run)?;
+    let mut log = Log::open(&dir)?;
+    let mut place = None;
+    loop {
+        match play_game(run.current, &dir, payload, screen, &mut place, &mut log)? {
+            Outcome::Closed => return Ok(()),
+            Outcome::Travel(to) => {
+                run.current = to;
+                runs::save(&dir, &run)?;
+            }
+        }
+    }
+}
+
+fn play_game(
+    game: Game,
+    dir: &Path,
+    payload: &Path,
+    screen: &dyn Screen,
+    place: &mut Option<(i32, i32)>,
+    log: &mut Log,
+) -> io::Result<Outcome> {
+    screen.raise_cover(game);
+    let install = steam::find(game).ok_or_else(|| io::Error::other(format!("{} is not installed", game.name())))?;
+    let exe = mirror::prepare(game, &install.dir, &runs::home().join("games").join(game.key()), payload)?;
+
+    let session = new_session();
+    let started = Instant::now();
+    let mut child = Command::new(&exe)
+        .current_dir(exe.parent().expect("the mirror folder"))
+        .env("HKSS_RUN_DIR", dir)
+        .env("HKSS_SESSION", &session)
+        .arg("-logFile")
+        .arg(dir.join("logs").join(format!("{}-player.log", game.key())))
+        .spawn()?;
+    log.write(format_args!("{} start", game.key()));
+
+    let signals = dir.join("signals");
+    let signal_file = signals.join(format!("{}.json", game.key()));
+    let mut visible = false;
+    let mut signal = None;
+    loop {
+        // A read can collide with the plugin replacing the file, so keep the last good signal.
+        signal = read_signal(&signal_file, &session).or(signal);
+        if let Some(signal) = &signal {
+            match signal.state.as_str() {
+                "travel" => {
+                    let to = signal.to.ok_or_else(|| io::Error::other("Travel without a destination"))?;
+                    log.memory(game, child.id(), "travel");
+                    *place = process::position(child.id());
+                    return leave(child, game, to, &session, &signals, screen, log);
+                }
+                "ready" | "error" if !visible => {
+                    visible = true;
+                    log.write(format_args!(
+                        "{} {} after {:.2} s {}",
+                        game.key(),
+                        signal.state,
+                        started.elapsed().as_secs_f32(),
+                        signal.detail.as_deref().unwrap_or("")
+                    ));
+                    log.memory(game, child.id(), "ready");
+                    if let Some(place) = *place {
+                        process::move_to(child.id(), place);
+                    }
+                    process::focus(child.id());
+                    screen.lower_cover();
+                    sleep(FADE);
+                    screen.hide_cover();
+                }
+                _ => {}
+            }
+        }
+        if let Some(status) = child.try_wait()? {
+            log.write(format_args!("{} closed ({status})", game.key()));
+            if visible {
+                return Ok(Outcome::Closed);
+            }
+            let reason = signal.and_then(|s| s.detail).unwrap_or_else(|| format!("closed while starting ({status})"));
+            return Err(io::Error::other(format!("{}: {reason}", game.name())));
+        }
+        if signal.is_none() && started.elapsed() > PLUGIN_TIMEOUT {
+            child.kill()?;
+            return Err(io::Error::other(format!("{}: the mod did not load", game.name())));
+        }
+        if !visible && started.elapsed() > READY_TIMEOUT {
+            // Nothing to lose yet: the player has not seen the game.
+            child.kill()?;
+            return Err(io::Error::other(format!("{} did not finish starting", game.name())));
+        }
+        sleep(POLL);
+    }
+}
+
+fn leave(
+    mut child: Child,
+    game: Game,
+    to: Game,
+    session: &str,
+    signals: &Path,
+    screen: &dyn Screen,
+    log: &mut Log,
+) -> io::Result<Outcome> {
+    let asked = Instant::now();
+    screen.raise_cover(to);
+    sleep(Duration::from_millis(60));
+    fs::write(signals.join("cover.json"), format!(r#"{{"session":"{session}","state":"cover"}}"#))?;
+    while child.try_wait()?.is_none() {
+        if asked.elapsed() > CLOSE_TIMEOUT {
+            log.write(format_args!("{} had to be stopped", game.key()));
+            child.kill()?;
+            child.wait()?;
+            break;
+        }
+        sleep(POLL);
+    }
+    log.write(format_args!("{} left for {} in {:.2} s", game.key(), to.key(), asked.elapsed().as_secs_f32()));
+    Ok(Outcome::Travel(to))
+}
+
+fn read_signal(file: &Path, session: &str) -> Option<Signal> {
+    parse_signal(&fs::read(file).ok()?, session)
+}
+
+fn parse_signal(bytes: &[u8], session: &str) -> Option<Signal> {
+    serde_json::from_slice::<Signal>(bytes).ok().filter(|signal| signal.session == session)
+}
+
+fn new_session() -> String {
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or_default();
+    format!("{now:x}-{}", std::process::id())
+}
+
+struct Log {
+    file: File,
+    path: PathBuf,
+}
+
+impl Log {
+    fn open(dir: &Path) -> io::Result<Self> {
+        let path = dir.join("logs").join("launcher.log");
+        fs::create_dir_all(dir.join("logs"))?;
+        Ok(Self { file: OpenOptions::new().create(true).append(true).open(&path)?, path })
+    }
+
+    fn write(&mut self, line: std::fmt::Arguments) {
+        let now = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or_default();
+        if let Err(e) = writeln!(self.file, "{now} {line}") {
+            eprintln!("{}: {e}", self.path.display());
+        }
+    }
+
+    fn memory(&mut self, game: Game, pid: u32, when: &str) {
+        if let Some((now, peak, private)) = process::memory_mb(pid) {
+            self.write(format_args!("{} memory at {when}: {now} MB, peak {peak} MB, private {private} MB", game.key()));
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn reads_what_the_plugins_write() {
+        let signal = parse_signal(br#"{"session":"s1","state":"travel","to":"silksong"}"#, "s1").unwrap();
+        assert_eq!(signal.state, "travel");
+        assert_eq!(signal.to, Some(Game::Silksong));
+    }
+
+    #[test]
+    fn ignores_earlier_launches_and_half_written_files() {
+        assert_eq!(parse_signal(br#"{"session":"old","state":"ready"}"#, "s1"), None);
+        assert_eq!(parse_signal(br#"{"session":"s1","#, "s1"), None);
+    }
+
+    #[test]
+    fn sessions_differ() {
+        assert_ne!(new_session(), {
+            sleep(Duration::from_millis(1));
+            new_session()
+        });
+    }
+}
