@@ -17,9 +17,14 @@
   let draft = $state<Room>(blankRoom());
   let message = $state("");
   let update = $state<string | null>(null);
+  let testing = $state(false);
+  let connection = $state<{ text: string; failed: boolean } | null>(null);
+  let activeRun = $state<number | null>(null);
+  let failedRun = $state<number | null>(null);
 
   function edit(slot: Slot) {
     error = message = "";
+    connection = null;
     if (editing === slot.id) { editing = null; return; }
     draft = { ...(slot.room ?? blankRoom()) };
     editing = slot.id;
@@ -40,6 +45,19 @@
   const saveRoom = (id: number) => act("save_room", { slot: id, room: { ...draft, port: Number(draft.port) } }, `Run ${id} room saved.`);
   const clearRoom = (id: number) => act("clear_room", { slot: id }, `Run ${id} will play offline.`);
   const exportReport = (id: number) => act("export_diagnostics", { slot: id }, "Report written to", false);
+  async function testConnection(form: HTMLFormElement | null) {
+    if (testing || !form?.reportValidity()) return;
+    testing = true;
+    connection = { text: "Checking room…", failed: false };
+    try {
+      await invoke("test_connection", { room: { ...draft, port: Number(draft.port) } });
+      connection = { text: "The room accepted your slot. Save room to use these settings.", failed: false };
+    } catch (e) {
+      connection = { text: String(e), failed: true };
+    } finally {
+      testing = false;
+    }
+  }
   function deleteRun(id: number) {
     if (confirm(`Delete run ${id}? Both saves and its room settings are removed for good.`))
       act("delete_run", { slot: id }, `Run ${id} deleted.`);
@@ -80,13 +98,17 @@
   }
 
   async function play(slot: number) {
-    if (!ready || playing) return;
-    error = "";
+    if (!ready || playing || testing) return;
+    error = message = "";
+    failedRun = null;
+    activeRun = slot;
+    editing = null;
     playing = true;
     try {
       await invoke("play", { slot });
     } catch (e) {
       error = String(e);
+      failedRun = slot;
       playing = false;
     }
   }
@@ -97,6 +119,8 @@
     const ended = listen<string | null>("session-ended", (e) => {
       playing = false;
       error = e.payload ?? "";
+      failedRun = e.payload ? activeRun : null;
+      activeRun = null;
       refresh();
     });
     return () => {
@@ -117,15 +141,16 @@
     <ul class="menu" role="list">
       {#each status.slots as slot (slot.id)}
         <li>
-          <button disabled={!ready || playing} onclick={() => play(slot.id)}>
+          <button disabled={!ready || playing || testing} onclick={() => play(slot.id)}>
             <span>Run {slot.id}</span>
             <small>{slot.current ? place(slot.current) : "New run"}{slot.room ? ` · ${slot.room.slot} @ ${slot.room.host}` : " · offline"}</small>
           </button>
-          <button class="more" disabled={playing} aria-expanded={editing === slot.id} onclick={() => edit(slot)}>Settings</button>
+          <button class="more" disabled={playing || testing} aria-expanded={editing === slot.id} onclick={() => edit(slot)}>Settings</button>
         </li>
         {#if editing === slot.id}
           <li class="panel">
-            <form onsubmit={(e) => { e.preventDefault(); saveRoom(slot.id); }}>
+            <form oninput={() => { if (!testing) connection = null; }} onsubmit={(e) => { e.preventDefault(); if (!testing) saveRoom(slot.id); }}>
+              <fieldset disabled={testing}>
               <label>Host <input bind:value={draft.host} placeholder="archipelago.gg" required></label>
               <label>Port <input type="number" min="1" max="65535" bind:value={draft.port} required></label>
               <label>Slot <input bind:value={draft.slot} placeholder="Your slot name" required></label>
@@ -133,10 +158,13 @@
               <label class="check"><input type="checkbox" bind:checked={draft.auto_connect}> Connect when the game starts</label>
               <div class="actions">
                 <button type="submit">Save room</button>
+                <button type="button" onclick={(e) => testConnection(e.currentTarget.form)}>Test connection</button>
                 {#if slot.room}<button type="button" onclick={() => clearRoom(slot.id)}>Play offline</button>{/if}
                 <button type="button" onclick={() => exportReport(slot.id)}>Bug report</button>
                 {#if slot.current}<button type="button" class="danger" onclick={() => deleteRun(slot.id)}>Delete run</button>{/if}
               </div>
+              </fieldset>
+              {#if connection}<p class:error={connection.failed} role="status">{connection.text}</p>{/if}
             </form>
           </li>
         {/if}
@@ -153,8 +181,15 @@
     </ul>
     {#if !status.steam_running}<p class="notice">Start Steam to play.</p>{/if}
     {#if update}<p class="notice">Version {update} is out. <button class="link" onclick={() => invoke("open_releases")}>Get it</button></p>{/if}
-    <p class="footer">v{status.version} · <button class="link" disabled={playing} onclick={removeGameFolders}>Remove modded game folders</button></p>
+    <p class="footer">v{status.version} · <button class="link" disabled={playing || testing} onclick={removeGameFolders}>Remove modded game folders</button></p>
   {/if}
   {#if message}<p class="notice" role="status">{message}</p>{/if}
   {#if error}<p class="notice error" role="alert">{error}</p>{/if}
+  {#if failedRun !== null}
+    {@const id = failedRun}
+    <div class="actions">
+      <button disabled={!ready || playing || testing} onclick={() => play(id)}>Retry run {id}</button>
+      <button disabled={playing || testing} onclick={() => exportReport(id)}>Export bug report</button>
+    </div>
+  {/if}
 </main>

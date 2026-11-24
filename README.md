@@ -10,6 +10,7 @@ An unofficial combo randomizer and [Archipelago](https://archipelago.gg) world f
 - [Architecture](docs/ARCHITECTURE.md)
 - [Development setup](DEVELOPMENT.md)
 - [Roadmap](ROADMAP.md)
+- [Host smoke test](docs/PLAYTEST.md)
 
 ## Play
 

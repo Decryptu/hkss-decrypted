@@ -124,10 +124,13 @@ fn play_game(
         }
         if let Some(status) = child.try_wait()? {
             log.write(format_args!("{} closed ({status})", game.key()));
-            if visible {
+            if visible && status.success() && signal.as_ref().is_none_or(|s| s.state != "error") {
                 return Ok(Outcome::Closed);
             }
-            let reason = signal.and_then(|s| s.detail).unwrap_or_else(|| format!("closed while starting ({status})"));
+            let reason = signal.filter(|s| s.state == "error").and_then(|s| s.detail).unwrap_or_else(|| {
+                if visible { format!("closed unexpectedly ({status})") }
+                else { format!("closed while starting ({status})") }
+            });
             return Err(io::Error::other(format!("{}: {reason}", game.name())));
         }
         if signal.is_none() && started.elapsed() > PLUGIN_TIMEOUT {

@@ -1,5 +1,5 @@
 /* Launcher additions to the hub stylesheet. */
-html, body { overflow: hidden; cursor: default; user-select: none; }
+html, body { overflow-y: auto; cursor: default; user-select: none; }
 .launcher { padding-block: 1.5rem; }
 .launcher .crest { width: 7.5rem; }
 .launcher h1 { font-size: clamp(2.2rem, 8vw, 3.6rem); }
@@ -31,14 +31,19 @@ html, body { overflow: hidden; cursor: default; user-select: none; }
 .menu li { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; }
 .menu button.more { font-size: .8rem; padding: .25rem .5rem; opacity: .55; }
 .menu li.panel { flex-basis: 100%; }
-.panel form { display: grid; grid-template-columns: repeat(2, minmax(0, 14rem)); gap: .6rem 1rem; justify-content: center; margin: .5rem auto 1rem; text-align: left; user-select: text; }
+.panel form { margin: .5rem auto 1rem; text-align: left; user-select: text; }
+.panel fieldset { display: grid; grid-template-columns: repeat(2, minmax(0, 14rem)); gap: .6rem 1rem; border: 0; margin: 0; padding: 0; }
+.panel p[role=status] { margin: .6rem 0 0; text-align: center; }
+.panel p.error { color: #f0928a; }
 .panel label { display: grid; gap: .2rem; font-size: .9rem; color: var(--dim); }
 .panel label.check { grid-column: 1 / -1; display: flex; gap: .5rem; align-items: center; }
 .panel input:not([type=checkbox]) { font: inherit; color: #fff; background: #0c0c12; border: 1px solid #ffffff22; border-radius: 3px; padding: .3rem .5rem; }
 .panel input:focus-visible { outline: 1px solid var(--soul); }
-.panel .actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
-.panel .actions button { font: 400 .9rem var(--display); color: var(--dim); background: none; border: 1px solid #ffffff22; border-radius: 3px; padding: .3rem .8rem; }
-.panel .actions button:hover { color: #fff; border-color: var(--soul); }
+.launcher .actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.launcher > .actions { margin-top: .6rem; }
+.launcher .actions button { font: 400 .9rem var(--display); color: var(--dim); background: none; border: 1px solid #ffffff22; border-radius: 3px; padding: .3rem .8rem; }
+.launcher .actions button:hover:enabled { color: #fff; border-color: var(--soul); }
+.launcher .actions button:disabled { opacity: .4; }
 .panel .actions button.danger:hover { border-color: #f0928a; color: #f0928a; }
 button.link { font: inherit; color: var(--soul); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
 button.link:disabled { opacity: .4; cursor: default; }

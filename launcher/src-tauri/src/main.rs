@@ -5,6 +5,7 @@ mod manage;
 mod mirror;
 mod process;
 mod room;
+mod room_check;
 mod runs;
 mod session;
 mod steam;
@@ -102,6 +103,12 @@ fn idle() -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn test_connection(room: room::Room) -> Result<(), String> {
+    idle()?;
+    room_check::check(room).await
+}
+
+#[tauri::command]
 fn save_room(slot: u8, room: room::Room) -> Result<(), String> {
     idle()?;
     let room = room.validated()?;
@@ -182,7 +189,7 @@ impl session::Screen for Windows {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![status, play, save_room, clear_room, delete_run, remove_game_folders, export_diagnostics, open_releases])
+        .invoke_handler(tauri::generate_handler![status, play, test_connection, save_room, clear_room, delete_run, remove_game_folders, export_diagnostics, open_releases])
         .on_window_event(|window, event| {
             // The hidden cover must not keep the launcher alive, and closing it must not orphan a game.
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {

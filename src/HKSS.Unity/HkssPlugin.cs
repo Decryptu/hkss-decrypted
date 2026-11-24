@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace HKSS.Unity;
 
-[BepInPlugin("decryptu.hkss", "HKSS Decrypted", "0.1.0")]
+[BepInPlugin("decryptu.hkss", "HKSS Decrypted", "0.1.1")]
 public sealed class HkssPlugin : BaseUnityPlugin
 {
 #if HOLLOW_KNIGHT

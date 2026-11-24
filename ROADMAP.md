@@ -19,7 +19,9 @@ Phase 5 (Silksong) is built and verified on Silksong 1.0.30000: Silksong Decrypt
 
 Phase 6 (Launcher release) is built: `npm run release` makes a per-user NSIS installer with BepInEx and both plugins bundled (`HKSS_PAYLOAD` is now only a development override). Each run has Archipelago room settings (`ap.json`) and can be deleted from the launcher; a bug report ZIP collects the run's logs, BepInEx logs, and settings with the password hidden; the launcher checks GitHub Releases for a newer version; and the modded game folders can be removed without following their junctions into the Steam installs. v0.1.0 is the first playtest release. Next up: test the installer on a clean PC and the cases below.
 
-Phase 7 (Player hub) is built and verified in a clean browser profile. The checklist, YAML generator and item map use the published v0.1.0 world catalog. All four YAML presets passed generation in Archipelago 0.6.8.
+Phase 7 (Player hub) is built and verified in a clean browser profile. The checklist, YAML generator and item map use the packaged world catalog. All four YAML presets passed generation in Archipelago 0.6.8.
+
+v0.1.1 adds a launcher connection check, retry and bug report actions after launch or travel errors, and a [host smoke test](docs/PLAYTEST.md) for the first group session.
 
 Still to verify later: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, and a game that crashes during travel. The Silksong plugin's refusal to run without the launcher is only tested on Hollow Knight.
 
