@@ -33,9 +33,11 @@ public sealed class HkssPlugin : BaseUnityPlugin
             Signals.Send(Signal.Booting);
 
             var harmony = new Harmony("decryptu.hkss");
+            ArchipelagoJsonCompatibility.Install(harmony);
             SaveIsolation.Install(harmony);
             FastBoot.Install(harmony);
             TownGate.Install(harmony);
+            ThinSlice.Install(harmony);
         }
         catch (Exception e)
         {
@@ -49,6 +51,8 @@ public sealed class HkssPlugin : BaseUnityPlugin
         gameObject.AddComponent<Travel>();
         gameObject.AddComponent<TownGate>();
         gameObject.AddComponent<TownWarp>();
+        gameObject.AddComponent<ApManager>();
+        gameObject.AddComponent<ApOverlay>();
         Log.LogInfo($"Run folder {Run.RunDir}");
     }
 

@@ -55,6 +55,10 @@ cargo test --manifest-path src-tauri/Cargo.toml
 | `HKSS_DEV_AUTOTRAVEL` | Debug plugins only: travels this many seconds after the game is ready, once the player has control. F8 travels at once. |
 | `HKSS_DEV_START_IN_TOWN` | Debug plugins only: `hk`, `ss`, or `both` warps a fresh run from the tutorial scene straight to that game's town gate behind the travel screen. |
 | `HKSS_DEV_SCREENSHOT_DIR` | Debug plugins only: saves `<game>.png` into this folder shortly after the game becomes ready. |
+| `HKSS_AP_HOST` | Overrides the Archipelago server host (accepts `host` or `host:port`) from `ap.json`. Press `F6` in game to open the connection panel. |
+| `HKSS_AP_PORT` | Overrides the Archipelago server port from `ap.json`. |
+| `HKSS_AP_SLOT` | Overrides the Archipelago slot name from `ap.json`. |
+| `HKSS_AP_PASSWORD` | Overrides the Archipelago room password from `ap.json`. |
 
 Run logs are in `runs/slot-<n>/logs/`: `launcher.log` has timings and memory, `<game>-player.log` is Unity's log. BepInEx logs to `games/<game>/BepInEx/LogOutput.log`.
 

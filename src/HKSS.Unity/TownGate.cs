@@ -206,7 +206,9 @@ internal sealed class TownGate : MonoBehaviour
 
         var vel = ps.velocityOverLifetime;
         vel.enabled = true;
+        vel.x = new ParticleSystem.MinMaxCurve(-0.08f, 0.08f);
         vel.y = new ParticleSystem.MinMaxCurve(0.35f, 0.75f);
+        vel.z = new ParticleSystem.MinMaxCurve(0f, 0f);
 
         var col = ps.colorOverLifetime;
         col.enabled = true;

@@ -1,0 +1,425 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Archipelago.MultiClient.Net;
+using Archipelago.MultiClient.Net.Enums;
+using Archipelago.MultiClient.Net.Helpers;
+using Archipelago.MultiClient.Net.MessageLog.Messages;
+using Archipelago.MultiClient.Net.Models;
+
+namespace HKSS.Core;
+
+public enum ApConnectionState
+{
+    Disconnected,
+    Connecting,
+    Connected,
+    Failed,
+}
+
+public enum ApEventKind
+{
+    Connected,
+    Disconnected,
+    ConnectionFailed,
+    ItemReceived,
+    LogMessage,
+    LocationSent,
+    GoalSent,
+    Error,
+}
+
+public sealed class ApEvent
+{
+    public ApEventKind Kind { get; }
+    public string Message { get; }
+    public int ItemIndex { get; }
+    public long ItemId { get; }
+    public string ItemName { get; }
+    public string SenderName { get; }
+    public bool IsLiveReceipt { get; }
+
+    public ApEvent(
+        ApEventKind kind,
+        string message = "",
+        int itemIndex = -1,
+        long itemId = 0,
+        string itemName = "",
+        string senderName = "",
+        bool isLiveReceipt = false)
+    {
+        Kind = kind;
+        Message = message;
+        ItemIndex = itemIndex;
+        ItemId = itemId;
+        ItemName = itemName;
+        SenderName = senderName;
+        IsLiveReceipt = isLiveReceipt;
+    }
+}
+
+/// <summary>
+/// Thread-safe Archipelago client wrapper for a single game in a combo slot.
+/// Network callbacks push events to a queue that the host (Unity main thread) drains in Update().
+/// </summary>
+public sealed class ApClient : IDisposable
+{
+    private static readonly Version ProtocolVersion = new(0, 6, 8);
+
+    private readonly GameId _thisGame;
+    private readonly object _gate = new();
+    private readonly ConcurrentQueue<ApEvent> _events = new();
+
+    private ArchipelagoSession? _session;
+    private int _generation;
+    private bool _initialSyncDone;
+    private int _queuedItemCount;
+
+    public GameId ThisGame => _thisGame;
+    public ApConnectionState State { get; private set; } = ApConnectionState.Disconnected;
+    public string StatusDetail { get; private set; } = "Not connected";
+    public string ConnectedSlot { get; private set; } = string.Empty;
+    public int Team { get; private set; }
+    public int Slot { get; private set; }
+    public string GamesMode { get; private set; } = GoalTracker.GamesBoth;
+    public string ComboGoal { get; private set; } = GoalTracker.ComboGoalBoth;
+    public bool DeathLinkEnabled { get; private set; }
+    public bool IsConnected => State == ApConnectionState.Connected && _session != null;
+
+    public ApClient(GameId thisGame)
+    {
+        _thisGame = thisGame;
+    }
+
+    public bool TryDequeueEvent(out ApEvent evt) => _events.TryDequeue(out evt!);
+
+    public void Connect(ApSettings settings)
+    {
+        if (settings == null) throw new ArgumentNullException(nameof(settings));
+        if (!settings.IsConfigured)
+        {
+            State = ApConnectionState.Failed;
+            StatusDetail = "Enter server address and slot name.";
+            _events.Enqueue(new ApEvent(ApEventKind.ConnectionFailed, StatusDetail));
+            return;
+        }
+
+        ApSettings copy = settings.Clone();
+        int gen;
+        lock (_gate)
+        {
+            DisconnectInternal();
+            gen = ++_generation;
+            State = ApConnectionState.Connecting;
+            StatusDetail = $"Connecting to {copy.FormatAddress()} as {copy.Slot}...";
+            _initialSyncDone = false;
+            _queuedItemCount = 0;
+        }
+
+        _ = Task.Run(() => ConnectWorker(copy, gen));
+    }
+
+    private void ConnectWorker(ApSettings settings, int gen)
+    {
+        ArchipelagoSession? session = null;
+        try
+        {
+            session = ArchipelagoSessionFactory.CreateSession(settings.Host, settings.Port);
+            session.Socket.SocketClosed += reason => OnSocketClosed(gen, reason);
+            session.MessageLog.OnMessageReceived += msg => OnLogMessage(gen, msg);
+            session.Items.ItemReceived += helper => OnItemReceived(gen, helper);
+
+            LoginResult result = session.TryConnectAndLogin(
+                IdSpace.GameName,
+                settings.Slot,
+                ItemsHandlingFlags.AllItems,
+                ProtocolVersion,
+                tags: null,
+                uuid: null,
+                password: string.IsNullOrEmpty(settings.Password) ? null : settings.Password,
+                requestSlotData: true);
+
+            if (result is LoginFailure failure)
+            {
+                string reason = string.Join("; ", failure.Errors ?? Array.Empty<string>());
+                if (string.IsNullOrWhiteSpace(reason)) reason = "Login failed.";
+                SafeClose(session);
+                lock (_gate)
+                {
+                    if (gen != _generation) return;
+                    State = ApConnectionState.Failed;
+                    StatusDetail = reason;
+                }
+                _events.Enqueue(new ApEvent(ApEventKind.ConnectionFailed, reason));
+                return;
+            }
+
+            LoginSuccessful ok = (LoginSuccessful)result;
+            string gamesMode = ReadString(ok.SlotData, "games", GoalTracker.GamesBoth);
+            string comboGoal = ReadString(ok.SlotData, "combo_goal", GoalTracker.ComboGoalBoth);
+            bool deathLink = ReadBool(ok.SlotData, "death_link", false);
+
+            lock (_gate)
+            {
+                if (gen != _generation)
+                {
+                    SafeClose(session);
+                    return;
+                }
+
+                _session = session;
+                Team = ok.Team;
+                Slot = ok.Slot;
+                ConnectedSlot = settings.Slot;
+                GamesMode = gamesMode;
+                ComboGoal = comboGoal;
+                DeathLinkEnabled = deathLink;
+                State = ApConnectionState.Connected;
+                StatusDetail = $"Connected to {settings.FormatAddress()} as {settings.Slot}";
+
+                // Queue any items already received during the login handshake before flipping live mode.
+                DrainSessionItemsLocked(session, isLive: false);
+                _initialSyncDone = true;
+            }
+
+            _events.Enqueue(new ApEvent(ApEventKind.Connected, StatusDetail));
+        }
+        catch (Exception e)
+        {
+            SafeClose(session);
+            lock (_gate)
+            {
+                if (gen != _generation) return;
+                State = ApConnectionState.Failed;
+                StatusDetail = e.Message;
+            }
+            _events.Enqueue(new ApEvent(ApEventKind.ConnectionFailed, e.Message));
+        }
+    }
+
+    private void OnItemReceived(int gen, ReceivedItemsHelper helper)
+    {
+        lock (_gate)
+        {
+            if (gen != _generation || _session == null) return;
+            DrainSessionItemsLocked(_session, isLive: _initialSyncDone);
+        }
+    }
+
+    private void DrainSessionItemsLocked(ArchipelagoSession session, bool isLive)
+    {
+        IReadOnlyList<ItemInfo> all = session.Items.AllItemsReceived;
+        while (_queuedItemCount < all.Count)
+        {
+            int idx = _queuedItemCount++;
+            ItemInfo info = all[idx];
+            string itemName = info.ItemDisplayName ?? info.ItemName ?? $"Item #{info.ItemId}";
+            string senderName = info.Player?.Name ?? "Archipelago";
+            _events.Enqueue(new ApEvent(
+                ApEventKind.ItemReceived,
+                itemIndex: idx,
+                itemId: info.ItemId,
+                itemName: itemName,
+                senderName: senderName,
+                isLiveReceipt: isLive));
+        }
+    }
+
+    private void OnLogMessage(int gen, LogMessage message)
+    {
+        lock (_gate)
+        {
+            if (gen != _generation) return;
+        }
+        string text = message?.ToString() ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(text))
+            _events.Enqueue(new ApEvent(ApEventKind.LogMessage, text));
+    }
+
+    private void OnSocketClosed(int gen, string reason)
+    {
+        bool notify = false;
+        lock (_gate)
+        {
+            if (gen != _generation) return;
+            if (State == ApConnectionState.Connected || State == ApConnectionState.Connecting)
+            {
+                State = ApConnectionState.Disconnected;
+                StatusDetail = string.IsNullOrWhiteSpace(reason) ? "Disconnected" : $"Disconnected: {reason}";
+                _session = null;
+                notify = true;
+            }
+        }
+        if (notify)
+            _events.Enqueue(new ApEvent(ApEventKind.Disconnected, StatusDetail));
+    }
+
+    public long? ResolveLocationId(string locationName)
+    {
+        if (string.IsNullOrWhiteSpace(locationName)) return null;
+        string fullName = EnsureGamePrefix(locationName);
+        ArchipelagoSession? session;
+        lock (_gate) session = _session;
+        if (session == null) return null;
+
+        long id = session.Locations.GetLocationIdFromName(IdSpace.GameName, fullName);
+        if (id < 0) return null;
+        return IdSpace.GameForId(id) == _thisGame ? id : null;
+    }
+
+    public bool CompleteLocation(long combinedLocationId)
+    {
+        if (IdSpace.GameForId(combinedLocationId) != _thisGame)
+            throw new ArgumentOutOfRangeException(nameof(combinedLocationId), combinedLocationId,
+                $"Refused to report location {combinedLocationId} from {_thisGame}.");
+
+        ArchipelagoSession? session;
+        lock (_gate) session = _session;
+        if (session == null || State != ApConnectionState.Connected) return false;
+
+        try
+        {
+            session.Locations.CompleteLocationChecks(combinedLocationId);
+            string name = session.Locations.GetLocationNameFromId(combinedLocationId, IdSpace.GameName)
+                ?? $"Location #{combinedLocationId}";
+            _events.Enqueue(new ApEvent(ApEventKind.LocationSent, $"Checked {IdSpace.StripPrefix(name)}"));
+            return true;
+        }
+        catch (Exception e)
+        {
+            _events.Enqueue(new ApEvent(ApEventKind.Error, $"Failed to send check {combinedLocationId}: {e.Message}"));
+            return false;
+        }
+    }
+
+    public void SyncCheckedLocations(IEnumerable<long> combinedLocationIds)
+    {
+        if (combinedLocationIds == null) return;
+        long[] ownIds = combinedLocationIds.Where(id => IdSpace.GameForId(id) == _thisGame).Distinct().ToArray();
+        if (ownIds.Length == 0) return;
+
+        ArchipelagoSession? session;
+        lock (_gate) session = _session;
+        if (session == null || State != ApConnectionState.Connected) return;
+
+        try
+        {
+            session.Locations.CompleteLocationChecks(ownIds);
+        }
+        catch (Exception e)
+        {
+            _events.Enqueue(new ApEvent(ApEventKind.Error, $"Failed to sync checks: {e.Message}"));
+        }
+    }
+
+    public void ReportLocalGoalComplete()
+    {
+        ArchipelagoSession? session;
+        int team, slot;
+        string gamesMode, comboGoal;
+        lock (_gate)
+        {
+            session = _session;
+            team = Team;
+            slot = Slot;
+            gamesMode = GamesMode;
+            comboGoal = ComboGoal;
+        }
+        if (session == null || State != ApConnectionState.Connected) return;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                string myKey = GoalTracker.DataStorageKey(team, slot, _thisGame);
+                GameId otherGame = _thisGame == GameId.HollowKnight ? GameId.Silksong : GameId.HollowKnight;
+                string otherKey = GoalTracker.DataStorageKey(team, slot, otherGame);
+
+                session.DataStorage[Scope.Global, myKey] = true;
+                bool otherDone = false;
+                try
+                {
+                    otherDone = await session.DataStorage[Scope.Global, otherKey].GetAsync<bool>();
+                }
+                catch
+                {
+                    otherDone = false;
+                }
+
+                bool hkDone = _thisGame == GameId.HollowKnight ? true : otherDone;
+                bool ssDone = _thisGame == GameId.Silksong ? true : otherDone;
+                if (GoalTracker.IsComboGoalSatisfied(gamesMode, comboGoal, hkDone, ssDone))
+                {
+                    session.SetGoalAchieved();
+                    _events.Enqueue(new ApEvent(ApEventKind.GoalSent, "Combo goal completed!"));
+                }
+            }
+            catch (Exception e)
+            {
+                _events.Enqueue(new ApEvent(ApEventKind.Error, $"Failed to report goal: {e.Message}"));
+            }
+        });
+    }
+
+    public void Disconnect()
+    {
+        bool wasConnected;
+        lock (_gate)
+        {
+            wasConnected = State == ApConnectionState.Connected || State == ApConnectionState.Connecting;
+            _generation++;
+            DisconnectInternal();
+            State = ApConnectionState.Disconnected;
+            StatusDetail = "Disconnected";
+        }
+        if (wasConnected)
+            _events.Enqueue(new ApEvent(ApEventKind.Disconnected, "Disconnected"));
+    }
+
+    public void Dispose() => Disconnect();
+
+    private void DisconnectInternal()
+    {
+        ArchipelagoSession? old = _session;
+        _session = null;
+        if (old != null) SafeClose(old);
+    }
+
+    private static void SafeClose(ArchipelagoSession? session)
+    {
+        if (session == null) return;
+        try
+        {
+            if (session.Socket.Connected)
+                session.Socket.DisconnectAsync();
+        }
+        catch
+        {
+            // Ignore shutdown errors on an already closed socket.
+        }
+    }
+
+    private string EnsureGamePrefix(string name)
+    {
+        string prefix = _thisGame == GameId.HollowKnight
+            ? IdSpace.HollowKnightPrefix
+            : IdSpace.SilksongPrefix;
+        return name.StartsWith(prefix, StringComparison.Ordinal) ? name : prefix + name;
+    }
+
+    private static string ReadString(Dictionary<string, object>? data, string key, string fallback)
+    {
+        if (data == null || !data.TryGetValue(key, out object? val) || val == null) return fallback;
+        return val.ToString() ?? fallback;
+    }
+
+    private static bool ReadBool(Dictionary<string, object>? data, string key, bool fallback)
+    {
+        if (data == null || !data.TryGetValue(key, out object? val) || val == null) return fallback;
+        if (val is bool b) return b;
+        return bool.TryParse(val.ToString(), out bool parsed) ? parsed : fallback;
+    }
+}

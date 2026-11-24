@@ -53,4 +53,35 @@ public sealed class RunStateTests : IDisposable
         var store = new RunStateStore(MakeContext(GameId.HollowKnight));
         Assert.False(store.Load().BonetownGateOpen);
     }
+
+    [Fact]
+    public void ProcessedItemCountsAreIndependentPerGame()
+    {
+        var store = new RunStateStore(MakeContext(GameId.HollowKnight));
+        Assert.Equal(0, store.GetProcessedItems(GameId.HollowKnight));
+        Assert.Equal(0, store.GetProcessedItems(GameId.Silksong));
+
+        store.SetProcessedItems(GameId.HollowKnight, 5);
+        Assert.Equal(5, store.GetProcessedItems(GameId.HollowKnight));
+        Assert.Equal(0, store.GetProcessedItems(GameId.Silksong));
+
+        store.SetProcessedItems(GameId.Silksong, 3);
+        Assert.Equal(5, store.GetProcessedItems(GameId.HollowKnight));
+        Assert.Equal(3, store.GetProcessedItems(GameId.Silksong));
+    }
+
+    [Fact]
+    public void RecordCheckedLocationPersistsAndRejectsOtherGame()
+    {
+        var store = new RunStateStore(MakeContext(GameId.HollowKnight));
+        long hkLoc = IdSpace.HollowKnightBlockStart + 1;
+        long ssLoc = IdSpace.SilksongBlockStart + 1;
+
+        Assert.True(store.RecordCheckedLocation(GameId.HollowKnight, hkLoc));
+        Assert.False(store.RecordCheckedLocation(GameId.HollowKnight, hkLoc));
+        Assert.Equal(new[] { hkLoc }, store.GetCheckedLocations(GameId.HollowKnight));
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            store.RecordCheckedLocation(GameId.HollowKnight, ssLoc));
+    }
 }

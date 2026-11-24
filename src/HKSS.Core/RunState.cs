@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -6,7 +7,8 @@ namespace HKSS.Core;
 
 /// <summary>
 /// Gameplay progress shared across both games in a combo run. Stored separately from
-/// <c>run.json</c> (which the launcher owns and rewrites on every game switch).
+/// <c>run.json</c> (which the launcher owns and rewrites on every game switch) and
+/// <c>ap.json</c> (which holds room connection settings).
 /// </summary>
 public sealed class RunState
 {
@@ -16,6 +18,54 @@ public sealed class RunState
     /// </summary>
     [JsonProperty("bonetown_gate_open")]
     public bool BonetownGateOpen { get; set; }
+
+    /// <summary>
+    /// Number of entries in the Archipelago slot's received item stream already processed
+    /// by Hollow Knight. Stored per game so items found while the other game was active
+    /// are applied on the next load.
+    /// </summary>
+    [JsonProperty("hk_processed_items")]
+    public int HkProcessedItems { get; set; }
+
+    /// <summary>
+    /// Number of entries in the Archipelago slot's received item stream already processed
+    /// by Silksong.
+    /// </summary>
+    [JsonProperty("ss_processed_items")]
+    public int SsProcessedItems { get; set; }
+
+    /// <summary>Combined location IDs checked in Hollow Knight (flushed to AP on connect).</summary>
+    [JsonProperty("hk_checked_locations")]
+    public List<long> HkCheckedLocations { get; set; } = new();
+
+    /// <summary>Combined location IDs checked in Silksong (flushed to AP on connect).</summary>
+    [JsonProperty("ss_checked_locations")]
+    public List<long> SsCheckedLocations { get; set; } = new();
+
+    public int GetProcessedItems(GameId game) => game switch
+    {
+        GameId.HollowKnight => HkProcessedItems,
+        GameId.Silksong => SsProcessedItems,
+        _ => throw new ArgumentOutOfRangeException(nameof(game), game, null),
+    };
+
+    public void SetProcessedItems(GameId game, int count)
+    {
+        if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), count, null);
+        switch (game)
+        {
+            case GameId.HollowKnight: HkProcessedItems = count; break;
+            case GameId.Silksong: SsProcessedItems = count; break;
+            default: throw new ArgumentOutOfRangeException(nameof(game), game, null);
+        }
+    }
+
+    public List<long> GetCheckedLocations(GameId game) => game switch
+    {
+        GameId.HollowKnight => HkCheckedLocations ??= new List<long>(),
+        GameId.Silksong => SsCheckedLocations ??= new List<long>(),
+        _ => throw new ArgumentOutOfRangeException(nameof(game), game, null),
+    };
 }
 
 /// <summary>Atomic reader/writer for <c>state.json</c> inside a combo run folder.</summary>
@@ -65,4 +115,30 @@ public sealed class RunStateStore
         Save(state);
         return true;
     }
+
+    public int GetProcessedItems(GameId game) => Load().GetProcessedItems(game);
+
+    public void SetProcessedItems(GameId game, int count)
+    {
+        RunState state = Load();
+        if (state.GetProcessedItems(game) == count) return;
+        state.SetProcessedItems(game, count);
+        Save(state);
+    }
+
+    public bool RecordCheckedLocation(GameId game, long combinedLocationId)
+    {
+        if (IdSpace.GameForId(combinedLocationId) != game)
+            throw new ArgumentOutOfRangeException(nameof(combinedLocationId), combinedLocationId,
+                $"Location ID {combinedLocationId} does not belong to {game}.");
+
+        RunState state = Load();
+        List<long> list = state.GetCheckedLocations(game);
+        if (list.Contains(combinedLocationId)) return false;
+        list.Add(combinedLocationId);
+        Save(state);
+        return true;
+    }
+
+    public IReadOnlyList<long> GetCheckedLocations(GameId game) => Load().GetCheckedLocations(game);
 }

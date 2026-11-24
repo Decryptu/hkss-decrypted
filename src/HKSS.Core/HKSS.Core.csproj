@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\Games.props" />
   <ItemGroup>
+    <PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.1" />
     <!-- Both games ship Newtonsoft.Json 13.0.2, so the plugins never carry their own copy. -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
