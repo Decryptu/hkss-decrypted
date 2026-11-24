@@ -53,7 +53,7 @@ function render(world) {
     });
     label.append(checkbox, element("strong", title));
     item.append(label, element("p", body));
-    if (href) item.append(element("a", link, { href }));
+    if (href) item.append(element("a", link, { href, target: "_blank", rel: "noopener" }));
     if (key === "world") {
       const help = element("details", undefined, { class: "check-step-help" });
       help.append(element("summary", "The file won’t open"),

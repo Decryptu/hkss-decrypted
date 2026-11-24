@@ -136,6 +136,8 @@ loadWorld().then(world => {
   let limit = pageSize;
   let filtered = [];
   const more = document.querySelector("#map-more");
+  const resultsTitle = document.querySelector("#map-results-title");
+  const back = document.querySelector("#map-back");
 
   function render() {
     const available = world.checks.filter(check => !game.value || check.game === game.value);
@@ -153,6 +155,8 @@ loadWorld().then(world => {
         .some(value => String(value ?? "").toLowerCase().includes(term))));
     filtered = matching.filter(check => !area.value || check.areas.some(name => areaKey(check, name) === area.value));
     renderAtlas(matching, available, area.value, world.routes);
+    resultsTitle.textContent = area.value ? area.value.split("|")[1] : "All checks";
+    back.hidden = !atlas.querySelector('[aria-pressed="true"]:enabled');
     count.textContent = filtered.length
       ? `${filtered.length.toLocaleString()} matching ${filtered.length === 1 ? "check" : "checks"}`
       : "No checks match these filters.";
@@ -172,7 +176,17 @@ loadWorld().then(world => {
     if (!tile) return;
     area.value = area.value === tile.dataset.area ? "" : tile.dataset.area;
     update();
-    [...atlas.querySelectorAll("button")].find(button => button.dataset.area === tile.dataset.area)?.focus();
+    if (area.value) {
+      resultsTitle.focus({ preventScroll: true });
+      resultsTitle.scrollIntoView({ block: "start" });
+    } else {
+      [...atlas.querySelectorAll("button")].find(button => button.dataset.area === tile.dataset.area)?.focus();
+    }
+  });
+  back.addEventListener("click", () => {
+    const tile = atlas.querySelector('[aria-pressed="true"]:enabled');
+    tile.focus({ preventScroll: true });
+    tile.scrollIntoView({ block: "center", inline: "nearest" });
   });
   more.addEventListener("click", () => {
     const firstNew = limit;

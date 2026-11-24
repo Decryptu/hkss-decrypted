@@ -38,8 +38,12 @@
       <label>Check type <select name="type"></select></label>
       <label>Find a check <input type="search" name="query" placeholder="Name, room or ID"></label>
     </form>
-    <p class="hub-note">Select an area on the schematic map to filter the <a href="#map-count">check list</a>. Lines show connections between areas. Available checks vary with seed settings. <span class="atlas-scroll-hint">Scroll sideways to see the full map.</span></p>
+    <p class="hub-note">Select a map area to see its checks. Lines show connections between areas. Available checks vary with seed settings. <span class="atlas-scroll-hint">Scroll sideways to see the full map.</span></p>
     <div id="atlas" class="atlas"></div>
+    <div class="map-results-header">
+      <h2 id="map-results-title" tabindex="-1">All checks</h2>
+      <button id="map-back" type="button" hidden>Back to map</button>
+    </div>
     <p id="map-count" class="hub-status" role="status"></p>
     <ul id="map-results" class="check-results"></ul>
     <button id="map-more" type="button" hidden>Show more checks</button>

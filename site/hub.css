@@ -117,6 +117,15 @@
 .atlas-areas small { color: var(--dim); margin-top: .15rem; }
 .atlas-areas [aria-pressed="true"] { background: #294264; border-color: var(--soul); }
 .ss .atlas-areas [aria-pressed="true"] { background: #632723; border-color: #f0928a; }
+.map-results-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem 1rem;
+  margin-top: 1rem;
+}
+#map-results-title { scroll-margin-top: 1rem; }
 .check-result {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
