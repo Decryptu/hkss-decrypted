@@ -108,7 +108,7 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
                     player_files_path=str(pdir),
                     seed=seed,
                     multi=len(yamls),
-                    spoiler=2,
+                    spoiler=1,
                     outputpath=str(odir),
                     allow_quantity=False,
                     race=False,
