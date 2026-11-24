@@ -23,6 +23,8 @@ Phase 7 (Player hub) is built and verified in a clean browser profile. The check
 
 v0.1.1 adds a launcher connection check, retry and bug report actions after launch or travel errors, and a [host smoke test](docs/PLAYTEST.md) for the first group session.
 
+v0.1.2 fixes the diagnostic ZIP archive writer, adds pre-launch checks for legacy Unity versions, leftover Lumafly/Modding API files, incomplete Steam installs, and running games, and captures BepInEx preloader logs and install diagnostics.
+
 Still to verify later: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, and a game that crashes during travel. The Silksong plugin's refusal to run without the launcher is only tested on Hollow Knight.
 
 ## Later

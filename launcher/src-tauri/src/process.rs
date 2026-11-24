@@ -4,8 +4,8 @@ use std::{mem, ptr};
 use windows_sys::Win32::{
     Foundation::{CloseHandle, BOOL, HWND, LPARAM, RECT},
     System::{
-        ProcessStatus::{GetProcessMemoryInfo, PROCESS_MEMORY_COUNTERS, PROCESS_MEMORY_COUNTERS_EX},
-        Threading::{OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_VM_READ},
+        ProcessStatus::{EnumProcesses, GetProcessMemoryInfo, PROCESS_MEMORY_COUNTERS, PROCESS_MEMORY_COUNTERS_EX},
+        Threading::{OpenProcess, QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_VM_READ},
     },
     UI::WindowsAndMessaging::{
         EnumWindows, GetWindowLongW, GetWindowRect, GetWindowThreadProcessId, IsIconic, IsWindowVisible,
@@ -73,4 +73,41 @@ pub fn memory_mb(pid: u32) -> Option<(usize, usize, usize)> {
         const MB: usize = 1024 * 1024;
         (ok != 0).then_some((info.WorkingSetSize / MB, info.PeakWorkingSetSize / MB, info.PrivateUsage / MB))
     }
+}
+
+/// True if a process with the given executable file name (case-insensitive) is currently running.
+pub fn is_running(exe_name: &str) -> bool {
+    let mut pids = vec![0u32; 2048];
+    let mut returned = 0u32;
+    let ok = unsafe {
+        EnumProcesses(pids.as_mut_ptr(), (pids.len() * mem::size_of::<u32>()) as u32, &mut returned)
+    };
+    if ok == 0 {
+        return false;
+    }
+    let count = (returned as usize) / mem::size_of::<u32>();
+    let mut buf = vec![0u16; 512];
+    for &pid in &pids[..count.min(pids.len())] {
+        if pid == 0 {
+            continue;
+        }
+        unsafe {
+            let handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid);
+            if handle.is_null() {
+                continue;
+            }
+            let mut len = buf.len() as u32;
+            let got = QueryFullProcessImageNameW(handle, 0, buf.as_mut_ptr(), &mut len);
+            CloseHandle(handle);
+            if got != 0 && len > 0 {
+                let path = String::from_utf16_lossy(&buf[..len as usize]);
+                if let Some(name) = path.rsplit(['\\', '/']).next() {
+                    if name.eq_ignore_ascii_case(exe_name) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    false
 }

@@ -7,6 +7,7 @@ use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 pub struct Install {
     pub dir: PathBuf,
     pub build: String,
+    pub beta: Option<String>,
 }
 
 pub fn is_running() -> bool {
@@ -29,7 +30,8 @@ pub fn find(game: Game) -> Option<Install> {
         let manifest = fs::read_to_string(apps.join(format!("appmanifest_{}.acf", game.app_id()))).ok()?;
         let dir = apps.join("common").join(values(&manifest, "installdir").into_iter().next()?);
         let build = values(&manifest, "buildid").into_iter().next()?;
-        dir.join(game.exe()).is_file().then_some(Install { dir, build })
+        let beta = values(&manifest, "betakey").into_iter().next().filter(|s| !s.is_empty());
+        dir.join(game.exe()).is_file().then_some(Install { dir, build, beta })
     })
 }
 

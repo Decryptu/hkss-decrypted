@@ -3,6 +3,7 @@
 mod game;
 mod manage;
 mod mirror;
+mod preflight;
 mod process;
 mod room;
 mod room_check;
@@ -28,6 +29,8 @@ struct GameStatus {
     name: &'static str,
     build: Option<String>,
     tested: bool,
+    unity_version: Option<String>,
+    issues: Vec<preflight::Issue>,
 }
 
 #[derive(Serialize)]
@@ -47,10 +50,47 @@ struct Status {
 
 #[tauri::command]
 fn status() -> Result<Status, String> {
-    let games = Game::ALL.map(|game| {
-        let build = steam::find(game).map(|install| install.build);
-        let tested = build.as_deref() == Some(game.tested_build());
-        GameStatus { key: game.key(), name: game.name(), build, tested }
+    let playing = PLAYING.load(Ordering::SeqCst);
+    let games = Game::ALL.map(|game| match steam::find(game) {
+        Some(install) => {
+            let tested = install.build == game.tested_build();
+            let mut report = preflight::inspect(game, &install);
+            if !playing && process::is_running(game.exe()) {
+                report.issues.insert(
+                    0,
+                    preflight::Issue {
+                        severity: preflight::Severity::Error,
+                        code: "already_running",
+                        summary: "already running".into(),
+                        detail: format!("{} is already running. Close it before starting a run.", game.name()),
+                    },
+                );
+            }
+            GameStatus {
+                key: game.key(),
+                name: game.name(),
+                build: Some(install.build),
+                tested,
+                unity_version: report.unity_version,
+                issues: report.issues,
+            }
+        }
+        None => GameStatus {
+            key: game.key(),
+            name: game.name(),
+            build: None,
+            tested: false,
+            unity_version: None,
+            issues: vec![preflight::Issue {
+                severity: preflight::Severity::Error,
+                code: "not_installed",
+                summary: "not found in Steam".into(),
+                detail: format!(
+                    "{} was not found in Steam. Install it in Steam, then focus or reopen this window.",
+                    game.name()
+                ),
+            }],
+        },
     });
     let mut slots = Vec::new();
     for id in runs::SLOTS {

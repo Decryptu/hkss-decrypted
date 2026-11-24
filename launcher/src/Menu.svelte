@@ -4,7 +4,8 @@
   import { onMount } from "svelte";
   import logo from "../../site/assets/logo.webp";
 
-  type Game = { key: string; name: string; build: string | null; tested: boolean };
+  type Issue = { severity: "error" | "warning"; code: string; summary: string; detail: string };
+  type Game = { key: string; name: string; build: string | null; tested: boolean; unity_version: string | null; issues: Issue[] };
   type Room = { host: string; port: number; slot: string; password: string; auto_connect: boolean };
   type Slot = { id: number; current: string | null; room: Room | null };
   type Status = { games: Game[]; slots: Slot[]; steam_running: boolean; version: string };
@@ -86,7 +87,9 @@
     }
   }
 
-  const ready = $derived(!!status && status.steam_running && status.games.every((g) => g.build));
+  const gameIssues = $derived(status ? status.games.flatMap((g) => g.issues) : []);
+  const hasBlockingIssue = $derived(gameIssues.some((i) => i.severity === "error"));
+  const ready = $derived(!!status && status.steam_running && status.games.every((g) => g.build) && !hasBlockingIssue);
   const place = (key: string) => (key === "silksong" ? "Pharloom" : "Hallownest");
 
   async function refresh() {
@@ -192,14 +195,28 @@
     </ul>
     <ul class="games" role="list">
       {#each status.games as game (game.key)}
+        {@const firstIssue = game.issues[0]}
         <li class={game.key}>
           {game.name}
-          {#if !game.build}<em>not found in Steam</em>
-          {:else if !game.tested}<em>untested build {game.build}</em>{/if}
+          {#if firstIssue}<em class:error={firstIssue.severity === "error"}>{firstIssue.summary}</em>{/if}
         </li>
       {/each}
     </ul>
-    {#if !status.steam_running}<p class="notice">Start Steam to play.</p>{/if}
+    {#if !status.steam_running}<p class="notice error">Steam is not running. Start Steam and sign in to play.</p>{/if}
+    {#if gameIssues.length > 0}
+      <ul class="preflight" role="list">
+        {#each gameIssues as issue (`${issue.code}:${issue.summary}`)}
+          <li class="notice" class:error={issue.severity === "error"} role={issue.severity === "error" ? "alert" : "status"}>
+            {issue.detail}
+          </li>
+        {/each}
+      </ul>
+    {/if}
+    {#if !status.steam_running || hasBlockingIssue}
+      <div class="actions">
+        <button type="button" disabled={playing || testing} onclick={refresh}>Recheck</button>
+      </div>
+    {/if}
     {#if update}<p class="notice">Version {update} is out. <button class="link" onclick={() => invoke("open_releases")}>Get it</button></p>{/if}
     <p class="footer">v{status.version}</p>
   {/if}

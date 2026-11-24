@@ -15,7 +15,10 @@ body { overflow: clip; }
 .games .hollow_knight { color: var(--soul); }
 .games .silksong { color: #f0928a; }
 .games em { color: var(--dim); margin-left: .4em; }
-.notice { color: var(--dim); font-style: italic; margin: 1rem auto 0; max-width: 46ch; }
+.games em.error { color: #f0928a; }
+.preflight { list-style: none; padding: 0; margin: .5rem auto 0; max-width: 54ch; display: grid; gap: .45rem; }
+.preflight .notice { margin: 0; max-width: none; }
+.notice { color: var(--dim); font-style: italic; margin: 1rem auto 0; max-width: 52ch; }
 .notice.error { color: #f0928a; }
 
 /* Travel screen: hides one game closing and the other starting. */

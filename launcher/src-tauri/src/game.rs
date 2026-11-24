@@ -39,6 +39,20 @@ impl Game {
         }
     }
 
+    pub fn data_dir(self) -> &'static str {
+        match self {
+            Game::HollowKnight => "hollow_knight_Data",
+            Game::Silksong => "Hollow Knight Silksong_Data",
+        }
+    }
+
+    /// Expected Unity major version prefix (`6000.` for Unity 6).
+    pub fn expected_unity_major(self) -> &'static str {
+        match self {
+            Game::HollowKnight | Game::Silksong => "6000.",
+        }
+    }
+
     /// The Steam build the plugins were last verified on.
     pub fn tested_build(self) -> &'static str {
         match self {

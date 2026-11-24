@@ -1,6 +1,6 @@
 //! Plays a run: starts the current game behind the travel screen, and swaps games on request.
 
-use crate::{game::Game, mirror, process, runs, steam};
+use crate::{game::Game, mirror, preflight, process, runs, steam};
 use serde::Deserialize;
 use std::{
     fs::{self, File, OpenOptions},
@@ -71,20 +71,39 @@ fn play_game(
     place: &mut Option<(i32, i32)>,
     log: &mut Log,
 ) -> io::Result<Outcome> {
+    let install = steam::find(game).ok_or_else(|| io::Error::other(format!("{} is not installed in Steam.", game.name())))?;
+    if process::is_running(game.exe()) {
+        let msg = format!("{} is already running. Close it before starting a run.", game.name());
+        log.write(format_args!("{} blocked: already running", game.key()));
+        return Err(io::Error::other(msg));
+    }
+    let report = preflight::inspect(game, &install);
+    if let Some(err) = report.first_error() {
+        log.write(format_args!("{} blocked: {} ({})", game.key(), err.code, err.summary));
+        return Err(io::Error::other(err.detail.clone()));
+    }
+
     screen.raise_cover(game);
-    let install = steam::find(game).ok_or_else(|| io::Error::other(format!("{} is not installed", game.name())))?;
-    let exe = mirror::prepare(game, &install.dir, &runs::home().join("games").join(game.key()), payload)?;
+    let mirror_dir = runs::home().join("games").join(game.key());
+    let exe = mirror::prepare(game, &install.dir, &mirror_dir, payload)?;
 
     let session = new_session();
     let started = Instant::now();
     let mut child = Command::new(&exe)
         .current_dir(exe.parent().expect("the mirror folder"))
+        .env_remove("DOORSTOP_DISABLE")
+        .env_remove("DOORSTOP_ENABLED")
         .env("HKSS_RUN_DIR", dir)
         .env("HKSS_SESSION", &session)
         .arg("-logFile")
         .arg(dir.join("logs").join(format!("{}-player.log", game.key())))
         .spawn()?;
-    log.write(format_args!("{} start", game.key()));
+    log.write(format_args!(
+        "{} start (build {}, unity {})",
+        game.key(),
+        install.build,
+        report.unity_version.as_deref().unwrap_or("unknown")
+    ));
 
     let signals = dir.join("signals");
     let signal_file = signals.join(format!("{}.json", game.key()));
@@ -134,13 +153,22 @@ fn play_game(
             return Err(io::Error::other(format!("{}: {reason}", game.name())));
         }
         if signal.is_none() && started.elapsed() > PLUGIN_TIMEOUT {
-            child.kill()?;
-            return Err(io::Error::other(format!("{}: the mod did not load", game.name())));
+            let _ = child.kill();
+            log.write(format_args!("{} plugin timeout after {:.1} s", game.key(), started.elapsed().as_secs_f32()));
+            let reason = if !mirror_dir.join("winhttp.dll").is_file() {
+                "winhttp.dll is missing from the modded game folder (antivirus may have quarantined it). Allow HKSS Launcher in your antivirus and try again."
+            } else if has_preloader_log(&mirror_dir) {
+                "BepInEx failed during startup. Export a bug report so the preloader log can be checked."
+            } else {
+                "the mod did not load within 20 seconds (game closed automatically). Make sure the game is up to date in Steam with no Lumafly or other mods installed, and check that antivirus is not blocking winhttp.dll, or export a bug report."
+            };
+            return Err(io::Error::other(format!("{}: {reason}", game.name())));
         }
         if !visible && started.elapsed() > READY_TIMEOUT {
             // Nothing to lose yet: the player has not seen the game.
-            child.kill()?;
-            return Err(io::Error::other(format!("{} did not finish starting", game.name())));
+            let _ = child.kill();
+            log.write(format_args!("{} ready timeout after {:.1} s", game.key(), started.elapsed().as_secs_f32()));
+            return Err(io::Error::other(format!("{} did not finish starting within 150 seconds.", game.name())));
         }
         sleep(POLL);
     }
@@ -170,6 +198,15 @@ fn leave(
     }
     log.write(format_args!("{} left for {} in {:.2} s", game.key(), to.key(), asked.elapsed().as_secs_f32()));
     Ok(Outcome::Travel(to))
+}
+
+fn has_preloader_log(mirror_dir: &Path) -> bool {
+    fs::read_dir(mirror_dir).ok().is_some_and(|entries| {
+        entries.flatten().any(|e| {
+            let name = e.file_name().to_string_lossy().to_ascii_lowercase();
+            name.starts_with("preloader_") && name.ends_with(".log")
+        })
+    })
 }
 
 fn read_signal(file: &Path, session: &str) -> Option<Signal> {
