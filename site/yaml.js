@@ -3,6 +3,7 @@ import { element, loadWorld, showError } from "./hub.js";
 const form = document.querySelector("#yaml-form");
 const groups = document.querySelector("#option-groups");
 const status = document.querySelector("#yaml-status");
+const importStatus = document.querySelector("#yaml-import-status");
 const preview = document.querySelector("#yaml-preview");
 const download = document.querySelector("#yaml-download");
 const yaml = globalThis.jsyaml;
@@ -60,39 +61,90 @@ function validOption(value, option, allowed) {
     && validateScalar(integer.test(key) && option.kind !== "text" && option.kind !== "textChoice" ? Number(key) : key, option));
 }
 
-function hints(option) {
-  if (option.kind === "toggle") return ["false", "true", "random"];
-  if (option.choices) return [...option.choices, "random"];
-  if (option.kind === "range") return [option.min, option.max, ...Object.keys(option.names), "random"];
-  return [];
+function choiceLabel(key) {
+  return key.replace(/[_-]/g, " ").replace(/^./, first => first.toUpperCase());
 }
 
 function optionEditor(key, option) {
   const row = element("div", undefined, { class: "option-row", "data-key": key });
   const id = `option-${key}`;
   const label = element("label", option.label || key, { for: id });
-  const long = ["mapping", "list", "text"].includes(option.kind);
-  const input = element(long ? "textarea" : "input", undefined, {
-    id, spellcheck: "false", "aria-describedby": `${id}-hint`,
-    ...(long ? { rows: "2" } : { autocomplete: "off" }),
-  });
-  const suggestions = hints(option);
-  if (suggestions.length) {
-    const list = element("datalist", undefined, { id: `${id}-values` });
-    list.append(...suggestions.map(value => element("option", undefined, { value })));
-    input.setAttribute("list", list.id);
-    row.append(list);
-  }
   const suffix = option.kind === "range" ? ` · ${option.min}–${option.max}` : "";
   const detail = element("details", undefined, { class: "option-help", id: `${id}-hint` });
   detail.append(element("summary", `${key}${suffix}`));
   if (option.help) detail.append(element("p", option.help));
-  if (suggestions.length) detail.append(element("p", `Suggested values: ${suggestions.join(", ")}`));
   if (option.kind === "mapping") detail.append(element("p", "Enter a mapping, for example {} or {name: 1}."));
   if (option.kind === "list") detail.append(element("p", "Enter a list, for example [] or [name]."));
-  input.value = display(option.default);
-  row.append(label, input, detail);
-  return { row, input };
+  const attributes = { id, "aria-describedby": detail.id };
+  const choices = option.kind === "toggle" ? ["false", "true"] : option.choices;
+  const range = option.kind === "range";
+  if (!choices && !range) {
+    const input = element("textarea", undefined, { ...attributes, spellcheck: "false", rows: "2" });
+    let original = option.default;
+    row.append(label, input, detail);
+    return {
+      row, control: input,
+      write(value) {
+        original = value;
+        input.value = display(value);
+      },
+      read: () => input.value === display(original) ? original : parseField(input.value, option),
+    };
+  }
+
+  const select = element("select", undefined, attributes);
+  const control = element("div", undefined, { class: "option-control" });
+  const values = range
+    ? ["number", ...Object.keys(option.names), "random", "random-low", "random-middle", "random-high"]
+    : [...choices, "random"];
+  const labels = { number: "Specific number", true: "On", false: "Off" };
+  for (const value of values) select.append(element("option", labels[value] ?? choiceLabel(value), { value }));
+  select.append(element("option", "Custom YAML…", { value: "custom-yaml" }));
+  const number = range ? element("input", undefined, {
+    type: "number", "aria-label": `${label.textContent} number`, min: option.min, max: option.max, step: 1,
+  }) : null;
+  const custom = element("textarea", undefined, {
+    rows: 2, spellcheck: "false", "aria-label": `${label.textContent} custom YAML`,
+    placeholder: "Enter a value or weighted mapping",
+  });
+  detail.append(element("p", "For weighted values, choose Custom YAML and enter a mapping such as {false: 1, true: 2} for a toggle."));
+  function updateMode() {
+    if (number) number.hidden = select.value !== "number";
+    custom.hidden = select.value !== "custom-yaml";
+  }
+  select.addEventListener("input", updateMode);
+  control.append(select);
+  if (key === "combo_goal") {
+    const note = element("small", "Applies when both games are enabled.", { id: `${id}-scope` });
+    select.setAttribute("aria-describedby", `${detail.id} ${note.id}`);
+    control.append(note);
+  }
+  if (number) control.append(number);
+  control.append(custom);
+  row.append(label, control, detail);
+  return {
+    row, control: select,
+    write(value) {
+      let selection = String(value);
+      if (option.kind === "toggle") {
+        if ([true, 1, "on", "yes", "true"].includes(value)) selection = "true";
+        if ([false, 0, "off", "no", "false"].includes(value)) selection = "false";
+      }
+      if (range && Number.isInteger(value)) {
+        selection = Object.keys(option.names).find(name => option.names[name] === value) ?? "number";
+      }
+      if (choices && option.numbers?.includes(value)) selection = option.choices[option.numbers.indexOf(value)];
+      select.value = values.includes(selection) ? selection : "custom-yaml";
+      if (number) number.value = select.value === "number" ? value : option.min;
+      custom.value = select.value === "custom-yaml" ? display(value) : "";
+      updateMode();
+    },
+    read() {
+      if (select.value === "custom-yaml") return parseField(custom.value, option);
+      if (select.value === "number") return number.valueAsNumber;
+      return parseField(select.value, option);
+    },
+  };
 }
 
 loadWorld().then(world => {
@@ -100,7 +152,7 @@ loadWorld().then(world => {
   const allowed = Object.fromEntries(Object.entries(world.names).map(([key, list]) => [key, new Set(list)]));
   const { slot, description, preset, file } = form.elements;
   let extras = {};
-  let importedValues = {};
+  let explicitKeys = new Set();
   let output = "";
   for (const group of world.groups) {
     const panel = element("details", undefined, { class: "option-group" });
@@ -108,36 +160,41 @@ loadWorld().then(world => {
     panel.append(element("summary", group.name));
     for (const [key, schema] of Object.entries(group.options)) {
       const editor = optionEditor(key, schema);
-      options.set(key, { ...editor, schema });
+      options.set(key, { ...editor, schema, panel, alwaysExport: group.name === "Combo" });
       panel.append(editor.row);
     }
     groups.append(panel);
   }
 
   function applyValues(values) {
-    importedValues = values;
-    for (const [key, { input, schema }] of options) {
-      input.value = display(Object.hasOwn(values, key) ? values[key] : schema.default);
+    explicitKeys = new Set(Object.keys(values));
+    for (const [key, editor] of options) {
+      editor.write(Object.hasOwn(values, key) ? values[key] : editor.schema.default);
     }
   }
 
-  function validate() {
+  function validate(revealErrors = false) {
     const invalid = [];
     const playerName = slot.value.trim();
     if (!playerName || [...playerName].length > 16) invalid.push("Enter a slot name of 1–16 characters.");
     const values = {};
-    for (const [key, { input, schema }] of options) {
+    for (const [key, editor] of options) {
+      const { schema, control, panel, alwaysExport } = editor;
       let valid = false;
       try {
-        const original = Object.hasOwn(importedValues, key) ? importedValues[key] : schema.default;
-        const value = input.value === display(original) ? original : parseField(input.value, schema);
+        const value = editor.read();
         valid = validOption(value, schema, allowed);
-        if (valid && (JSON.stringify(value) !== JSON.stringify(schema.default) || Object.hasOwn(importedValues, key))) {
+        const comparable = schema.kind === "range" && Object.hasOwn(schema.names, value) ? schema.names[value] : value;
+        if (valid && (alwaysExport || explicitKeys.has(key) || JSON.stringify(comparable) !== JSON.stringify(schema.default))) {
           values[key] = value;
         }
       } catch { /* Malformed values are reported beside the option key below. */ }
-      input.setAttribute("aria-invalid", String(!valid));
-      if (!valid) invalid.push(`Check ${key}.`);
+      control.setAttribute("aria-invalid", String(!valid));
+      editor.row.classList.toggle("invalid-option", !valid);
+      if (!valid) {
+        invalid.push(`Check ${schema.label || key}.`);
+        if (revealErrors) panel.open = true;
+      }
     }
     if (invalid.length) {
       status.textContent = invalid.join(" ");
@@ -153,6 +210,7 @@ loadWorld().then(world => {
       status.textContent = "YAML is ready to download.";
     }
     preview.value = output;
+    preview.placeholder = output ? "" : "Fix the highlighted settings to update the preview.";
     download.disabled = !output;
   }
 
@@ -180,6 +238,7 @@ loadWorld().then(world => {
   file.addEventListener("change", async () => {
     const selected = file.files[0];
     if (!selected) return;
+    importStatus.textContent = "";
     try {
       if (selected.size > 1024 * 1024) throw new Error("Choose a YAML file under 1 MB.");
       const data = yaml.load(await selected.text(), yamlConfig);
@@ -197,13 +256,15 @@ loadWorld().then(world => {
       description.value = data.description ?? "";
       extras = Object.hasOwn(data, "requires") ? { requires: data.requires } : {};
       applyValues(data[world.game]);
-      validate();
+      validate(true);
+      importStatus.textContent = `Imported ${selected.name}.`;
     } catch (error) {
-      status.textContent = error.message;
+      importStatus.textContent = error.message;
     } finally {
       file.value = "";
     }
   });
+  applyValues({});
   form.hidden = false;
   validate();
 }).catch(showError);

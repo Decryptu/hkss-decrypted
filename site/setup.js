@@ -8,7 +8,6 @@ const completed = new Set();
 function render(world) {
   const release = releaseUrl(world);
   const role = setup.elements.role.value;
-  const method = setup.elements.method.value;
   const player = role !== "host";
   const host = role !== "join";
   const tasks = [
@@ -18,16 +17,14 @@ function render(world) {
       ["launcher", "Install HKSS Launcher", "Run the Windows installer from the matching release.",
         "Get the launcher", release],
     ] : []),
-    ["yaml", host ? "Collect player YAMLs" : "Send your YAML to the host",
+    [host ? "collect-yaml" : "send-yaml", host ? "Collect player YAMLs" : "Send your YAML to the host",
       host ? "Collect one YAML per player. Use the exact name from each YAML when sharing the room details."
         : `Create a YAML for ${world.game} and send it to the host before they generate the seed.`,
       "Open the YAML generator", "./yaml.html"],
     ...(host ? [
-      ["world", "Install the combined world",
-        method === "file"
-          ? `Install Archipelago ${world.minimumArchipelago} or newer. Open hkss.apworld with Archipelago Launcher and accept the installation prompt. Restart the launcher if it was already open.`
-          : `Install Archipelago ${world.minimumArchipelago} or newer. Copy hkss.apworld into Archipelago's custom_worlds folder, then reopen Archipelago Launcher.`,
-        "Get hkss.apworld", release],
+      ["world", "Add Hollow Knight × Silksong to Archipelago",
+        `Install Archipelago ${world.minimumArchipelago} or newer first. Download hkss.apworld below, then double-click it in your Downloads folder. Archipelago Launcher opens. Confirm the installation when prompted, then reopen the launcher if it was already running.`,
+        "Download hkss.apworld", release.replace("/tag/", "/download/") + "/hkss.apworld"],
       ["generate", "Generate and host the multiworld",
         "Put the collected YAMLs in Archipelago’s Players folder and run Generate. Host the resulting multiworld ZIP in an Archipelago room or with your local server. Share the address, port and room password if you set one."],
     ] : []),
@@ -56,9 +53,14 @@ function render(world) {
     label.append(checkbox, element("strong", title));
     item.append(label, element("p", body));
     if (href) item.append(element("a", link, { href }));
+    if (key === "world") {
+      const help = element("details", undefined, { class: "check-step-help" });
+      help.append(element("summary", "The file won’t open"),
+        element("p", "Close Archipelago Launcher. Open the folder where you installed Archipelago and copy hkss.apworld into its custom_worlds folder. Then reopen Archipelago Launcher."));
+      item.append(help);
+    }
     return item;
   }));
-  document.querySelector("#install-method").hidden = !host;
   updateProgress();
 }
 

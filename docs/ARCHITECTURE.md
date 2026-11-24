@@ -133,7 +133,7 @@ If a game closes or crashes without asking to travel, the run stays in that game
 
 The pages share a catalog exported from the shipped `.apworld`. The setup and download links use the catalog’s release version. See [Development](../DEVELOPMENT.md#player-hub) for the refresh and verification commands.
 
-- **Setup** offers separate steps for players, hosts and hosts who also play. Hosts can install the world through Archipelago Launcher or copy it into `custom_worlds` manually.
+- **Setup** offers separate steps for players, hosts and hosts who also play. The host checklist links directly to the matching `.apworld` and explains how to open it. Manual installation is available as a fallback.
 - **YAML generator** builds its form from the world’s Archipelago template options and supports presets, validation, single-slot import and download.
 - **Item map** uses schematic area layouts, world connection data and all registered check IDs. Players can filter by game, area or check type. The atlas uses project styling and does not require game artwork.
 

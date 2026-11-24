@@ -36,7 +36,7 @@
   background-color: #0b0c11;
 }
 .hub-main :is(select, textarea) { width: 100%; }
-.hub-main select {
+.hub-main select[id], .hub-main select[name] {
   appearance: none;
   padding-right: 1.7rem;
   background-image: linear-gradient(45deg, transparent 50%, var(--soul) 50%),
@@ -68,6 +68,9 @@
 .check-step input:checked { background: var(--soul); box-shadow: inset 0 0 0 .13rem var(--bg); }
 .check-step p, .check-step a { margin: 0 0 0 2rem; }
 .check-step p { color: var(--dim); }
+.check-step-help { margin: .35rem 0 0 2rem; }
+.check-step-help summary { cursor: pointer; }
+.check-step-help p { margin: 0; }
 .option-group { border: 1px solid var(--line); margin-block: .65rem; background: #ffffff05; }
 .option-group > summary { font-family: var(--display); color: var(--soul); padding: .6rem .75rem; cursor: pointer; }
 .option-row {
@@ -81,11 +84,17 @@
 .option-help { grid-column: 1 / -1; font-size: .89rem; color: var(--dim); overflow-wrap: anywhere; }
 .option-help summary { cursor: pointer; }
 .option-help p { max-width: 70ch; margin: .25rem 0; white-space: pre-line; }
-.yaml-output { margin-top: 1.5rem; }
+.option-control { display: grid; gap: .35rem; min-width: 0; }
+.option-control small { color: var(--dim); }
+.invalid-option :is(input, textarea) { border-color: #f0928a !important; }
+.yaml-workspace { display: grid; gap: 1rem; }
+#yaml-output { align-self: start; padding: .85rem; border: 1px solid var(--line); background: #0b0c11; }
+#yaml-import-status:empty { display: none; }
 .yaml-output textarea { font-family: ui-monospace, Consolas, monospace; font-size: .86rem; }
 .atlas { display: grid; gap: .85rem; }
 .atlas-kingdom { min-width: 0; }
 .atlas-scroll { overflow-x: auto; margin-top: .65rem; }
+.atlas-scroll-hint { display: none; }
 .atlas-areas { position: relative; margin-inline: auto; }
 .atlas-route {
   position: absolute;
@@ -121,4 +130,14 @@
 .check-result code { justify-self: start; }
 @media (max-width: 36rem) {
   .option-row, .check-result { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 52rem) {
+  .atlas-scroll-hint { display: inline; }
+}
+@media (min-width: 54rem) {
+  .yaml-workspace { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  #yaml-output { position: sticky; top: 1rem; margin-top: .65rem; }
+}
+@media (forced-colors: active) {
+  .hub-main select[id], .hub-main select[name], .check-step input { appearance: auto; }
 }

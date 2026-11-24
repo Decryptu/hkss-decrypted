@@ -30,7 +30,7 @@
     <form id="yaml-form" hidden>
       <div class="hub-controls">
         <label>Slot name <input name="slot" value="Knight" autocomplete="off"></label>
-        <label>Description <input name="description" autocomplete="off"></label>
+        <label>Description <textarea name="description" rows="1"></textarea></label>
         <label>Preset
           <select name="preset">
             <option value="">Choose a preset</option>
@@ -42,11 +42,18 @@
         </label>
         <label>Import YAML <input type="file" name="file" accept=".yaml,.yml"></label>
       </div>
-      <p class="hub-note">The download uses world defaults for settings you leave unchanged. You can enter a weighted choice as a mapping, such as <code>{both: 2, either: 1}</code>.</p>
-      <div id="option-groups"></div>
-      <label class="yaml-output">YAML preview <textarea id="yaml-preview" rows="9" readonly spellcheck="false"></textarea></label>
-      <p id="yaml-status" class="hub-status" role="status"></p>
-      <button type="submit" id="yaml-download" disabled>Download YAML</button>
+      <p id="yaml-import-status" class="hub-status" role="status"></p>
+      <p class="hub-note">The preview shows the exact download. Settings outside Combo use world defaults unless changed or imported. <a href="#yaml-output">Jump to preview</a></p>
+      <div class="yaml-workspace">
+        <div id="option-groups"></div>
+        <section id="yaml-output" aria-label="YAML output">
+          <label class="yaml-output">YAML preview
+            <textarea id="yaml-preview" rows="12" wrap="off" readonly spellcheck="false" aria-describedby="yaml-status"></textarea>
+          </label>
+          <p id="yaml-status" class="hub-status" role="status"></p>
+          <button type="submit" id="yaml-download" disabled>Download YAML</button>
+        </section>
+      </div>
     </form>
   </main>
   <footer class="bar foot"><a data-release href="https://github.com/Decryptu/hkss-decrypted/releases/latest">Downloads</a><span>Unofficial fan project</span></footer>
