@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "svelte-check --tsconfig ./tsconfig.json && vite build",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "release": "tauri build --config src-tauri/tauri.release.conf.json"
   },
   "dependencies": {
     "@fontsource/cinzel": "^5.2.0",

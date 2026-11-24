@@ -43,13 +43,14 @@ cd launcher
 npm install
 npm run tauri build -- --debug --no-bundle   # src-tauri/target/debug/hkss-launcher.exe
 cargo test --manifest-path src-tauri/Cargo.toml
+npm run release   # after tools/build-payload.ps1 -Configuration Release: NSIS installer with the payload bundled
 ```
 
 `tools/fetch-deps.ps1` (called by `build-payload.ps1`) downloads the pinned BepInEx and checks its hash. Set `STEAM_COMMON` if the games are not in the default Steam library.
 
 | Variable | Effect |
 |---|---|
-| `HKSS_PAYLOAD` | Mod files to use, normally `local/payload`. Required until the launcher bundles them. |
+| `HKSS_PAYLOAD` | Mod files to use, normally `local/payload`. Overrides the payload bundled with the installed launcher. |
 | `HKSS_HOME` | Replaces `%LOCALAPPDATA%\HKSS`. Use a short path for tests. |
 | `HKSS_DEV_PLAY` | Starts that run slot without a click; the launcher exits when it ends. |
 | `HKSS_DEV_AUTOTRAVEL` | Debug plugins only: travels this many seconds after the game is ready, once the player has control. F8 travels at once. |

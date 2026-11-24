@@ -1,8 +1,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod game;
+mod manage;
 mod mirror;
 mod process;
+mod room;
 mod runs;
 mod session;
 mod steam;
@@ -31,6 +33,7 @@ struct GameStatus {
 struct SlotStatus {
     id: u8,
     current: Option<Game>,
+    room: Option<room::Room>,
 }
 
 #[derive(Serialize)]
@@ -38,6 +41,7 @@ struct Status {
     games: Vec<GameStatus>,
     slots: Vec<SlotStatus>,
     steam_running: bool,
+    version: &'static str,
 }
 
 #[tauri::command]
@@ -50,9 +54,10 @@ fn status() -> Result<Status, String> {
     let mut slots = Vec::new();
     for id in runs::SLOTS {
         let run = runs::dir(id).and_then(|dir| runs::load(&dir)).map_err(|e| format!("Run {id}: {e}"))?;
-        slots.push(SlotStatus { id, current: run.map(|run| run.current) });
+        let room = runs::dir(id).and_then(|dir| room::load(&dir)).map_err(|e| format!("Run {id} room: {e}"))?;
+        slots.push(SlotStatus { id, current: run.map(|run| run.current), room });
     }
-    Ok(Status { games: games.into(), slots, steam_running: steam::is_running() })
+    Ok(Status { games: games.into(), slots, steam_running: steam::is_running(), version: env!("CARGO_PKG_VERSION") })
 }
 
 #[tauri::command]
@@ -87,6 +92,57 @@ fn play(app: AppHandle, slot: u8) -> Result<(), String> {
     });
     Ok(())
 }
+
+/// Changes to a run's files wait until no game is open.
+fn idle() -> Result<(), String> {
+    if PLAYING.load(Ordering::SeqCst) {
+        return Err("Close the game first.".into());
+    }
+    Ok(())
+}
+
+#[tauri::command]
+fn save_room(slot: u8, room: room::Room) -> Result<(), String> {
+    idle()?;
+    let room = room.validated()?;
+    let dir = runs::dir(slot).map_err(|e| e.to_string())?;
+    room::save(&dir, &room).map_err(|e| format!("The room could not be saved: {e}"))
+}
+
+#[tauri::command]
+fn clear_room(slot: u8) -> Result<(), String> {
+    idle()?;
+    let dir = runs::dir(slot).map_err(|e| e.to_string())?;
+    room::clear(&dir).map_err(|e| format!("The room could not be removed: {e}"))
+}
+
+#[tauri::command]
+fn delete_run(slot: u8) -> Result<(), String> {
+    idle()?;
+    let dir = runs::dir(slot).map_err(|e| e.to_string())?;
+    manage::delete_run(&dir).map_err(|e| format!("Run {slot} could not be deleted: {e}"))
+}
+
+#[tauri::command]
+fn remove_game_folders() -> Result<(), String> {
+    idle()?;
+    manage::remove_game_folders(&runs::home()).map_err(|e| format!("The modded game folders could not be removed: {e}"))
+}
+
+#[tauri::command]
+fn export_diagnostics(slot: u8) -> Result<String, String> {
+    let dir = runs::dir(slot).map_err(|e| e.to_string())?;
+    let path = manage::diagnostics(&runs::home(), &dir, slot).map_err(|e| format!("The report could not be written: {e}"))?;
+    let _ = std::process::Command::new("explorer").arg("/select,").arg(&path).spawn();
+    Ok(path.display().to_string())
+}
+
+#[tauri::command]
+fn open_releases() {
+    let _ = std::process::Command::new("explorer").arg(RELEASES).spawn();
+}
+
+const RELEASES: &str = "https://github.com/Decryptu/hkss-decrypted/releases/latest";
 
 /// BepInEx and the plugins: next to the installed launcher, or a folder from `tools/build-payload.ps1`.
 fn payload(app: &AppHandle) -> Result<PathBuf, String> {
@@ -126,7 +182,7 @@ impl session::Screen for Windows {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![status, play])
+        .invoke_handler(tauri::generate_handler![status, play, save_room, clear_room, delete_run, remove_game_folders, export_diagnostics, open_releases])
         .on_window_event(|window, event| {
             // The hidden cover must not keep the launcher alive, and closing it must not orphan a game.
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
