@@ -260,8 +260,16 @@ def vendor_hk(hk_src: Path, hk_dst: Path) -> None:
         "                if location.costs:\n"
         "                    location_costs[location.name] = location.costs",
         "                if getattr(location, 'costs', None):\n"
-        "                    location_costs[location.name] = location.costs",
+        "                    location_costs[strip_hk_prefix(location.name)] = location.costs",
         "hk/__init__.py fill_slot_data costs",
+    )
+    text = must_replace(
+        text,
+        "    def create_vanilla_location(self, location: str, item: Item):\n"
+        "        costs = self.vanilla_shop_costs.get((location, item.name))",
+        "    def create_vanilla_location(self, location: str, item: Item):\n"
+        "        costs = self.vanilla_shop_costs.get((location, strip_hk_prefix(item.name)))",
+        "hk/__init__.py create_vanilla_location costs",
     )
     text = must_replace(
         text,

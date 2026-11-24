@@ -10,7 +10,7 @@ namespace ItemChanger.Util
         static FieldInfo activatedField = typeof(DreamPlant).GetField("activated", BindingFlags.NonPublic | BindingFlags.Instance);
         static FieldInfo animField = typeof(DreamPlant).GetField("anim", BindingFlags.NonPublic | BindingFlags.Instance);
         static FieldInfo audioSourceField = typeof(DreamPlant).GetField("audioSource", BindingFlags.NonPublic | BindingFlags.Instance);
-        static FieldInfo dreamDialogueField = typeof(DreamPlant).GetField("dreamDialogue", BindingFlags.NonPublic | BindingFlags.Instance);
+        static FieldInfo dreamDialogueField = typeof(DreamPlant).GetField("dreamDialogue", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         static FieldInfo spriteFlashField = typeof(DreamPlant).GetField("spriteFlash", BindingFlags.NonPublic | BindingFlags.Instance);
 
         static FieldInfo checkOrbRoutineField = typeof(DreamPlant).GetField("checkOrbRoutine", BindingFlags.NonPublic | BindingFlags.Instance);

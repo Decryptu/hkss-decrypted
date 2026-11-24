@@ -13,6 +13,17 @@ namespace HKSS.Core;
 public sealed class RunState
 {
     /// <summary>
+    /// Archipelago room seed + slot binding (<c>seed|slot</c>) so reusing a run slot for a new room
+    /// resets processed item indices and offline checks cleanly.
+    /// </summary>
+    [JsonProperty("seed_key")]
+    public string SeedKey { get; set; } = string.Empty;
+
+    /// <summary>True once Hollow Knight's goal has been achieved in this run (persisted for offline retry).</summary>
+    [JsonProperty("hk_goal_completed")]
+    public bool HkGoalCompleted { get; set; }
+
+    /// <summary>
     /// True once the player has reached Bone Bottom in Silksong, opening its return gate
     /// and enabling town-to-town travel and town warping.
     /// </summary>
@@ -141,4 +152,42 @@ public sealed class RunStateStore
     }
 
     public IReadOnlyList<long> GetCheckedLocations(GameId game) => Load().GetCheckedLocations(game);
+
+    /// <summary>
+    /// Binds <c>state.json</c> to the connected Archipelago room seed/slot. Returns <c>true</c> if
+    /// the run was previously bound to a different seed and its AP counters/checks were reset.
+    /// </summary>
+    public bool EnsureSeedBinding(string seedKey)
+    {
+        if (string.IsNullOrWhiteSpace(seedKey)) return false;
+
+        RunState state = Load();
+        if (string.IsNullOrEmpty(state.SeedKey))
+        {
+            state.SeedKey = seedKey;
+            Save(state);
+            return false;
+        }
+        if (string.Equals(state.SeedKey, seedKey, StringComparison.Ordinal))
+            return false;
+
+        state.SeedKey = seedKey;
+        state.HkProcessedItems = 0;
+        state.SsProcessedItems = 0;
+        state.HkCheckedLocations.Clear();
+        state.SsCheckedLocations.Clear();
+        state.HkGoalCompleted = false;
+        Save(state);
+        return true;
+    }
+
+    public bool IsHkGoalCompleted() => Load().HkGoalCompleted;
+
+    public void MarkHkGoalCompleted()
+    {
+        RunState state = Load();
+        if (state.HkGoalCompleted) return;
+        state.HkGoalCompleted = true;
+        Save(state);
+    }
 }

@@ -306,6 +306,21 @@ namespace ItemChanger
         private static void OnActiveSceneChanged(Scene from, Scene to)
         {
             if (Ref.Settings == null) return; // Settings is nulled by the API on active scene change to Menu_Title.
+            if (to.name == SceneNames.Menu_Title)
+            {
+                if (Settings.loaded)
+                {
+                    try
+                    {
+                        Ref.Settings.Unload();
+                    }
+                    catch (Exception e)
+                    {
+                        LogError($"Error unloading settings on return to menu:\n{e}");
+                    }
+                }
+                return;
+            }
 
             try
             {
@@ -379,14 +394,18 @@ namespace ItemChanger
 
         private static void DoOnEnterGame()
         {
-            try
+            if (Ref.Settings == null) return;
+            if (!Settings.loaded)
             {
-                Ref.Settings.Load();
-            }
-            catch (Exception e)
-            {
-                LogError($"Error loading settings:\n{e}");
-                OnSettingsLoadError?.Invoke(e);
+                try
+                {
+                    Ref.Settings.Load();
+                }
+                catch (Exception e)
+                {
+                    LogError($"Error loading settings:\n{e}");
+                    OnSettingsLoadError?.Invoke(e);
+                }
             }
             
             try
@@ -417,12 +436,11 @@ namespace ItemChanger
                 Ref.Settings.Start.ApplyToPlayerData(self.playerData);
                 try
                 {
-                    typeof(Modding.ModHooks).GetMethod("OnNewGame", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
-                    .Invoke(null, Array.Empty<object>());
+                    Modding.ModHooks.OnNewGame();
                 }
                 catch (Exception e)
                 {
-                    LogError($"Error invoking ModHooks.OnNewGame via reflection:\n{e}");
+                    LogError($"Error invoking ModHooks.OnNewGame:\n{e}");
                 }
                 
                 self.ContinueGame();

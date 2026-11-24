@@ -69,6 +69,8 @@ internal sealed class HkClientHost : MonoBehaviour
     private bool _connectWaitDone;
     private float _connectWaitStart = -1f;
     private string _icSavePath = string.Empty;
+    private string _icSeedPath = string.Empty;
+    private string _loadedSeedKey = string.Empty;
 
     private static bool _assemblyResolverInstalled;
 
@@ -95,11 +97,15 @@ internal sealed class HkClientHost : MonoBehaviour
     private void Awake()
     {
         _icSavePath = Path.Combine(HkssPlugin.Run.SaveDir, "itemchanger.json");
+        _icSeedPath = Path.Combine(HkssPlugin.Run.SaveDir, "itemchanger.seed");
         AutoLoad.HoldAutoLoad = true;
         ApManager.DeferAutoConnect = true;
+        ApManager.FullHostInstalled = true;
+        ApManager.DeferProcessedPersistence = true;
         ApManager.OnConnected += OnApConnected;
         ApManager.LocalItemGrantHandler = TryGrantViaItemChanger;
         ModHooks.SavegameSaveHook += OnSaveGame;
+        Events.OnEnterGame += OnEnterGame;
         Events.OnSettingsLoadError += OnSettingsLoadError;
     }
 
@@ -109,6 +115,7 @@ internal sealed class HkClientHost : MonoBehaviour
         if (ApManager.LocalItemGrantHandler == TryGrantViaItemChanger)
             ApManager.LocalItemGrantHandler = null;
         ModHooks.SavegameSaveHook -= OnSaveGame;
+        Events.OnEnterGame -= OnEnterGame;
         Events.OnSettingsLoadError -= OnSettingsLoadError;
     }
 
@@ -133,9 +140,7 @@ internal sealed class HkClientHost : MonoBehaviour
             ApManager? ap = ApManager.Instance;
             bool shouldWait = !_icActive
                 && ap != null
-                && ap.Settings.AutoConnect
-                && ap.Settings.IsConfigured
-                && ap.Client.State != ApConnectionState.Failed;
+                && ap.IsAutoConnectPending;
 
             if (!shouldWait)
             {
@@ -216,6 +221,30 @@ internal sealed class HkClientHost : MonoBehaviour
     {
         try
         {
+            string seed = client.Session?.RoomState?.Seed ?? string.Empty;
+            string currentSeedKey = string.IsNullOrEmpty(seed)
+                ? string.Empty
+                : $"{seed}|{client.ConnectedSlot}";
+
+            if (_icActive && !string.IsNullOrEmpty(currentSeedKey))
+            {
+                if (!string.IsNullOrEmpty(_loadedSeedKey)
+                    && !string.Equals(_loadedSeedKey, currentSeedKey, StringComparison.Ordinal))
+                {
+                    HkssPlugin.Log.LogWarning("[HK] Archipelago room seed changed; rebuilding ItemChanger placements for the new room.");
+                    if (_icMod != null)
+                        ((ILocalSettings<SaveSettings>)_icMod).OnLoadLocal(default);
+                    _icActive = false;
+                    ThinSlice.SuppressCheckHooks = false;
+                    _loadedSeedKey = string.Empty;
+                }
+                else if (string.IsNullOrEmpty(_loadedSeedKey))
+                {
+                    _loadedSeedKey = currentSeedKey;
+                    TryWriteSeedMarker(currentSeedKey);
+                }
+            }
+
             if (!_icActive)
             {
                 HkSlotData? hkSlot = ExtractHkSlotData(client.SlotData);
@@ -225,6 +254,8 @@ internal sealed class HkClientHost : MonoBehaviour
                     var randomizer = new HkRandomizer(hkSlot, client.Session);
                     randomizer.Randomize(hkLocs);
                     _icActive = true;
+                    ThinSlice.SuppressCheckHooks = true;
+                    _loadedSeedKey = currentSeedKey;
 
                     if (hkSlot.Options.StartingGeo > 0)
                         _pendingStartingGeo = hkSlot.Options.StartingGeo;
@@ -254,6 +285,33 @@ internal sealed class HkClientHost : MonoBehaviour
         {
             ReleaseAutoLoad();
         }
+    }
+
+    private static void OnEnterGame()
+    {
+        ApClient? client = ApManager.Instance?.Client;
+        if (client == null || !client.IsConnected || !_icActive) return;
+
+        // Batch-sync any locally obtained HK checks (without per-item toast spam) and pull remote checks.
+        var localObtained = new List<long>();
+        foreach (var kv in HkPlacementTag.PlacementsByLocationId)
+        {
+            if (kv.Value == null) continue;
+            foreach (AbstractItem item in kv.Value.Items)
+            {
+                if (item.WasEverObtained()
+                    && item.GetTag<HkItemTag>(out HkItemTag tag)
+                    && tag != null
+                    && tag.Location > 0)
+                {
+                    localObtained.Add(tag.Location);
+                }
+            }
+        }
+        if (localObtained.Count > 0)
+            client.SyncCheckedLocations(localObtained);
+
+        SyncRemoteCheckedLocations(client);
     }
 
     private static void SyncRemoteCheckedLocations(ApClient client)
@@ -350,6 +408,7 @@ internal sealed class HkClientHost : MonoBehaviour
 
     private void OnSaveGame(int saveSlot)
     {
+        ApManager.Instance?.FlushProcessedItemsToDisk();
         if (_icActive)
         {
             SaveItemChangerProfile();
@@ -371,11 +430,28 @@ internal sealed class HkClientHost : MonoBehaviour
             File.WriteAllText(tmp, json);
             if (File.Exists(_icSavePath)) File.Delete(_icSavePath);
             File.Move(tmp, _icSavePath);
+            if (!string.IsNullOrEmpty(_loadedSeedKey))
+                TryWriteSeedMarker(_loadedSeedKey);
             HkssPlugin.Log.LogDebug($"[HK] Saved ItemChanger state to {_icSavePath}");
         }
         catch (Exception ex)
         {
             HkssPlugin.Log.LogError($"[HK] Failed to save ItemChanger state: {ex}");
+        }
+    }
+
+    private void TryWriteSeedMarker(string seedKey)
+    {
+        if (string.IsNullOrEmpty(_icSeedPath) || string.IsNullOrEmpty(seedKey)) return;
+        try
+        {
+            string dir = Path.GetDirectoryName(_icSeedPath)!;
+            Directory.CreateDirectory(dir);
+            File.WriteAllText(_icSeedPath, seedKey);
+        }
+        catch (Exception ex)
+        {
+            HkssPlugin.Log.LogWarning($"[HK] Failed to write ItemChanger seed marker: {ex.Message}");
         }
     }
 
@@ -390,6 +466,9 @@ internal sealed class HkClientHost : MonoBehaviour
             {
                 ((ILocalSettings<SaveSettings>)_icMod).OnLoadLocal(loaded);
                 _icActive = true;
+                ThinSlice.SuppressCheckHooks = true;
+                if (!string.IsNullOrEmpty(_icSeedPath) && File.Exists(_icSeedPath))
+                    _loadedSeedKey = File.ReadAllText(_icSeedPath).Trim();
                 HkssPlugin.Log.LogInfo($"[HK] Restored ItemChanger state from {_icSavePath} ({loaded.value.Placements.Count} placements).");
             }
         }

@@ -110,7 +110,9 @@
     }
   }
 
-  const gameIssues = $derived(status ? status.games.flatMap((g) => g.issues) : []);
+  const gameIssues = $derived(
+    status ? status.games.flatMap((g) => g.issues.map((i) => ({ ...i, game: g.key }))) : [],
+  );
   const hasBlockingIssue = $derived(gameIssues.some((i) => i.severity === "error"));
   const ready = $derived(!!status && status.steam_running && status.games.every((g) => g.build) && !hasBlockingIssue);
   const place = (key: string) => (key === "silksong" ? "Pharloom" : "Hallownest");
@@ -228,7 +230,7 @@
     {#if !status.steam_running}<p class="notice error">Steam is not running. Start Steam and sign in to play.</p>{/if}
     {#if gameIssues.length > 0}
       <ul class="preflight" role="list">
-        {#each gameIssues as issue (`${issue.code}:${issue.summary}`)}
+        {#each gameIssues as issue (`${issue.game}:${issue.code}:${issue.summary}`)}
           <li class="notice" class:error={issue.severity === "error"} role={issue.severity === "error" ? "alert" : "status"}>
             {issue.detail}
           </li>

@@ -370,6 +370,7 @@ namespace SilksongRandomizer
             new SemaphoreSlim(1, 1);
         private ArchipelagoSession session;
         private HKSS.Core.ApClient sharedClient;
+        private string lastSharedSeedKey = string.Empty;
         private ReceivedItemsHelper.ItemReceivedHandler
             itemReceivedHandler;
         private MessageLogHelper.MessageReceivedHandler
@@ -413,6 +414,20 @@ namespace SilksongRandomizer
             try
             {
                 Disconnect();
+                string seed = client.Session.RoomState?.Seed ?? string.Empty;
+                string newSeedKey = string.IsNullOrEmpty(seed) ? string.Empty : $"{seed}|{client.ConnectedSlot}";
+                if (!string.IsNullOrEmpty(lastSharedSeedKey)
+                    && !string.IsNullOrEmpty(newSeedKey)
+                    && !string.Equals(lastSharedSeedKey, newSeedKey, StringComparison.Ordinal))
+                {
+                    ClearState();
+                    lastQueuedItemIndex = 0;
+                    queuedForSaveState = null;
+                }
+                if (!string.IsNullOrEmpty(newSeedKey))
+                {
+                    lastSharedSeedKey = newSeedKey;
+                }
                 ResetConnectionTransientState();
 
                 ArchipelagoSession connectedSession = client.Session;
@@ -1412,8 +1427,13 @@ namespace SilksongRandomizer
                     return;
                 }
 
+                bool filterToSilksong = sharedClient != null;
                 foreach (ItemInfo item in allItems)
                 {
+                    if (filterToSilksong && !HKSS.Core.IdSpace.IsSilksong(item.ItemId))
+                    {
+                        continue;
+                    }
                     MarkItemUnlocked(item, false);
                 }
                 QueueUnprocessedReceivedItems(sourceSession, allItems);
@@ -3306,7 +3326,10 @@ namespace SilksongRandomizer
                 LastError = status;
                 RandomizerPlugin plugin = RandomizerPlugin.Instance;
                 plugin?.RequestDisconnectSave();
-                plugin?.RequestAutomaticReconnect();
+                if (sharedClient == null)
+                {
+                    plugin?.RequestAutomaticReconnect();
+                }
                 ReportStatus(LastError);
                 return true;
             }

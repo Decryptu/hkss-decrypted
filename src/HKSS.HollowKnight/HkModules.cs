@@ -57,6 +57,7 @@ public sealed class HkGoalModule : Module
     public static void DeclareHkGoalComplete()
     {
         HkssPlugin.Log.LogInfo("[HK] Hollow Knight goal achieved! Reporting to combo GoalTracker.");
+        HkssPlugin.State.MarkHkGoalCompleted();
         ApManager.Instance?.Client.ReportLocalGoalComplete();
     }
 

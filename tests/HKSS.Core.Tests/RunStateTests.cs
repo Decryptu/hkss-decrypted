@@ -84,4 +84,33 @@ public sealed class RunStateTests : IDisposable
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             store.RecordCheckedLocation(GameId.HollowKnight, ssLoc));
     }
+
+    [Fact]
+    public void EnsureSeedBindingPreservesInitialRunAndResetsOnSeedChange()
+    {
+        var store = new RunStateStore(MakeContext(GameId.HollowKnight));
+        long hkLoc = IdSpace.HollowKnightBlockStart + 10;
+        store.SetProcessedItems(GameId.HollowKnight, 7);
+        store.SetProcessedItems(GameId.Silksong, 4);
+        store.RecordCheckedLocation(GameId.HollowKnight, hkLoc);
+        store.MarkHkGoalCompleted();
+
+        // First bind attaches the seed without wiping existing progress.
+        Assert.False(store.EnsureSeedBinding("seed-A|KnightHornet"));
+        Assert.Equal(7, store.GetProcessedItems(GameId.HollowKnight));
+        Assert.Equal(4, store.GetProcessedItems(GameId.Silksong));
+        Assert.Single(store.GetCheckedLocations(GameId.HollowKnight));
+        Assert.True(store.IsHkGoalCompleted());
+
+        // Same seed is a no-op.
+        Assert.False(store.EnsureSeedBinding("seed-A|KnightHornet"));
+        Assert.Equal(7, store.GetProcessedItems(GameId.HollowKnight));
+
+        // Different seed resets all AP counters, queued checks, and goal state.
+        Assert.True(store.EnsureSeedBinding("seed-B|KnightHornet"));
+        Assert.Equal(0, store.GetProcessedItems(GameId.HollowKnight));
+        Assert.Equal(0, store.GetProcessedItems(GameId.Silksong));
+        Assert.Empty(store.GetCheckedLocations(GameId.HollowKnight));
+        Assert.False(store.IsHkGoalCompleted());
+    }
 }

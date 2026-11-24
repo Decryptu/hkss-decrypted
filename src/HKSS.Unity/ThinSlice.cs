@@ -15,6 +15,12 @@ internal static class ThinSlice
 {
     private static bool _applyingGrant;
 
+    /// <summary>
+    /// Set by the full randomizer host (<c>HkClientHost</c> / <c>SsClientHost</c>) while active
+    /// so thin-slice fallback check hooks never emit false checks on item grants or vanilla pickups.
+    /// </summary>
+    internal static bool SuppressCheckHooks { get; set; }
+
     internal static void Install(Harmony harmony)
     {
 #if HOLLOW_KNIGHT
@@ -71,7 +77,7 @@ internal static class ThinSlice
 
     private static void OnHkSetBool(string boolName, bool value)
     {
-        if (_applyingGrant || !value) return;
+        if (SuppressCheckHooks || _applyingGrant || !value) return;
         ApManager? ap = ApManager.Instance;
         if (ap == null) return;
 
@@ -91,7 +97,7 @@ internal static class ThinSlice
 
     private static void OnHkSetInt(string intName, int value)
     {
-        if (_applyingGrant) return;
+        if (SuppressCheckHooks || _applyingGrant) return;
         ApManager? ap = ApManager.Instance;
         if (ap == null) return;
 
@@ -101,7 +107,7 @@ internal static class ThinSlice
 
     private static void OnHkIncrementInt(string intName)
     {
-        if (_applyingGrant || intName != "grubsCollected") return;
+        if (SuppressCheckHooks || _applyingGrant || intName != "grubsCollected") return;
         ApManager? ap = ApManager.Instance;
         if (ap == null) return;
 
@@ -188,7 +194,7 @@ internal static class ThinSlice
 
     private static void OnSilksongPickup(CollectableItemPickup __instance)
     {
-        if (_applyingGrant || __instance == null) return;
+        if (SuppressCheckHooks || _applyingGrant || __instance == null) return;
         ApManager? ap = ApManager.Instance;
         if (ap == null) return;
 

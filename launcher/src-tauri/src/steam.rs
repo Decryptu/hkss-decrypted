@@ -1,6 +1,6 @@
 //! Finds the installed games. Everything here only reads.
 
-use crate::game::Game;
+use crate::{game::Game, process};
 use std::{fs, path::PathBuf};
 use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 
@@ -11,10 +11,11 @@ pub struct Install {
 }
 
 pub fn is_running() -> bool {
-    RegKey::predef(HKEY_CURRENT_USER)
+    let reg_active = RegKey::predef(HKEY_CURRENT_USER)
         .open_subkey(r"Software\Valve\Steam\ActiveProcess")
         .and_then(|key| key.get_value::<u32, _>("pid"))
-        .is_ok_and(|pid| pid != 0)
+        .is_ok_and(|pid| pid != 0);
+    reg_active && process::is_running("steam.exe")
 }
 
 pub fn find(game: Game) -> Option<Install> {

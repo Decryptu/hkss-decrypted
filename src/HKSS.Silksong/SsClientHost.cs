@@ -21,6 +21,7 @@ internal sealed class SsClientHost : MonoBehaviour
 
     private static ManualLogSource _log = null!;
     private static bool _randomizerActive;
+    private SilksongRandomizer.Archipelago? _ap;
     private float _holdStartTime = -1f;
     private bool _holdingAutoLoad;
 
@@ -36,7 +37,9 @@ internal sealed class SsClientHost : MonoBehaviour
 
     private void Awake()
     {
+        ApManager.FullHostInstalled = true;
         ApManager.OnConnected += HandleApConnected;
+        ApManager.OnDisconnected += HandleApDisconnected;
         ApManager.LocalItemGrantHandler = HandleLocalItemGrant;
     }
 
@@ -55,11 +58,19 @@ internal sealed class SsClientHost : MonoBehaviour
     private void OnDestroy()
     {
         ApManager.OnConnected -= HandleApConnected;
+        ApManager.OnDisconnected -= HandleApDisconnected;
         if (ApManager.LocalItemGrantHandler == HandleLocalItemGrant)
         {
             ApManager.LocalItemGrantHandler = null;
         }
         ReleaseAutoLoadHold();
+    }
+
+    private void HandleApDisconnected()
+    {
+        _randomizerActive = false;
+        ThinSlice.SuppressCheckHooks = false;
+        _ap?.Disconnect();
     }
 
     private void Update()
@@ -73,7 +84,7 @@ internal sealed class SsClientHost : MonoBehaviour
             return;
         }
 
-        if (ap != null && ap.Client.State == ApConnectionState.Failed)
+        if (ap != null && !ap.IsAutoConnectPending && ap.Client.State == ApConnectionState.Failed)
         {
             _log.LogWarning("[SS] Archipelago auto-connect failed; releasing AutoLoad hold.");
             ReleaseAutoLoadHold();
@@ -101,9 +112,11 @@ internal sealed class SsClientHost : MonoBehaviour
             SilksongRandomizer.Archipelago ap = RandomizerPlugin.Instance != null
                 ? RandomizerPlugin.Instance.GetOrCreateArchipelago()
                 : new SilksongRandomizer.Archipelago(IdSpace.GameName);
+            _ap = ap;
 
             bool attached = ap.AttachToSharedSession(client);
             _randomizerActive = attached;
+            ThinSlice.SuppressCheckHooks = attached;
             if (!attached)
             {
                 _log.LogInfo($"[SS] Silksong randomizer inactive ({ap.LastError}); falling back to thin-slice mode.");

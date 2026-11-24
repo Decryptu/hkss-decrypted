@@ -31,13 +31,21 @@ namespace ItemChanger.Modules
 
         private void AllowVoidHeartUnequip(PlayMakerFSM fsm)
         {
-            FsmState equipped = fsm.GetState("Equipped?");
-            FsmState setCurrentItemNum = fsm.GetState("Set Current Item Num");
+            FsmState? equipped = fsm.GetState("Equipped?");
+            FsmState? setCurrentItemNum = fsm.GetState("Set Current Item Num");
 
-            equipped.RemoveTransitionsTo("Black Charm? 2");
-            equipped.AddTransition("EQUIPPED", "Return Points");
-            setCurrentItemNum.RemoveTransitionsTo("Black Charm?");
-            setCurrentItemNum.AddTransition("FINISHED", "Return Points");
+            if (equipped != null)
+            {
+                equipped.RemoveTransitionsTo("Black Charm? 2");
+                if (!equipped.Transitions.Any(t => t.EventName == "EQUIPPED" && t.ToState == "Return Points"))
+                    equipped.AddTransition("EQUIPPED", "Return Points");
+            }
+            if (setCurrentItemNum != null)
+            {
+                setCurrentItemNum.RemoveTransitionsTo("Black Charm?");
+                if (!setCurrentItemNum.Transitions.Any(t => t.EventName == "FINISHED" && t.ToState == "Return Points"))
+                    setCurrentItemNum.AddTransition("FINISHED", "Return Points");
+            }
         }
 
         private bool TestVoidHeartEquipped()

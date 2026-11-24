@@ -48,12 +48,13 @@ pub fn play(slot: u8, payload: &Path, screen: &dyn Screen) -> Result<(), String>
 
 fn play_run(slot: u8, payload: &Path, screen: &dyn Screen) -> io::Result<()> {
     let dir = runs::dir(slot)?;
-    let mut run = runs::load(&dir)?.unwrap_or(runs::Run { current: Game::HollowKnight });
-    runs::save(&dir, &run)?;
+    let existing = runs::load(&dir)?;
+    let mut needs_initial_save = existing.is_none();
+    let mut run = existing.unwrap_or(runs::Run { current: Game::HollowKnight });
     let mut log = Log::open(&dir)?;
     let mut place = None;
     loop {
-        match play_game(run.current, &dir, payload, screen, &mut place, &mut log)? {
+        match play_game(run.current, &dir, payload, screen, &mut place, &mut log, &mut needs_initial_save, &run)? {
             Outcome::Closed => return Ok(()),
             Outcome::Travel(to) => {
                 run.current = to;
@@ -70,6 +71,8 @@ fn play_game(
     screen: &dyn Screen,
     place: &mut Option<(i32, i32)>,
     log: &mut Log,
+    needs_initial_save: &mut bool,
+    run: &runs::Run,
 ) -> io::Result<Outcome> {
     let install = steam::find(game).ok_or_else(|| io::Error::other(format!("{} is not installed in Steam.", game.name())))?;
     if process::is_running(game.exe()) {
@@ -98,6 +101,10 @@ fn play_game(
         .arg("-logFile")
         .arg(dir.join("logs").join(format!("{}-player.log", game.key())))
         .spawn()?;
+    if *needs_initial_save {
+        runs::save(dir, run)?;
+        *needs_initial_save = false;
+    }
     log.write(format_args!(
         "{} start (build {}, unity {})",
         game.key(),
@@ -154,6 +161,7 @@ fn play_game(
         }
         if signal.is_none() && started.elapsed() > PLUGIN_TIMEOUT {
             let _ = child.kill();
+            let _ = child.wait();
             log.write(format_args!("{} plugin timeout after {:.1} s", game.key(), started.elapsed().as_secs_f32()));
             let reason = if !mirror_dir.join("winhttp.dll").is_file() {
                 "winhttp.dll is missing from the modded game folder (antivirus may have quarantined it). Allow HKSS Launcher in your antivirus and try again."
@@ -167,6 +175,7 @@ fn play_game(
         if !visible && started.elapsed() > READY_TIMEOUT {
             // Nothing to lose yet: the player has not seen the game.
             let _ = child.kill();
+            let _ = child.wait();
             log.write(format_args!("{} ready timeout after {:.1} s", game.key(), started.elapsed().as_secs_f32()));
             return Err(io::Error::other(format!("{} did not finish starting within 150 seconds.", game.name())));
         }
@@ -190,8 +199,8 @@ fn leave(
     while child.try_wait()?.is_none() {
         if asked.elapsed() > CLOSE_TIMEOUT {
             log.write(format_args!("{} had to be stopped", game.key()));
-            child.kill()?;
-            child.wait()?;
+            let _ = child.kill();
+            let _ = child.wait();
             break;
         }
         sleep(POLL);

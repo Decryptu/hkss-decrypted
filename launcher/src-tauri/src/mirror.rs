@@ -51,8 +51,7 @@ fn link(source: &Path, target: &Path) -> io::Result<()> {
         if junction::get_target(target)? == source {
             return Ok(());
         }
-        // Removes the link itself. `remove_dir` refuses a folder with contents.
-        junction::delete(target)?;
+        // Removes the junction atomically. `remove_dir` refuses a real folder with contents.
         fs::remove_dir(target)?;
     }
     junction::create(source, target)
@@ -70,10 +69,29 @@ fn copy_if_changed(source: &Path, target: &Path) -> io::Result<()> {
 
 fn copy_dir(source: &Path, target: &Path) -> io::Result<()> {
     fs::create_dir_all(target)?;
+    let mut keep = std::collections::HashSet::new();
     for entry in fs::read_dir(source)? {
         let entry = entry?;
-        if entry.file_type()?.is_file() {
-            copy_if_changed(&entry.path(), &target.join(entry.file_name()))?;
+        let name = entry.file_name();
+        let file_type = entry.file_type()?;
+        if file_type.is_file() {
+            keep.insert(name.clone());
+            copy_if_changed(&entry.path(), &target.join(&name))?;
+        } else if file_type.is_dir() {
+            keep.insert(name.clone());
+            copy_dir(&entry.path(), &target.join(&name))?;
+        }
+    }
+    // Prune stale files/folders left behind by older launcher versions (e.g. renamed/removed DLLs).
+    for entry in fs::read_dir(target)? {
+        let entry = entry?;
+        if !keep.contains(&entry.file_name()) {
+            let path = entry.path();
+            if entry.file_type()?.is_dir() {
+                fs::remove_dir_all(&path)?;
+            } else {
+                fs::remove_file(&path)?;
+            }
         }
     }
     Ok(())
@@ -119,5 +137,11 @@ mod tests {
         prepare(Game::HollowKnight, &moved, &mirror, &payload).unwrap();
         assert_eq!(read("hollow_knight_Data/level0"), "moved level");
         assert!(steam.join("hollow_knight_Data/level0").exists());
+
+        // Upgrading the payload prunes stale/renamed DLLs left in the mirror.
+        write(mirror.join("BepInEx/plugins/HKSS/OldMod.dll"), "stale");
+        prepare(Game::HollowKnight, &moved, &mirror, &payload).unwrap();
+        assert!(!mirror.join("BepInEx/plugins/HKSS/OldMod.dll").exists());
+        assert_eq!(read("BepInEx/plugins/HKSS/HKSS.HollowKnight.dll"), "v1");
     }
 }

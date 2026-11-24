@@ -1,5 +1,8 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
 using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
@@ -79,9 +82,79 @@ namespace Modding
 
             harmony.Patch(
                 AccessTools.Method(typeof(GameManager), nameof(GameManager.LoadGame), new[] { typeof(int), typeof(Action<bool>) }),
-                postfix: new HarmonyMethod(typeof(ModHooks), nameof(OnLoadGamePostfix)));
+                prefix: new HarmonyMethod(typeof(ModHooks), nameof(OnLoadGamePrefix)));
+
+            harmony.Patch(
+                AccessTools.Method(typeof(GameManager), nameof(GameManager.StartNewGame), new[] { typeof(bool), typeof(bool) }),
+                postfix: new HarmonyMethod(typeof(ModHooks), nameof(OnStartNewGamePostfix)));
+
+            InstallPlayerDataFieldRedirectTranspilers(harmony);
 
             _log?.LogInfo("[ModApi] Installed HK ModHooks layer.");
+        }
+
+        private static readonly FieldInfo? F_CanDash = AccessTools.Field(typeof(PlayerData), nameof(PlayerData.canDash));
+        private static readonly FieldInfo? F_HasWalljump = AccessTools.Field(typeof(PlayerData), nameof(PlayerData.hasWalljump));
+        private static readonly FieldInfo? F_HasSuperDash = AccessTools.Field(typeof(PlayerData), nameof(PlayerData.hasSuperDash));
+        private static readonly FieldInfo? F_FlamesCollected = AccessTools.Field(typeof(PlayerData), nameof(PlayerData.flamesCollected));
+        private static readonly MethodInfo? M_PdGetBool = AccessTools.Method(typeof(PlayerData), nameof(PlayerData.GetBool), new[] { typeof(string) });
+        private static readonly MethodInfo? M_PdGetInt = AccessTools.Method(typeof(PlayerData), nameof(PlayerData.GetInt), new[] { typeof(string) });
+
+        private static void InstallPlayerDataFieldRedirectTranspilers(Harmony harmony)
+        {
+            if (M_PdGetBool == null || M_PdGetInt == null) return;
+            var transpiler = new HarmonyMethod(typeof(ModHooks), nameof(RedirectPlayerDataFieldReads));
+            (Type type, string method)[] targets =
+            {
+                (typeof(HeroController), "CanDash"),
+                (typeof(HeroController), "CanWallJump"),
+                (typeof(HeroController), "CanWallSlide"),
+                (typeof(HeroController), "LookForInput"),
+                (typeof(HeroController), "FinishedDashing"),
+                (typeof(HeroController), "CanSuperDash"),
+                (typeof(FlamePin), "OnEnable"),
+                (typeof(BrummFlamePin), "OnEnable"),
+            };
+            foreach (var (type, name) in targets)
+            {
+                MethodInfo? m = AccessTools.Method(type, name);
+                if (m == null) continue;
+                try
+                {
+                    harmony.Patch(m, transpiler: transpiler);
+                }
+                catch (Exception ex)
+                {
+                    _log?.LogWarning($"[ModApi] Failed to patch {type.Name}.{name} for PlayerData field redirects: {ex.Message}");
+                }
+            }
+        }
+
+        private static IEnumerable<CodeInstruction> RedirectPlayerDataFieldReads(IEnumerable<CodeInstruction> instructions)
+        {
+            foreach (CodeInstruction instr in instructions)
+            {
+                if (instr.opcode == OpCodes.Ldfld && instr.operand is FieldInfo fi)
+                {
+                    if (fi == F_CanDash || fi == F_HasWalljump || fi == F_HasSuperDash)
+                    {
+                        instr.opcode = OpCodes.Ldstr;
+                        instr.operand = fi.Name;
+                        yield return instr;
+                        yield return new CodeInstruction(OpCodes.Callvirt, M_PdGetBool);
+                        continue;
+                    }
+                    if (fi == F_FlamesCollected)
+                    {
+                        instr.opcode = OpCodes.Ldstr;
+                        instr.operand = fi.Name;
+                        yield return instr;
+                        yield return new CodeInstruction(OpCodes.Callvirt, M_PdGetInt);
+                        continue;
+                    }
+                }
+                yield return instr;
+            }
         }
 
         public static void OnNewGame()
@@ -233,21 +306,36 @@ namespace Modding
             }
         }
 
-        private static void OnLoadGamePostfix(int saveSlot)
+        private static void OnStartNewGamePostfix()
         {
-            var handlers = SavegameLoadHook;
-            if (handlers == null) return;
-            foreach (Delegate d in handlers.GetInvocationList())
+            OnNewGame();
+        }
+
+        private static void OnLoadGamePrefix(int saveSlot, ref Action<bool>? callback)
+        {
+            Action<bool>? orig = callback;
+            callback = success =>
             {
-                try
+                if (success)
                 {
-                    ((Action<int>)d)(saveSlot);
+                    var handlers = SavegameLoadHook;
+                    if (handlers != null)
+                    {
+                        foreach (Delegate d in handlers.GetInvocationList())
+                        {
+                            try
+                            {
+                                ((Action<int>)d)(saveSlot);
+                            }
+                            catch (Exception ex)
+                            {
+                                _log?.LogError($"[ModApi] SavegameLoadHook error: {ex}");
+                            }
+                        }
+                    }
                 }
-                catch (Exception ex)
-                {
-                    _log?.LogError($"[ModApi] SavegameLoadHook error: {ex}");
-                }
-            }
+                orig?.Invoke(success);
+            };
         }
 
         private static void InvokeAction(Action? handlers, string name)

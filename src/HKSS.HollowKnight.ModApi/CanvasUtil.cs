@@ -58,13 +58,14 @@ namespace Modding
 
         public static Sprite NullSprite(byte[]? data = null)
         {
-            if (data == null && _nullSprite != null) return _nullSprite;
+            bool isDefault = data == null;
+            if (isDefault && _nullSprite != null) return _nullSprite;
             var tex = new Texture2D(1, 1);
             data ??= new byte[] { 0, 0, 0, 0 };
             tex.LoadRawTextureData(data);
             tex.Apply();
             var sprite = Sprite.Create(tex, new Rect(0, 0, 1, 1), Vector2.zero);
-            if (_nullSprite == null) _nullSprite = sprite;
+            if (isDefault && _nullSprite == null) _nullSprite = sprite;
             return sprite;
         }
 

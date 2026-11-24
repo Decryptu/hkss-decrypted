@@ -172,7 +172,7 @@ namespace ItemChanger
                     var hac = self.GetComponent<HeroAnimationController>();
                     float wakeUpTime = hac.GetClipDuration("Wake Up Ground"); // 46 frames, 18 fps, 2.55s
                     // break from HC.Respawn
-                    var sc = rm.GetComponent<StartComponent>();
+                    var sc = rm ? rm.GetComponent<StartComponent>() : null;
                     if (sc && sc.def != null && (sc.def.SpecialEffects & SpecialStartEffects.DelayedWake) != 0)
                     {
                         self.playerData.isInvincible = true;

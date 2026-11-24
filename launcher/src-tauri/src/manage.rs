@@ -68,6 +68,12 @@ pub fn diagnostics(home: &Path, dir: &Path, slot: u8) -> io::Result<PathBuf> {
             zip.add_file(&format!("logs/{name}"), &entry.path());
         }
     }
+    if let Ok(entries) = fs::read_dir(dir.join("signals")) {
+        for entry in entries.flatten() {
+            let name = entry.file_name().to_string_lossy().into_owned();
+            zip.add_file(&format!("signals/{name}"), &entry.path());
+        }
+    }
     for game in Game::ALL {
         let mirror = home.join("games").join(game.key());
         let bepinex = mirror.join("BepInEx");
@@ -118,6 +124,20 @@ fn build_about(home: &Path, slot: u8) -> String {
             None => {
                 let _ = writeln!(out, "{}: not found in Steam (winhttp={has_winhttp} bepinex_log={has_bepinex_log})", game.key());
             }
+        }
+        let plugin_dir = mirror.join("BepInEx").join("plugins").join("HKSS");
+        if let Ok(entries) = fs::read_dir(&plugin_dir) {
+            let mut files: Vec<(String, u64)> = entries
+                .flatten()
+                .filter_map(|e| {
+                    let meta = e.metadata().ok()?;
+                    meta.is_file()
+                        .then(|| (e.file_name().to_string_lossy().into_owned(), meta.len()))
+                })
+                .collect();
+            files.sort_by(|a, b| a.0.cmp(&b.0));
+            let listing: Vec<String> = files.into_iter().map(|(n, s)| format!("{n} ({s} B)")).collect();
+            let _ = writeln!(out, "  plugins: {}", listing.join(", "));
         }
     }
     out

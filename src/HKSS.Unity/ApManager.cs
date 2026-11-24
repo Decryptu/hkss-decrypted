@@ -42,7 +42,10 @@ internal sealed class ApManager : MonoBehaviour
 
     internal static ApManager? Instance { get; private set; }
     internal static bool DeferAutoConnect { get; set; }
+    internal static bool FullHostInstalled { get; set; }
+    internal static bool DeferProcessedPersistence { get; set; }
     internal static event Action<ApClient>? OnConnected;
+    internal static event Action? OnDisconnected;
     internal static Func<ApEvent, RoutedItem, bool>? LocalItemGrantHandler { get; set; }
 
     internal ApSettingsStore SettingsStore { get; private set; } = null!;
@@ -51,6 +54,11 @@ internal sealed class ApManager : MonoBehaviour
 
     internal IReadOnlyList<ToastEntry> Toasts => _toasts;
     internal IReadOnlyList<string> RecentLogs => _recentLogs;
+    internal bool IsAutoConnectPending =>
+        Settings != null
+        && Settings.AutoConnect
+        && Settings.IsConfigured
+        && (_autoConnectRetriesRemaining > 0 || !_autoConnectAttempted || Client.State == ApConnectionState.Connecting);
 
     private readonly Queue<ApEvent> _pendingItems = new();
     private readonly List<ToastEntry> _toasts = new();
@@ -59,6 +67,8 @@ internal sealed class ApManager : MonoBehaviour
     private bool _autoConnectAttempted;
     private int _autoConnectRetriesRemaining = 2;
     private float _nextAutoConnectTime;
+    private int _inMemoryProcessed = -1;
+    private float _nextGrantRetryTime;
 #if DEBUG
     private bool _devCheckFired;
 #endif
@@ -88,12 +98,26 @@ internal sealed class ApManager : MonoBehaviour
     {
         Settings = updated.Clone();
         SettingsStore.Save(Settings);
+        _pendingItems.Clear();
+        _pendingNamedChecks.Clear();
+        _inMemoryProcessed = -1;
+        _nextGrantRetryTime = 0f;
+        OnDisconnected?.Invoke();
         Client.Connect(Settings);
     }
 
     internal void Disconnect()
     {
+        OnDisconnected?.Invoke();
         Client.Disconnect();
+    }
+
+    internal void FlushProcessedItemsToDisk()
+    {
+        if (_inMemoryProcessed >= 0)
+        {
+            HkssPlugin.State.SetProcessedItems(HkssPlugin.ThisGame, _inMemoryProcessed);
+        }
     }
 
     /// <summary>
@@ -218,13 +242,19 @@ internal sealed class ApManager : MonoBehaviour
                 HkssPlugin.Log.LogInfo(evt.Message);
                 PushToast($"Connected as {Client.ConnectedSlot}", ToastKind.Info);
                 CheckWorldVersion();
+                SyncSeedBinding();
                 FlushQueuedChecks();
+                if (HkssPlugin.ThisGame == GameId.HollowKnight && HkssPlugin.State.IsHkGoalCompleted())
+                {
+                    Client.ReportLocalGoalComplete();
+                }
                 OnConnected?.Invoke(Client);
                 break;
 
             case ApEventKind.Disconnected:
                 HkssPlugin.Log.LogInfo(evt.Message);
                 PushToast(evt.Message, ToastKind.Info);
+                OnDisconnected?.Invoke();
                 break;
 
             case ApEventKind.ConnectionFailed:
@@ -283,6 +313,19 @@ internal sealed class ApManager : MonoBehaviour
         HkssPlugin.Log.LogInfo($"Room apworld version matches mod: v{worldVersion}");
     }
 
+    private void SyncSeedBinding()
+    {
+        string seed = Client.Session?.RoomState?.Seed ?? string.Empty;
+        if (string.IsNullOrEmpty(seed)) return;
+        string seedKey = $"{seed}|{Client.ConnectedSlot}";
+        if (HkssPlugin.State.EnsureSeedBinding(seedKey))
+        {
+            HkssPlugin.Log.LogWarning("[AP] Connected to a different Archipelago room/seed; reset run state counters and queued checks.");
+            _pendingNamedChecks.Clear();
+            _inMemoryProcessed = 0;
+        }
+    }
+
     private void FlushQueuedChecks()
     {
         if (!Client.IsConnected) return;
@@ -313,12 +356,17 @@ internal sealed class ApManager : MonoBehaviour
 
     private void DrainPendingItems()
     {
-        int processed = HkssPlugin.State.GetProcessedItems(HkssPlugin.ThisGame);
+        if (Time.unscaledTime < _nextGrantRetryTime) return;
+
+        int processed = _inMemoryProcessed >= 0
+            ? _inMemoryProcessed
+            : HkssPlugin.State.GetProcessedItems(HkssPlugin.ThisGame);
+        _inMemoryProcessed = processed;
         bool grantedAny = false;
 
         while (_pendingItems.Count > 0)
         {
-            ApEvent evt = _pendingItems.Dequeue();
+            ApEvent evt = _pendingItems.Peek();
             RoutedItem routed = ItemRouter.Route(
                 HkssPlugin.ThisGame,
                 evt.ItemIndex,
@@ -331,16 +379,30 @@ internal sealed class ApManager : MonoBehaviour
             switch (routed.Action)
             {
                 case RouteAction.SkipAlreadyProcessed:
+                    _pendingItems.Dequeue();
                     break;
 
                 case RouteAction.ApplyLocally:
                     try
                     {
                         bool handled = LocalItemGrantHandler != null && LocalItemGrantHandler(evt, routed);
-                        if (!handled) ThinSlice.GrantItem(routed);
+                        if (!handled)
+                        {
+                            if (FullHostInstalled)
+                            {
+                                // Host is installed (e.g. ItemChanger/Silksong) but not ready to grant yet; retry shortly
+                                // without falling back to ThinSlice or advancing the processed index.
+                                _nextGrantRetryTime = Time.unscaledTime + 0.25f;
+                                return;
+                            }
+                            ThinSlice.GrantItem(routed);
+                        }
+                        _pendingItems.Dequeue();
                         grantedAny = true;
                         processed = evt.ItemIndex + 1;
-                        HkssPlugin.State.SetProcessedItems(HkssPlugin.ThisGame, processed);
+                        _inMemoryProcessed = processed;
+                        if (!DeferProcessedPersistence)
+                            HkssPlugin.State.SetProcessedItems(HkssPlugin.ThisGame, processed);
                         HkssPlugin.Log.LogInfo($"[AP] Applied local item #{evt.ItemIndex}: {routed.RawName}");
                         PushToast(routed.Message, ToastKind.LocalItem);
                     }
@@ -348,21 +410,28 @@ internal sealed class ApManager : MonoBehaviour
                     {
                         HkssPlugin.Log.LogError($"[AP] Failed to grant {routed.RawName}: {e}");
                         PushToast($"Grant failed: {routed.DisplayName}", ToastKind.Error);
+                        _nextGrantRetryTime = Time.unscaledTime + 1.0f;
                         return;
                     }
                     break;
 
                 case RouteAction.CrossGameNotice:
+                    _pendingItems.Dequeue();
                     processed = evt.ItemIndex + 1;
-                    HkssPlugin.State.SetProcessedItems(HkssPlugin.ThisGame, processed);
+                    _inMemoryProcessed = processed;
+                    if (!DeferProcessedPersistence)
+                        HkssPlugin.State.SetProcessedItems(HkssPlugin.ThisGame, processed);
                     HkssPlugin.Log.LogInfo($"[AP] Cross-game item #{evt.ItemIndex}: {routed.Message}");
                     PushToast(routed.Message, ToastKind.CrossGameItem);
                     break;
 
                 case RouteAction.SkipOtherGameBacklog:
                 case RouteAction.IgnoreUnknown:
+                    _pendingItems.Dequeue();
                     processed = evt.ItemIndex + 1;
-                    HkssPlugin.State.SetProcessedItems(HkssPlugin.ThisGame, processed);
+                    _inMemoryProcessed = processed;
+                    if (!DeferProcessedPersistence)
+                        HkssPlugin.State.SetProcessedItems(HkssPlugin.ThisGame, processed);
                     break;
             }
         }

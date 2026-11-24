@@ -76,9 +76,15 @@ namespace ItemChanger.Modules
         {
             if (fsm.FsmName == "Fury" && fsm.gameObject.name == "Charm Effects")
             {
-                fsm.GetState("Idle").AddTransition("ENABLE FURY", "Activate");
-                fsm.GetState("Activate").AddTransition("DISABLE FURY", "Deactivate");
-                fsm.GetState("Stay Furied").AddTransition("DISABLE FURY", "Deactivate");
+                FsmState? idle = fsm.GetState("Idle");
+                FsmState? activate = fsm.GetState("Activate");
+                FsmState? stayFuried = fsm.GetState("Stay Furied");
+                if (idle != null && !idle.Transitions.Any(t => t.EventName == "ENABLE FURY"))
+                    idle.AddTransition("ENABLE FURY", "Activate");
+                if (activate != null && !activate.Transitions.Any(t => t.EventName == "DISABLE FURY"))
+                    activate.AddTransition("DISABLE FURY", "Deactivate");
+                if (stayFuried != null && !stayFuried.Transitions.Any(t => t.EventName == "DISABLE FURY"))
+                    stayFuried.AddTransition("DISABLE FURY", "Deactivate");
             }
         }
 

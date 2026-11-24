@@ -18,29 +18,62 @@ pub struct CheckResult {
 
 pub async fn check(room: Room) -> Result<CheckResult, String> {
     let room = room.validated()?;
-    let address = if room.host.contains("://") {
-        room.host.clone()
+    let endpoints = build_endpoints(&room)?;
+    tokio::time::timeout(Duration::from_secs(10), async {
+        let mut last_err = None;
+        for endpoint in endpoints {
+            match login(endpoint, &room).await {
+                Ok(result) => return Ok(result),
+                Err(err) => {
+                    // Only fall back to the alternate scheme on connection failure;
+                    // server-side refusals (bad slot/password/game) are authoritative.
+                    if err.starts_with("Could not reach the room.") {
+                        last_err = Some(err);
+                    } else {
+                        return Err(err);
+                    }
+                }
+            }
+        }
+        Err(last_err.unwrap_or_else(invalid_host))
+    })
+    .await
+    .map_err(|_| {
+        "The room took too long to respond. Check the host and port with your host.".to_string()
+    })?
+}
+
+fn build_endpoints(room: &Room) -> Result<Vec<Uri>, String> {
+    let schemes: &[&str] = if room.host.contains("://") {
+        &[""]
+    } else if is_local_host(&room.host) {
+        &["ws://", "wss://"]
     } else {
-        format!("ws://{}", room.host)
+        &["wss://", "ws://"]
     };
-    let endpoint: Uri = format!("{address}:{}/", room.port)
-        .parse()
-        .map_err(|_| invalid_host())?;
-    if !matches!(endpoint.scheme_str(), Some("ws" | "wss"))
-        || endpoint.path() != "/"
-        || endpoint.query().is_some()
-        || endpoint.port_u16() != Some(room.port)
-        || endpoint
-            .authority()
-            .is_some_and(|a| a.as_str().contains('@'))
-    {
-        return Err(invalid_host());
+    let mut out = Vec::with_capacity(schemes.len());
+    for prefix in schemes {
+        let endpoint: Uri = format!("{prefix}{}:{}/", room.host, room.port)
+            .parse()
+            .map_err(|_| invalid_host())?;
+        if !matches!(endpoint.scheme_str(), Some("ws" | "wss"))
+            || endpoint.path() != "/"
+            || endpoint.query().is_some()
+            || endpoint.port_u16() != Some(room.port)
+            || endpoint
+                .authority()
+                .is_some_and(|a| a.as_str().contains('@'))
+        {
+            return Err(invalid_host());
+        }
+        out.push(endpoint);
     }
-    tokio::time::timeout(Duration::from_secs(10), login(endpoint, &room))
-        .await
-        .map_err(|_| {
-            "The room took too long to respond. Check the host and port with your host.".to_string()
-        })?
+    Ok(out)
+}
+
+fn is_local_host(host: &str) -> bool {
+    let lower = host.to_ascii_lowercase();
+    lower == "localhost" || lower == "127.0.0.1" || lower == "[::1]" || lower == "::1"
 }
 
 fn invalid_host() -> String {
@@ -237,6 +270,39 @@ mod tests {
         assert!(version_warning(None, "0.1.2")
             .unwrap()
             .contains("0.1.2 or earlier"));
+    }
+
+    #[test]
+    fn prefers_wss_for_remote_hosts_and_ws_for_localhost() {
+        let remote = Room {
+            host: "archipelago.gg".into(),
+            port: 38281,
+            slot: "Player".into(),
+            password: String::new(),
+            auto_connect: true,
+        };
+        let urls: Vec<String> = build_endpoints(&remote)
+            .unwrap()
+            .into_iter()
+            .map(|u| u.to_string())
+            .collect();
+        assert_eq!(urls, vec!["wss://archipelago.gg:38281/", "ws://archipelago.gg:38281/"]);
+
+        let local = Room { host: "localhost".into(), ..remote.clone() };
+        let local_urls: Vec<String> = build_endpoints(&local)
+            .unwrap()
+            .into_iter()
+            .map(|u| u.to_string())
+            .collect();
+        assert_eq!(local_urls, vec!["ws://localhost:38281/", "wss://localhost:38281/"]);
+
+        let explicit = Room { host: "ws://example.com".into(), ..remote };
+        let explicit_urls: Vec<String> = build_endpoints(&explicit)
+            .unwrap()
+            .into_iter()
+            .map(|u| u.to_string())
+            .collect();
+        assert_eq!(explicit_urls, vec!["ws://example.com:38281/"]);
     }
 }
 

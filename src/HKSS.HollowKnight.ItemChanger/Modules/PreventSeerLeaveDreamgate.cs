@@ -23,6 +23,20 @@ namespace ItemChanger.Modules
         {
             ILCursor cursor = new(il);
 
+            // Stock HK 1.5.12620 emits a direct field store: this.playerData.hasDreamGate = true.
+            if (cursor.TryGotoNext(
+                i => i.Match(OpCodes.Ldarg_0),
+                i => i.MatchLdfld<GameManager>(nameof(GameManager.playerData)),
+                i => i.Match(OpCodes.Ldc_I4_1),
+                i => i.MatchStfld<PlayerData>(nameof(PlayerData.hasDreamGate))
+              ))
+            {
+                cursor.RemoveRange(4);
+                return;
+            }
+
+            // Fallback for MAPI-rewritten Assembly-CSharp where stfld was turned into SetBoolSwappedArgs.
+            cursor.Index = 0;
             if (cursor.TryGotoNext(
                 i => i.Match(OpCodes.Ldarg_0),
                 i => i.MatchLdfld<GameManager>(nameof(GameManager.playerData)),

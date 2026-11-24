@@ -317,6 +317,9 @@ public sealed class ApClient : IDisposable
 
         try
         {
+            if (session.Locations.AllLocationsChecked.Contains(combinedLocationId))
+                return true;
+
             session.Locations.CompleteLocationChecks(combinedLocationId);
             string name = session.Locations.GetLocationNameFromId(combinedLocationId, IdSpace.GameName)
                 ?? $"Location #{combinedLocationId}";

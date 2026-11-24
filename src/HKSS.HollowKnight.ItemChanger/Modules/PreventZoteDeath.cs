@@ -30,7 +30,7 @@ namespace ItemChanger.Modules
         // mantis claw trigger
         private void PreventZoteEvent(PlayMakerFSM fsm)
         {
-            fsm.GetState("Zote Event").ClearActions();
+            fsm.GetState("Zote Event")?.ClearActions();
         }
 
     }

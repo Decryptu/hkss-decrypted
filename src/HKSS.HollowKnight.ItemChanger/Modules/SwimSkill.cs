@@ -52,22 +52,29 @@ namespace ItemChanger.Modules
         private void EditWaterSurface(PlayMakerFSM fsm)
         {
             if (fsm.gameObject.LocateMyFSM("Acid Armour Check") != null) return; // acid
+            if (fsm.GetState("Check Swim") != null) return; // already edited
 
-            GameObject splashSurface = fsm.transform.Find("Splash Surface").gameObject;
+            Transform? splashTransform = fsm.transform.Find("Splash Surface");
+            FsmState? idle = fsm.GetState("Idle");
+            FsmState? bigSplash = fsm.GetState("Big Splash?");
+            FsmState? splashInNorm = fsm.GetState("Splash In Norm");
+            if (splashTransform == null || idle == null || bigSplash == null || splashInNorm == null || idle.Transitions.Length == 0)
+                return;
+
+            GameObject splashSurface = splashTransform.gameObject;
             splashSurface.layer = 17; // orig is 8, which can enable seam jumping when it intersects with other terrain colliders
-            splashSurface.AddComponent<NonBouncer>();
+            if (splashSurface.GetComponent<NonBouncer>() == null)
+                splashSurface.AddComponent<NonBouncer>();
 
-            FsmState idle = fsm.GetState("Idle");
             FsmState checkSwim = fsm.AddState("Check Swim");
             FsmState damageHero = fsm.AddState("Damage Hero");
-            FsmState bigSplash = fsm.GetState("Big Splash?");
 
             idle.Transitions[0].SetToState(checkSwim);
             checkSwim.AddFirstAction(new DelegateBoolTest(() => canSwim, "SWIM", "DAMAGE"));
             checkSwim.AddTransition("SWIM", bigSplash);
             checkSwim.AddTransition("DAMAGE", damageHero);
 
-            damageHero.SetActions(fsm.GetState("Splash In Norm").Actions.Where(a => a is not SetPosition).ToArray()); // play splash audio and fling splash particles
+            damageHero.SetActions(splashInNorm.Actions.Where(a => a is not SetPosition).ToArray()); // play splash audio and fling splash particles
             damageHero.AddLastAction(new Lambda(() => HeroController.instance.TakeDamage(fsm.gameObject, CollisionSide.bottom, 1, 2)));
             damageHero.AddTransition(FsmEvent.Finished, idle);
         }

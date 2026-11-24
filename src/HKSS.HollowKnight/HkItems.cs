@@ -136,10 +136,6 @@ public sealed class HkItemTag : Tag
         base.Load(parent);
         var item = (AbstractItem)parent;
         item.AfterGive += OnAfterGive;
-        if (item.WasEverObtained() && Location > 0)
-        {
-            ApManager.Instance?.ReportCheckById(Location);
-        }
     }
 
     public override void Unload(object parent)
@@ -281,7 +277,10 @@ internal sealed class HkCostFactory
     public void ApplyCost(AbstractPlacement pmt, AbstractItem item, string rawLocationName)
     {
         if (!_locationCosts.TryGetValue(rawLocationName, out Dictionary<string, int>? costs) || costs == null)
-            return;
+        {
+            if (!_locationCosts.TryGetValue(IdSpace.HollowKnightPrefix + rawLocationName, out costs) || costs == null)
+                return;
+        }
 
         var icCosts = new List<Cost>();
         foreach (var entry in costs)

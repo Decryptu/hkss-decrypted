@@ -34,7 +34,7 @@ namespace ItemChanger.Modules
 
         private void DisableDarknessRegion(PlayMakerFSM fsm)
         {
-            if (darknessLevelsByScene.ContainsKey(fsm.gameObject.scene.name)) fsm.GetState("Init").ClearTransitions();
+            if (darknessLevelsByScene.ContainsKey(fsm.gameObject.scene.name)) fsm.GetState("Init")?.ClearTransitions();
         }
     }
 }

@@ -35,7 +35,7 @@ namespace ItemChanger.Modules
             // remove VS check from baldur spawn
             if (fsm != null)
             {
-                fsm.GetState("Can Roller?").RemoveActionsOfType<IntCompare>();
+                fsm.GetState("Can Roller?")?.RemoveActionsOfType<IntCompare>();
             }
 
         }
