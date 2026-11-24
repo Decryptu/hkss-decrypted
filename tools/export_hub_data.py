@@ -21,6 +21,74 @@ DEFAULT_ROOMS = (
 )
 OUTPUT = REPO_ROOT / "site/world.json"
 
+GAME_CATEGORIES = {
+    "General & goals": "General/Goal Options",
+    "Starting options": "Starting Options",
+    "Logic & skips": "Proficiency/Skip Options",
+    "Randomization": "Randomization Options",
+    "Split & directional abilities": "Split/Directional Abilities",
+    "Shops & costs": "Costsanity",
+    "Links": "Link Options",
+    "Miscellaneous": "Miscellaneous",
+}
+
+HK_CATEGORY_OPTIONS = {
+    "General & goals": ("Goal", "GrubHuntGoal", "WhitePalace"),
+    "Starting options": ("StartLocation", "StartingGeo"),
+    "Logic & skips": (
+        "PreciseMovement", "ProficientCombat", "BackgroundObjectPogos", "EnemyPogos",
+        "ObscureSkips", "ShadeSkips", "InfectionSkips", "FireballSkips", "SpikeTunnels",
+        "AcidSkips", "DamageBoosts", "DangerousSkips", "DarkRooms", "ComplexSkips",
+        "DifficultSkips", "ExtraPlatforms",
+    ),
+    "Split & directional abilities": (
+        "RandomizeSwim", "SplitCrystalHeart", "SplitMothwingCloak", "SplitMantisClaw",
+    ),
+    "Links": ("DeathLinkShade", "DeathLinkBreaksFragileCharms"),
+    "Miscellaneous": ("RemoveSpellUpgrades", "AddUnshuffledLocations"),
+}
+
+
+def hk_category(key):
+    for category, keys in HK_CATEGORY_OPTIONS.items():
+        if key in keys:
+            return category
+    if key.startswith("CostSanity") or key.endswith(("Price", "ShopSlots", "RewardSlots", "CharmCosts")):
+        return "Shops & costs"
+    if key.startswith("Randomize"):
+        return "Randomization"
+    return "Miscellaneous"
+
+
+def hub_option_groups(ordered_groups):
+    """Use the same headings and order for both games in the player hub."""
+    common = ordered_groups.get("Item & Location Options", {})
+    shared = dict(ordered_groups.get("Game Options", {}))
+    shared_keys = {"progression_balancing"}
+    hk = defaultdict(dict)
+    for key, option in ordered_groups["Hollow Knight"].items():
+        hk[hk_category(key)][key] = option
+
+    silksong = {}
+    for name, options in ordered_groups.items():
+        if name.startswith("Silksong: "):
+            shared.update((key, option) for key, option in options.items() if key in shared_keys)
+            silksong[name.removeprefix("Silksong: ")] = {
+                key: option for key, option in options.items() if key not in common and key not in shared_keys
+            }
+    yield "Combo", ordered_groups["Combo"]
+    yield "Shared game options", shared
+    for name, options in ordered_groups.items():
+        if name not in {"Combo", "Game Options", "Hollow Knight", "Item & Location Options"} and not name.startswith("Silksong: "):
+            yield name, options
+    for name in GAME_CATEGORIES:
+        yield f"Hollow Knight: {name}", hk[name]
+    for name, upstream in GAME_CATEGORIES.items():
+        yield f"Silksong: {name}", silksong.pop(upstream, {})
+    for name, options in silksong.items():
+        yield f"Silksong: {name}", options
+    yield "Item & Location Options", common
+
 
 def option_schema(option, ap):
     default = option.default
@@ -162,17 +230,12 @@ def export(archive: Path, ap_dir: Path, rooms_path: Path) -> dict:
         })
 
     groups = []
-    ordered_groups = ap.get_option_groups(HKSSWorld)
-    common_options = ordered_groups.get("Item & Location Options", {})
-    for name, options in ordered_groups.items():
-        if name.startswith("Silksong: "):
-            options = {key: option for key, option in options.items() if key not in common_options}
+    for name, options in hub_option_groups(ap.get_option_groups(HKSSWorld)):
         if options:
             groups.append({
                 "name": name,
                 "options": {key: option_schema(option, ap) for key, option in options.items()},
             })
-    groups.sort(key=lambda group: group["name"] != "Combo")
     return {
         "game": HKSSWorld.game,
         "version": release["world_version"],

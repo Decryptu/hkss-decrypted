@@ -310,7 +310,7 @@
       }
     },
     {
-      "name": "Game Options",
+      "name": "Shared game options",
       "options": {
         "accessibility": {
           "label": "Accessibility",
@@ -330,11 +330,213 @@
             0,
             2
           ]
+        },
+        "progression_balancing": {
+          "label": "Progression Balancing",
+          "help": "A system that can move progression earlier, to try and prevent the player from getting stuck and bored early.\n\nA lower setting means more getting stuck. A higher setting means less getting stuck.",
+          "kind": "range",
+          "default": 50,
+          "min": 0,
+          "max": 99,
+          "names": {
+            "disabled": 0,
+            "normal": 50,
+            "extreme": 99
+          }
         }
       }
     },
     {
-      "name": "Hollow Knight",
+      "name": "Hollow Knight: General & goals",
+      "options": {
+        "Goal": {
+          "label": "Goal",
+          "help": "The goal required of you in order to complete your run in Archipelago.",
+          "kind": "choice",
+          "default": "any",
+          "choices": [
+            "any",
+            "hollowknight",
+            "siblings",
+            "radiance",
+            "godhome",
+            "godhome_flower",
+            "grub_hunt"
+          ],
+          "aliases": [],
+          "numbers": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        },
+        "GrubHuntGoal": {
+          "label": "Grub Hunt Goal",
+          "help": "The amount of grubs required to finish Grub Hunt.\nOn 'All' any grubs from item links replacements etc. will be counted",
+          "kind": "range",
+          "default": 46,
+          "min": 1,
+          "max": 46,
+          "names": {
+            "all": -1,
+            "forty_six": 46
+          }
+        },
+        "WhitePalace": {
+          "label": "White Palace",
+          "help": "Whether or not to include White Palace or not. Note: Even if excluded, the King Fragment check may still be\nrequired if charms are vanilla.",
+          "kind": "choice",
+          "default": "exclude",
+          "choices": [
+            "exclude",
+            "kingfragment",
+            "nopathofpain",
+            "include"
+          ],
+          "aliases": [],
+          "numbers": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "name": "Hollow Knight: Starting options",
+      "options": {
+        "StartLocation": {
+          "label": "Start Location",
+          "help": "Choose your start location. This is currently only locked to King's Pass.",
+          "kind": "choice",
+          "default": "king's_pass",
+          "choices": [
+            "king's_pass"
+          ],
+          "aliases": [],
+          "numbers": [
+            0
+          ]
+        },
+        "StartingGeo": {
+          "label": "Starting Geo",
+          "help": "The amount of starting geo you have.",
+          "kind": "range",
+          "default": 0,
+          "min": 0,
+          "max": 1000,
+          "names": {}
+        }
+      }
+    },
+    {
+      "name": "Hollow Knight: Logic & skips",
+      "options": {
+        "PreciseMovement": {
+          "label": "Precise Movement",
+          "help": "Places skips into logic which require extremely precise player movement, possibly without movement skills such as\ndash or claw.",
+          "kind": "toggle",
+          "default": false
+        },
+        "ProficientCombat": {
+          "label": "Proficient Combat",
+          "help": "Places skips into logic which require proficient combat, possibly with limited items.",
+          "kind": "toggle",
+          "default": false
+        },
+        "BackgroundObjectPogos": {
+          "label": "Background Object Pogos",
+          "help": "Places skips into logic for locations which are reachable via pogoing off of background objects.",
+          "kind": "toggle",
+          "default": false
+        },
+        "EnemyPogos": {
+          "label": "Enemy Pogos",
+          "help": "Places skips into logic for locations which are reachable via pogos off of enemies.",
+          "kind": "toggle",
+          "default": false
+        },
+        "ObscureSkips": {
+          "label": "Obscure Skips",
+          "help": "Places skips into logic which are considered obscure enough that a beginner is not expected to know them.",
+          "kind": "toggle",
+          "default": false
+        },
+        "ShadeSkips": {
+          "label": "Shade Skips",
+          "help": "Places shade skips into logic which utilize the player's shade for pogoing or damage boosting.",
+          "kind": "toggle",
+          "default": false
+        },
+        "InfectionSkips": {
+          "label": "Infection Skips",
+          "help": "Places skips into logic which are only possible after the crossroads become infected.",
+          "kind": "toggle",
+          "default": false
+        },
+        "FireballSkips": {
+          "label": "Fireball Skips",
+          "help": "Places skips into logic which require the use of spells to reset fall speed while in mid-air.",
+          "kind": "toggle",
+          "default": false
+        },
+        "SpikeTunnels": {
+          "label": "Spike Tunnels",
+          "help": "Places skips into logic which require the navigation of narrow tunnels filled with spikes.",
+          "kind": "toggle",
+          "default": false
+        },
+        "AcidSkips": {
+          "label": "Acid Skips",
+          "help": "Places skips into logic which require crossing a pool of acid without Isma's Tear, or water if swim is disabled.",
+          "kind": "toggle",
+          "default": false
+        },
+        "DamageBoosts": {
+          "label": "Damage Boosts",
+          "help": "Places skips into logic which require you to take damage from an enemy or hazard to progress.",
+          "kind": "toggle",
+          "default": false
+        },
+        "DangerousSkips": {
+          "label": "Dangerous Skips",
+          "help": "Places skips into logic which contain a high risk of taking damage.",
+          "kind": "toggle",
+          "default": false
+        },
+        "DarkRooms": {
+          "label": "Dark Rooms",
+          "help": "Places skips into logic which require navigating dark rooms without the use of the Lumafly Lantern.",
+          "kind": "toggle",
+          "default": false
+        },
+        "ComplexSkips": {
+          "label": "Complex Skips",
+          "help": "Places skips into logic which require intense setup or are obscure even beyond advanced skip standards.",
+          "kind": "toggle",
+          "default": false
+        },
+        "DifficultSkips": {
+          "label": "Difficult Skips",
+          "help": "Places skips into logic which are considered more difficult than typical.",
+          "kind": "toggle",
+          "default": false
+        },
+        "ExtraPlatforms": {
+          "label": "Extra Platforms",
+          "help": "Places additional platforms to make traveling throughout Hallownest more convenient.",
+          "kind": "toggle",
+          "default": true
+        }
+      }
+    },
+    {
+      "name": "Hollow Knight: Randomization",
       "options": {
         "RandomizeDreamers": {
           "label": "Randomize Dreamers",
@@ -351,12 +553,6 @@
         "RandomizeFocus": {
           "label": "Randomize Focus",
           "help": "Removes the ability to focus and randomizes it into the item pool.\nThis option adds approximately 1 location.",
-          "kind": "toggle",
-          "default": false
-        },
-        "RandomizeSwim": {
-          "label": "Randomize Swim",
-          "help": "Removes the ability to swim in water and randomizes it into the item pool.\nThis option adds approximately 0 locations.",
           "kind": "toggle",
           "default": false
         },
@@ -509,216 +705,41 @@
           "help": "Adds an Elevator Pass item to the item pool, which is then required to use the large elevators connecting\nCity of Tears to the Forgotten Crossroads and Resting Grounds.",
           "kind": "toggle",
           "default": false
-        },
-        "PreciseMovement": {
-          "label": "Precise Movement",
-          "help": "Places skips into logic which require extremely precise player movement, possibly without movement skills such as\ndash or claw.",
+        }
+      }
+    },
+    {
+      "name": "Hollow Knight: Split & directional abilities",
+      "options": {
+        "RandomizeSwim": {
+          "label": "Randomize Swim",
+          "help": "Removes the ability to swim in water and randomizes it into the item pool.\nThis option adds approximately 0 locations.",
           "kind": "toggle",
           "default": false
         },
-        "ProficientCombat": {
-          "label": "Proficient Combat",
-          "help": "Places skips into logic which require proficient combat, possibly with limited items.",
+        "SplitCrystalHeart": {
+          "label": "Split Crystal Heart",
+          "help": "Splits the Crystal Heart into left- and right-only versions of the item.",
           "kind": "toggle",
           "default": false
         },
-        "BackgroundObjectPogos": {
-          "label": "Background Object Pogos",
-          "help": "Places skips into logic for locations which are reachable via pogoing off of background objects.",
+        "SplitMothwingCloak": {
+          "label": "Split Mothwing Cloak",
+          "help": "Splits the Mothwing Cloak into left- and right-only versions of the item. Randomly adds a second left or\nright Mothwing cloak item which functions as the upgrade to Shade Cloak.",
           "kind": "toggle",
           "default": false
         },
-        "EnemyPogos": {
-          "label": "Enemy Pogos",
-          "help": "Places skips into logic for locations which are reachable via pogos off of enemies.",
+        "SplitMantisClaw": {
+          "label": "Split Mantis Claw",
+          "help": "Splits the Mantis Claw into left- and right-only versions of the item.",
           "kind": "toggle",
           "default": false
-        },
-        "ObscureSkips": {
-          "label": "Obscure Skips",
-          "help": "Places skips into logic which are considered obscure enough that a beginner is not expected to know them.",
-          "kind": "toggle",
-          "default": false
-        },
-        "ShadeSkips": {
-          "label": "Shade Skips",
-          "help": "Places shade skips into logic which utilize the player's shade for pogoing or damage boosting.",
-          "kind": "toggle",
-          "default": false
-        },
-        "InfectionSkips": {
-          "label": "Infection Skips",
-          "help": "Places skips into logic which are only possible after the crossroads become infected.",
-          "kind": "toggle",
-          "default": false
-        },
-        "FireballSkips": {
-          "label": "Fireball Skips",
-          "help": "Places skips into logic which require the use of spells to reset fall speed while in mid-air.",
-          "kind": "toggle",
-          "default": false
-        },
-        "SpikeTunnels": {
-          "label": "Spike Tunnels",
-          "help": "Places skips into logic which require the navigation of narrow tunnels filled with spikes.",
-          "kind": "toggle",
-          "default": false
-        },
-        "AcidSkips": {
-          "label": "Acid Skips",
-          "help": "Places skips into logic which require crossing a pool of acid without Isma's Tear, or water if swim is disabled.",
-          "kind": "toggle",
-          "default": false
-        },
-        "DamageBoosts": {
-          "label": "Damage Boosts",
-          "help": "Places skips into logic which require you to take damage from an enemy or hazard to progress.",
-          "kind": "toggle",
-          "default": false
-        },
-        "DangerousSkips": {
-          "label": "Dangerous Skips",
-          "help": "Places skips into logic which contain a high risk of taking damage.",
-          "kind": "toggle",
-          "default": false
-        },
-        "DarkRooms": {
-          "label": "Dark Rooms",
-          "help": "Places skips into logic which require navigating dark rooms without the use of the Lumafly Lantern.",
-          "kind": "toggle",
-          "default": false
-        },
-        "ComplexSkips": {
-          "label": "Complex Skips",
-          "help": "Places skips into logic which require intense setup or are obscure even beyond advanced skip standards.",
-          "kind": "toggle",
-          "default": false
-        },
-        "DifficultSkips": {
-          "label": "Difficult Skips",
-          "help": "Places skips into logic which are considered more difficult than typical.",
-          "kind": "toggle",
-          "default": false
-        },
-        "RemoveSpellUpgrades": {
-          "label": "Remove Spell Upgrades",
-          "help": "Removes the second level of all spells from the item pool.",
-          "kind": "toggle",
-          "default": false
-        },
-        "StartLocation": {
-          "label": "Start Location",
-          "help": "Choose your start location. This is currently only locked to King's Pass.",
-          "kind": "choice",
-          "default": "king's_pass",
-          "choices": [
-            "king's_pass"
-          ],
-          "aliases": [],
-          "numbers": [
-            0
-          ]
-        },
-        "Goal": {
-          "label": "Goal",
-          "help": "The goal required of you in order to complete your run in Archipelago.",
-          "kind": "choice",
-          "default": "any",
-          "choices": [
-            "any",
-            "hollowknight",
-            "siblings",
-            "radiance",
-            "godhome",
-            "godhome_flower",
-            "grub_hunt"
-          ],
-          "aliases": [],
-          "numbers": [
-            0,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6
-          ]
-        },
-        "GrubHuntGoal": {
-          "label": "Grub Hunt Goal",
-          "help": "The amount of grubs required to finish Grub Hunt.\nOn 'All' any grubs from item links replacements etc. will be counted",
-          "kind": "range",
-          "default": 46,
-          "min": 1,
-          "max": 46,
-          "names": {
-            "all": -1,
-            "forty_six": 46
-          }
-        },
-        "WhitePalace": {
-          "label": "White Palace",
-          "help": "Whether or not to include White Palace or not. Note: Even if excluded, the King Fragment check may still be\nrequired if charms are vanilla.",
-          "kind": "choice",
-          "default": "exclude",
-          "choices": [
-            "exclude",
-            "kingfragment",
-            "nopathofpain",
-            "include"
-          ],
-          "aliases": [],
-          "numbers": [
-            0,
-            1,
-            2,
-            3
-          ]
-        },
-        "ExtraPlatforms": {
-          "label": "Extra Platforms",
-          "help": "Places additional platforms to make traveling throughout Hallownest more convenient.",
-          "kind": "toggle",
-          "default": true
-        },
-        "AddUnshuffledLocations": {
-          "label": "Add Unshuffled Locations",
-          "help": "Adds non-randomized locations to the location pool, which allows syncing\nof location state with co-op or automatic collection via collect.\n\nNote: This will increase the number of location checks required to purchase\nhints to the total maximum.",
-          "kind": "toggle",
-          "default": false
-        },
-        "StartingGeo": {
-          "label": "Starting Geo",
-          "help": "The amount of starting geo you have.",
-          "kind": "range",
-          "default": 0,
-          "min": 0,
-          "max": 1000,
-          "names": {}
-        },
-        "DeathLinkShade": {
-          "label": "Deathlink Shade Handling",
-          "help": "Sets whether to create a shade when you are killed by a DeathLink and how to handle your existing shade, if any.\n\nvanilla: DeathLink deaths function like any other death and overrides your existing shade (including geo), if any.\nshadeless: DeathLink deaths do not spawn shades. Your existing shade (including geo), if any, is untouched.\nshade: DeathLink deaths spawn a shade if you do not have an existing shade. Otherwise, it acts like shadeless.\n\n* This option has no effect if DeathLink is disabled.\n** Self-death shade behavior is not changed; if a self-death normally creates a shade in vanilla, it will override\n    your existing shade, if any.",
-          "kind": "choice",
-          "default": "shade",
-          "choices": [
-            "vanilla",
-            "shadeless",
-            "shade"
-          ],
-          "aliases": [],
-          "numbers": [
-            0,
-            1,
-            2
-          ]
-        },
-        "DeathLinkBreaksFragileCharms": {
-          "label": "Deathlink Breaks Fragile Charms",
-          "help": "Sets if fragile charms break when you are killed by a DeathLink.\n\n* This option has no effect if DeathLink is disabled.\n** Self-death fragile charm behavior is not changed; if a self-death normally breaks fragile charms in vanilla, it\n    will continue to do so.",
-          "kind": "toggle",
-          "default": false
-        },
+        }
+      }
+    },
+    {
+      "name": "Hollow Knight: Shops & costs",
+      "options": {
         "MinimumGeoPrice": {
           "label": "Minimum Geo Price",
           "help": "The minimum geo price for items in geo shops.",
@@ -960,24 +981,6 @@
           "max": 144,
           "names": {}
         },
-        "SplitCrystalHeart": {
-          "label": "Split Crystal Heart",
-          "help": "Splits the Crystal Heart into left- and right-only versions of the item.",
-          "kind": "toggle",
-          "default": false
-        },
-        "SplitMothwingCloak": {
-          "label": "Split Mothwing Cloak",
-          "help": "Splits the Mothwing Cloak into left- and right-only versions of the item. Randomly adds a second left or\nright Mothwing cloak item which functions as the upgrade to Shade Cloak.",
-          "kind": "toggle",
-          "default": false
-        },
-        "SplitMantisClaw": {
-          "label": "Split Mantis Claw",
-          "help": "Splits the Mantis Claw into left- and right-only versions of the item.",
-          "kind": "toggle",
-          "default": false
-        },
         "CostSanity": {
           "label": "Costsanity",
           "help": "If enabled, most locations with costs (like stag stations) will have randomly determined costs.\nIf set to shopsonly, CostSanity will only apply to shops (including Grubfather, Seer and Egg Shop).\nIf set to notshops, CostSanity will only apply to non-shops (e.g. Stag stations and Cornifer locations)\n\nThese costs can be in Geo (except Grubfather, Seer and Eggshop), Grubs, Charms, Essence and/or Rancid Eggs",
@@ -1059,21 +1062,53 @@
       }
     },
     {
-      "name": "Silksong: General/Goal Options",
+      "name": "Hollow Knight: Links",
       "options": {
-        "progression_balancing": {
-          "label": "Progression Balancing",
-          "help": "A system that can move progression earlier, to try and prevent the player from getting stuck and bored early.\n\nA lower setting means more getting stuck. A higher setting means less getting stuck.",
-          "kind": "range",
-          "default": 50,
-          "min": 0,
-          "max": 99,
-          "names": {
-            "disabled": 0,
-            "normal": 50,
-            "extreme": 99
-          }
+        "DeathLinkShade": {
+          "label": "Deathlink Shade Handling",
+          "help": "Sets whether to create a shade when you are killed by a DeathLink and how to handle your existing shade, if any.\n\nvanilla: DeathLink deaths function like any other death and overrides your existing shade (including geo), if any.\nshadeless: DeathLink deaths do not spawn shades. Your existing shade (including geo), if any, is untouched.\nshade: DeathLink deaths spawn a shade if you do not have an existing shade. Otherwise, it acts like shadeless.\n\n* This option has no effect if DeathLink is disabled.\n** Self-death shade behavior is not changed; if a self-death normally creates a shade in vanilla, it will override\n    your existing shade, if any.",
+          "kind": "choice",
+          "default": "shade",
+          "choices": [
+            "vanilla",
+            "shadeless",
+            "shade"
+          ],
+          "aliases": [],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
         },
+        "DeathLinkBreaksFragileCharms": {
+          "label": "Deathlink Breaks Fragile Charms",
+          "help": "Sets if fragile charms break when you are killed by a DeathLink.\n\n* This option has no effect if DeathLink is disabled.\n** Self-death fragile charm behavior is not changed; if a self-death normally breaks fragile charms in vanilla, it\n    will continue to do so.",
+          "kind": "toggle",
+          "default": false
+        }
+      }
+    },
+    {
+      "name": "Hollow Knight: Miscellaneous",
+      "options": {
+        "RemoveSpellUpgrades": {
+          "label": "Remove Spell Upgrades",
+          "help": "Removes the second level of all spells from the item pool.",
+          "kind": "toggle",
+          "default": false
+        },
+        "AddUnshuffledLocations": {
+          "label": "Add Unshuffled Locations",
+          "help": "Adds non-randomized locations to the location pool, which allows syncing\nof location state with co-op or automatic collection via collect.\n\nNote: This will increase the number of location checks required to purchase\nhints to the total maximum.",
+          "kind": "toggle",
+          "default": false
+        }
+      }
+    },
+    {
+      "name": "Silksong: General & goals",
+      "options": {
         "game_mode": {
           "label": "Game Mode",
           "help": "Choose Classic or Steel Soul. Steel Soul changes some checks and ends the save on death.",
@@ -1169,7 +1204,7 @@
       }
     },
     {
-      "name": "Silksong: Starting Options",
+      "name": "Silksong: Starting options",
       "options": {
         "starting_location": {
           "label": "Starting Location",
@@ -1246,7 +1281,7 @@
       }
     },
     {
-      "name": "Silksong: Proficiency/Skip Options",
+      "name": "Silksong: Logic & skips",
       "options": {
         "platforming_capability": {
           "label": "Platforming Capability",
@@ -1470,7 +1505,7 @@
       }
     },
     {
-      "name": "Silksong: Randomization Options",
+      "name": "Silksong: Randomization",
       "options": {
         "randomized_bell_markers": {
           "label": "Randomized Bell Markers",
@@ -1841,7 +1876,7 @@
       }
     },
     {
-      "name": "Silksong: Split/Directional Abilities",
+      "name": "Silksong: Split & directional abilities",
       "options": {
         "ledgegrab_ability_rando": {
           "label": "Ledge Grab Rando",
@@ -1905,7 +1940,7 @@
       }
     },
     {
-      "name": "Silksong: Costsanity",
+      "name": "Silksong: Shops & costs",
       "options": {
         "normal_shop_prices": {
           "label": "Normal Shop Prices",
@@ -2120,7 +2155,7 @@
       }
     },
     {
-      "name": "Silksong: Link Options",
+      "name": "Silksong: Links",
       "options": {
         "silk_link": {
           "label": "Silk Link",
