@@ -69,6 +69,13 @@ def vendor_hk(hk_src: Path, hk_dst: Path) -> None:
         text = text.replace("._hk_notches(", "._hkss_hk_notches(")
         text = text.replace("._hk_option(", "._hkss_hk_option(")
         text = text.replace("._hk_start(", "._hkss_hk_start(")
+        if rel == "GeneratedRules.py":
+            text = must_replace(
+                text,
+                '''    fn("Grub-Crossroads_Spike", lambda state: state.count('Crossroads_31[right1]', player))''',
+                '''    fn("Grub-Crossroads_Spike", lambda state: state.count('Crossroads_31[right1]', player) and (state._hkss_hk_option(player, 'SplitMothwingCloak') == 0 or state.count('LEFTDASH', player)))''',
+                "hk/GeneratedRules.py Crossroads spike grub split dash",
+            )
         if rel == "Rules.py":
             text = must_replace(
                 text,

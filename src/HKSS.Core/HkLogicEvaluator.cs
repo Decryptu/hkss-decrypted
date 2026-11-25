@@ -234,7 +234,8 @@ public sealed class HkLogicState
     private static string FormatTerm(string term) => term switch
     {
         "LEFTCLAW" or "RIGHTCLAW" => "Mantis Claw",
-        "LEFTDASH" or "RIGHTDASH" => "Mothwing Cloak",
+        "LEFTDASH" => "Left Dash",
+        "RIGHTDASH" => "Right Dash",
         "LEFTSUPERDASH" or "RIGHTSUPERDASH" => "Crystal Heart",
         "WINGS" => "Monarch Wings",
         "LANTERN" => "Lumafly Lantern",

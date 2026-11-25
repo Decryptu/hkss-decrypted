@@ -181,6 +181,7 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
             "game: Hollow Knight x Silksong\n"
             "Hollow Knight x Silksong:\n"
             "  games: hollow_knight_only\n"
+            "  SplitMothwingCloak: true\n"
             # Both price pairs are valid individual rolls but inverted as a pair.
             "  MinimumGrubPrice: 23\n"
             "  MaximumGrubPrice: 15\n"

@@ -53,6 +53,8 @@ Cross-game QoL settings are ready for playtesting in the **Links & QoL** tab. Ve
 
 Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle gates are closed, and after they reopen.
 
+Verify the Forgotten Crossroads spike grub in a newly generated split-cloak seed. The world and check map require left dash for that check when the cloak is split.
+
 ## Later
 
 - More unified shuffles: entrances and rooms in combo mode, charms/crests, shops, grubs/fleas, journal entries, lore tablets.

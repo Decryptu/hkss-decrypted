@@ -6,6 +6,22 @@ namespace HKSS.Core.Tests;
 
 public class HkLogicEvaluatorTests
 {
+    [Theory]
+    [InlineData(1, "Right_Mothwing_Cloak", HkReachability.Unreachable)]
+    [InlineData(1, "Left_Mothwing_Cloak", HkReachability.Reachable)]
+    [InlineData(0, "Vengeful_Spirit", HkReachability.Reachable)]
+    public void CrossroadsSpikeGrub_RequiresLeftDashWhenCloakIsSplit(int split, string item, HkReachability expected)
+    {
+        HkLogicState state = HkLogicEvaluator.Evaluate(new HkLogicInput
+        {
+            OwnedItems = new[] { item },
+            Options = new Dictionary<string, int> { ["SplitMothwingCloak"] = split },
+        });
+
+        Assert.True(state.IsNodeReached("Crossroads_31[right1]"));
+        Assert.Equal(expected, state.EvaluateLocation("Grub-Crossroads_Spike"));
+    }
+
     [Fact]
     public void FreshStart_ReachesCrossroadsBasics_BlocksDeepProgression()
     {
