@@ -30,14 +30,38 @@ namespace ItemChanger.Internal
 
         private IEnumerator SendMessage(Sprite sprite, string text)
         {
-            GameObject popup = ObjectCache.RelicGetMsg;
-            popup.transform.Find("Text").GetComponent<TMPro.TextMeshPro>().text = text;
-            popup.transform.Find("Icon").GetComponent<SpriteRenderer>().sprite = sprite;
-            popup.transform.Find("Icon").GetComponent<SpriteRenderer>().sortingOrder = 1; // show on top of blankers, etc
+            try
+            {
+                GameObject popup = ObjectCache.RelicGetMsg;
+                if (popup != null)
+                {
+                    Transform textTransform = popup.transform.Find("Text");
+                    if (textTransform != null)
+                    {
+                        TMProOld.TextMeshPro tmp = textTransform.GetComponent<TMProOld.TextMeshPro>();
+                        if (tmp != null) tmp.text = text;
+                    }
 
-            popup.SetActive(true);
-            yield return new WaitForSeconds(3f);
-            activeDisplay = null;
+                    Transform iconTransform = popup.transform.Find("Icon");
+                    if (iconTransform != null)
+                    {
+                        SpriteRenderer sr = iconTransform.GetComponent<SpriteRenderer>();
+                        if (sr != null)
+                        {
+                            sr.sprite = sprite;
+                            sr.sortingOrder = 1; // show on top of blankers, etc
+                        }
+                    }
+
+                    popup.SetActive(true);
+                }
+
+                yield return new WaitForSeconds(3f);
+            }
+            finally
+            {
+                activeDisplay = null;
+            }
         }
 
 

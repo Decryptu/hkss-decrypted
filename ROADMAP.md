@@ -29,6 +29,8 @@ v0.1.3 fixes `CustomSkillItem` assembly resolution in Hollow Knight (which preve
 
 v0.1.4 fixes Hollow Knight ItemChanger lifecycle, Archipelago state sync, and launcher reliability bugs, and ports Hollow Knight DeathLink, shop and preview auto-hinting, helper and start platforms, alternate start locations, repickable Delicate Flower, and the `F9` recent items feed.
 
+v0.1.5 fixes undismissable Hollow Knight big item popups (`CanvasGroup` missing on `CanvasUtil.CreateCanvas`), fixes corner item popups, shops, hint boxes, and dialogue by migrating ItemChanger from `TMPro` to Hollow Knight 1.5.12620's `TMProOld`, fixes lost custom skills (nail slashes, Focus, split abilities) after relaunch by loading remote items before granting and registering `SplitNail`, and reconciles already-obtained custom skills on save load.
+
 Still to verify during playtesting: clean-PC installer test, gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, a game that crashes during travel, and the Silksong plugin's refusal to run without the launcher.
 
 ## Feature Parity & Missing Ports

@@ -263,7 +263,8 @@ namespace ItemChanger.Components
             }
 
             // Fade out the full popup
-            yield return FadeOutCanvasGroup(gameObject.GetComponent<CanvasGroup>());
+            CanvasGroup rootCG = gameObject.GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+            yield return FadeOutCanvasGroup(rootCG);
 
             // Small delay before hero control
             //yield return WaitForSeconds(0.75f);
@@ -328,6 +329,7 @@ namespace ItemChanger.Components
         // Below functions ripped from CanvasUtil in order to change the speed
         private IEnumerator FadeInCanvasGroup(CanvasGroup cg)
         {
+            if (cg == null) yield break;
             float loopFailsafe = 0f;
             cg.alpha = 0f;
             cg.gameObject.SetActive(true);
@@ -358,6 +360,7 @@ namespace ItemChanger.Components
         // Identical to CanvasUtil version except it doesn't randomly set the canvas object inactive at the end
         private IEnumerator FadeOutCanvasGroup(CanvasGroup cg)
         {
+            if (cg == null) yield break;
             float loopFailsafe = 0f;
             cg.interactable = false;
             while (cg.alpha > 0.05f && !_showInstantly)

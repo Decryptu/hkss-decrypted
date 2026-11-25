@@ -4,7 +4,7 @@ using HutongGames.PlayMaker.Actions;
 using ItemChanger.Components;
 using ItemChanger.FsmStateActions;
 using ItemChanger.Extensions;
-using TMPro;
+using TMProOld;
 using ItemChanger.Internal;
 
 namespace ItemChanger.Locations

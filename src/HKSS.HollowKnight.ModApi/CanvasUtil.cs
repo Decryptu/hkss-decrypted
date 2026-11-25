@@ -113,6 +113,7 @@ namespace Modding
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             go.AddComponent<GraphicRaycaster>();
+            go.AddComponent<CanvasGroup>();
             return go;
         }
 

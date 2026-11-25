@@ -303,6 +303,11 @@ internal sealed class HkClientHost : MonoBehaviour
 
     private static void OnEnterGame()
     {
+        if (_icActive && ItemChangerMod.IsSettingsLoaded)
+        {
+            ReconcileObtainedCustomSkills();
+        }
+
         ApClient? client = ApManager.Instance?.Client;
         if (client == null || !client.IsConnected || !_icActive) return;
 
@@ -326,6 +331,34 @@ internal sealed class HkClientHost : MonoBehaviour
             client.SyncCheckedLocations(localObtained);
 
         SyncRemoteCheckedLocations(client);
+    }
+
+    private static void ReconcileObtainedCustomSkills()
+    {
+        if (PlayerData.instance == null || Ref.Settings?.Placements == null) return;
+
+        int repaired = 0;
+        foreach (AbstractPlacement pmt in Ref.Settings.Placements.Values)
+        {
+            if (pmt == null) continue;
+            foreach (AbstractItem item in pmt.Items)
+            {
+                if (item is ItemChanger.Items.CustomSkillItem skill
+                    && skill.WasEverObtained()
+                    && !string.IsNullOrEmpty(skill.boolName)
+                    && !PlayerData.instance.GetBool(skill.boolName))
+                {
+                    PlayerData.instance.SetBool(skill.boolName, true);
+                    repaired++;
+                    HkssPlugin.Log.LogInfo($"[HK] Restored missing custom skill bool '{skill.boolName}' from obtained item '{skill.name}'.");
+                }
+            }
+        }
+
+        if (repaired > 0)
+        {
+            HkssPlugin.Log.LogInfo($"[HK] Repaired {repaired} custom skill state(s) on save load.");
+        }
     }
 
     private static void SyncRemoteCheckedLocations(ApClient client)
@@ -414,6 +447,7 @@ internal sealed class HkClientHost : MonoBehaviour
         }
 
         HkRemotePlacement remotePmt = HkRemotePlacement.GetOrAddSingleton();
+        item.Load();
         remotePmt.Add(item);
         GiveInfo giveInfo = (evt.IsLiveReceipt ? RemoteGiveInfo : SilentGiveInfo).Clone();
         item.Give(remotePmt, giveInfo);

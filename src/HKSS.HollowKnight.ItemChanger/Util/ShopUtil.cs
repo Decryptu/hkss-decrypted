@@ -1,7 +1,7 @@
 // Ported from HomothetyHk/HollowKnight.ItemChanger, ItemChanger/Util/ShopUtil.cs, commit e57bc4e (LGPL-2.1)
 using ItemChanger.Components;
 using System.Reflection;
-using TMPro;
+using TMProOld;
 
 namespace ItemChanger.Util
 {

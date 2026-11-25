@@ -1,7 +1,7 @@
 // Ported from HomothetyHk/HollowKnight.ItemChanger, ItemChanger/Components/HintBox.cs, commit e57bc4e (LGPL-2.1)
 using HutongGames.PlayMaker.Actions;
 using ItemChanger.Extensions;
-using TMPro;
+using TMProOld;
 
 namespace ItemChanger.Components
 {

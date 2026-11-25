@@ -1,7 +1,7 @@
 // Ported from HomothetyHk/HollowKnight.ItemChanger, ItemChanger/Internal/DialogueCenter.cs, commit e57bc4e (LGPL-2.1)
 using System.Collections;
 using ItemChanger.Extensions;
-using TMPro;
+using TMProOld;
 
 namespace ItemChanger.Internal
 {

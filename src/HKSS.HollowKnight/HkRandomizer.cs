@@ -143,6 +143,9 @@ internal sealed class HkRandomizer
             deathLink.BreakFragileCharms = _slotData.Options.DeathLinkBreaksFragileCharms;
         }
 
+        if (_slotData.Options.RandomizeNail)
+            ItemChangerMod.Modules.Add<SplitNail>();
+
         if (_slotData.Options.RandomizeElevatorPass)
             ItemChangerMod.Modules.Add<ElevatorPass>();
 

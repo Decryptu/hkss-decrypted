@@ -11,6 +11,11 @@ namespace ItemChanger.Items
 
         protected override void OnLoad()
         {
+            EnsureModuleLoaded();
+        }
+
+        private void EnsureModuleLoaded()
+        {
             Type T = ResolveModuleType(moduleName);
             if (T == null || !T.IsSubclassOf(typeof(Modules.Module))) throw new InvalidOperationException($"Module type {moduleName} was not found.");
             ItemChangerMod.Modules.GetOrAdd(T);
@@ -31,6 +36,7 @@ namespace ItemChanger.Items
 
         public override void GiveImmediate(GiveInfo info)
         {
+            EnsureModuleLoaded();
             PlayerData.instance.SetBool(boolName, true);
         }
 
