@@ -7,7 +7,14 @@
   type Issue = { severity: "error" | "warning"; code: string; summary: string; detail: string };
   type Game = { key: string; name: string; build: string | null; tested: boolean; unity_version: string | null; issues: Issue[] };
   type Room = { host: string; port: number; slot: string; password: string; auto_connect: boolean };
-  type Slot = { id: number; current: string | null; room: Room | null; error: string | null };
+  type Slot = {
+    id: number;
+    current: string | null;
+    room: Room | null;
+    hk_goal_completed: boolean;
+    ss_goal_completed: boolean;
+    error: string | null;
+  };
   type Status = { games: Game[]; slots: Slot[]; steam_running: boolean; version: string };
   const blankRoom = (): Room => ({ host: "archipelago.gg", port: 38281, slot: "", password: "", auto_connect: true });
 
@@ -116,6 +123,14 @@
   const hasBlockingIssue = $derived(gameIssues.some((i) => i.severity === "error"));
   const ready = $derived(!!status && status.steam_running && status.games.every((g) => g.build) && !hasBlockingIssue);
   const place = (key: string) => (key === "silksong" ? "Pharloom" : "Hallownest");
+  const goalBadge = (slot: Slot) =>
+    slot.hk_goal_completed && slot.ss_goal_completed
+      ? " · Both goals done"
+      : slot.hk_goal_completed
+        ? " · HK goal done"
+        : slot.ss_goal_completed
+          ? " · SS goal done"
+          : "";
 
   async function refresh() {
     try {
@@ -191,7 +206,7 @@
         <li>
           <button disabled={!ready || playing || testing || !!slot.error} onclick={() => play(slot.id)}>
             <span>Run {slot.id}</span>
-            <small>{slot.error ? `Corrupted data (${slot.error})` : `${slot.current ? place(slot.current) : "New run"}${slot.room ? ` · ${slot.room.slot} @ ${slot.room.host}` : " · offline"}`}</small>
+            <small>{slot.error ? `Corrupted data (${slot.error})` : `${slot.current ? place(slot.current) : "New run"}${slot.room ? ` · ${slot.room.slot} @ ${slot.room.host}` : " · offline"}${goalBadge(slot)}`}</small>
           </button>
           <button class="more" disabled={playing || testing} aria-expanded={editing === slot.id} onclick={() => edit(slot)}>Settings</button>
         </li>

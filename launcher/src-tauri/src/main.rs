@@ -38,6 +38,8 @@ struct SlotStatus {
     id: u8,
     current: Option<Game>,
     room: Option<room::Room>,
+    hk_goal_completed: bool,
+    ss_goal_completed: bool,
     error: Option<String>,
 }
 
@@ -121,8 +123,16 @@ fn status() -> Result<Status, String> {
                 None
             }
         };
+        let goals = dir.as_ref().map(|d| runs::load_goals(d)).unwrap_or_default();
         let error = if errors.is_empty() { None } else { Some(errors.join("; ")) };
-        slots.push(SlotStatus { id, current, room, error });
+        slots.push(SlotStatus {
+            id,
+            current,
+            room,
+            hk_goal_completed: goals.hk_goal_completed,
+            ss_goal_completed: goals.ss_goal_completed,
+            error,
+        });
     }
     Ok(Status { games: games.into(), slots, steam_running: steam::is_running(), version: env!("CARGO_PKG_VERSION") })
 }
