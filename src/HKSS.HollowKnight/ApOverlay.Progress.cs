@@ -21,6 +21,8 @@ internal sealed partial class ApOverlay
     private (string Name, int Count)[] _inventory = Array.Empty<(string, int)>();
     private (string Item, string Location, bool Found)[]? _hints;
     private bool _hkGoalComplete;
+    private bool _ssGoalComplete;
+    private string _gamesMode = GoalTracker.GamesBoth;
 
     private void UpdateProgress()
     {
@@ -54,7 +56,9 @@ internal sealed partial class ApOverlay
                 .Where(game => locations.Contains(game))
                 .Select(game => $"{ItemRouter.WorldName(game)} checks: {checkedLocations[game].Count()} / {locations[game].Count()}")
                 .ToArray();
-            _hkGoalComplete = HkssPlugin.State.IsHkGoalCompleted();
+            _hkGoalComplete = HkssPlugin.State.IsGoalCompleted(GameId.HollowKnight) || client.HkGoalCompleted;
+            _ssGoalComplete = HkssPlugin.State.IsGoalCompleted(GameId.Silksong) || client.SsGoalCompleted;
+            _gamesMode = client.GamesMode;
             _inventory = session.Items.AllItemsReceived
                 .GroupBy(item => item.ItemId)
                 .Select(group => (Name: FormatName(group.Key, group.First().ItemName, "Item"), Count: group.Count()))
@@ -104,7 +108,10 @@ internal sealed partial class ApOverlay
         GUILayout.Label("Slot progress", _sectionStyle);
         foreach (string line in _checkProgress)
             GUILayout.Label(line, _labelStyle);
-        GUILayout.Label(_hkGoalComplete ? "Hollow Knight goal complete" : "Hollow Knight goal in progress", _labelStyle);
+        if (!string.Equals(_gamesMode, GoalTracker.GamesSilksongOnly, StringComparison.OrdinalIgnoreCase))
+            GUILayout.Label(_hkGoalComplete ? "Hollow Knight goal: Complete" : "Hollow Knight goal: In progress", _labelStyle);
+        if (!string.Equals(_gamesMode, GoalTracker.GamesHollowKnightOnly, StringComparison.OrdinalIgnoreCase))
+            GUILayout.Label(_ssGoalComplete ? "Silksong goal: Complete" : "Silksong goal: In progress", _labelStyle);
 
         GUILayout.Space(6f);
         GUILayout.Label($"Received items ({_inventory.Sum(item => item.Count)})", _sectionStyle);

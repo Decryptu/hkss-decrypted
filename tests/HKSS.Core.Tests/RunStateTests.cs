@@ -93,14 +93,16 @@ public sealed class RunStateTests : IDisposable
         store.SetProcessedItems(GameId.HollowKnight, 7);
         store.SetProcessedItems(GameId.Silksong, 4);
         store.RecordCheckedLocation(GameId.HollowKnight, hkLoc);
-        store.MarkHkGoalCompleted();
+        store.MarkGoalCompleted(GameId.HollowKnight);
+        store.MarkGoalCompleted(GameId.Silksong);
 
         // First bind attaches the seed without wiping existing progress.
         Assert.False(store.EnsureSeedBinding("seed-A|KnightHornet"));
         Assert.Equal(7, store.GetProcessedItems(GameId.HollowKnight));
         Assert.Equal(4, store.GetProcessedItems(GameId.Silksong));
         Assert.Single(store.GetCheckedLocations(GameId.HollowKnight));
-        Assert.True(store.IsHkGoalCompleted());
+        Assert.True(store.IsGoalCompleted(GameId.HollowKnight));
+        Assert.True(store.IsGoalCompleted(GameId.Silksong));
 
         // Same seed is a no-op.
         Assert.False(store.EnsureSeedBinding("seed-A|KnightHornet"));
@@ -111,6 +113,25 @@ public sealed class RunStateTests : IDisposable
         Assert.Equal(0, store.GetProcessedItems(GameId.HollowKnight));
         Assert.Equal(0, store.GetProcessedItems(GameId.Silksong));
         Assert.Empty(store.GetCheckedLocations(GameId.HollowKnight));
-        Assert.False(store.IsHkGoalCompleted());
+        Assert.False(store.IsGoalCompleted(GameId.HollowKnight));
+        Assert.False(store.IsGoalCompleted(GameId.Silksong));
+    }
+
+    [Fact]
+    public void GoalCompletionPersistsIndependentlyAcrossGames()
+    {
+        var hkStore = new RunStateStore(MakeContext(GameId.HollowKnight));
+        var ssStore = new RunStateStore(MakeContext(GameId.Silksong));
+
+        Assert.False(hkStore.IsGoalCompleted(GameId.HollowKnight));
+        Assert.False(hkStore.IsGoalCompleted(GameId.Silksong));
+
+        Assert.True(ssStore.MarkGoalCompleted(GameId.Silksong));
+        Assert.False(ssStore.MarkGoalCompleted(GameId.Silksong));
+        Assert.True(hkStore.IsGoalCompleted(GameId.Silksong));
+        Assert.False(hkStore.IsGoalCompleted(GameId.HollowKnight));
+
+        Assert.True(hkStore.MarkGoalCompleted(GameId.HollowKnight));
+        Assert.True(ssStore.IsGoalCompleted(GameId.HollowKnight));
     }
 }

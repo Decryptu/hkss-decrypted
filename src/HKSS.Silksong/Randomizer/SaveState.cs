@@ -2099,6 +2099,7 @@ namespace SilksongRandomizer
             if (string.Equals(canonicalName, Archipelago.GoalLocationName, StringComparison.OrdinalIgnoreCase))
             {
                 goalCompleted = true;
+                HKSS.Unity.HkssPlugin.State?.MarkGoalCompleted(HKSS.Core.GameId.Silksong);
             }
 
             PlaytestDiagnostics.RecordCheck(canonicalName, goalCompleted);

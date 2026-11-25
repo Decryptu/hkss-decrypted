@@ -104,6 +104,14 @@ namespace SilksongRandomizer
             overview.Caravan.AddRange(CaravanDestinations(overview.FleaCount));
             overview.Left.Add(new ArchipelagoInventoryRow(GoalName(state.goal),
                 state.goalCompleted ? "Goal completed" : GoalDescription(state)));
+            string gamesMode = HKSS.Unity.ApManager.Instance?.Client?.GamesMode ?? HKSS.Core.GoalTracker.GamesBoth;
+            if (!string.Equals(gamesMode, HKSS.Core.GoalTracker.GamesSilksongOnly, StringComparison.OrdinalIgnoreCase))
+            {
+                bool hkDone = HKSS.Unity.HkssPlugin.State?.IsGoalCompleted(HKSS.Core.GameId.HollowKnight) == true
+                    || HKSS.Unity.ApManager.Instance?.Client?.HkGoalCompleted == true;
+                overview.Left.Add(new ArchipelagoInventoryRow("Hollow Knight Goal",
+                    hkDone ? "Goal completed" : "In progress"));
+            }
             overview.Left.Add(new ArchipelagoInventoryRow("Fleas: " + state.GetFleaHuntProgressCount() +
                 (state.goal == Archipelago.FleaHuntGoal ? " / " + state.fleaHuntGoalCount : ""),
                 state.IsRandomized(ItemType.Flea) ? "Received fleas" : "Rescued fleas", "Flea"));

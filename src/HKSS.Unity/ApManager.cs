@@ -251,10 +251,9 @@ internal sealed class ApManager : MonoBehaviour
                 CheckWorldVersion();
                 SyncSeedBinding();
                 FlushQueuedChecks();
-                if (HkssPlugin.ThisGame == GameId.HollowKnight && HkssPlugin.State.IsHkGoalCompleted())
-                {
-                    Client.ReportLocalGoalComplete();
-                }
+                Client.SyncGoalProgress(
+                    HkssPlugin.State.IsGoalCompleted(GameId.HollowKnight),
+                    HkssPlugin.State.IsGoalCompleted(GameId.Silksong));
                 OnConnected?.Invoke(Client);
                 break;
 
@@ -294,6 +293,11 @@ internal sealed class ApManager : MonoBehaviour
             case ApEventKind.GoalSent:
                 HkssPlugin.Log.LogInfo(evt.Message);
                 PushToast(evt.Message, ToastKind.LocalItem);
+                break;
+
+            case ApEventKind.GoalStateSynced:
+                if (Client.HkGoalCompleted) HkssPlugin.State.MarkGoalCompleted(GameId.HollowKnight);
+                if (Client.SsGoalCompleted) HkssPlugin.State.MarkGoalCompleted(GameId.Silksong);
                 break;
 
             case ApEventKind.LogMessage:

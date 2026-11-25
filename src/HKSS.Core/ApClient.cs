@@ -29,6 +29,7 @@ public enum ApEventKind
     LogMessage,
     LocationSent,
     GoalSent,
+    GoalStateSynced,
     Error,
 }
 
@@ -83,6 +84,7 @@ public sealed class ApClient : IDisposable
     private int _generation;
     private bool _initialSyncDone;
     private int _queuedItemCount;
+    private bool _comboGoalSent;
 
     public GameId ThisGame => _thisGame;
     public ApConnectionState State { get; private set; } = ApConnectionState.Disconnected;
@@ -92,6 +94,8 @@ public sealed class ApClient : IDisposable
     public int Slot { get; private set; }
     public string GamesMode { get; private set; } = GoalTracker.GamesBoth;
     public string ComboGoal { get; private set; } = GoalTracker.ComboGoalBoth;
+    public bool HkGoalCompleted { get; private set; }
+    public bool SsGoalCompleted { get; private set; }
     public bool DeathLinkEnabled { get; private set; }
     public string? WorldVersion { get; private set; }
     public Dictionary<string, object>? SlotData { get; private set; }
@@ -356,16 +360,27 @@ public sealed class ApClient : IDisposable
 
     public void ReportLocalGoalComplete()
     {
+        SyncGoalProgress(
+            localHkDone: _thisGame == GameId.HollowKnight,
+            localSsDone: _thisGame == GameId.Silksong,
+            notifyLocalCompletion: true);
+    }
+
+    public void SyncGoalProgress(bool localHkDone, bool localSsDone, bool notifyLocalCompletion = false)
+    {
         ArchipelagoSession? session;
-        int team, slot;
+        int team, slot, generation;
         string gamesMode, comboGoal;
         lock (_gate)
         {
             session = _session;
             team = Team;
             slot = Slot;
+            generation = _generation;
             gamesMode = GamesMode;
             comboGoal = ComboGoal;
+            if (localHkDone) HkGoalCompleted = true;
+            if (localSsDone) SsGoalCompleted = true;
         }
         if (session == null || State != ApConnectionState.Connected) return;
 
@@ -373,27 +388,45 @@ public sealed class ApClient : IDisposable
         {
             try
             {
-                string myKey = GoalTracker.DataStorageKey(team, slot, _thisGame);
-                GameId otherGame = _thisGame == GameId.HollowKnight ? GameId.Silksong : GameId.HollowKnight;
-                string otherKey = GoalTracker.DataStorageKey(team, slot, otherGame);
+                string hkKey = GoalTracker.DataStorageKey(team, slot, GameId.HollowKnight);
+                string ssKey = GoalTracker.DataStorageKey(team, slot, GameId.Silksong);
 
-                session.DataStorage[Scope.Global, myKey] = true;
-                bool otherDone = false;
-                try
+                if (localHkDone) session.DataStorage[Scope.Global, hkKey] = true;
+                if (localSsDone) session.DataStorage[Scope.Global, ssKey] = true;
+
+                bool remoteHkDone = localHkDone || await ReadBoolDataStorageAsync(session, hkKey);
+                bool remoteSsDone = localSsDone || await ReadBoolDataStorageAsync(session, ssKey);
+
+                bool shouldSendComboToast = false;
+                bool stateChanged = false;
+                bool comboSatisfied = GoalTracker.IsComboGoalSatisfied(gamesMode, comboGoal, remoteHkDone, remoteSsDone);
+                lock (_gate)
                 {
-                    otherDone = await session.DataStorage[Scope.Global, otherKey].GetAsync<bool>();
-                }
-                catch
-                {
-                    otherDone = false;
+                    if (generation != _generation) return;
+                    if (remoteHkDone && !HkGoalCompleted) { HkGoalCompleted = true; stateChanged = true; }
+                    if (remoteSsDone && !SsGoalCompleted) { SsGoalCompleted = true; stateChanged = true; }
+                    if (comboSatisfied && !_comboGoalSent)
+                    {
+                        _comboGoalSent = true;
+                        shouldSendComboToast = true;
+                    }
                 }
 
-                bool hkDone = _thisGame == GameId.HollowKnight ? true : otherDone;
-                bool ssDone = _thisGame == GameId.Silksong ? true : otherDone;
-                if (GoalTracker.IsComboGoalSatisfied(gamesMode, comboGoal, hkDone, ssDone))
+                if (stateChanged || localHkDone || localSsDone)
+                    _events.Enqueue(new ApEvent(ApEventKind.GoalStateSynced));
+
+                if (comboSatisfied)
                 {
                     session.SetGoalAchieved();
-                    _events.Enqueue(new ApEvent(ApEventKind.GoalSent, "Combo goal completed!"));
+                    if (shouldSendComboToast)
+                        _events.Enqueue(new ApEvent(ApEventKind.GoalSent, "Combo goal completed!"));
+                }
+                else if (notifyLocalCompletion)
+                {
+                    GameId otherGame = _thisGame == GameId.HollowKnight ? GameId.Silksong : GameId.HollowKnight;
+                    _events.Enqueue(new ApEvent(
+                        ApEventKind.GoalSent,
+                        $"{ItemRouter.WorldName(_thisGame)} goal complete! Complete {ItemRouter.WorldName(otherGame)} to finish the combo goal."));
                 }
             }
             catch (Exception e)
@@ -403,6 +436,18 @@ public sealed class ApClient : IDisposable
         });
     }
 
+    private static async Task<bool> ReadBoolDataStorageAsync(ArchipelagoSession session, string key)
+    {
+        try
+        {
+            return await session.DataStorage[Scope.Global, key].GetAsync<bool>();
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public void Disconnect()
     {
         bool wasConnected;
@@ -410,6 +455,9 @@ public sealed class ApClient : IDisposable
         {
             wasConnected = State == ApConnectionState.Connected || State == ApConnectionState.Connecting;
             _generation++;
+            _comboGoalSent = false;
+            HkGoalCompleted = false;
+            SsGoalCompleted = false;
             DisconnectInternal();
             State = ApConnectionState.Disconnected;
             StatusDetail = "Disconnected";

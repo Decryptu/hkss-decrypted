@@ -23,6 +23,10 @@ public sealed class RunState
     [JsonProperty("hk_goal_completed")]
     public bool HkGoalCompleted { get; set; }
 
+    /// <summary>True once Silksong's goal has been achieved in this run (persisted for offline retry).</summary>
+    [JsonProperty("ss_goal_completed")]
+    public bool SsGoalCompleted { get; set; }
+
     /// <summary>
     /// True once the player has reached Bone Bottom in Silksong, opening its return gate
     /// and enabling town-to-town travel and town warping.
@@ -77,6 +81,23 @@ public sealed class RunState
         GameId.Silksong => SsCheckedLocations ??= new List<long>(),
         _ => throw new ArgumentOutOfRangeException(nameof(game), game, null),
     };
+
+    public bool GetGoalCompleted(GameId game) => game switch
+    {
+        GameId.HollowKnight => HkGoalCompleted,
+        GameId.Silksong => SsGoalCompleted,
+        _ => throw new ArgumentOutOfRangeException(nameof(game), game, null),
+    };
+
+    public void SetGoalCompleted(GameId game, bool completed)
+    {
+        switch (game)
+        {
+            case GameId.HollowKnight: HkGoalCompleted = completed; break;
+            case GameId.Silksong: SsGoalCompleted = completed; break;
+            default: throw new ArgumentOutOfRangeException(nameof(game), game, null);
+        }
+    }
 }
 
 /// <summary>Atomic reader/writer for <c>state.json</c> inside a combo run folder.</summary>
@@ -177,17 +198,23 @@ public sealed class RunStateStore
         state.HkCheckedLocations.Clear();
         state.SsCheckedLocations.Clear();
         state.HkGoalCompleted = false;
+        state.SsGoalCompleted = false;
         Save(state);
         return true;
     }
 
-    public bool IsHkGoalCompleted() => Load().HkGoalCompleted;
+    public bool IsGoalCompleted(GameId game) => Load().GetGoalCompleted(game);
 
-    public void MarkHkGoalCompleted()
+    public bool MarkGoalCompleted(GameId game)
     {
         RunState state = Load();
-        if (state.HkGoalCompleted) return;
-        state.HkGoalCompleted = true;
+        if (state.GetGoalCompleted(game)) return false;
+        state.SetGoalCompleted(game, true);
         Save(state);
+        return true;
     }
+
+    public bool IsHkGoalCompleted() => IsGoalCompleted(GameId.HollowKnight);
+
+    public void MarkHkGoalCompleted() => MarkGoalCompleted(GameId.HollowKnight);
 }

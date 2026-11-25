@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using GlobalEnums;
 using HarmonyLib;
@@ -28,6 +29,8 @@ internal sealed class AutoLoad : MonoBehaviour
     private float _nextSkip;
     private float _inLevelSince = -1f;
     private float _menuFadeSpeed;
+    private bool _reloadAfterEnding;
+    private bool _reloadingAfterEnding;
 #if DEBUG
     private bool _devTownWarpSent;
 #endif
@@ -35,9 +38,45 @@ internal sealed class AutoLoad : MonoBehaviour
     internal static bool IsReady { get; private set; }
     internal static bool HoldAutoLoad { get; set; }
 
+    private void OnEnable() => UnityEngine.SceneManagement.SceneManager.activeSceneChanged += OnActiveSceneChanged;
+
+    private void OnDisable() => UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+
+    private void OnActiveSceneChanged(UnityEngine.SceneManagement.Scene from, UnityEngine.SceneManagement.Scene to)
+    {
+        if (_step != Step.Done) return;
+
+        string name = to.name ?? string.Empty;
+        if (IsEndingOrCreditsScene(name))
+        {
+            _reloadAfterEnding = true;
+            return;
+        }
+
+        GameManager gm = GameManager._instance;
+        if (gm != null && gm.IsGameplayScene())
+        {
+            _reloadAfterEnding = false;
+        }
+    }
+
+    private static bool IsEndingOrCreditsScene(string sceneName)
+    {
+        if (string.IsNullOrEmpty(sceneName)) return false;
+        return sceneName.StartsWith("Cinematic_Ending_", StringComparison.Ordinal)
+            || string.Equals(sceneName, "End_Credits", StringComparison.Ordinal)
+            || string.Equals(sceneName, "End_Credits_Scroll", StringComparison.Ordinal)
+            || string.Equals(sceneName, "End_Game_Completion", StringComparison.Ordinal)
+            || string.Equals(sceneName, "GG_End_Sequence", StringComparison.Ordinal);
+    }
+
     private void Update()
     {
-        if (_step == Step.Done) return;
+        if (_step == Step.Done)
+        {
+            TryReloadAfterEnding();
+            return;
+        }
 
         // The travel screen owns the sound until the player can see the game.
         AudioListener.volume = 0f;
@@ -94,6 +133,34 @@ internal sealed class AutoLoad : MonoBehaviour
             if (used) gm.LoadGameFromUI(RunContext.SaveSlot);
             else ui.StartNewGame();
             Mark(used ? "loading save" : "starting a new game");
+        });
+    }
+
+    private void TryReloadAfterEnding()
+    {
+        if (!_reloadAfterEnding || _reloadingAfterEnding) return;
+        GameManager gm = GameManager._instance;
+        UIManager? ui = gm == null ? null : gm.ui;
+        if (gm == null || ui == null || !gm.IsMenuScene()) return;
+        if (ui.menuState != MainMenuState.MAIN_MENU) return;
+        if (HoldAutoLoad || !Platform.Current.IsSaveStoreMounted) return;
+
+#if SILKSONG
+        if (!FastBoot.MenuShown) return;
+#else
+        CanvasGroup menu = ui.mainMenuScreen;
+        if (!menu.isActiveAndEnabled || !menu.interactable || menu.alpha < 0.99f) return;
+#endif
+
+        _reloadAfterEnding = false;
+        _reloadingAfterEnding = true;
+        Platform.Current.IsSaveSlotInUse(RunContext.SaveSlot, used =>
+        {
+            _reloadingAfterEnding = false;
+            if (!used) return;
+            gm.profileID = RunContext.SaveSlot;
+            gm.LoadGameFromUI(RunContext.SaveSlot);
+            Mark("reloading save after ending");
         });
     }
 

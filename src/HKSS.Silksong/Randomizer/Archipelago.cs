@@ -2110,6 +2110,7 @@ namespace SilksongRandomizer
 
         private void SendGoalStatus()
         {
+            HKSS.Unity.HkssPlugin.State?.MarkGoalCompleted(HKSS.Core.GameId.Silksong);
             if (!Connected)
             {
                 goalStatusPending = true;
