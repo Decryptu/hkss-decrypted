@@ -135,6 +135,18 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
                 sd = w.fill_slot_data()
                 if w.game != "Hollow Knight x Silksong":
                     continue
+                if label == "solo_hollow_knight_only":
+                    costs = sd["hollow_knight"]["location_costs"]
+                    for shop, currency, low, high in (
+                        ("Grubfather", "GRUBS", 15, 23),
+                        ("Iselda", "GEO", 100, 180),
+                    ):
+                        prices = [
+                            costs[f"{shop}_{i}"][currency]
+                            for i in range(1, 9)
+                        ]
+                        assert low <= min(prices) < max(prices) <= high, (shop, prices)
+                        assert prices == sorted(prices), (shop, prices)
                 for loc in mw.get_locations(p):
                     if loc.address is not None:
                         if loc.name.startswith("HK "):
@@ -169,6 +181,13 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
             "game: Hollow Knight x Silksong\n"
             "Hollow Knight x Silksong:\n"
             "  games: hollow_knight_only\n"
+            # Both price pairs are valid individual rolls but inverted as a pair.
+            "  MinimumGrubPrice: 23\n"
+            "  MaximumGrubPrice: 15\n"
+            "  MinimumGeoPrice: 180\n"
+            "  MaximumGeoPrice: 100\n"
+            "  GrubfatherRewardSlots: 8\n"
+            "  IseldaShopSlots: 8\n"
         )
     })
     run_case("solo_silksong_only", {

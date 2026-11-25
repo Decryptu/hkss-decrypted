@@ -39,14 +39,13 @@ v0.1.8 upgrades the Hollow Knight in-game check map to full Silksong parity (19 
 
 v0.1.9 fixes a Hornet 1 (`Fungus1_04`) arena gate softlock caused by `MothwingCloakLocation.EditCloakCorpse` throwing `IndexOutOfRangeException` before attaching the `BG OPEN` gate-open broadcast, harmonizes Hollow Knight map pin scale and cluster spacing with Silksong, adds a unified Benchwarp panel (`F7`) and Last Bench warp (`F8`) across both games with persistent discovered-bench tracking, adds Hollow Knight `BenchSyncModule` (slot DataStorage bench sync) and `GiftingModule` (AP GiftBox v2/v3 send & receive), adds Hollow Knight `SoulLink`, `GeoLink`, and cross-game `KnockbackLink`, adds instant HK cutscene skip, optional boss roar lock skip, bulk relic/egg selling (Lemm, Jinn, Scrounge), and a configurable HK enemy Geo multiplier, and upgrades the `F6` overlay with Connection, Benchwarp, and Links & QoL tabs.
 
+v0.1.10 adds Hollow Knight's Archipelago Inventory and Hints tabs, fixes randomized shop and Grubfather pricing when rolled price bounds cross, and keeps the mouse unlocked while the Benchwarp panel is open.
+
 Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, a game that crashes during travel, and the Silksong plugin's refusal to run without the launcher.
 
 ## Feature Parity & Missing Ports
 
 Both games should offer a seamless, matching experience: any randomizer, UI, or QoL feature available in one game should exist in the other with consistent controls and visuals.
-
-### Cross-game parity (Silksong features missing in Hollow Knight)
-- **In-game Archipelago progress & hints view:** bring an AP inventory/progress and hints view to Hollow Knight matching Silksong's.
 
 ## Optional QoL Features (Player-Toggleable, Both Games)
 

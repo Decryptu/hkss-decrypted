@@ -27,9 +27,13 @@ public sealed class HkHintTracker : Module
 {
     public static event Action? OnArchipelagoHintUpdate;
     public static List<Hint>? Hints { get; private set; }
+    private static ArchipelagoSession? _hintSession;
+
+    internal static IReadOnlyList<Hint>? GetRoomHints(ArchipelagoSession session) =>
+        ReferenceEquals(session, _hintSession) ? Hints : null;
 
     private readonly HashSet<AbstractPlacement> _pendingPlacementHints = new();
-    private readonly ConcurrentQueue<Hint[]> _pendingHintUpdates = new();
+    private readonly ConcurrentQueue<(ArchipelagoSession Session, Hint[] Hints)> _pendingHintUpdates = new();
     private ArchipelagoSession? _trackedSession;
     private bool _inGame;
 
@@ -38,6 +42,8 @@ public sealed class HkHintTracker : Module
         _pendingPlacementHints.Clear();
         while (_pendingHintUpdates.TryDequeue(out _)) { }
         _trackedSession = null;
+        _hintSession = null;
+        Hints = null;
         _inGame = false;
 
         Events.OnEnterGame += OnEnterGame;
@@ -55,8 +61,10 @@ public sealed class HkHintTracker : Module
         AbstractItem.AfterGiveGlobal -= UpdateHintFoundStatus;
         Events.OnSceneChange -= SendHintsOnSceneChange;
         _inGame = false;
-        await SendPlacementHintsAsync();
         _trackedSession = null;
+        _hintSession = null;
+        Hints = null;
+        await SendPlacementHintsAsync();
     }
 
     private void OnEnterGame()
@@ -79,6 +87,8 @@ public sealed class HkHintTracker : Module
     private void OnApDisconnected()
     {
         _trackedSession = null;
+        _hintSession = null;
+        Hints = null;
     }
 
     private void TryTrackHints()
@@ -87,15 +97,16 @@ public sealed class HkHintTracker : Module
         if (session == null || ReferenceEquals(session, _trackedSession)) return;
 
         _trackedSession = session;
+        Hints = null;
         try
         {
             session.DataStorage.TrackHints(hints =>
             {
                 if (hints != null)
                 {
-                    _pendingHintUpdates.Enqueue(hints);
+                    _pendingHintUpdates.Enqueue((session, hints));
                 }
-            });
+            }, retrieveCurrentlyUnlockedHints: true);
         }
         catch (Exception ex)
         {
@@ -114,9 +125,11 @@ public sealed class HkHintTracker : Module
     private void DrainHintUpdates()
     {
         Hint[]? latest = null;
-        while (_pendingHintUpdates.TryDequeue(out Hint[] next))
+        while (_pendingHintUpdates.TryDequeue(out var next))
         {
-            latest = next;
+            if (ReferenceEquals(next.Session, _trackedSession) &&
+                ReferenceEquals(next.Session, ApManager.Instance?.Client.Session))
+                latest = next.Hints;
         }
         if (latest != null)
         {
@@ -128,6 +141,7 @@ public sealed class HkHintTracker : Module
     {
         ApClient? client = ApManager.Instance?.Client;
         int mySlot = client?.Slot ?? -1;
+        _hintSession = _trackedSession;
         Hints = arrayHints.ToList();
 
         foreach (Hint hint in Hints)
@@ -205,7 +219,7 @@ public sealed class HkHintTracker : Module
         long location = tag.Location;
         foreach (Hint hint in Hints)
         {
-            if (hint.LocationId == location)
+            if (hint.LocationId == location && hint.FindingPlayer == ApManager.Instance?.Client.Slot)
             {
                 hint.Found = true;
                 try

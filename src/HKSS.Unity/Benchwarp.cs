@@ -25,9 +25,6 @@ internal sealed class Benchwarp : MonoBehaviour
     private string _savePath = string.Empty;
     private bool _warping;
     private bool _panelOpen;
-    private bool _savedCursorVisible;
-    private CursorLockMode _savedCursorLockState = CursorLockMode.None;
-    private bool _hasSavedCursorState;
     private float _nextPollTime;
     private string _lastObservedKey = string.Empty;
     private string _searchFilter = string.Empty;
@@ -87,12 +84,6 @@ internal sealed class Benchwarp : MonoBehaviour
                 SetPanelOpen(false);
             }
         }
-
-        if (_panelOpen)
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
     }
 
     internal void SetPanelOpen(bool open)
@@ -100,20 +91,7 @@ internal sealed class Benchwarp : MonoBehaviour
         if (_panelOpen == open) return;
         _panelOpen = open;
         IsPanelOpen = open;
-        if (open)
-        {
-            _savedCursorVisible = Cursor.visible;
-            _savedCursorLockState = Cursor.lockState;
-            _hasSavedCursorState = true;
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
-        else if (_hasSavedCursorState)
-        {
-            Cursor.visible = _savedCursorVisible;
-            Cursor.lockState = _savedCursorLockState;
-            _hasSavedCursorState = false;
-        }
+        OverlayCursor.SetOpen(OverlayCursor.Panel.Benchwarp, open);
     }
 
     internal int MergeExternalBenches(IEnumerable<BenchEntry> benches)

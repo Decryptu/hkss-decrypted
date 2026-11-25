@@ -25,7 +25,6 @@ namespace ItemChanger.Util
             if (mod)
             {
                 Cost? cost = mod.cost;
-                CostDisplayer? displayer = mod.costDisplayer;
                 if (cost != null)
                 {
                     if (self.dungDiscount && PlayerData.instance.GetBool(nameof(PlayerData.equippedCharm_10)))
@@ -51,16 +50,7 @@ namespace ItemChanger.Util
                     self.transform.Find("Item cost").gameObject.GetComponent<TextMeshPro>().color = self.inactiveColour;
                 }
 
-                int geo;
-                if (mod.placement is AbstractPlacement p && !p.HasTag<Tags.DisableCostPreviewTag>() && !mod.item.HasTag<Tags.DisableCostPreviewTag>()
-                    && cost is not null && !cost.Paid && displayer != null)
-                {
-                    geo = displayer.GetDisplayAmount(cost);
-                }
-                else
-                {
-                    geo = 0;
-                }
+                int geo = mod.GetDisplayedCost();
                 self.SetCost(geo);
                 ((GameObject)itemCostField.GetValue(self)).GetComponent<TextMeshPro>().text = geo.ToString();
             }

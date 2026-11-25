@@ -141,6 +141,9 @@ namespace ItemChanger.Placements
             stats.relicNumber = 0;
             stats.relicPDInt = string.Empty;
 
+            // Replace the cloned vanilla price before the row is shown for the first time.
+            stats.SetCost(mod.GetDisplayedCost());
+
             // Apply the sprite for the UI
             stats.transform.Find("Item Sprite").gameObject.GetComponent<SpriteRenderer>().sprite = item.GetResolvedUIDef(this)!.GetSprite();
 

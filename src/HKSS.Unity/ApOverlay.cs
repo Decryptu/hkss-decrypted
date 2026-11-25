@@ -6,25 +6,26 @@ using UnityEngine.InputSystem;
 namespace HKSS.Unity;
 
 /// <summary>
-/// Shared Archipelago panel (<c>F6</c>) with Connection, Benchwarp, and Links/QoL tabs
-/// plus toast feed compiled into both games.
+/// Shared Archipelago panel (<c>F6</c>) and toast feed compiled into both games.
 /// </summary>
-internal sealed class ApOverlay : MonoBehaviour
+internal sealed partial class ApOverlay : MonoBehaviour
 {
     private enum OverlayTab
     {
         Connection,
         Benchwarp,
         LinksAndQol,
+#if HOLLOW_KNIGHT
+        Inventory,
+        Hints,
+#endif
     }
 
     internal static bool IsPanelOpen { get; private set; }
 
     private bool _panelOpen;
     private OverlayTab _activeTab = OverlayTab.Connection;
-    private bool _savedCursorVisible;
-    private CursorLockMode _savedCursorLockState = CursorLockMode.None;
-    private bool _hasSavedCursorState;
+    private OverlayTab _requestedTab = OverlayTab.Connection;
     private string _addressInput = $"{ApSettings.DefaultHost}:{ApSettings.DefaultPort}";
     private string _slotInput = string.Empty;
     private string _passwordInput = string.Empty;
@@ -52,8 +53,13 @@ internal sealed class ApOverlay : MonoBehaviour
 
         if (_panelOpen)
         {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+#if HOLLOW_KNIGHT
+            if (_activeTab != _requestedTab) _nextProgressRefresh = 0;
+#endif
+            _activeTab = _requestedTab;
+#if HOLLOW_KNIGHT
+            UpdateProgress();
+#endif
         }
     }
 
@@ -62,21 +68,8 @@ internal sealed class ApOverlay : MonoBehaviour
         if (_panelOpen == open) return;
         _panelOpen = open;
         IsPanelOpen = open;
-        if (open)
-        {
-            _savedCursorVisible = Cursor.visible;
-            _savedCursorLockState = Cursor.lockState;
-            _hasSavedCursorState = true;
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-            SyncInputsFromSettings();
-        }
-        else if (_hasSavedCursorState)
-        {
-            Cursor.visible = _savedCursorVisible;
-            Cursor.lockState = _savedCursorLockState;
-            _hasSavedCursorState = false;
-        }
+        OverlayCursor.SetOpen(OverlayCursor.Panel.Archipelago, open);
+        if (open) SyncInputsFromSettings();
     }
 
     private void SyncInputsFromSettings()
@@ -241,9 +234,13 @@ internal sealed class ApOverlay : MonoBehaviour
         GUILayout.Space(4f);
 
         GUILayout.BeginHorizontal();
-        if (DrawTabButton("Connection", _activeTab == OverlayTab.Connection)) _activeTab = OverlayTab.Connection;
-        if (DrawTabButton("Benchwarp", _activeTab == OverlayTab.Benchwarp)) _activeTab = OverlayTab.Benchwarp;
-        if (DrawTabButton("Links & QoL", _activeTab == OverlayTab.LinksAndQol)) _activeTab = OverlayTab.LinksAndQol;
+        if (DrawTabButton("Connection", _activeTab == OverlayTab.Connection)) _requestedTab = OverlayTab.Connection;
+        if (DrawTabButton("Benchwarp", _activeTab == OverlayTab.Benchwarp)) _requestedTab = OverlayTab.Benchwarp;
+        if (DrawTabButton("Links & QoL", _activeTab == OverlayTab.LinksAndQol)) _requestedTab = OverlayTab.LinksAndQol;
+#if HOLLOW_KNIGHT
+        if (DrawTabButton("Inventory", _activeTab == OverlayTab.Inventory)) _requestedTab = OverlayTab.Inventory;
+        if (DrawTabButton("Hints", _activeTab == OverlayTab.Hints)) _requestedTab = OverlayTab.Hints;
+#endif
         GUILayout.EndHorizontal();
 
         GUILayout.Space(8f);
@@ -259,6 +256,14 @@ internal sealed class ApOverlay : MonoBehaviour
             case OverlayTab.LinksAndQol:
                 DrawLinksAndQolTab();
                 break;
+#if HOLLOW_KNIGHT
+            case OverlayTab.Inventory:
+                DrawInventoryTab(ap.Client);
+                break;
+            case OverlayTab.Hints:
+                DrawHintsTab(ap.Client);
+                break;
+#endif
         }
 
         GUILayout.EndArea();

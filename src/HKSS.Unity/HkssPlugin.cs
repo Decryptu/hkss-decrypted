@@ -11,7 +11,7 @@ namespace HKSS.Unity;
 [BepInPlugin("decryptu.hkss", "HKSS Decrypted", PluginVersion)]
 public sealed class HkssPlugin : BaseUnityPlugin
 {
-    public const string PluginVersion = "0.1.9";
+    public const string PluginVersion = "0.1.10";
 #if HOLLOW_KNIGHT
     public const GameId ThisGame = GameId.HollowKnight;
 #elif SILKSONG
@@ -45,6 +45,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
             FastBoot.Install(_harmony);
             TownGate.Install(_harmony);
             ThinSlice.Install(_harmony);
+            OverlayCursor.Install(_harmony);
         }
         catch (Exception e)
         {

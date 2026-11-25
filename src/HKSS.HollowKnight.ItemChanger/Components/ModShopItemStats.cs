@@ -48,6 +48,16 @@ namespace ItemChanger.Components
             return text;
         }
 
+        internal int GetDisplayedCost()
+        {
+            Cost? itemCost = cost;
+            if (placement == null || placement.HasTag<Tags.DisableCostPreviewTag>() ||
+                item.HasTag<Tags.DisableCostPreviewTag>() || itemCost == null || itemCost.Paid)
+                return 0;
+
+            return costDisplayer?.GetDisplayAmount(itemCost) ?? 0;
+        }
+
         public Cost? cost
         {
             get => item.GetTag<CostTag>()?.Cost;

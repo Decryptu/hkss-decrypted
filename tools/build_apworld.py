@@ -149,6 +149,16 @@ def vendor_hk(hk_src: Path, hk_dst: Path) -> None:
         "        self.parent_world = parent_world",
         "hk/__init__.py __init__",
     )
+    text = must_replace(
+        text,
+        "            # if minimum > maximum, set minimum to maximum\n"
+        "            mini.value = min(mini.value, maxi.value)\n"
+        "            self.ranges[term] = mini.value, maxi.value",
+        "            # Archipelago rolls the two YAML bounds independently. Keep both rolls.\n"
+        "            mini.value, maxi.value = sorted((mini.value, maxi.value))\n"
+        "            self.ranges[term] = mini.value, maxi.value",
+        "hk/__init__.py price ranges",
+    )
     # Reuse existing Menu region if already created
     text = must_replace(
         text,
