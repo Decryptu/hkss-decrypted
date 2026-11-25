@@ -87,10 +87,10 @@ internal sealed class TownGate : MonoBehaviour
         }
 #endif
 
-        if (GameObject.Find(GateObjectName) != null)
+        if (FindInScene(scene, GateObjectName) != null)
             return;
 
-        Vector3 gatePos = ResolveGatePosition();
+        Vector3 gatePos = ResolveGatePosition(scene);
         GameObject root = new GameObject(GateObjectName);
         UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(root, scene);
         root.transform.position = gatePos;
@@ -102,23 +102,50 @@ internal sealed class TownGate : MonoBehaviour
         HkssPlugin.Log.LogInfo($"Spawned town gate in {scene.name} at ({gatePos.x:F2}, {gatePos.y:F2}).");
     }
 
-    private static Vector3 ResolveGatePosition()
+    private static GameObject? FindInScene(Scene scene, string name)
+    {
+        if (!scene.IsValid() || !scene.isLoaded) return null;
+        foreach (GameObject root in scene.GetRootGameObjects())
+        {
+            if (root == null) continue;
+            if (string.Equals(root.name, name, StringComparison.Ordinal)) return root;
+            Transform? found = FindChildByName(root.transform, name);
+            if (found != null) return found.gameObject;
+        }
+        return null;
+    }
+
+    private static Transform? FindChildByName(Transform parent, string name)
+    {
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform child = parent.GetChild(i);
+            if (child == null) continue;
+            if (string.Equals(child.name, name, StringComparison.Ordinal)) return child;
+            Transform? nested = FindChildByName(child, name);
+            if (nested != null) return nested;
+        }
+        return null;
+    }
+
+    private static Vector3 ResolveGatePosition(Scene scene)
     {
         float x;
         float probeY;
 
 #if HOLLOW_KNIGHT
         // Dirtmouth plaza between the bench and the background shop door: clear of Nymm, Elderbug,
-        // and the doorway in every town state.
-        GameObject? bench = GameObject.Find("RestBench");
-        if (bench != null)
+        // and the doorway in every town state. Search only inside the target Town scene so an
+        // outgoing scene's RestBench during F4 warp can never hijack the coordinates.
+        GameObject? bench = FindInScene(scene, "RestBench");
+        if (bench != null && bench.transform.position.x > 100f && bench.transform.position.x < 170f)
         {
             x = bench.transform.position.x + 6.5f;
             probeY = bench.transform.position.y + 4f;
         }
         else
         {
-            x = 138.9f;
+            x = 138.88f;
             probeY = 14f;
         }
 #elif SILKSONG
@@ -127,9 +154,25 @@ internal sealed class TownGate : MonoBehaviour
         probeY = 14f;
 #endif
 
-        RaycastHit2D hit = Physics2D.Raycast(new Vector2(x, probeY), Vector2.down, 20f, TerrainLayerMask);
-        float y = hit.collider != null ? hit.point.y : probeY - 4f;
+        float? groundY = RaycastGroundInScene(scene, x, probeY, 20f);
+        float y = groundY ?? (probeY - 4f);
         return new Vector3(x, y, 0.005f);
+    }
+
+    private static float? RaycastGroundInScene(Scene scene, float x, float startY, float distance)
+    {
+        RaycastHit2D[] hits = Physics2D.RaycastAll(new Vector2(x, startY), Vector2.down, distance, TerrainLayerMask);
+        float? bestY = null;
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D col = hits[i].collider;
+            if (col == null || col.gameObject.scene != scene) continue;
+            if (!bestY.HasValue || hits[i].point.y > bestY.Value)
+            {
+                bestY = hits[i].point.y;
+            }
+        }
+        return bestY;
     }
 
     private static void CreateRespawnMarker(Transform parent)
