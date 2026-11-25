@@ -125,6 +125,8 @@ internal sealed class HkRandomizer
         ItemChangerMod.Modules.Add<HkDupeHandlingModule>();
         ItemChangerMod.Modules.Add<HkRepositionShadeModule>();
         ItemChangerMod.Modules.Add<HkHintTracker>();
+        ItemChangerMod.Modules.Add<HkBenchSyncModule>();
+        ItemChangerMod.Modules.Add<HkGiftingModule>();
         ItemChangerMod.Modules.Add<CompletionPercentOverride>();
 
         var startEdits = ItemChangerMod.Modules.Add<HkStartLocationSceneEditsModule>();

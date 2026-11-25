@@ -120,6 +120,9 @@ internal sealed class HkClientHost : MonoBehaviour
             gameObject.AddComponent<HkRecentItemsDisplay>();
         if (gameObject.GetComponent<HkCheckMapOverlay>() == null)
             gameObject.AddComponent<HkCheckMapOverlay>();
+        if (gameObject.GetComponent<HkLinksManager>() == null)
+            gameObject.AddComponent<HkLinksManager>();
+        HkGiftingModule.BindConfig(HkssPlugin.PluginConfig);
     }
 
     private void OnDestroy()
@@ -331,6 +334,8 @@ internal sealed class HkClientHost : MonoBehaviour
     {
         if (_icActive && ItemChangerMod.IsSettingsLoaded)
         {
+            ItemChangerMod.Modules.GetOrAdd<HkBenchSyncModule>();
+            ItemChangerMod.Modules.GetOrAdd<HkGiftingModule>();
             ReconcileObtainedCustomSkills();
         }
 

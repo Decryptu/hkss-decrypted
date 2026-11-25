@@ -37,38 +37,26 @@ v0.1.7 fixes `F4` town warp spawning the Knight and Dirtmouth travel portal unde
 
 v0.1.8 upgrades the Hollow Knight in-game check map to full Silksong parity (19 category/shop pins, room clusters, hint outlines, hover tooltips for controller and mouse, visibility and check filters, and live `worlds/hk` reachability logic toggled with `F10`), and fixes returning to Silksong from Hollow Knight dropping Hornet back in `Tut_01` by accepting the runtime Bone Bottom gate respawn marker in `GameManager.GetRespawnInfo`.
 
+v0.1.9 fixes a Hornet 1 (`Fungus1_04`) arena gate softlock caused by `MothwingCloakLocation.EditCloakCorpse` throwing `IndexOutOfRangeException` before attaching the `BG OPEN` gate-open broadcast, harmonizes Hollow Knight map pin scale and cluster spacing with Silksong, adds a unified Benchwarp panel (`F7`) and Last Bench warp (`F8`) across both games with persistent discovered-bench tracking, adds Hollow Knight `BenchSyncModule` (slot DataStorage bench sync) and `GiftingModule` (AP GiftBox v2/v3 send & receive), adds Hollow Knight `SoulLink`, `GeoLink`, and cross-game `KnockbackLink`, adds instant HK cutscene skip, optional boss roar lock skip, bulk relic/egg selling (Lemm, Jinn, Scrounge), and a configurable HK enemy Geo multiplier, and upgrades the `F6` overlay with Connection, Benchwarp, and Links & QoL tabs.
+
 Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, a game that crashes during travel, and the Silksong plugin's refusal to run without the launcher.
 
 ## Feature Parity & Missing Ports
 
 Both games should offer a seamless, matching experience: any randomizer, UI, or QoL feature available in one game should exist in the other with consistent controls and visuals.
 
-### Missing from `Archipelago.HollowKnight` (in `HKSS.HollowKnight`)
-- **Bench sync (`BenchSyncModule`) and Gifting (`GiftingModule`).**
-
 ### Cross-game parity (Silksong features missing in Hollow Knight)
 - **In-game Archipelago progress & hints view:** bring an AP inventory/progress and hints view to Hollow Knight matching Silksong's.
-- **Additional links:** optional Soul/Geo/Knockback links in Hollow Knight to match Silksong's SilkLink, CurrencyLink, and KnockbackLink.
-- **Unified in-game settings panel:** one consistent, player-configurable options menu (in the pause menu or `F6` overlay) controlling client-side toggles and hotkeys across both games.
 
 ## Optional QoL Features (Player-Toggleable, Both Games)
 
 All QoL features below are opt-in per player so casual and competitive runs can choose their preferred experience:
 
-- **Pause-menu bench warping:**
-  - **Warp to Last Bench** button in the pause menu (and optional hotkey) in both games.
-  - Optional **Benchwarp** panel to warp to any discovered bench (port LGPL-2.1 `Benchwarp` for Hollow Knight; match it in Silksong alongside `FastTravelUtil`).
-- **Pacing & dialogue speedups:**
-  - Fast text / instant dialogue reveal (already in Silksong; add to Hollow Knight).
-  - Skippable cutscenes and boss intros (already in Silksong; add to Hollow Knight).
-  - Faster menus, faster Stag / Bellway arrivals, and bulk selling for relics/eggs (Lemm, Jinn, Scrounge).
 - **Map & navigation helpers:**
-  - Always-on compass without using a charm notch or tool slot (already in Silksong; add to Hollow Knight).
   - Optional auto-quill / full area map reveal and customizable map pin filters.
 - **Economy & death options:**
-  - Optional enemy currency drop multiplier (already in Silksong; add to Hollow Knight).
   - Configurable DeathLink shade/cocoon behavior and optional softlock-recovery safeguards.
-- **Customizable hotkeys:** rebindable shortcuts for Town Warp (`F4`), AP Panel (`F6`), Recent Items (`F9`), Map Logic (`F10`), and Last-Bench Warp.
+- **Customizable hotkeys:** rebindable shortcuts for Town Warp (`F4`), AP Panel (`F6`), Benchwarp (`F7`), Last-Bench Warp (`F8`), Recent Items (`F9`), and Map Logic (`F10`).
 
 ## Later
 

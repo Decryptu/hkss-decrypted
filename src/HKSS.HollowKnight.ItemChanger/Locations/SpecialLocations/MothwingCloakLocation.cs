@@ -39,22 +39,28 @@ namespace ItemChanger.Locations.SpecialLocations
 
         private void EditCloakCorpse(PlayMakerFSM fsm)
         {
-            FsmState init = fsm.GetState("Init");
-            init.SetActions(
-                init.Actions[0], init.Actions[1] // remove find child shiny item
-            );
-
-            fsm.GetState("Activate Item").AddLastAction(new SendEvent
+            FsmState? init = fsm.GetState("Init");
+            if (init != null)
             {
-                eventTarget = new FsmEventTarget
+                // Safely remove FindChild actions (avoids IndexOutOfRangeException when Init has <2 actions in HK 1.5.12620)
+                init.RemoveActionsOfType<FindChild>();
+            }
+
+            FsmState? activateItem = fsm.GetState("Activate Item");
+            if (activateItem != null && !activateItem.Actions.Any(a => a is SendEvent se && se.sendEvent?.Name == "BG OPEN"))
+            {
+                activateItem.AddLastAction(new SendEvent
                 {
-                    target = FsmEventTarget.EventTarget.BroadcastAll,
-                    excludeSelf = true
-                },
-                sendEvent = FsmEvent.FindEvent("BG OPEN") ?? new FsmEvent("BG OPEN"),
-                delay = 0,
-                everyFrame = false
-            }); // open gate after hornet leaves
+                    eventTarget = new FsmEventTarget
+                    {
+                        target = FsmEventTarget.EventTarget.BroadcastAll,
+                        excludeSelf = true
+                    },
+                    sendEvent = FsmEvent.FindEvent("BG OPEN") ?? new FsmEvent("BG OPEN"),
+                    delay = 0,
+                    everyFrame = false
+                }); // open gate after hornet leaves
+            }
         }
 
         private void DestroyCameraLock(PlayMakerFSM fsm)

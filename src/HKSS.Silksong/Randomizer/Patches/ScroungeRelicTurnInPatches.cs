@@ -112,8 +112,7 @@ namespace SilksongRandomizer.Patches
                 out bool __state
             )
             {
-                __state = IsEnabled() &&
-                    __instance != null &&
+                __state = __instance != null &&
                     __instance.Owner != null &&
                     IsTurnInOwner(
                         __instance.Owner.scene.name,
@@ -157,7 +156,8 @@ namespace SilksongRandomizer.Patches
         )]
         private static class ScroungeConfirmationPromptPatch
         {
-            private static void Prefix(
+            private static bool Prefix(
+                [HarmonyArgument(0)] Action yes,
                 [HarmonyArgument(3)] ref string text,
                 [HarmonyArgument(4)] IReadOnlyList<SavedItem> items,
                 [HarmonyArgument(5)] IReadOnlyList<int> amounts
@@ -166,15 +166,26 @@ namespace SilksongRandomizer.Patches
                 if (relicTurnInPromptScopeDepth <= 0 ||
                     items == null || items.Count == 0)
                 {
-                    return;
+                    return true;
                 }
 
                 for (int index = 0; index < items.Count; index++)
                 {
                     if (!(items[index] is CollectableItemRelicType))
                     {
-                        return;
+                        return true;
                     }
+                }
+
+                if (BulkScroungeTurnIn && yes != null)
+                {
+                    yes();
+                    return false;
+                }
+
+                if (!IsEnabled())
+                {
+                    return true;
                 }
 
                 int totalRelics = 0;
@@ -191,7 +202,10 @@ namespace SilksongRandomizer.Patches
                         ? "Turn in this relic as an Archipelago check?"
                         : "Turn in these relics as Archipelago checks?"
                 );
+                return true;
             }
         }
+
+        internal static bool BulkScroungeTurnIn = true;
     }
 }

@@ -6,13 +6,22 @@ using UnityEngine.InputSystem;
 namespace HKSS.Unity;
 
 /// <summary>
-/// Shared Archipelago connection panel (<c>F6</c>) and toast feed compiled into both games.
+/// Shared Archipelago panel (<c>F6</c>) with Connection, Benchwarp, and Links/QoL tabs
+/// plus toast feed compiled into both games.
 /// </summary>
 internal sealed class ApOverlay : MonoBehaviour
 {
+    private enum OverlayTab
+    {
+        Connection,
+        Benchwarp,
+        LinksAndQol,
+    }
+
     internal static bool IsPanelOpen { get; private set; }
 
     private bool _panelOpen;
+    private OverlayTab _activeTab = OverlayTab.Connection;
     private bool _savedCursorVisible;
     private CursorLockMode _savedCursorLockState = CursorLockMode.None;
     private bool _hasSavedCursorState;
@@ -21,10 +30,13 @@ internal sealed class ApOverlay : MonoBehaviour
     private string _passwordInput = string.Empty;
     private bool _autoConnectInput = true;
     private bool _inputsInitialized;
+    private Vector2 _qolScroll;
+    private int _selectedGiftRecipientIdx;
 
     private GUIStyle? _badgeStyle;
     private GUIStyle? _panelStyle;
     private GUIStyle? _titleStyle;
+    private GUIStyle? _sectionStyle;
     private GUIStyle? _labelStyle;
     private GUIStyle? _toastStyle;
     private Texture2D? _darkBg;
@@ -89,7 +101,7 @@ internal sealed class ApOverlay : MonoBehaviour
     {
         if (_darkBg == null)
         {
-            _darkBg = MakeSolidTexture(new Color(0.06f, 0.07f, 0.11f, 0.90f));
+            _darkBg = MakeSolidTexture(new Color(0.06f, 0.07f, 0.11f, 0.92f));
             _toastBg = MakeSolidTexture(new Color(0.05f, 0.06f, 0.09f, 0.84f));
         }
 
@@ -113,6 +125,13 @@ internal sealed class ApOverlay : MonoBehaviour
             fontSize = 15,
             fontStyle = FontStyle.Bold,
             normal = { textColor = AccentColor() },
+        };
+
+        _sectionStyle ??= new GUIStyle(GUI.skin.label)
+        {
+            fontSize = 13,
+            fontStyle = FontStyle.Bold,
+            normal = { textColor = new Color(0.95f, 0.85f, 0.45f, 1f) },
         };
 
         _labelStyle ??= new GUIStyle(GUI.skin.label)
@@ -144,7 +163,7 @@ internal sealed class ApOverlay : MonoBehaviour
         if (_panelOpen)
         {
             if (!_inputsInitialized) SyncInputsFromSettings();
-            DrawConnectionPanel(ap);
+            DrawMainPanel(ap);
         }
     }
 
@@ -210,17 +229,52 @@ internal sealed class ApOverlay : MonoBehaviour
         }
     }
 
-    private void DrawConnectionPanel(ApManager ap)
+    private void DrawMainPanel(ApManager ap)
     {
-        float w = 360f;
-        float h = 340f;
+        float w = 390f;
+        float h = Mathf.Min(500f, Screen.height - 70f);
         var rect = new Rect(Screen.width - w - 14f, 48f, w, h);
 
         GUILayout.BeginArea(rect, _panelStyle);
 
         GUILayout.Label($"Hollow Knight x Silksong — {ItemRouter.WorldName(HkssPlugin.ThisGame)}", _titleStyle);
-        GUILayout.Space(6f);
+        GUILayout.Space(4f);
 
+        GUILayout.BeginHorizontal();
+        if (DrawTabButton("Connection", _activeTab == OverlayTab.Connection)) _activeTab = OverlayTab.Connection;
+        if (DrawTabButton("Benchwarp", _activeTab == OverlayTab.Benchwarp)) _activeTab = OverlayTab.Benchwarp;
+        if (DrawTabButton("Links & QoL", _activeTab == OverlayTab.LinksAndQol)) _activeTab = OverlayTab.LinksAndQol;
+        GUILayout.EndHorizontal();
+
+        GUILayout.Space(8f);
+
+        switch (_activeTab)
+        {
+            case OverlayTab.Connection:
+                DrawConnectionTab(ap);
+                break;
+            case OverlayTab.Benchwarp:
+                Benchwarp.Instance?.DrawBenchwarpContents(showHeader: false);
+                break;
+            case OverlayTab.LinksAndQol:
+                DrawLinksAndQolTab();
+                break;
+        }
+
+        GUILayout.EndArea();
+    }
+
+    private static bool DrawTabButton(string label, bool active)
+    {
+        Color prev = GUI.backgroundColor;
+        if (active) GUI.backgroundColor = AccentColor();
+        bool clicked = GUILayout.Button(label, GUILayout.Height(26f));
+        GUI.backgroundColor = prev;
+        return clicked;
+    }
+
+    private void DrawConnectionTab(ApManager ap)
+    {
         GUILayout.Label("Server (host:port)", _labelStyle);
         _addressInput = GUILayout.TextField(_addressInput ?? string.Empty);
 
@@ -269,12 +323,110 @@ internal sealed class ApOverlay : MonoBehaviour
         if (logs.Count > 0)
         {
             GUILayout.Space(4f);
-            int start = Math.Max(0, logs.Count - 4);
+            int start = Math.Max(0, logs.Count - 5);
             for (int i = start; i < logs.Count; i++)
                 GUILayout.Label("• " + logs[i], _labelStyle);
         }
+    }
 
-        GUILayout.EndArea();
+    private void DrawLinksAndQolTab()
+    {
+        _qolScroll = GUILayout.BeginScrollView(_qolScroll);
+
+#if HOLLOW_KNIGHT
+        GUILayout.Label("Archipelago Links & Gifting", _sectionStyle);
+        bool soulLink = GUILayout.Toggle(HKSS.HollowKnight.HkLinksManager.SoulLinkEnabled, "SoulLink (share base 99 Soul)");
+        if (soulLink != HKSS.HollowKnight.HkLinksManager.SoulLinkEnabled)
+            HKSS.HollowKnight.HkLinksManager.SoulLinkEnabled = soulLink;
+
+        bool geoLink = GUILayout.Toggle(HKSS.HollowKnight.HkLinksManager.GeoLinkEnabled, "GeoLink (share Geo with team)");
+        if (geoLink != HKSS.HollowKnight.HkLinksManager.GeoLinkEnabled)
+            HKSS.HollowKnight.HkLinksManager.GeoLinkEnabled = geoLink;
+
+        bool kbLink = GUILayout.Toggle(HKSS.HollowKnight.HkLinksManager.KnockbackLinkEnabled, "KnockbackLink (cross-game recoil)");
+        if (kbLink != HKSS.HollowKnight.HkLinksManager.KnockbackLinkEnabled)
+            HKSS.HollowKnight.HkLinksManager.KnockbackLinkEnabled = kbLink;
+
+        bool gifting = GUILayout.Toggle(HKSS.HollowKnight.HkGiftingModule.IsEnabled, "Gifting (open AP GiftBox)");
+        if (gifting != HKSS.HollowKnight.HkGiftingModule.IsEnabled)
+            HKSS.HollowKnight.HkGiftingModule.IsEnabled = gifting;
+
+        HKSS.HollowKnight.HkGiftingModule? giftMod = HKSS.HollowKnight.HkGiftingModule.Instance;
+        if (gifting && giftMod != null)
+        {
+            var recipients = giftMod.OpenRecipients;
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Refresh GiftBoxes", GUILayout.Height(22f)))
+                giftMod.RefreshOpenRecipientsAsync();
+            GUILayout.EndHorizontal();
+
+            if (recipients.Count > 0)
+            {
+                if (_selectedGiftRecipientIdx >= recipients.Count) _selectedGiftRecipientIdx = 0;
+                var target = recipients[_selectedGiftRecipientIdx];
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"To: {target.Name}", _labelStyle);
+                if (recipients.Count > 1 && GUILayout.Button("Next", GUILayout.Width(50f)))
+                    _selectedGiftRecipientIdx = (_selectedGiftRecipientIdx + 1) % recipients.Count;
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Gift 100 Geo", GUILayout.Height(24f)))
+                    giftMod.TrySendGeoGift(target.Slot, 100);
+                if (GUILayout.Button("Gift Rancid Egg", GUILayout.Height(24f)))
+                    giftMod.TrySendRancidEggGift(target.Slot);
+                GUILayout.EndHorizontal();
+            }
+            else
+            {
+                GUILayout.Label("No other open GiftBoxes found yet.", _labelStyle);
+            }
+        }
+
+        GUILayout.Space(8f);
+        GUILayout.Label("Quality of Life", _sectionStyle);
+
+        bool skipCutscenes = GUILayout.Toggle(HKSS.HollowKnight.HkQolPatches.SkipCutscenes, "Instant cutscene skip");
+        if (skipCutscenes != HKSS.HollowKnight.HkQolPatches.SkipCutscenes)
+            HKSS.HollowKnight.HkQolPatches.SkipCutscenes = skipCutscenes;
+
+        bool skipBossIntros = GUILayout.Toggle(HKSS.HollowKnight.HkQolPatches.SkipBossIntros, "Skip boss roar locks");
+        if (skipBossIntros != HKSS.HollowKnight.HkQolPatches.SkipBossIntros)
+            HKSS.HollowKnight.HkQolPatches.SkipBossIntros = skipBossIntros;
+
+        bool bulkSell = GUILayout.Toggle(HKSS.HollowKnight.HkQolPatches.BulkSellRelicsAndEggs, "Bulk sell relics (Lemm) & eggs (Jinn)");
+        if (bulkSell != HKSS.HollowKnight.HkQolPatches.BulkSellRelicsAndEggs)
+            HKSS.HollowKnight.HkQolPatches.BulkSellRelicsAndEggs = bulkSell;
+
+        GUILayout.Space(4f);
+        GUILayout.Label($"Enemy Geo Multiplier: {HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier:0.#}x", _labelStyle);
+        GUILayout.BeginHorizontal();
+        foreach (float mult in HKSS.HollowKnight.HkQolPatches.GeoMultiplierSteps)
+        {
+            bool selected = Mathf.Approximately(HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier, mult);
+            Color prev = GUI.backgroundColor;
+            if (selected) GUI.backgroundColor = AccentColor();
+            if (GUILayout.Button($"{mult:0.#}x", GUILayout.Height(24f)))
+            {
+                HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier = mult;
+            }
+            GUI.backgroundColor = prev;
+        }
+        GUILayout.EndHorizontal();
+#elif SILKSONG
+        GUILayout.Label("Quality of Life", _sectionStyle);
+        SilksongRandomizer.Patches.ScroungeRelicTurnInPatches.BulkScroungeTurnIn =
+            GUILayout.Toggle(
+                SilksongRandomizer.Patches.ScroungeRelicTurnInPatches.BulkScroungeTurnIn,
+                "Instant bulk relic turn-in (Scrounge & Cardinius)");
+        GUILayout.Label("Silksong link & currency options are configured in your Archipelago YAML / save settings.", _labelStyle);
+#endif
+
+        GUILayout.Space(8f);
+        GUILayout.Label("Hotkeys", _sectionStyle);
+        GUILayout.Label("• F4 — Warp to Town Gate\n• F6 — Archipelago / Settings Panel\n• F7 — Benchwarp Panel\n• F8 — Warp to Last Bench\n• F9 — Recent Items Feed\n• F10 — Map Logic Overlay", _labelStyle);
+
+        GUILayout.EndScrollView();
     }
 
     private static Color AccentColor()
