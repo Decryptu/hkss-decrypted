@@ -35,6 +35,8 @@ v0.1.6 hardens Hollow Knight, Silksong, Archipelago sync, the APWorld, and the l
 
 v0.1.7 fixes `F4` town warp spawning the Knight and Dirtmouth travel portal underground when warping from a room that contains a bench, by scoping `TownGate`'s `RestBench`, gate-existence, and ground raycast lookups strictly to the target `Town`/`Bonetown` scene.
 
+v0.1.8 upgrades the Hollow Knight in-game check map to full Silksong parity (19 category/shop pins, room clusters, hint outlines, hover tooltips for controller and mouse, visibility and check filters, and live `worlds/hk` reachability logic toggled with `F10`), and fixes returning to Silksong from Hollow Knight dropping Hornet back in `Tut_01` by accepting the runtime Bone Bottom gate respawn marker in `GameManager.GetRespawnInfo`.
+
 Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, a game that crashes during travel, and the Silksong plugin's refusal to run without the launcher.
 
 ## Feature Parity & Missing Ports
