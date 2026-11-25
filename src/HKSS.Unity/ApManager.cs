@@ -68,6 +68,8 @@ internal sealed class ApManager : MonoBehaviour
     private bool _autoConnectAttempted;
     private int _autoConnectRetriesRemaining = 2;
     private float _nextAutoConnectTime;
+    private bool _manualDisconnect;
+    private float _reconnectBackoffSeconds = 3f;
     private int _inMemoryProcessed = -1;
     private float _nextGrantRetryTime;
 #if DEBUG
@@ -100,15 +102,17 @@ internal sealed class ApManager : MonoBehaviour
         Settings = updated.Clone();
         SettingsStore.Save(Settings);
         _pendingItems.Clear();
-        _pendingNamedChecks.Clear();
         _inMemoryProcessed = -1;
         _nextGrantRetryTime = 0f;
+        _manualDisconnect = false;
+        _reconnectBackoffSeconds = 3f;
         OnDisconnected?.Invoke();
         Client.Connect(Settings);
     }
 
     internal void Disconnect()
     {
+        _manualDisconnect = true;
         OnDisconnected?.Invoke();
         Client.Disconnect();
     }
@@ -240,6 +244,8 @@ internal sealed class ApManager : MonoBehaviour
         switch (evt.Kind)
         {
             case ApEventKind.Connected:
+                _manualDisconnect = false;
+                _reconnectBackoffSeconds = 3f;
                 HkssPlugin.Log.LogInfo(evt.Message);
                 PushToast($"Connected as {Client.ConnectedSlot}", ToastKind.Info);
                 CheckWorldVersion();
@@ -256,6 +262,12 @@ internal sealed class ApManager : MonoBehaviour
                 HkssPlugin.Log.LogInfo(evt.Message);
                 PushToast(evt.Message, ToastKind.Info);
                 OnDisconnected?.Invoke();
+                if (!_manualDisconnect && Settings.AutoConnect && Settings.IsConfigured)
+                {
+                    _autoConnectAttempted = false;
+                    _nextAutoConnectTime = Time.unscaledTime + _reconnectBackoffSeconds;
+                    _reconnectBackoffSeconds = Mathf.Min(_reconnectBackoffSeconds * 2f, 30f);
+                }
                 break;
 
             case ApEventKind.ConnectionFailed:

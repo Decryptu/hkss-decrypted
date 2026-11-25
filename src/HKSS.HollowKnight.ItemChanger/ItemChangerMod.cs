@@ -121,7 +121,7 @@ namespace ItemChanger
             if (SET != null && !Settings.loaded)
             {
                 if (!instance._hooked) instance.HookItemChanger();
-                SET.Load();
+                Events.DoOnEnterGame();
             }
         }
 

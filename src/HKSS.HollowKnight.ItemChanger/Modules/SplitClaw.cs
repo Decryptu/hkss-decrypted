@@ -48,8 +48,9 @@ namespace ItemChanger.Modules
                 nameof(hasWalljumpLeft) => hasWalljumpLeft,
                 nameof(hasWalljumpRight) => hasWalljumpRight,
                 nameof(PlayerData.hasWalljump) => 
-                       HeroController.instance.touchingWallL && hasWalljumpLeft && !hasWalljumpRight
-                    || HeroController.instance.touchingWallR && hasWalljumpRight && !hasWalljumpLeft
+                       (HeroController.SilentInstance is HeroController hc
+                        && (hc.touchingWallL && hasWalljumpLeft && !hasWalljumpRight
+                            || hc.touchingWallR && hasWalljumpRight && !hasWalljumpLeft))
                     || value,
                 nameof(hasWalljumpAny) => hasWalljumpAny,
                 nameof(hasWalljumpBoth) => hasWalljumpBoth,

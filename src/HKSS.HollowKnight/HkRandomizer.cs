@@ -206,7 +206,7 @@ internal sealed class HkRandomizer
         if (_slotData.NotchCosts == null || _slotData.NotchCosts.Count == 0) return;
 
         ItemChangerMod.Modules.Add<NotchCostUI>();
-        ItemChangerMod.Modules.Add<ZeroCostCharmEquip>();
+        ItemChangerMod.Modules.GetOrAdd<ZeroCostCharmEquip>();
         var pdEdits = ItemChangerMod.Modules.GetOrAdd<PlayerDataEditModule>();
         for (int i = 0; i < _slotData.NotchCosts.Count; i++)
         {

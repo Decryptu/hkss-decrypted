@@ -13,6 +13,9 @@ internal sealed class ApOverlay : MonoBehaviour
     internal static bool IsPanelOpen { get; private set; }
 
     private bool _panelOpen;
+    private bool _savedCursorVisible;
+    private CursorLockMode _savedCursorLockState = CursorLockMode.None;
+    private bool _hasSavedCursorState;
     private string _addressInput = $"{ApSettings.DefaultHost}:{ApSettings.DefaultPort}";
     private string _slotInput = string.Empty;
     private string _passwordInput = string.Empty;
@@ -32,9 +35,35 @@ internal sealed class ApOverlay : MonoBehaviour
         Keyboard? kb = Keyboard.current;
         if (kb != null && kb.f6Key.wasPressedThisFrame)
         {
-            _panelOpen = !_panelOpen;
-            IsPanelOpen = _panelOpen;
-            if (_panelOpen) SyncInputsFromSettings();
+            SetPanelOpen(!_panelOpen);
+        }
+
+        if (_panelOpen)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+    }
+
+    private void SetPanelOpen(bool open)
+    {
+        if (_panelOpen == open) return;
+        _panelOpen = open;
+        IsPanelOpen = open;
+        if (open)
+        {
+            _savedCursorVisible = Cursor.visible;
+            _savedCursorLockState = Cursor.lockState;
+            _hasSavedCursorState = true;
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            SyncInputsFromSettings();
+        }
+        else if (_hasSavedCursorState)
+        {
+            Cursor.visible = _savedCursorVisible;
+            Cursor.lockState = _savedCursorLockState;
+            _hasSavedCursorState = false;
         }
     }
 
@@ -51,6 +80,7 @@ internal sealed class ApOverlay : MonoBehaviour
 
     private void OnDestroy()
     {
+        SetPanelOpen(false);
         if (_darkBg != null) Destroy(_darkBg);
         if (_toastBg != null) Destroy(_toastBg);
     }
@@ -144,9 +174,7 @@ internal sealed class ApOverlay : MonoBehaviour
         var rect = new Rect(Screen.width - w - 14f, 14f, w, h);
         if (GUI.Button(rect, text, _badgeStyle))
         {
-            _panelOpen = !_panelOpen;
-            IsPanelOpen = _panelOpen;
-            if (_panelOpen) SyncInputsFromSettings();
+            SetPanelOpen(!_panelOpen);
         }
         GUI.contentColor = prev;
     }

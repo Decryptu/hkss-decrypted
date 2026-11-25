@@ -31,6 +31,14 @@ pub fn remove_tree(path: &Path) -> io::Result<()> {
 }
 
 fn is_link(path: &Path, meta: &fs::Metadata) -> bool {
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::MetadataExt;
+        const FILE_ATTRIBUTE_REPARSE_POINT: u32 = 0x0400;
+        if meta.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0 {
+            return true;
+        }
+    }
     meta.file_type().is_symlink() || (meta.is_dir() && junction::exists(path).unwrap_or(false))
 }
 

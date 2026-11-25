@@ -193,12 +193,13 @@ public sealed class ApClient : IDisposable
                 State = ApConnectionState.Connected;
                 StatusDetail = $"Connected to {settings.FormatAddress()} as {settings.Slot}";
 
+                // Emit Connected before initial items so listeners bind seed state before draining.
+                _events.Enqueue(new ApEvent(ApEventKind.Connected, StatusDetail));
+
                 // Queue any items already received during the login handshake before flipping live mode.
                 DrainSessionItemsLocked(session, isLive: false);
                 _initialSyncDone = true;
             }
-
-            _events.Enqueue(new ApEvent(ApEventKind.Connected, StatusDetail));
         }
         catch (Exception e)
         {

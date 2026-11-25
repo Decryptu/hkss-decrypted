@@ -168,7 +168,15 @@ namespace ItemChanger
                     RespawnMarker rm = GetSpawnPoint()?.GetComponent<RespawnMarker>();
                     if (rm && !rm.respawnFacingRight) self.FaceLeft();
                     else self.FaceRight();
-                    (typeof(HeroController).GetField("heroInPosition", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(self) as HeroController.HeroInPosition)?.Invoke(false);
+                    MethodInfo sendHeroInPosition = typeof(HeroController).GetMethod("SendHeroInPosition", BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (sendHeroInPosition != null)
+                    {
+                        sendHeroInPosition.Invoke(self, new object[] { false });
+                    }
+                    else
+                    {
+                        (typeof(HeroController).GetField("heroInPosition", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(self) as HeroController.HeroInPosition)?.Invoke(false);
+                    }
                     var hac = self.GetComponent<HeroAnimationController>();
                     float wakeUpTime = hac.GetClipDuration("Wake Up Ground"); // 46 frames, 18 fps, 2.55s
                     // break from HC.Respawn

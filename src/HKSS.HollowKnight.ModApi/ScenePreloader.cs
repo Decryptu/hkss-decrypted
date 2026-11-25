@@ -70,6 +70,7 @@ namespace HKSS.HollowKnight.ModApi
                             continue;
                         }
 
+                        target.SetActive(false);
                         GameObject clone = UnityEngine.Object.Instantiate(target);
                         clone.name = target.name;
                         clone.SetActive(false);

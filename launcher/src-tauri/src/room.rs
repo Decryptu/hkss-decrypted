@@ -37,6 +37,7 @@ impl Room {
         if self.slot.is_empty() {
             return Err("Enter your slot name.".into());
         }
+        crate::room_check::build_endpoints(&self)?;
         Ok(self)
     }
 

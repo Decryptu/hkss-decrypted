@@ -87,6 +87,7 @@ internal sealed class HkClientHost : MonoBehaviour
         }
         Mod.Logger = log;
         ModHooks.Install(harmony, log);
+        HkQolPatches.Install(harmony, log);
         _icMod = new ItemChangerMod();
     }
 
@@ -160,6 +161,15 @@ internal sealed class HkClientHost : MonoBehaviour
                     HkssPlugin.Log.LogWarning("[HK] Continuing boot without waiting further for Archipelago connection.");
                     ReleaseAutoLoad();
                 }
+            }
+        }
+
+        if (_pendingRemoteSync && _icActive && ItemChangerMod.IsSettingsLoaded && IsGameplayReady())
+        {
+            ApClient? client = ApManager.Instance?.Client;
+            if (client != null && client.IsConnected)
+            {
+                SyncRemoteCheckedLocations(client);
             }
         }
 
@@ -268,6 +278,7 @@ internal sealed class HkClientHost : MonoBehaviour
                     var randomizer = new HkRandomizer(hkSlot, client.Session);
                     randomizer.Randomize(hkLocs);
                     _icActive = true;
+                    ApManager.FullHostInstalled = true;
                     ThinSlice.SuppressCheckHooks = true;
                     _loadedSeedKey = currentSeedKey;
 
@@ -282,6 +293,7 @@ internal sealed class HkClientHost : MonoBehaviour
                 }
                 else
                 {
+                    ApManager.FullHostInstalled = false;
                     HkssPlugin.Log.LogInfo("[HK] No slot_data['hollow_knight'] present; using thin-slice fallback.");
                 }
             }
@@ -361,9 +373,25 @@ internal sealed class HkClientHost : MonoBehaviour
         }
     }
 
+    private static bool _pendingRemoteSync;
+
+    private static bool IsGameplayReady()
+    {
+        GameManager? gm = GameManager._instance;
+        return HeroController.SilentInstance != null
+            && gm != null
+            && gm.IsGameplayScene()
+            && !gm.IsInSceneTransition;
+    }
+
     private static void SyncRemoteCheckedLocations(ApClient client)
     {
-        if (!ItemChangerMod.IsSettingsLoaded) return;
+        if (!ItemChangerMod.IsSettingsLoaded || !IsGameplayReady())
+        {
+            _pendingRemoteSync = true;
+            return;
+        }
+        _pendingRemoteSync = false;
         foreach (long locId in client.GetOwnCheckedLocationIds())
         {
             MarkLocationAsChecked(locId, silent: true);
@@ -438,7 +466,8 @@ internal sealed class HkClientHost : MonoBehaviour
         if (item == null)
         {
             HkssPlugin.Log.LogWarning($"[HK] Finder.GetItem('{icItemName}') returned null; falling back to thin-slice.");
-            return false;
+            ThinSlice.GrantItem(routed);
+            return true;
         }
 
         if (item.UIDef != null && !string.IsNullOrEmpty(evt.SenderName))

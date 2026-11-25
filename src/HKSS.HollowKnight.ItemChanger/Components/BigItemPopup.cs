@@ -152,7 +152,8 @@ namespace ItemChanger.Components
 
             if (_buttonSkin != null)
             {
-                Font f = Resources.FindObjectsOfTypeAll<Font>().FirstOrDefault(f => f.name == "Arial");
+                Font f = Resources.FindObjectsOfTypeAll<Font>().FirstOrDefault(f => f.name == "Arial")
+                    ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
                 // unfortunately, since we use Text and not TextMeshPro, we have this very fragile manual scale adjustment
                 int fontSize = _buttonSkin.skinType switch

@@ -708,6 +708,39 @@ namespace SilksongRandomizer.Patches
                    state.IsRoomBound;
         }
 
+        [HarmonyPatch(typeof(HutongGames.PlayMaker.Actions.Wait), "OnEnter")]
+        private static class BellBeastFastArrivalPatch
+        {
+            [HarmonyPrefix]
+            private static void Prefix(HutongGames.PlayMaker.Actions.Wait __instance)
+            {
+                if (SaveState.Instance == null || __instance?.Owner == null || __instance.Fsm == null || __instance.State == null)
+                    return;
+                if (!string.Equals(__instance.Owner.name, BellBeastObjectName, StringComparison.Ordinal) ||
+                    !string.Equals(__instance.Fsm.Name, BellBeastFsmName, StringComparison.Ordinal))
+                    return;
+
+                string stateName = __instance.State.Name ?? string.Empty;
+                if (string.Equals(stateName, BellBeastWaitForUnlockState, StringComparison.Ordinal) ||
+                    stateName.IndexOf("Idle", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return;
+
+                if (stateName.IndexOf("Call", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    stateName.IndexOf("Arrive", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    stateName.IndexOf("Emerge", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    stateName.IndexOf("Rumble", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    stateName.IndexOf("Bell", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    stateName.IndexOf("Dig", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    stateName.IndexOf("Wait", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    if (__instance.time != null && __instance.time.Value > 0.05f)
+                    {
+                        __instance.time.Value = 0.05f;
+                    }
+                }
+            }
+        }
+
         [HarmonyPatch(typeof(FastTravelCutscene), "Start")]
         private static class StagTravelVideoSkipPatch
         {

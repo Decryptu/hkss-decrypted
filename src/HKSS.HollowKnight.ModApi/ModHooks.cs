@@ -306,8 +306,15 @@ namespace Modding
             }
         }
 
+        public static bool SuppressNextStartNewGamePostfix { get; set; }
+
         private static void OnStartNewGamePostfix()
         {
+            if (SuppressNextStartNewGamePostfix)
+            {
+                SuppressNextStartNewGamePostfix = false;
+                return;
+            }
             OnNewGame();
         }
 

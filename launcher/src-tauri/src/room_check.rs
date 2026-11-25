@@ -19,41 +19,45 @@ pub struct CheckResult {
 pub async fn check(room: Room) -> Result<CheckResult, String> {
     let room = room.validated()?;
     let endpoints = build_endpoints(&room)?;
-    tokio::time::timeout(Duration::from_secs(10), async {
-        let mut last_err = None;
-        for endpoint in endpoints {
-            match login(endpoint, &room).await {
-                Ok(result) => return Ok(result),
-                Err(err) => {
-                    // Only fall back to the alternate scheme on connection failure;
-                    // server-side refusals (bad slot/password/game) are authoritative.
-                    if err.starts_with("Could not reach the room.") {
-                        last_err = Some(err);
-                    } else {
-                        return Err(err);
-                    }
+    let per_endpoint = if endpoints.len() > 1 { Duration::from_secs(5) } else { Duration::from_secs(10) };
+    let mut last_err = None;
+    let mut timed_out = false;
+    for endpoint in endpoints {
+        match tokio::time::timeout(per_endpoint, login(endpoint, &room)).await {
+            Ok(Ok(result)) => return Ok(result),
+            Ok(Err(err)) => {
+                // Only fall back to the alternate scheme on connection failure;
+                // server-side refusals (bad slot/password/game) are authoritative.
+                if err.starts_with("Could not reach the room.") {
+                    last_err = Some(err);
+                } else {
+                    return Err(err);
                 }
             }
+            Err(_) => {
+                timed_out = true;
+            }
         }
+    }
+    if timed_out && last_err.is_none() {
+        Err("The room took too long to respond. Check the host and port with your host.".to_string())
+    } else {
         Err(last_err.unwrap_or_else(invalid_host))
-    })
-    .await
-    .map_err(|_| {
-        "The room took too long to respond. Check the host and port with your host.".to_string()
-    })?
+    }
 }
 
-fn build_endpoints(room: &Room) -> Result<Vec<Uri>, String> {
-    let schemes: &[&str] = if room.host.contains("://") {
+pub(crate) fn build_endpoints(room: &Room) -> Result<Vec<Uri>, String> {
+    let host = if room.host == "::1" { "[::1]" } else { room.host.as_str() };
+    let schemes: &[&str] = if host.contains("://") {
         &[""]
-    } else if is_local_host(&room.host) {
+    } else if is_local_host(host) {
         &["ws://", "wss://"]
     } else {
         &["wss://", "ws://"]
     };
     let mut out = Vec::with_capacity(schemes.len());
     for prefix in schemes {
-        let endpoint: Uri = format!("{prefix}{}:{}/", room.host, room.port)
+        let endpoint: Uri = format!("{prefix}{host}:{}/", room.port)
             .parse()
             .map_err(|_| invalid_host())?;
         if !matches!(endpoint.scheme_str(), Some("ws" | "wss"))

@@ -50,7 +50,13 @@ public sealed class SignalChannel
         try
         {
             if (!File.Exists(CoverFile)) return false;
-            return JsonConvert.DeserializeObject<Signal>(File.ReadAllText(CoverFile))?.Session == _run.Session;
+            using var stream = new FileStream(
+                CoverFile,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite | FileShare.Delete);
+            using var reader = new StreamReader(stream);
+            return JsonConvert.DeserializeObject<Signal>(reader.ReadToEnd())?.Session == _run.Session;
         }
         catch (Exception e) when (e is IOException || e is JsonException || e is UnauthorizedAccessException)
         {

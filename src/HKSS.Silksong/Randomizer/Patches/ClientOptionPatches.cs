@@ -353,15 +353,14 @@ namespace SilksongRandomizer.Patches
     [HarmonyPatch(typeof(DialogueBox), "Start")]
     internal static class FasterDialoguePatch
     {
-        private const float RevealSpeedMultiplier = 2f;
+        private const float RevealSpeedMultiplier = 4f;
 
         private static void Prefix(
             ref float ___regularRevealSpeed,
             ref float ___fastRevealSpeed
         )
         {
-            SaveState state = SaveState.Instance;
-            if (state == null || !state.fasterDialogue)
+            if (SaveState.Instance == null)
             {
                 return;
             }

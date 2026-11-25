@@ -64,7 +64,24 @@ fn copy_if_changed(source: &Path, target: &Path) -> io::Result<()> {
             return Ok(());
         }
     }
-    fs::copy(source, target).map(drop)
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(1);
+    loop {
+        match fs::copy(source, target) {
+            Ok(_) => return Ok(()),
+            Err(e)
+                if (e.kind() == io::ErrorKind::PermissionDenied || e.raw_os_error() == Some(32))
+                    && std::time::Instant::now() < deadline =>
+            {
+                std::thread::sleep(std::time::Duration::from_millis(50));
+            }
+            Err(e) => {
+                return Err(io::Error::new(
+                    e.kind(),
+                    format!("Could not copy {}: {e}", target.display()),
+                ));
+            }
+        }
+    }
 }
 
 fn copy_dir(source: &Path, target: &Path) -> io::Result<()> {
@@ -75,17 +92,17 @@ fn copy_dir(source: &Path, target: &Path) -> io::Result<()> {
         let name = entry.file_name();
         let file_type = entry.file_type()?;
         if file_type.is_file() {
-            keep.insert(name.clone());
+            keep.insert(name.to_string_lossy().to_ascii_lowercase());
             copy_if_changed(&entry.path(), &target.join(&name))?;
         } else if file_type.is_dir() {
-            keep.insert(name.clone());
+            keep.insert(name.to_string_lossy().to_ascii_lowercase());
             copy_dir(&entry.path(), &target.join(&name))?;
         }
     }
     // Prune stale files/folders left behind by older launcher versions (e.g. renamed/removed DLLs).
     for entry in fs::read_dir(target)? {
         let entry = entry?;
-        if !keep.contains(&entry.file_name()) {
+        if !keep.contains(&entry.file_name().to_string_lossy().to_ascii_lowercase()) {
             let path = entry.path();
             if entry.file_type()?.is_dir() {
                 fs::remove_dir_all(&path)?;

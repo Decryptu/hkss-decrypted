@@ -19,7 +19,7 @@ namespace Modding
             Name = name ?? GetType().Name;
         }
 
-        public virtual string GetVersion() => "0.1.5";
+        public virtual string GetVersion() => "0.1.6";
         public virtual int LoadPriority() => 0;
         public virtual List<(string, string)> GetPreloadNames() => new();
         public virtual void Initialize() { }

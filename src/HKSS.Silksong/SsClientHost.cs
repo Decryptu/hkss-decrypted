@@ -69,7 +69,10 @@ internal sealed class SsClientHost : MonoBehaviour
     private void HandleApDisconnected()
     {
         _randomizerActive = false;
-        ThinSlice.SuppressCheckHooks = false;
+        if (SaveState.Instance == null)
+        {
+            ThinSlice.SuppressCheckHooks = false;
+        }
         _ap?.Disconnect();
     }
 

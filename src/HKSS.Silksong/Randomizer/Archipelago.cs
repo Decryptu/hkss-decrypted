@@ -439,12 +439,9 @@ namespace SilksongRandomizer
                 LocationCheckHelper.CheckedLocationsUpdatedHandler connectedCheckedLocationsUpdatedHandler =
                     locations => OnCheckedLocationsUpdated(connectedSession, locations);
                 ArchipelagoSocketHelperDelagates.SocketClosedHandler closedHandler =
-                    reason => TryHandleUnexpectedDisconnect(connectedSession, reason);
+                    reason => OnSocketClosed(connectedSession, reason);
                 ArchipelagoSocketHelperDelagates.ErrorReceivedHandler errorHandler =
-                    (exception, message) =>
-                        TryHandleUnexpectedDisconnect(
-                            connectedSession,
-                            string.IsNullOrWhiteSpace(message) ? exception?.Message : message);
+                    (exception, message) => OnSocketError(connectedSession, exception, message);
 
                 lock (connectionLock)
                 {
@@ -1161,8 +1158,13 @@ namespace SilksongRandomizer
                 return false;
             }
 
+            ItemInfo[] allReceived = sharedClient != null
+                ? session.Items.AllItemsReceived
+                    .Where(item => item != null && HKSS.Core.IdSpace.IsSilksong(item.ItemId))
+                    .ToArray()
+                : session.Items.AllItemsReceived.ToArray();
             List<ReceivedItemReceipt> serverItems = ReceivedItemReceipt.FromServer(
-                session.Items.AllItemsReceived.ToArray(), GetItemName);
+                allReceived, GetItemName);
             if (saveState.TrySynchronizeReceivedReceipts(serverItems))
             {
                 RandomizerPlugin.Instance?.ClearPendingReceivedItems();
@@ -1263,7 +1265,7 @@ namespace SilksongRandomizer
             if (!IsCurrentReadySession(currentSession)) return true;
             RandomizerPlugin plugin = RandomizerPlugin.Instance;
             return DeathLinkManager.Configure(currentSession, SlotName,
-                plugin?.DeathLinkEnabled == true,
+                (plugin?.DeathLinkEnabled == true) || (sharedClient?.DeathLinkEnabled == true),
                 plugin?.DeathLinkCocoon ?? DeathLinkCocoonProtected);
         }
 
@@ -4126,6 +4128,11 @@ namespace SilksongRandomizer
                 return null;
             }
 
+            if (sharedClient != null && !HKSS.Core.IdSpace.IsSilksong(hint.LocationId))
+            {
+                return null;
+            }
+
             PlayerInfo receivingPlayer =
                 sourceSession.Players.GetPlayerInfo(
                     hint.ReceivingPlayer
@@ -4142,6 +4149,12 @@ namespace SilksongRandomizer
             {
                 return null;
             }
+            if (sharedClient != null)
+            {
+                locationName = LocationSet.GetCanonicalLocationName(
+                    HKSS.Core.IdSpace.StripPrefix(locationName)
+                );
+            }
 
             string userName = sourceSession.Players.GetPlayerAlias(
                 hint.ReceivingPlayer
@@ -4156,7 +4169,20 @@ namespace SilksongRandomizer
                     StringComparison.Ordinal
                 ))
             {
-                itemName = ItemSet.GetCanonicalItemName(itemName);
+                itemName = HKSS.Core.IdSpace.StripPrefix(itemName);
+                if (HKSS.Core.IdSpace.IsHollowKnight(hint.ItemId))
+                {
+                    receivingGame = "Hollow Knight";
+                    if (hint.ReceivingPlayer == Slot)
+                    {
+                        userName = "Hallownest";
+                    }
+                }
+                else
+                {
+                    itemName = ItemSet.GetCanonicalItemName(itemName);
+                    receivingGame = "Hollow Knight: Silksong";
+                }
             }
 
             return new HintData

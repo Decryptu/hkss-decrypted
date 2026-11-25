@@ -89,6 +89,7 @@ fn play_game(
     screen.raise_cover(game);
     let mirror_dir = runs::home().join("games").join(game.key());
     let exe = mirror::prepare(game, &install.dir, &mirror_dir, payload)?;
+    clear_preloader_logs(&mirror_dir);
 
     let session = new_session();
     let started = Instant::now();
@@ -195,7 +196,12 @@ fn leave(
     let asked = Instant::now();
     screen.raise_cover(to);
     sleep(Duration::from_millis(60));
-    fs::write(signals.join("cover.json"), format!(r#"{{"session":"{session}","state":"cover"}}"#))?;
+    let cover_payload = format!(r#"{{"session":"{session}","state":"cover"}}"#);
+    if let Err(err) = write_cover_with_retry(&signals.join("cover.json"), cover_payload.as_bytes()) {
+        let _ = child.kill();
+        let _ = child.wait();
+        return Err(err);
+    }
     while child.try_wait()?.is_none() {
         if asked.elapsed() > CLOSE_TIMEOUT {
             log.write(format_args!("{} had to be stopped", game.key()));
@@ -207,6 +213,39 @@ fn leave(
     }
     log.write(format_args!("{} left for {} in {:.2} s", game.key(), to.key(), asked.elapsed().as_secs_f32()));
     Ok(Outcome::Travel(to))
+}
+
+fn write_cover_with_retry(target: &Path, bytes: &[u8]) -> io::Result<()> {
+    let temp = target.with_extension("json.new");
+    fs::write(&temp, bytes)?;
+    let deadline = Instant::now() + Duration::from_secs(2);
+    loop {
+        match fs::rename(&temp, target) {
+            Ok(()) => return Ok(()),
+            Err(e) if is_sharing_violation(&e) && Instant::now() < deadline => {
+                sleep(Duration::from_millis(25));
+            }
+            Err(e) => {
+                let _ = fs::remove_file(&temp);
+                return Err(e);
+            }
+        }
+    }
+}
+
+fn is_sharing_violation(e: &io::Error) -> bool {
+    e.kind() == io::ErrorKind::PermissionDenied || e.raw_os_error() == Some(32)
+}
+
+fn clear_preloader_logs(mirror_dir: &Path) {
+    if let Ok(entries) = fs::read_dir(mirror_dir) {
+        for entry in entries.flatten() {
+            let name = entry.file_name().to_string_lossy().to_ascii_lowercase();
+            if name.starts_with("preloader_") && name.ends_with(".log") {
+                let _ = fs::remove_file(entry.path());
+            }
+        }
+    }
 }
 
 fn has_preloader_log(mirror_dir: &Path) -> bool {

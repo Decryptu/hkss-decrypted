@@ -38,6 +38,7 @@ struct SlotStatus {
     id: u8,
     current: Option<Game>,
     room: Option<room::Room>,
+    error: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -94,9 +95,34 @@ fn status() -> Result<Status, String> {
     });
     let mut slots = Vec::new();
     for id in runs::SLOTS {
-        let run = runs::dir(id).and_then(|dir| runs::load(&dir)).map_err(|e| format!("Run {id}: {e}"))?;
-        let room = runs::dir(id).and_then(|dir| room::load(&dir)).map_err(|e| format!("Run {id} room: {e}"))?;
-        slots.push(SlotStatus { id, current: run.map(|run| run.current), room });
+        let mut errors = Vec::new();
+        let dir = runs::dir(id);
+        let current = match dir.as_ref().map(|d| runs::load(d)) {
+            Ok(Ok(run)) => run.map(|run| run.current),
+            Ok(Err(e)) => {
+                errors.push(format!("run.json: {e}"));
+                None
+            }
+            Err(e) => {
+                errors.push(e.to_string());
+                None
+            }
+        };
+        let room = match dir.as_ref().map(|d| room::load(d)) {
+            Ok(Ok(room)) => room,
+            Ok(Err(e)) => {
+                errors.push(format!("ap.json: {e}"));
+                None
+            }
+            Err(e) => {
+                if errors.is_empty() {
+                    errors.push(e.to_string());
+                }
+                None
+            }
+        };
+        let error = if errors.is_empty() { None } else { Some(errors.join("; ")) };
+        slots.push(SlotStatus { id, current, room, error });
     }
     Ok(Status { games: games.into(), slots, steam_running: steam::is_running(), version: env!("CARGO_PKG_VERSION") })
 }

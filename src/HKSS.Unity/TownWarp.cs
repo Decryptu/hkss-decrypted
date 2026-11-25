@@ -24,6 +24,7 @@ internal sealed class TownWarp : MonoBehaviour
 
     private void Update()
     {
+        if (ApOverlay.IsPanelOpen) return;
         Keyboard? keyboard = Keyboard.current;
         if (keyboard != null && keyboard.f4Key.wasPressedThisFrame)
         {

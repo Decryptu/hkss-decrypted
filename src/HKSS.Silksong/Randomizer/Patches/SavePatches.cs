@@ -403,6 +403,14 @@ namespace SilksongRandomizer.Patches
             }
         }
 
+        internal static bool HasAnyDataFile(int saveSlot)
+        {
+            string path = GetDataPath(saveSlot);
+            return File.Exists(path)
+                || File.Exists(path + DataPendingExtension)
+                || File.Exists(path + DataBackupExtension);
+        }
+
         private static bool TryDeserialize(string path, out SaveState state, out Exception error)
         {
             state = null;
@@ -515,7 +523,7 @@ namespace SilksongRandomizer.Patches
     {
         private static bool Prefix(int saveSlot, Action<bool> callback)
         {
-            if (!File.Exists(SavePatches.GetDataPath(saveSlot)))
+            if (!SavePatches.HasAnyDataFile(saveSlot))
             {
                 return true;
             }
@@ -536,7 +544,7 @@ namespace SilksongRandomizer.Patches
         private static bool Prefix(SaveGameData saveGameData, int saveSlot, out bool __state)
         {
             __state = false;
-            if (!File.Exists(SavePatches.GetDataPath(saveSlot)))
+            if (!SavePatches.HasAnyDataFile(saveSlot))
             {
                 return true;
             }

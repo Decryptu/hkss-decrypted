@@ -351,6 +351,23 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         if self.has_silksong:
             SilksongWorld.fill_hook(self, progitempool, usefulitempool, filleritempool, fill_locations)
 
+    def connect_entrances(self) -> None:
+        if self.has_silksong:
+            SilksongWorld.connect_entrances(self)
+
+    def extend_hint_information(self, hint_data: dict[int, dict[int, str]]) -> None:
+        if self.has_silksong:
+            SilksongWorld.extend_hint_information(self, hint_data)
+
+    def write_spoiler(self, spoiler_handle) -> None:
+        if self.has_silksong:
+            SilksongWorld.write_spoiler(self, spoiler_handle)
+
+    def get_pre_fill_items(self) -> list[Item]:
+        if self.has_silksong:
+            return SilksongWorld.get_pre_fill_items(self)
+        return []
+
     @classmethod
     def stage_generate_basic(cls, multiworld: MultiWorld) -> None:
         SilksongWorld.stage_generate_basic(multiworld)

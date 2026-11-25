@@ -392,7 +392,7 @@ namespace ItemChanger
             orig(self);
         }
 
-        private static void DoOnEnterGame()
+        internal static void DoOnEnterGame()
         {
             if (Ref.Settings == null) return;
             if (!Settings.loaded)
@@ -436,6 +436,7 @@ namespace ItemChanger
                 Ref.Settings.Start.ApplyToPlayerData(self.playerData);
                 try
                 {
+                    Modding.ModHooks.SuppressNextStartNewGamePostfix = true;
                     Modding.ModHooks.OnNewGame();
                 }
                 catch (Exception e)
