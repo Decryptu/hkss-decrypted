@@ -35,36 +35,49 @@ namespace ItemChanger.Locations.SpecialLocations
         {
             if (!fsm.gameObject.name.StartsWith("Flamebearer")) return;
 
-            FsmState init = fsm.GetState("Init");
-            init.ReplaceAction(new SetIntValue
+            FsmState? init = fsm.GetState("Init");
+            if (init == null) return;
+            int idx = Array.FindIndex(init.Actions, a => a is GetPlayerDataInt);
+            if (idx >= 0)
             {
-                intVariable = ((GetPlayerDataInt)init.Actions[2]).storeValue,
-                intValue = grimmkinLevel
-            }, 2);
+                init.ReplaceAction(new SetIntValue
+                {
+                    intVariable = ((GetPlayerDataInt)init.Actions[idx]).storeValue,
+                    intValue = grimmkinLevel
+                }, idx);
+            }
         }
 
         private void EditFlamebearerSpawn(PlayMakerFSM fsm)
         {
-            FsmState state = fsm.GetState("State");
-            FsmState get = fsm.GetState("Get");
+            FsmState? state = fsm.GetState("State");
+            FsmState? get = fsm.GetState("Get");
 
-            // Override Grimmchild level check
-            state.ClearTransitions();
-            state.AddTransition("FINISHED", $"Level {grimmkinLevel}");
-            state.AddTransition("KILLED", "Do Nothing");
-            bool Check()
+            if (state != null)
             {
-                return Placement.AllObtained() || !GrimmchildRequirement();
+                // Override Grimmchild level check
+                state.ClearTransitions();
+                state.AddTransition("FINISHED", $"Level {grimmkinLevel}");
+                state.AddTransition("KILLED", "Do Nothing");
+                bool Check()
+                {
+                    return Placement.AllObtained() || !GrimmchildRequirement();
+                }
+
+                BoolTest? bt = state.GetFirstActionOfType<BoolTest>();
+                if (bt != null)
+                {
+                    state.SetActions(new DelegateBoolTest(Check, bt));
+                }
             }
 
-            state.SetActions(
-                new DelegateBoolTest(Check, (BoolTest)state.Actions[0])
-            );
-
-            get.SetActions(
-                get.Actions[6], // set Activated--not used by IC, but preserves grimmkin status if IC is disabled
-                new AsyncLambda(GiveAll)
-            );
+            if (get != null && !get.Actions.Any(a => a is AsyncLambda))
+            {
+                var kept = new List<FsmStateAction>();
+                if (get.Actions.Length > 6) kept.Add(get.Actions[6]);
+                kept.Add(new AsyncLambda(GiveAll));
+                get.SetActions(kept.ToArray());
+            }
         }
 
         public bool GrimmchildRequirement()

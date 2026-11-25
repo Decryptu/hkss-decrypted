@@ -29,17 +29,24 @@ namespace ItemChanger.Locations.SpecialLocations
 
         private void ChangeColoEnd(PlayMakerFSM fsm)
         {
-            FsmState openGates = fsm.GetState("Open Gates");
-            openGates.AddFirstAction(new Lambda(SetCompletionBool));
-            FsmState giveShiny = fsm.GetState("Give Shiny?");
-            giveShiny.SetActions(
-                giveShiny.Actions[0], // CROWD IDLE
-                // giveShiny.Actions[1], // bool test on FsmBool Shiny Item
-                new DelegateBoolTest(Placement.AllObtained, (PlayerDataBoolTest)giveShiny.Actions[2]),
-                // giveShiny.Actions[3], // find child
-                giveShiny.Actions[4] // activate Shiny Obj
-            );
-            giveShiny.AddTransition("FINISHED", "Geo Given Pause");
+            FsmState? openGates = fsm.GetState("Open Gates");
+            if (openGates != null && !openGates.Actions.Any(a => a is Lambda))
+                openGates.AddFirstAction(new Lambda(SetCompletionBool));
+
+            FsmState? giveShiny = fsm.GetState("Give Shiny?");
+            if (giveShiny != null)
+            {
+                giveShiny.RemoveActionsOfType<BoolTest>();
+                giveShiny.RemoveActionsOfType<FindChild>();
+                int pdIdx = Array.FindIndex(giveShiny.Actions, a => a is PlayerDataBoolTest);
+                if (pdIdx >= 0)
+                {
+                    giveShiny.ReplaceAction(
+                        new DelegateBoolTest(Placement.AllObtained, (PlayerDataBoolTest)giveShiny.Actions[pdIdx]),
+                        pdIdx);
+                }
+                giveShiny.AddTransition("FINISHED", "Geo Given Pause");
+            }
         }
 
         private void SetCompletionBool()

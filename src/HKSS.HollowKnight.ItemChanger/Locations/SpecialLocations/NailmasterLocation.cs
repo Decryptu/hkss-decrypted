@@ -1,4 +1,5 @@
 // Ported from HomothetyHk/HollowKnight.ItemChanger, ItemChanger/Locations/SpecialLocations/NailmasterLocation.cs, commit e57bc4e (LGPL-2.1)
+using HutongGames.PlayMaker.Actions;
 using ItemChanger.FsmStateActions;
 using ItemChanger.Util;
 using ItemChanger.Extensions;
@@ -31,30 +32,42 @@ namespace ItemChanger.Locations.SpecialLocations
 
         private void EditNailmasterConvo(PlayMakerFSM fsm)
         {
-            FsmState convo = fsm.GetState("Convo Choice");
-            FsmState getMsg = fsm.GetState("Get Msg");
-            FsmState fade = fsm.GetState("Fade Back");
-            FsmState sendText = fsm.GetState("Send Text");
-
+            FsmState? convo = fsm.GetState("Convo Choice");
+            FsmState? getMsg = fsm.GetState("Get Msg");
+            FsmState? sendText = fsm.GetState("Send Text");
 
             FsmStateAction test = new DelegateBoolTest(MakeOffer, "REOFFER", null);
             FsmStateAction give = new AsyncLambda(GiveAllAsync(fsm.transform), "GET ITEM MSG END");
 
-            convo.ReplaceAction(test, objectName == "NM Sheo NPC" ? 2 : 1);
+            if (convo != null)
+            {
+                int idx = Array.FindIndex(convo.Actions, a =>
+                    a is PlayerDataBoolTest pdbt
+                    && (pdbt.isTrue?.Name == "REOFFER" || pdbt.isFalse?.Name == "REOFFER"));
+                if (idx < 0)
+                {
+                    int fallback = objectName == "NM Sheo NPC" ? 2 : 1;
+                    if (fallback < convo.Actions.Length) idx = fallback;
+                }
+                if (idx >= 0) convo.ReplaceAction(test, idx);
+            }
 
-            getMsg.SetActions(
-                getMsg.Actions[0],
-                getMsg.Actions[1],
-                getMsg.Actions[2],
-                new Lambda(() => Placement.AddVisitFlag(VisitState.Accepted)),
-                give
-            );
+            if (getMsg != null && !getMsg.Actions.Any(a => a is AsyncLambda))
+            {
+                var kept = getMsg.Actions.Take(Math.Min(3, getMsg.Actions.Length)).ToList();
+                kept.Add(new Lambda(() => Placement.AddVisitFlag(VisitState.Accepted)));
+                kept.Add(give);
+                getMsg.SetActions(kept.ToArray());
+            }
 
             if (Placement is Placements.ISingleCostPlacement iscp && iscp.Cost is Cost cost)
             {
-                sendText.ClearActions();
-                sendText.AddFirstAction(new Lambda(() => YNUtil.OpenYNDialogue(fsm.gameObject, Placement, Placement.Items, cost)));
-                getMsg.AddFirstAction(new Lambda(() => { if (!cost.Paid) cost.Pay(); }));
+                if (sendText != null)
+                {
+                    sendText.ClearActions();
+                    sendText.AddFirstAction(new Lambda(() => YNUtil.OpenYNDialogue(fsm.gameObject, Placement, Placement.Items, cost)));
+                }
+                getMsg?.AddFirstAction(new Lambda(() => { if (!cost.Paid) cost.Pay(); }));
             }
         }
 

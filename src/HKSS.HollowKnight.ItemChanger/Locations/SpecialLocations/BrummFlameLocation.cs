@@ -24,21 +24,31 @@ namespace ItemChanger.Locations.SpecialLocations
 
         private void EditBrummConvo(PlayMakerFSM fsm)
         {
-            FsmState checkActive = fsm.GetState("Check Active");
-            FsmState convo1 = fsm.GetState("Convo 1");
-            FsmState get = fsm.GetState("Get");
+            FsmState? checkActive = fsm.GetState("Check Active");
+            FsmState? convo1 = fsm.GetState("Convo 1");
+            FsmState? get = fsm.GetState("Get");
 
-            checkActive.SetActions(
-                new DelegateBoolTest(() => IsBrummActive() && !Placement.AllObtained(), (PlayerDataBoolTest)checkActive.Actions[0])
-            );
+            if (checkActive != null)
+            {
+                PlayerDataBoolTest? pdbt = checkActive.GetFirstActionOfType<PlayerDataBoolTest>();
+                if (pdbt != null)
+                {
+                    checkActive.SetActions(
+                        new DelegateBoolTest(() => IsBrummActive() && !Placement.AllObtained(), pdbt)
+                    );
+                }
+            }
 
-            convo1.RemoveActionsOfType<IntCompare>();
+            convo1?.RemoveActionsOfType<IntCompare>();
 
-            get.SetActions(
-                get.Actions[6], // set Activated--not used by IC, but preserves grimmkin status if IC is disabled
-                get.Actions[14], // set gotBrummsFlame
-                new AsyncLambda(GiveAllAsync(fsm.transform))
-            );
+            if (get != null && !get.Actions.Any(a => a is AsyncLambda))
+            {
+                var kept = new List<FsmStateAction>();
+                if (get.Actions.Length > 6) kept.Add(get.Actions[6]);
+                if (get.Actions.Length > 14) kept.Add(get.Actions[14]);
+                kept.Add(new AsyncLambda(GiveAllAsync(fsm.transform)));
+                get.SetActions(kept.ToArray());
+            }
         }
 
         private void EditBrummText(ref string value)

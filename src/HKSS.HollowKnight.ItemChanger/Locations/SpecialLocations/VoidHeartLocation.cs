@@ -29,29 +29,46 @@ namespace ItemChanger.Locations.SpecialLocations
 
         private void EditEndCutscene(PlayMakerFSM fsm)
         {
-            FsmState charmGet = fsm.GetState("Charm Get");
-            FsmState removeOvercharm = fsm.GetState("Remove Overcharm");
-            FsmState getMsg = fsm.GetState("Get Msg");
+            FsmState? charmGet = fsm.GetState("Charm Get");
+            FsmState? removeOvercharm = fsm.GetState("Remove Overcharm");
+            FsmState? getMsg = fsm.GetState("Get Msg");
 
             FsmStateAction give = new AsyncLambda(GiveAll, "GET ITEM MSG END");
 
-            charmGet.ClearActions();
-            removeOvercharm.ClearActions();
-            getMsg.SetActions(getMsg.Actions[0], give);
+            charmGet?.ClearActions();
+            removeOvercharm?.ClearActions();
+            if (getMsg != null && !getMsg.Actions.Any(a => a is AsyncLambda))
+            {
+                var kept = getMsg.Actions.Take(1).ToList();
+                kept.Add(give);
+                getMsg.SetActions(kept.ToArray());
+            }
         }
 
         private void EditDreamEnter(PlayMakerFSM fsm)
         {
-            FsmState init = fsm.GetState("Init");
-            init.SetActions(init.Actions[0], new DelegateBoolTest(Placement.AllObtained, "INACTIVE", null));
+            FsmState? init = fsm.GetState("Init");
+            if (init != null && !init.Actions.Any(a => a is DelegateBoolTest))
+            {
+                var kept = init.Actions.Take(1).ToList();
+                kept.Add(new DelegateBoolTest(Placement.AllObtained, "INACTIVE", null));
+                init.SetActions(kept.ToArray());
+            }
         }
 
         private void EditMirror(PlayMakerFSM fsm)
         {
             if (this.GetItemHintActive()) HintBox.Create(fsm.transform, Placement);
 
-            FsmState check = fsm.GetState("Check");
-            check.SetActions(new DelegateBoolTest(Placement.AllObtained, (PlayerDataBoolTest)check.Actions[0]));
+            FsmState? check = fsm.GetState("Check");
+            if (check != null)
+            {
+                PlayerDataBoolTest? pdbt = check.GetFirstActionOfType<PlayerDataBoolTest>();
+                if (pdbt != null)
+                {
+                    check.SetActions(new DelegateBoolTest(Placement.AllObtained, pdbt));
+                }
+            }
         }
     }
 }

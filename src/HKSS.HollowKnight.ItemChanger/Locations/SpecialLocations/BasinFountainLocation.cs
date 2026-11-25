@@ -1,4 +1,5 @@
 // Ported from HomothetyHk/HollowKnight.ItemChanger, ItemChanger/Locations/SpecialLocations/BasinFountainLocation.cs, commit e57bc4e (LGPL-2.1)
+using HutongGames.PlayMaker.Actions;
 using ItemChanger.Extensions;
 
 namespace ItemChanger.Locations.SpecialLocations
@@ -24,13 +25,8 @@ namespace ItemChanger.Locations.SpecialLocations
 
         private void EditFountain(PlayMakerFSM fsm)
         {
-            FsmState idle = fsm.GetState("Idle");
-            idle.SetActions(
-                    idle.Actions[0],
-                    idle.Actions[1],
-                    // idle.Actions[2], // FindChild -- Vessel Fragment
-                    idle.Actions[3]
-            );
+            FsmState? idle = fsm.GetState("Idle");
+            idle?.RemoveActionsOfType<FindChild>();
         }
 
         private void EditFountainText(ref string value)
