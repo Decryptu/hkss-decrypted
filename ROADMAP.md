@@ -61,6 +61,7 @@ Verify the Forgotten Crossroads spike grub in a newly generated split-cloak seed
 
 ## Later
 
+- Combined end-of-run stats screen summarizing whichever games were played in the run (reading per-game save/run data such as play time, deaths, kills, checks found, and completion).
 - More unified shuffles: entrances and rooms in combo mode, charms/crests, shops, grubs/fleas, journal entries, lore tablets.
 - Cross-game rules and items (abilities that unlock routes in the other game) as opt-in options.
 - Suspending the other game for instant travel as an option, PopTracker pack, live tracking on the player hub's map page.
