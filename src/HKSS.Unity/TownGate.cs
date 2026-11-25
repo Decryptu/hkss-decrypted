@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using GlobalEnums;
 using HarmonyLib;
 using HutongGames.PlayMaker;
@@ -31,7 +32,46 @@ internal sealed class TownGate : MonoBehaviour
         harmony.Patch(
             AccessTools.Method(typeof(HeroController), nameof(HeroController.LocateSpawnPoint)),
             prefix: new HarmonyMethod(typeof(TownGate), nameof(BeforeLocateSpawnPoint)));
+#if SILKSONG
+        MethodInfo? getRespawnInfo = AccessTools.Method(
+            typeof(GameManager),
+            "GetRespawnInfo",
+            new[] { typeof(string).MakeByRefType(), typeof(string).MakeByRefType() });
+        if (getRespawnInfo != null)
+        {
+            harmony.Patch(
+                getRespawnInfo,
+                prefix: new HarmonyMethod(typeof(TownGate), nameof(BeforeGetRespawnInfo)));
+        }
+#endif
     }
+
+#if SILKSONG
+    // Silksong's GetRespawnInfo validates respawnMarkerName against the static SceneTeleportMap
+    // and falls back to Tut_01 if the marker isn't baked into the scene asset. Accept our
+    // runtime-spawned Bonetown gate marker so returning from Hollow Knight spawns at the gate.
+    private static bool BeforeGetRespawnInfo(GameManager __instance, out string scene, out string marker)
+    {
+        scene = string.Empty;
+        marker = string.Empty;
+
+        PlayerData? pd = __instance?.playerData ?? PlayerData.instance;
+        if (pd == null) return true;
+
+        string savedScene = !string.IsNullOrEmpty(pd.tempRespawnScene) ? pd.tempRespawnScene : pd.respawnScene;
+        string savedMarker = !string.IsNullOrEmpty(pd.tempRespawnScene) ? pd.tempRespawnMarker : pd.respawnMarkerName;
+
+        if (string.Equals(savedScene, TownScene, StringComparison.Ordinal)
+            && string.Equals(savedMarker, RespawnMarkerName, StringComparison.Ordinal))
+        {
+            scene = TownScene;
+            marker = RespawnMarkerName;
+            return false;
+        }
+
+        return true;
+    }
+#endif
 
     private void OnEnable()
     {
