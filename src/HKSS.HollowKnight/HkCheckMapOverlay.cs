@@ -201,7 +201,7 @@ internal sealed class HkCheckMapOverlay : MonoBehaviour
             DrawCrosshair(pointer);
         }
 
-        HkMapPinRecord? hovered = HkCheckMap.FindHoveredPin(hudCam, pointer, 34f);
+        HkMapPinRecord? hovered = HkCheckMap.FindHoveredPin(hudCam, pointer, 26f);
         HkCheckMap.SetHoveredPin(hovered);
 
         if (hovered != null && hovered.Checks.Count > 0)

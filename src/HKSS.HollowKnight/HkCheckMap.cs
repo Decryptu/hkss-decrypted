@@ -69,9 +69,9 @@ internal sealed class HkMapPinRecord
 /// </summary>
 internal static class HkCheckMap
 {
-    private const float PinScale = 0.56f;
-    private const float ClusterSpacing = 0.44f;
-    private const float MaxClusterSpan = 1.44f;
+    private const float PinScale = 0.34f;
+    private const float ClusterSpacing = 0.24f;
+    private const float MaxClusterSpan = 0.78f;
 
     private static readonly Dictionary<string, string> InteriorToMapRoom = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -493,7 +493,7 @@ internal static class HkCheckMap
             int cols = Math.Min(count, 4);
             int rows = (count + cols - 1) / cols;
             float spacingX = cols > 1 ? Math.Min(ClusterSpacing, MaxClusterSpan / (cols - 1)) : 0f;
-            float spacingY = 0.42f;
+            float spacingY = 0.24f;
 
             Vector3 basePos = roomInfo.Area.transform.localPosition + roomInfo.Room.localPosition;
             SpriteRenderer? roomSr = roomInfo.Room.GetComponent<SpriteRenderer>();
