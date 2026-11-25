@@ -66,6 +66,8 @@ internal sealed class HkClientHost : MonoBehaviour
     private static bool _icActive;
     private static int _pendingStartingGeo;
 
+    internal static HkSlotData? CurrentSlotData { get; private set; }
+
     internal static GameObject? CreateFlowerPickup() =>
         _flowerPickupPrefab != null ? UnityEngine.Object.Instantiate(_flowerPickupPrefab) : null;
 
@@ -74,6 +76,7 @@ internal sealed class HkClientHost : MonoBehaviour
     private float _connectWaitStart = -1f;
     private string _icSavePath = string.Empty;
     private string _icSeedPath = string.Empty;
+    private string _slotDataPath = string.Empty;
     private string _loadedSeedKey = string.Empty;
 
     private static bool _assemblyResolverInstalled;
@@ -103,6 +106,7 @@ internal sealed class HkClientHost : MonoBehaviour
     {
         _icSavePath = Path.Combine(HkssPlugin.Run.SaveDir, "itemchanger.json");
         _icSeedPath = Path.Combine(HkssPlugin.Run.SaveDir, "itemchanger.seed");
+        _slotDataPath = Path.Combine(HkssPlugin.Run.SaveDir, "slotdata.json");
         AutoLoad.HoldAutoLoad = true;
         ApManager.DeferAutoConnect = true;
         ApManager.FullHostInstalled = true;
@@ -114,6 +118,8 @@ internal sealed class HkClientHost : MonoBehaviour
         Events.OnSettingsLoadError += OnSettingsLoadError;
         if (gameObject.GetComponent<HkRecentItemsDisplay>() == null)
             gameObject.AddComponent<HkRecentItemsDisplay>();
+        if (gameObject.GetComponent<HkCheckMapOverlay>() == null)
+            gameObject.AddComponent<HkCheckMapOverlay>();
     }
 
     private void OnDestroy()
@@ -269,9 +275,17 @@ internal sealed class HkClientHost : MonoBehaviour
                 }
             }
 
+            HkSlotData? connectedSlot = ExtractHkSlotData(client.SlotData);
+            if (connectedSlot != null)
+            {
+                CurrentSlotData = connectedSlot;
+                TryWriteSlotDataCache(connectedSlot);
+                HkCheckMap.MarkDirty();
+            }
+
             if (!_icActive)
             {
-                HkSlotData? hkSlot = ExtractHkSlotData(client.SlotData);
+                HkSlotData? hkSlot = connectedSlot;
                 if (hkSlot != null && client.Session != null)
                 {
                     long[] hkLocs = client.GetOwnLocationIds();
@@ -532,8 +546,35 @@ internal sealed class HkClientHost : MonoBehaviour
         }
     }
 
+    private void TryWriteSlotDataCache(HkSlotData slotData)
+    {
+        if (string.IsNullOrEmpty(_slotDataPath)) return;
+        try
+        {
+            string dir = Path.GetDirectoryName(_slotDataPath)!;
+            Directory.CreateDirectory(dir);
+            File.WriteAllText(_slotDataPath, JsonConvert.SerializeObject(slotData));
+        }
+        catch (Exception ex)
+        {
+            HkssPlugin.Log.LogWarning($"[HK] Failed to write slotdata cache: {ex.Message}");
+        }
+    }
+
     private void TryLoadSavedItemChangerProfile()
     {
+        if (!string.IsNullOrEmpty(_slotDataPath) && File.Exists(_slotDataPath))
+        {
+            try
+            {
+                CurrentSlotData = JsonConvert.DeserializeObject<HkSlotData>(File.ReadAllText(_slotDataPath));
+            }
+            catch (Exception ex)
+            {
+                HkssPlugin.Log.LogWarning($"[HK] Failed to load slotdata cache: {ex.Message}");
+            }
+        }
+
         if (_icMod == null || string.IsNullOrEmpty(_icSavePath) || !File.Exists(_icSavePath)) return;
         try
         {

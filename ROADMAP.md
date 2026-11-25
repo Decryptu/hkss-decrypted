@@ -35,7 +35,7 @@ v0.1.6 hardens Hollow Knight, Silksong, Archipelago sync, the APWorld, and the l
 
 v0.1.7 fixes `F4` town warp spawning the Knight and Dirtmouth travel portal underground when warping from a room that contains a bench, by scoping `TownGate`'s `RestBench`, gate-existence, and ground raycast lookups strictly to the target `Town`/`Bonetown` scene.
 
-Still to verify during playtesting: clean-PC installer test, gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, a game that crashes during travel, and the Silksong plugin's refusal to run without the launcher.
+Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, a game that crashes during travel, and the Silksong plugin's refusal to run without the launcher.
 
 ## Feature Parity & Missing Ports
 
@@ -45,7 +45,6 @@ Both games should offer a seamless, matching experience: any randomizer, UI, or 
 - **Bench sync (`BenchSyncModule`) and Gifting (`GiftingModule`).**
 
 ### Cross-game parity (Silksong features missing in Hollow Knight)
-- **In-game check map & logic markers (Hollow Knight):** Silksong already shows unchecked items, shops, category pins, clusters, and logic state (`F10`) on the in-game map. Build a clean-room MIT/LGPL in-game check map for Hollow Knight (using ItemChanger location coordinates and `worlds/hk` logic, without GPL-3.0 code) with matching pins, filters, and hotkeys.
 - **In-game Archipelago progress & hints view:** bring an AP inventory/progress and hints view to Hollow Knight matching Silksong's.
 - **Additional links:** optional Soul/Geo/Knockback links in Hollow Knight to match Silksong's SilkLink, CurrencyLink, and KnockbackLink.
 - **Unified in-game settings panel:** one consistent, player-configurable options menu (in the pause menu or `F6` overlay) controlling client-side toggles and hotkeys across both games.

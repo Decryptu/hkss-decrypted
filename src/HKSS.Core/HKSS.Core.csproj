@@ -5,4 +5,7 @@
     <!-- Both games ship Newtonsoft.Json 13.0.2, so the plugins never carry their own copy. -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\hk_logic.json" LogicalName="HKSS.Core.Data.hk_logic.json" />
+  </ItemGroup>
 </Project>

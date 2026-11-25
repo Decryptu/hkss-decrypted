@@ -19,6 +19,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
 #endif
 
     internal static ManualLogSource Log { get; private set; } = null!;
+    internal static BepInEx.Configuration.ConfigFile? PluginConfig { get; private set; }
     internal static RunContext Run { get; private set; } = null!;
     internal static RunStateStore State { get; private set; } = null!;
     internal static SignalChannel Signals { get; private set; } = null!;
@@ -27,6 +28,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
     private void Awake()
     {
         Log = Logger;
+        PluginConfig = Config;
         try
         {
             Run = RunContext.Create(ThisGame, Environment.GetEnvironmentVariable);
