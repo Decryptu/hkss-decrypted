@@ -183,7 +183,14 @@ internal static class HkCheckMap
 
     internal static HkMapCheckFilter CheckFilter
     {
-        get => _cfgFilter?.Value ?? _filter;
+        get => PlayerOptions.MapFilter.Value switch
+        {
+            CheckPinFilter.Unchecked => HkMapCheckFilter.Unchecked,
+            CheckPinFilter.Reachable => HkMapCheckFilter.Reachable,
+            CheckPinFilter.Blocked => HkMapCheckFilter.Unreachable,
+            CheckPinFilter.Checked => HkMapCheckFilter.Checked,
+            _ => _cfgFilter?.Value ?? _filter,
+        };
         set
         {
             _filter = value;

@@ -119,6 +119,7 @@ namespace SilksongRandomizer.Patches
 
         private static bool CanUseQuill()
         {
+            if (HKSS.Unity.PlayerOptions.AutoQuill.Value) return true;
             SaveState state = SaveState.Instance;
             if (state != null && state.startFullyMapped)
             {
@@ -136,6 +137,7 @@ namespace SilksongRandomizer.Patches
 
         private static bool CanUseQuill(PlayerData playerData)
         {
+            if (HKSS.Unity.PlayerOptions.AutoQuill.Value) return true;
             SaveState state = SaveState.Instance;
             if (state != null && state.startFullyMapped)
             {
@@ -153,10 +155,10 @@ namespace SilksongRandomizer.Patches
                 ? 0
                 : playerData.QuillState;
             SaveState state = SaveState.Instance;
-            bool virtualizeState = state != null &&
+            bool virtualizeState = HKSS.Unity.PlayerOptions.AutoQuill.Value || (state != null &&
                 (state.startFullyMapped ||
                  (state.IsRandomized(ItemType.Quill) &&
-                  state.canUseQuill));
+                  state.canUseQuill)));
             return ResolveQuillState(virtualizeState, nativeState);
         }
 
@@ -204,6 +206,7 @@ namespace SilksongRandomizer.Patches
                     refreshedMap = null;
                     ___lastMappedCount = int.MinValue;
                 }
+                if (HKSS.Unity.PlayerOptions.AutoQuill.Value) __instance.UpdateGameMap();
                 SaveState state = SaveState.Instance;
                 if (state != null &&
                     (!ReferenceEquals(state, displayedState) ||
@@ -307,7 +310,8 @@ namespace SilksongRandomizer.Patches
                     return false;
                 }
 
-                if (state == null || !state.IsRandomized(ItemType.Quill))
+                if (!HKSS.Unity.PlayerOptions.AutoQuill.Value &&
+                    (state == null || !state.IsRandomized(ItemType.Quill)))
                 {
                     return true;
                 }

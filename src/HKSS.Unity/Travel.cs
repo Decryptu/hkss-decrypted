@@ -14,6 +14,7 @@ internal sealed class Travel : MonoBehaviour
     private bool _travelling;
 
     internal static Travel? Instance { get; private set; }
+    internal bool IsTravelling => _travelling;
 
 #if DEBUG
     private float _autoTravelAt = -1f;
@@ -113,7 +114,8 @@ internal sealed class Travel : MonoBehaviour
     private void Update()
     {
         var keyboard = UnityEngine.InputSystem.Keyboard.current;
-        if (keyboard != null && keyboard.f8Key.wasPressedThisFrame) Begin();
+        if (System.Environment.GetEnvironmentVariable("HKSS_DEV_AUTOTRAVEL") != null
+            && !ApOverlay.IsPanelOpen && keyboard != null && keyboard.f8Key.wasPressedThisFrame) Begin();
 
         if (!AutoLoad.IsReady || _travelling) return;
         if (_autoTravelAt < 0f)

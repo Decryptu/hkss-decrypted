@@ -1,4 +1,3 @@
-using System;
 using GlobalEnums;
 using HarmonyLib;
 using UnityEngine;
@@ -11,11 +10,17 @@ namespace HKSS.Unity;
 /// </summary>
 internal static class TravelGuard
 {
-    internal static bool CanLeave(out string reason)
+    internal static bool CanLeave(out string reason, bool recoverInputLock = false)
     {
         if (!AutoLoad.IsReady)
         {
             reason = "still loading";
+            return false;
+        }
+
+        if (recoverInputLock && (Travel.Instance?.IsTravelling == true || TownWarp.Instance?.IsWarping == true))
+        {
+            reason = "travel already in progress";
             return false;
         }
 
@@ -59,7 +64,7 @@ internal static class TravelGuard
             return false;
         }
 
-        if (!hero.CanInput()
+        if ((!recoverInputLock && !hero.CanInput())
             || hero.cState.dead
             || hero.cState.hazardDeath
             || hero.cState.hazardRespawning
@@ -92,9 +97,9 @@ internal static class TravelGuard
             return false;
         }
 
-        if (IsInActiveHollowKnightBattle())
+        if (FindClosedBattleGate(gm.sceneName) is PlayMakerFSM gate)
         {
-            reason = "in an active battle or boss fight";
+            reason = $"battle gate closed in {gm.sceneName} ({gate.gameObject.name}, {gate.ActiveStateName})";
             return false;
         }
 #elif SILKSONG
@@ -136,34 +141,28 @@ internal static class TravelGuard
     }
 
 #if HOLLOW_KNIGHT
-    private static bool IsInActiveHollowKnightBattle()
+    private static PlayMakerFSM? FindClosedBattleGate(string sceneName)
     {
         PlayMakerFSM[] fsms = UnityEngine.Object.FindObjectsByType<PlayMakerFSM>(FindObjectsSortMode.None);
-        for (int i = 0; i < fsms.Length; i++)
+        foreach (PlayMakerFSM fsm in fsms)
         {
-            PlayMakerFSM fsm = fsms[i];
-            if (fsm == null || !fsm.isActiveAndEnabled) continue;
-            if (!string.Equals(fsm.FsmName, "Battle Control", StringComparison.Ordinal)) continue;
+            if (fsm == null || !fsm.isActiveAndEnabled || fsm.gameObject.scene.name != sceneName
+                || fsm.FsmName != "BG Control")
+                continue;
 
-            string state = fsm.ActiveStateName ?? string.Empty;
-            if (state.Length == 0) continue;
-            if (IsInactiveBattleState(state)) continue;
-            return true;
+            // Battle Control can wait indefinitely in Detect before combat starts.
+            // Check the gate's own close sequence and the state that waits for it to reopen.
+            if (fsm.ActiveStateName is "Close 1" or "Close 2" or "Quick Close" or "Double Close")
+                return fsm;
+
+            var transitions = fsm.Fsm.ActiveState?.Transitions;
+            if (transitions == null) continue;
+            foreach (var transition in transitions)
+            {
+                if (transition.EventName == "BG OPEN") return fsm;
+            }
         }
-        return false;
-    }
-
-    private static bool IsInactiveBattleState(string state)
-    {
-        return state.Equals("Init", StringComparison.OrdinalIgnoreCase)
-            || state.Equals("Check", StringComparison.OrdinalIgnoreCase)
-            || state.Equals("Idle", StringComparison.OrdinalIgnoreCase)
-            || state.Equals("Dormant", StringComparison.OrdinalIgnoreCase)
-            || state.Equals("Wait", StringComparison.OrdinalIgnoreCase)
-            || state.Equals("Completed", StringComparison.OrdinalIgnoreCase)
-            || state.Equals("Activated", StringComparison.OrdinalIgnoreCase)
-            || state.Equals("End", StringComparison.OrdinalIgnoreCase)
-            || state.Equals("Done", StringComparison.OrdinalIgnoreCase);
+        return null;
     }
 #elif SILKSONG
     private static bool IsInActiveSilksongBattle()

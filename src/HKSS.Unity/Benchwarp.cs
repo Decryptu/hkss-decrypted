@@ -71,15 +71,15 @@ internal sealed class Benchwarp : MonoBehaviour
         Keyboard? kb = Keyboard.current;
         if (kb != null)
         {
-            if (kb.f7Key.wasPressedThisFrame)
+            if (PlayerOptions.Pressed(Shortcut.Benchwarp))
             {
                 SetPanelOpen(!_panelOpen);
             }
-            else if (kb.f8Key.wasPressedThisFrame && !ApOverlay.IsPanelOpen && !_panelOpen)
+            else if (PlayerOptions.Pressed(Shortcut.LastBench) && !ApOverlay.IsPanelOpen && !_panelOpen)
             {
                 TryWarpToLastBench();
             }
-            else if (_panelOpen && kb.escapeKey.wasPressedThisFrame)
+            else if (_panelOpen && PlayerOptions.Capturing == null && kb.escapeKey.wasPressedThisFrame)
             {
                 SetPanelOpen(false);
             }
@@ -178,13 +178,23 @@ internal sealed class Benchwarp : MonoBehaviour
         return false;
     }
 
-    internal bool TryWarpToBench(BenchEntry bench)
+    internal bool TryRecoverToBench()
+    {
+        if (!PlayerOptions.BenchRecovery.Value || _store.LastBench is not BenchEntry bench)
+        {
+            ApManager.Instance?.PushToast("Rest at a bench before using recovery.", ToastKind.Error);
+            return false;
+        }
+        return TryWarpToBench(bench, recoverInputLock: true);
+    }
+
+    internal bool TryWarpToBench(BenchEntry bench, bool recoverInputLock = false)
     {
         if (bench == null || string.IsNullOrWhiteSpace(bench.SceneName) || string.IsNullOrWhiteSpace(bench.MarkerName))
             return false;
         if (_warping) return false;
 
-        if (!TravelGuard.CanLeave(out string reason))
+        if (!TravelGuard.CanLeave(out string reason, recoverInputLock))
         {
             ApManager.Instance?.PushToast($"Benchwarp refused: {reason}", ToastKind.Error);
             HkssPlugin.Log.LogInfo($"[Benchwarp] Refused: {reason}");
@@ -324,7 +334,7 @@ internal sealed class Benchwarp : MonoBehaviour
         if (showHeader)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label($"Benchwarp ({_store.Count}) [F7]", _titleStyle);
+            GUILayout.Label($"Benchwarp ({_store.Count}) [{PlayerOptions.GetLabel(Shortcut.Benchwarp)}]", _titleStyle);
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("X", GUILayout.Width(26f)))
                 SetPanelOpen(false);
@@ -333,9 +343,9 @@ internal sealed class Benchwarp : MonoBehaviour
         }
 
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Last Bench [F8]", GUILayout.Height(28f)))
+        if (GUILayout.Button($"Last Bench [{PlayerOptions.GetLabel(Shortcut.LastBench)}]", GUILayout.Height(28f)))
             TryWarpToLastBench();
-        if (GUILayout.Button("Town Gate [F4]", GUILayout.Height(28f)))
+        if (GUILayout.Button($"Town Gate [{PlayerOptions.GetLabel(Shortcut.TownWarp)}]", GUILayout.Height(28f)))
         {
             SetPanelOpen(false);
             TownWarp.Instance?.TryWarpToTown();

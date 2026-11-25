@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using HKSS.Unity;
 using ItemChanger;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace HKSS.HollowKnight;
 
@@ -50,12 +49,11 @@ internal sealed class HkRecentItemsDisplay : MonoBehaviour
 
     private void Update()
     {
-        Keyboard? kb = Keyboard.current;
-        if (kb != null && kb.f9Key.wasPressedThisFrame)
+        if (PlayerOptions.Pressed(Shortcut.RecentItems))
         {
             _visible = !_visible;
             ApManager.Instance?.PushToast(
-                _visible ? "Recent Items feed shown [F9]" : "Recent Items feed hidden [F9]",
+                $"Recent Items feed {(_visible ? "shown" : "hidden")} [{PlayerOptions.GetLabel(Shortcut.RecentItems)}]",
                 ToastKind.Info);
         }
     }
@@ -153,7 +151,7 @@ internal sealed class HkRecentItemsDisplay : MonoBehaviour
         var rect = new Rect(Screen.width - width - 14f, 48f, width, height);
 
         GUILayout.BeginArea(rect, _panelStyle);
-        GUILayout.Label("Recent Items [F9]", _headerStyle);
+        GUILayout.Label($"Recent Items [{PlayerOptions.GetLabel(Shortcut.RecentItems)}]", _headerStyle);
 
         Color prev = GUI.contentColor;
         for (int i = 0; i < _entries.Count; i++)

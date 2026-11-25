@@ -1,7 +1,6 @@
 using System;
 using HKSS.Core;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace HKSS.Unity;
 
@@ -32,6 +31,7 @@ internal sealed partial class ApOverlay : MonoBehaviour
     private bool _autoConnectInput = true;
     private bool _inputsInitialized;
     private Vector2 _qolScroll;
+    private string _hotkeyFeedback = string.Empty;
     private int _selectedGiftRecipientIdx;
 
     private GUIStyle? _badgeStyle;
@@ -45,14 +45,18 @@ internal sealed partial class ApOverlay : MonoBehaviour
 
     private void Update()
     {
-        Keyboard? kb = Keyboard.current;
-        if (kb != null && kb.f6Key.wasPressedThisFrame)
+        string captureError = PlayerOptions.CaptureKey();
+        if (captureError.Length > 0) _hotkeyFeedback = captureError;
+        if (PlayerOptions.Capturing == null) _hotkeyFeedback = string.Empty;
+
+        if (PlayerOptions.Pressed(Shortcut.ApPanel))
         {
             SetPanelOpen(!_panelOpen);
         }
 
         if (_panelOpen)
         {
+            if (_activeTab != _requestedTab) PlayerOptions.Capturing = null;
 #if HOLLOW_KNIGHT
             if (_activeTab != _requestedTab) _nextProgressRefresh = 0;
 #endif
@@ -67,6 +71,7 @@ internal sealed partial class ApOverlay : MonoBehaviour
     {
         if (_panelOpen == open) return;
         _panelOpen = open;
+        if (!open) PlayerOptions.Capturing = null;
         IsPanelOpen = open;
         OverlayCursor.SetOpen(OverlayCursor.Panel.Archipelago, open);
         if (open) SyncInputsFromSettings();
@@ -165,10 +170,10 @@ internal sealed partial class ApOverlay : MonoBehaviour
         ApConnectionState state = ap.Client.State;
         string text = state switch
         {
-            ApConnectionState.Connected => $"AP: {ap.Client.ConnectedSlot} [F6]",
-            ApConnectionState.Connecting => "AP: Connecting... [F6]",
-            ApConnectionState.Failed => "AP: Error [F6]",
-            _ => "AP: Offline [F6]",
+            ApConnectionState.Connected => $"AP: {ap.Client.ConnectedSlot} [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
+            ApConnectionState.Connecting => $"AP: Connecting... [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
+            ApConnectionState.Failed => $"AP: Error [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
+            _ => $"AP: Offline [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
         };
 
         Color color = state switch
@@ -428,8 +433,57 @@ internal sealed partial class ApOverlay : MonoBehaviour
 #endif
 
         GUILayout.Space(8f);
+        GUILayout.Label("Map", _sectionStyle);
+        PlayerOptions.AutoQuill.Value = GUILayout.Toggle(PlayerOptions.AutoQuill.Value,
+            "Auto-quill for visited rooms with an owned map");
+        var filter = PlayerOptions.MapFilter.Value;
+        if (GUILayout.Button($"Check pins · {filter switch
+        {
+            CheckPinFilter.GameDefault => "Game setting",
+            CheckPinFilter.Blocked => "Out of logic",
+            _ => filter.ToString(),
+        }}"))
+        {
+            PlayerOptions.MapFilter.Value = (CheckPinFilter)(((int)filter + 1) % 5);
+#if HOLLOW_KNIGHT
+            HKSS.HollowKnight.HkCheckMap.MarkDirty();
+            HKSS.HollowKnight.HkCheckMap.RefreshIfOpen();
+#elif SILKSONG
+            SilksongRandomizer.RandomizerPlugin.Instance?.QueueMapMarkerSettingsRefresh();
+#endif
+        }
+
+        GUILayout.Space(8f);
+        GUILayout.Label("Death & Recovery", _sectionStyle);
+        var deathMode = PlayerOptions.DeathLink.Value;
+        if (GUILayout.Button($"DeathLink shade / cocoon · {deathMode switch
+        {
+            DeathRecovery.RoomDefault => "Room setting",
+            DeathRecovery.NoNewMarker => "Never create a new marker",
+            DeathRecovery.PreserveExisting => "Preserve an existing marker",
+            _ => "Vanilla",
+        }}"))
+            PlayerOptions.DeathLink.Value = (DeathRecovery)(((int)deathMode + 1) % 4);
+
+        PlayerOptions.BenchRecovery.Value = GUILayout.Toggle(PlayerOptions.BenchRecovery.Value,
+            "Allow bench recovery if player input is stuck");
+        if (PlayerOptions.BenchRecovery.Value && GUILayout.Button("Recover to last discovered bench"))
+        {
+            if (Benchwarp.Instance?.TryRecoverToBench() == true) SetPanelOpen(false);
+        }
+
+        GUILayout.Space(8f);
         GUILayout.Label("Hotkeys", _sectionStyle);
-        GUILayout.Label("• F4 — Warp to Town Gate\n• F6 — Archipelago / Settings Panel\n• F7 — Benchwarp Panel\n• F8 — Warp to Last Bench\n• F9 — Recent Items Feed\n• F10 — Map Logic Overlay", _labelStyle);
+        foreach (Shortcut shortcut in PlayerOptions.Shortcuts)
+        {
+            string key = PlayerOptions.Capturing == shortcut ? "Press a key (Esc cancels)" : PlayerOptions.GetLabel(shortcut);
+            if (GUILayout.Button($"{PlayerOptions.Name(shortcut)} · {key}"))
+            {
+                PlayerOptions.Capturing = shortcut;
+                _hotkeyFeedback = string.Empty;
+            }
+        }
+        if (_hotkeyFeedback.Length > 0) GUILayout.Label(_hotkeyFeedback, _labelStyle);
 
         GUILayout.EndScrollView();
     }

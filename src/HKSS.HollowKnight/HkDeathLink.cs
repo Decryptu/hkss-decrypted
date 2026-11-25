@@ -251,9 +251,16 @@ public sealed class HkDeathLinkModule : ItemChanger.Modules.Module
             }
 
             isDeathlink.Value = true;
+            DeathLinkShadeHandling handling = PlayerOptions.DeathLink.Value switch
+            {
+                DeathRecovery.Vanilla => DeathLinkShadeHandling.Vanilla,
+                DeathRecovery.NoNewMarker => DeathLinkShadeHandling.Shadeless,
+                DeathRecovery.PreserveExisting => DeathLinkShadeHandling.Shade,
+                _ => ShadeHandling,
+            };
             preventShade.Value = !(
-                ShadeHandling == DeathLinkShadeHandling.Vanilla
-                || (ShadeHandling == DeathLinkShadeHandling.Shade && PlayerData.instance.shadeScene == "None"));
+                handling == DeathLinkShadeHandling.Vanilla
+                || (handling == DeathLinkShadeHandling.Shade && PlayerData.instance.shadeScene == "None"));
         }));
 
         FsmState createShadeCheck = fsm.AddState("Create Shade?");

@@ -191,7 +191,7 @@ namespace SilksongRandomizer.Patches
 
             ReachabilityByLocation.Clear();
             RandomizerPlugin plugin = RandomizerPlugin.Instance;
-            if (plugin?.ShowMapMarkerLogic == true && plugin.MapMarkerFilter != "Checked")
+            if (plugin?.ShouldEvaluateMapLogic == true && plugin.MapMarkerFilter != "Checked")
             {
                 foreach (var entry in MapLogicEvaluator.EvaluateAll(state, MarkersByLocation.Keys))
                     ReachabilityByLocation[entry.Key] = entry.Value;
@@ -242,7 +242,7 @@ namespace SilksongRandomizer.Patches
                 marker.Renderer.sprite = sprite;
                 SetMarkerWorldScale(marker.Renderer.transform, map, sprite);
                 bool allUnreachable =
-                    RandomizerPlugin.Instance?.ShowMapMarkerLogic == true &&
+                    RandomizerPlugin.Instance?.ShouldEvaluateMapLogic == true &&
                     RandomizerPlugin.Instance.MapMarkerFilter != "Checked" &&
                     activeLocationNames.Count > 0 &&
                     activeLocationNames.All(locationName =>
@@ -951,7 +951,7 @@ namespace SilksongRandomizer.Patches
 
             RandomizerPlugin plugin = RandomizerPlugin.Instance;
             string filter = plugin?.MapMarkerFilter;
-            if (plugin?.ShowMapMarkerLogic != true && filter != "Checked")
+            if (plugin?.ShouldEvaluateMapLogic != true && filter != "Checked")
                 filter = "Unchecked";
 
             foreach (string locationName in marker.LocationNames)

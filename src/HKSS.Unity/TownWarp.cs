@@ -1,7 +1,6 @@
 using System.Collections;
 using GlobalEnums;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace HKSS.Unity;
 
@@ -14,6 +13,7 @@ internal sealed class TownWarp : MonoBehaviour
     private bool _warping;
 
     internal static TownWarp? Instance { get; private set; }
+    internal bool IsWarping => _warping;
 
     private void Awake() => Instance = this;
 
@@ -24,9 +24,8 @@ internal sealed class TownWarp : MonoBehaviour
 
     private void Update()
     {
-        if (ApOverlay.IsPanelOpen) return;
-        Keyboard? keyboard = Keyboard.current;
-        if (keyboard != null && keyboard.f4Key.wasPressedThisFrame)
+        if (ApOverlay.IsPanelOpen || Benchwarp.IsPanelOpen) return;
+        if (PlayerOptions.Pressed(Shortcut.TownWarp))
         {
             TryWarpToTown();
         }

@@ -41,21 +41,17 @@ v0.1.9 fixes a Hornet 1 (`Fungus1_04`) arena gate softlock caused by `MothwingCl
 
 v0.1.10 adds Hollow Knight's Archipelago Inventory and Hints tabs, fixes randomized shop and Grubfather pricing when rolled price bounds cross, and keeps the mouse unlocked while the Benchwarp panel is open.
 
+v0.1.11 adds shared settings for auto-quill, check pin filters, incoming DeathLink shade and cocoon handling, bench recovery, and rebindable shortcuts. Hollow Knight travel guards now check battle gates directly so a waiting encounter controller no longer blocks Benchwarp.
+
 Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, a game that crashes during travel, and the Silksong plugin's refusal to run without the launcher.
 
 ## Feature Parity & Missing Ports
 
 Both games should offer a seamless, matching experience: any randomizer, UI, or QoL feature available in one game should exist in the other with consistent controls and visuals.
 
-## Optional QoL Features (Player-Toggleable, Both Games)
+Cross-game QoL settings are ready for playtesting in the **Links & QoL** tab. Verify that auto-quill, check pin filtering, DeathLink shade/cocoon handling, bench recovery and shortcut changes behave consistently after travel in both directions.
 
-All QoL features below are opt-in per player so casual and competitive runs can choose their preferred experience:
-
-- **Map & navigation helpers:**
-  - Optional auto-quill / full area map reveal and customizable map pin filters.
-- **Economy & death options:**
-  - Configurable DeathLink shade/cocoon behavior and optional softlock-recovery safeguards.
-- **Customizable hotkeys:** rebindable shortcuts for Town Warp (`F4`), AP Panel (`F6`), Benchwarp (`F7`), Last-Bench Warp (`F8`), Recent Items (`F9`), and Map Logic (`F10`).
+Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle gates are closed, and after they reopen.
 
 ## Later
 

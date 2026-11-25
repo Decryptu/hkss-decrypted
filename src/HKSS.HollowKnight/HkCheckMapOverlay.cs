@@ -53,14 +53,14 @@ internal sealed class HkCheckMapOverlay : MonoBehaviour
     private void Update()
     {
         Keyboard? kb = Keyboard.current;
-        if (kb != null)
+        if (kb != null && !ApOverlay.IsPanelOpen)
         {
-            if (kb.f10Key.wasPressedThisFrame)
+            if (PlayerOptions.Pressed(Shortcut.MapLogic))
             {
                 bool next = !HkCheckMap.ShowLogic;
                 HkCheckMap.ShowLogic = next;
                 ApManager.Instance?.PushToast(
-                    next ? "Map Logic: ON [F10]" : "Map Logic: OFF [F10]",
+                    $"Map Logic: {(next ? "ON" : "OFF")} [{PlayerOptions.GetLabel(Shortcut.MapLogic)}]",
                     ToastKind.Info);
             }
 
@@ -116,6 +116,7 @@ internal sealed class HkCheckMapOverlay : MonoBehaviour
     private static void CycleCheckFilter()
     {
         int next = ((int)HkCheckMap.CheckFilter + 1) % 5;
+        PlayerOptions.MapFilter.Value = CheckPinFilter.GameDefault;
         HkCheckMap.CheckFilter = (HkMapCheckFilter)next;
         ApManager.Instance?.PushToast($"Map Filter: {HkCheckMap.CheckFilter} [F11]", ToastKind.Info);
     }
@@ -226,7 +227,7 @@ internal sealed class HkCheckMapOverlay : MonoBehaviour
         GUILayout.Label(summary, _boldLabelStyle, GUILayout.ExpandWidth(false));
         GUILayout.Space(8f);
 
-        string logicLabel = HkCheckMap.ShowLogic ? "[F10] Logic: ON" : "[F10] Logic: OFF";
+        string logicLabel = $"[{PlayerOptions.GetLabel(Shortcut.MapLogic)}] Logic: {(HkCheckMap.ShowLogic ? "ON" : "OFF")}";
         if (GUILayout.Button(logicLabel, _buttonStyle, GUILayout.ExpandWidth(false)))
         {
             HkCheckMap.ShowLogic = !HkCheckMap.ShowLogic;

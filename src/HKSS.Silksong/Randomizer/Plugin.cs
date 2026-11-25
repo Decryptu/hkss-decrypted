@@ -271,19 +271,19 @@ namespace SilksongRandomizer
                 "Show Logic (Experimental)",
                 false,
                 ModMenuOptions.Describe("Map Markers", "Show Requirements (Experimental)",
-                    "Show estimated reachability and requirements on map markers. Toggle with F6.")
+                    "Show estimated reachability and requirements on map markers. Toggle with the Map Logic shortcut.")
             );
             showMapMarkerLogic.SettingChanged += (_, __) =>
                 CheckMapMarkerManager.RequestCurrentMarkerStateRefresh();
             mapMarkerFilter = Config.Bind("Map Markers", "Check Filter", "Unchecked",
                 ModMenuOptions.Describe("Map Markers", "Check Filter",
-                    "Filter map pins by check status. Reachability filters apply while F6 logic is enabled.",
+                    "Filter map pins by check status. Reachability filters apply while Map Logic is enabled.",
                     new AcceptableValueList<string>("Unchecked", "Reachable", "Blocked", "Unknown", "Checked")));
             mapMarkerFilter.SettingChanged += (_, __) => mapMarkerSettingsChanged = true;
             recentItemsDisplayEnabled = Config.Bind(
                 "Recent Items Display", "Enable Recent Items Display", false,
                 ModMenuOptions.Describe("Recent Items Display", "Recent Items Display",
-                    "Show your five most recent sent and received items. Toggle with F9."));
+                    "Show your five most recent sent and received items. Toggle with the Recent Items shortcut."));
         }
 
         private void LoadDeathLinkSettings()
@@ -334,7 +334,16 @@ namespace SilksongRandomizer
         internal bool ShowMapMarkerLogic =>
             showMapMarkerLogic == null || showMapMarkerLogic.Value;
 
-        internal string MapMarkerFilter => mapMarkerFilter?.Value ?? "Unchecked";
+        internal string MapMarkerFilter =>
+            HKSS.Unity.PlayerOptions.MapFilter.Value is HKSS.Unity.CheckPinFilter.GameDefault
+                ? mapMarkerFilter?.Value ?? "Unchecked"
+                : HKSS.Unity.PlayerOptions.MapFilter.Value.ToString();
+
+        internal bool ShouldEvaluateMapLogic => ShowMapMarkerLogic ||
+            HKSS.Unity.PlayerOptions.MapFilter.Value is
+                HKSS.Unity.CheckPinFilter.Reachable or HKSS.Unity.CheckPinFilter.Blocked;
+
+        internal void QueueMapMarkerSettingsRefresh() => mapMarkerSettingsChanged = true;
 
         private void SaveSuccessfulConnectionDetails(
             string host,
@@ -872,7 +881,7 @@ namespace SilksongRandomizer
             RecentItemsDisplay.Update();
             ShopPatches.ProcessQueuedHintRefreshes();
 
-            if (Input.GetKeyDown(KeyCode.F10))
+            if (HKSS.Unity.PlayerOptions.Pressed(HKSS.Unity.Shortcut.MapLogic))
             {
                 if (showMapMarkerLogic.Value)
                 {
@@ -886,7 +895,7 @@ namespace SilksongRandomizer
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.F9))
+            if (HKSS.Unity.PlayerOptions.Pressed(HKSS.Unity.Shortcut.RecentItems))
             {
                 recentItemsDisplayEnabled.Value = !recentItemsDisplayEnabled.Value;
                 Config.Save();

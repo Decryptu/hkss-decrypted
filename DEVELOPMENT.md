@@ -63,6 +63,8 @@ npm run release   # after tools/build-payload.ps1 -Configuration Release: NSIS i
 
 Run logs are in `runs/slot-<n>/logs/`: `launcher.log` has timings and memory, `<game>-player.log` is Unity's log. BepInEx logs to `games/<game>/BepInEx/LogOutput.log`.
 
+The Archipelago panel opens with F6 by default. Under **Links & QoL**, both games share the same run-local settings in `player-options.cfg`. Auto-quill fills visited rooms where you own the area map. The check pin filter can use the game's setting, show unchecked or checked pins, or filter unchecked pins by reachability. The DeathLink shade/cocoon setting applies to incoming deaths and defaults to the room setting. Bench recovery is opt-in and can return you to a discovered bench when input is stuck during otherwise safe gameplay. To rebind a shortcut, select it and press the new key. Escape cancels.
+
 To delete a test home, first remove each junction in `games/<game>/` with `cmd /c rmdir <link>`. A recursive delete that follows junctions would delete the Steam install.
 
 ### Travel measurements

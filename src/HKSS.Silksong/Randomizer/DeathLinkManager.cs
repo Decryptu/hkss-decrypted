@@ -791,9 +791,16 @@ namespace SilksongRandomizer
         private static bool ShouldProtectRemoteDeathCocoon(
             PlayerData playerData)
         {
+            string mode = HKSS.Unity.PlayerOptions.DeathLink.Value switch
+            {
+                HKSS.Unity.DeathRecovery.Vanilla => Archipelago.DeathLinkCocoonVanilla,
+                HKSS.Unity.DeathRecovery.NoNewMarker => Archipelago.DeathLinkCocoonless,
+                HKSS.Unity.DeathRecovery.PreserveExisting => Archipelago.DeathLinkCocoonProtected,
+                _ => deathLinkCocoonMode,
+            };
             if (playerData == null ||
                 string.Equals(
-                    deathLinkCocoonMode,
+                    mode,
                     Archipelago.DeathLinkCocoonVanilla,
                     StringComparison.Ordinal
                 ))
@@ -802,7 +809,7 @@ namespace SilksongRandomizer
             }
 
             if (string.Equals(
-                    deathLinkCocoonMode,
+                    mode,
                     Archipelago.DeathLinkCocoonless,
                     StringComparison.Ordinal
                 ))
