@@ -293,6 +293,9 @@ internal sealed class ApManager : MonoBehaviour
             case ApEventKind.GoalSent:
                 HkssPlugin.Log.LogInfo(evt.Message);
                 PushToast(evt.Message, ToastKind.LocalItem);
+                RunStatsTracker.Flush();
+                if (GoalTracker.IsComboGoalSatisfied(Client.GamesMode, Client.ComboGoal, Client.HkGoalCompleted, Client.SsGoalCompleted))
+                    ApOverlay.ShowRunStats();
                 break;
 
             case ApEventKind.GoalStateSynced:

@@ -47,6 +47,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
             TownGate.Install(_harmony);
             ThinSlice.Install(_harmony);
             OverlayCursor.Install(_harmony);
+            RunStatsTracker.Install(_harmony);
 #if HOLLOW_KNIGHT
             _harmony.CreateClassProcessor(typeof(HKSS.HollowKnight.HkAutoQuill)).Patch();
 #endif
@@ -66,6 +67,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
         gameObject.AddComponent<Benchwarp>();
         gameObject.AddComponent<ApManager>();
         gameObject.AddComponent<ApOverlay>();
+        gameObject.AddComponent<RunStatsTracker>();
 #if HOLLOW_KNIGHT
         gameObject.AddComponent<HKSS.HollowKnight.HkClientHost>();
 #elif SILKSONG

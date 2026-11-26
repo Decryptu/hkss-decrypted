@@ -74,6 +74,7 @@ internal sealed class Travel : MonoBehaviour
             TownGate.SetGateAsRespawnPoint();
         }
 
+        RunStatsTracker.Flush();
         bool? saved = null;
         gm.SaveGame(ok => saved = ok);
         while (saved == null) yield return null;

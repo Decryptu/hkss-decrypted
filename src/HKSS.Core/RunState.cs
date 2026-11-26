@@ -57,6 +57,21 @@ public sealed class RunState
     [JsonProperty("ss_checked_locations")]
     public List<long> SsCheckedLocations { get; set; } = new();
 
+    /// <summary>Hollow Knight statistics for the end-of-run summary.</summary>
+    [JsonProperty("hk_stats")]
+    public GameStats HkStats { get; set; } = new();
+
+    /// <summary>Silksong statistics for the end-of-run summary.</summary>
+    [JsonProperty("ss_stats")]
+    public GameStats SsStats { get; set; } = new();
+
+    public GameStats GetStats(GameId game) => game switch
+    {
+        GameId.HollowKnight => HkStats ??= new GameStats(),
+        GameId.Silksong => SsStats ??= new GameStats(),
+        _ => throw new ArgumentOutOfRangeException(nameof(game), game, null),
+    };
+
     public int GetProcessedItems(GameId game) => game switch
     {
         GameId.HollowKnight => HkProcessedItems,
@@ -199,8 +214,24 @@ public sealed class RunStateStore
         state.SsCheckedLocations.Clear();
         state.HkGoalCompleted = false;
         state.SsGoalCompleted = false;
+        state.HkStats = new GameStats();
+        state.SsStats = new GameStats();
         Save(state);
         return true;
+    }
+
+    public RunSummary LoadSummary() => new(Load());
+
+    /// <summary>
+    /// Applies a stats update in a single load/save. <paramref name="update"/> may change either
+    /// game's stats (check counts for both games come from the shared slot).
+    /// </summary>
+    public void UpdateStats(Action<RunState> update)
+    {
+        if (update == null) throw new ArgumentNullException(nameof(update));
+        RunState state = Load();
+        update(state);
+        Save(state);
     }
 
     public bool IsGoalCompleted(GameId game) => Load().GetGoalCompleted(game);

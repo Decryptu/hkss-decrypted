@@ -14,6 +14,7 @@ internal sealed partial class ApOverlay : MonoBehaviour
         Connection,
         Benchwarp,
         LinksAndQol,
+        RunStats,
 #if HOLLOW_KNIGHT
         Inventory,
         Hints,
@@ -21,6 +22,10 @@ internal sealed partial class ApOverlay : MonoBehaviour
     }
 
     internal static bool IsPanelOpen { get; private set; }
+    private static bool _showRunStatsRequested;
+
+    /// <summary>Opens the panel on the Run Stats tab (used when the combo goal is completed).</summary>
+    internal static void ShowRunStats() => _showRunStatsRequested = true;
 
     private bool _panelOpen;
     private OverlayTab _activeTab = OverlayTab.Connection;
@@ -52,6 +57,13 @@ internal sealed partial class ApOverlay : MonoBehaviour
         if (PlayerOptions.Pressed(Shortcut.ApPanel))
         {
             SetPanelOpen(!_panelOpen);
+        }
+
+        if (_showRunStatsRequested)
+        {
+            _showRunStatsRequested = false;
+            _requestedTab = OverlayTab.RunStats;
+            SetPanelOpen(true);
         }
 
         if (_panelOpen)
@@ -242,6 +254,7 @@ internal sealed partial class ApOverlay : MonoBehaviour
         if (DrawTabButton("Connection", _activeTab == OverlayTab.Connection)) _requestedTab = OverlayTab.Connection;
         if (DrawTabButton("Benchwarp", _activeTab == OverlayTab.Benchwarp)) _requestedTab = OverlayTab.Benchwarp;
         if (DrawTabButton("Links & QoL", _activeTab == OverlayTab.LinksAndQol)) _requestedTab = OverlayTab.LinksAndQol;
+        if (DrawTabButton("Stats", _activeTab == OverlayTab.RunStats)) _requestedTab = OverlayTab.RunStats;
 #if HOLLOW_KNIGHT
         if (DrawTabButton("Inventory", _activeTab == OverlayTab.Inventory)) _requestedTab = OverlayTab.Inventory;
         if (DrawTabButton("Hints", _activeTab == OverlayTab.Hints)) _requestedTab = OverlayTab.Hints;
@@ -260,6 +273,9 @@ internal sealed partial class ApOverlay : MonoBehaviour
                 break;
             case OverlayTab.LinksAndQol:
                 DrawLinksAndQolTab();
+                break;
+            case OverlayTab.RunStats:
+                DrawRunStatsTab();
                 break;
 #if HOLLOW_KNIGHT
             case OverlayTab.Inventory:

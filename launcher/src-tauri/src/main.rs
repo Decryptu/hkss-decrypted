@@ -40,6 +40,8 @@ struct SlotStatus {
     room: Option<room::Room>,
     hk_goal_completed: bool,
     ss_goal_completed: bool,
+    hk_stats: runs::GameStats,
+    ss_stats: runs::GameStats,
     error: Option<String>,
 }
 
@@ -131,6 +133,8 @@ fn status() -> Result<Status, String> {
             room,
             hk_goal_completed: goals.hk_goal_completed,
             ss_goal_completed: goals.ss_goal_completed,
+            hk_stats: goals.hk_stats,
+            ss_stats: goals.ss_stats,
             error,
         });
     }

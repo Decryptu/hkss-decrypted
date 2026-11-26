@@ -7,12 +7,15 @@
   type Issue = { severity: "error" | "warning"; code: string; summary: string; detail: string };
   type Game = { key: string; name: string; build: string | null; tested: boolean; unity_version: string | null; issues: Issue[] };
   type Room = { host: string; port: number; slot: string; password: string; auto_connect: boolean };
+  type Stats = { play_seconds: number; deaths: number; kills: number; completion_percent: number; checks_found: number; checks_total: number };
   type Slot = {
     id: number;
     current: string | null;
     room: Room | null;
     hk_goal_completed: boolean;
     ss_goal_completed: boolean;
+    hk_stats: Stats;
+    ss_stats: Stats;
     error: string | null;
   };
   type Status = { games: Game[]; slots: Slot[]; steam_running: boolean; version: string };
@@ -132,6 +135,14 @@
           ? " · SS goal done"
           : "";
 
+  const played = (s: Stats) => s.play_seconds > 0 || s.deaths > 0 || s.kills > 0 || s.checks_found > 0;
+  const duration = (seconds: number) => {
+    const t = Math.max(0, Math.floor(seconds));
+    return `${Math.floor(t / 3600)}:${String(Math.floor(t / 60) % 60).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
+  };
+  const checks = (found: number, total: number) => (total > 0 ? `${found} / ${total}` : `${found}`);
+  const goalText = (done: boolean, s: Stats) => (done ? "Done" : played(s) ? "Not yet" : "Not started");
+
   async function refresh() {
     try {
       const first = !status;
@@ -229,6 +240,22 @@
               </fieldset>
               {#if connection}<p class:error={connection.kind === "error"} class:warn={connection.kind === "warn"} role="status">{connection.text}</p>{/if}
             </form>
+            {#if played(slot.hk_stats) || played(slot.ss_stats)}
+              {@const hk = slot.hk_stats}
+              {@const ss = slot.ss_stats}
+              <table class="stats">
+                <caption>{slot.hk_goal_completed && slot.ss_goal_completed ? "Run complete" : "Run so far"}</caption>
+                <thead><tr><th></th><th>Hallownest</th><th>Pharloom</th><th>Total</th></tr></thead>
+                <tbody>
+                  <tr><th>Goal</th><td>{goalText(slot.hk_goal_completed, hk)}</td><td>{goalText(slot.ss_goal_completed, ss)}</td><td></td></tr>
+                  <tr><th>Play time</th><td>{duration(hk.play_seconds)}</td><td>{duration(ss.play_seconds)}</td><td>{duration(hk.play_seconds + ss.play_seconds)}</td></tr>
+                  <tr><th>Completion</th><td>{Math.round(hk.completion_percent)}%</td><td>{Math.round(ss.completion_percent)}%</td><td></td></tr>
+                  <tr><th>Checks</th><td>{checks(hk.checks_found, hk.checks_total)}</td><td>{checks(ss.checks_found, ss.checks_total)}</td><td>{checks(hk.checks_found + ss.checks_found, hk.checks_total + ss.checks_total)}</td></tr>
+                  <tr><th>Deaths</th><td>{hk.deaths}</td><td>{ss.deaths}</td><td>{hk.deaths + ss.deaths}</td></tr>
+                  <tr><th>Kills</th><td>{hk.kills}</td><td>{ss.kills}</td><td>{hk.kills + ss.kills}</td></tr>
+                </tbody>
+              </table>
+            {/if}
           </li>
         {/if}
       {/each}

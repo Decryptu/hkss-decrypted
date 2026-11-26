@@ -10,14 +10,11 @@ A combo randomizer and Archipelago world for Hollow Knight and Hollow Knight: Si
 
 | Phase | Work | Done when |
 |---|---|---|
-| 6. Launcher release | Installer with bundled mod files, updates, room settings per run, diagnostics ZIP, uninstall. | A fresh Windows profile goes from download to a running combo seed without manual file copying. |
-| 8. First playtest release | Matched launcher, plugins and `.apworld`. | A full combo run completes in a multiworld. |
+| 8. First playtest release (in progress) | Matched launcher, plugins and `.apworld`. | A full combo run completes in a multiworld. |
 
 ## Next
 
 Phase 5 (Silksong) is built and verified on Silksong 1.0.30000: Silksong Decrypted's item grants, manifests, 596 Harmony patch groups, map markers, links, and modes are ported into `HKSS.Silksong` (tracked in [docs/PARITY.md](docs/PARITY.md)) and wired onto `HKSS.Core` (`slot_data["silksong"]`, `SS ` prefixing, `IdSpace.IsSilksong` filtering, cross-game Hallownest display, shared goal reporting, and isolated `silksong_randomizer.xml` persistence).
-
-Phase 6 (Launcher release) is built: `npm run release` makes a per-user NSIS installer with BepInEx and both plugins bundled (`HKSS_PAYLOAD` is now only a development override). Each run has Archipelago room settings (`ap.json`) and can be deleted from the launcher; a bug report ZIP collects the run's logs, BepInEx logs, and settings with the password hidden; the launcher checks GitHub Releases for a newer version; and the modded game folders can be removed without following their junctions into the Steam installs. v0.1.0 is the first playtest release.
 
 Phase 7 (Player hub) is built and verified in a clean browser profile. The checklist, YAML generator and item map use the packaged world catalog. All four YAML presets passed generation in Archipelago 0.6.8.
 
@@ -55,13 +52,14 @@ Both games should offer a seamless, matching experience: any randomizer, UI, or 
 
 Cross-game QoL settings are ready for playtesting in the **Links & QoL** tab. Verify that auto-quill, check pin filtering, DeathLink shade/cocoon handling, bench recovery and shortcut changes behave consistently after travel in both directions.
 
+The combined end-of-run stats are ready for playtesting: each game records play time, completion, deaths, kills and Archipelago check counts in `state.json`; the `F6` **Stats** tab shows both games side by side (and opens on its own when the combo goal is completed), and the launcher shows the same table in a run's Settings panel. Verify that deaths and kills are counted once each, that totals survive travel in both directions, and that a new seed in the same run slot clears them.
+
 Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle gates are closed, and after they reopen.
 
 Verify the Forgotten Crossroads spike grub in a newly generated split-cloak seed. The world and check map require left dash for that check when the cloak is split.
 
 ## Later
 
-- Combined end-of-run stats screen summarizing whichever games were played in the run (reading per-game save/run data such as play time, deaths, kills, checks found, and completion).
 - More unified shuffles: entrances and rooms in combo mode, charms/crests, shops, grubs/fleas, journal entries, lore tablets.
 - Cross-game rules and items (abilities that unlock routes in the other game) as opt-in options.
 - Suspending the other game for instant travel as an option, PopTracker pack, live tracking on the player hub's map page.

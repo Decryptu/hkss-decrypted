@@ -297,6 +297,24 @@ public sealed class ApClient : IDisposable
             .ToArray();
     }
 
+    /// <summary>Checked and total slot locations for <paramref name="game"/>, or null when not connected.</summary>
+    public (int Found, int Total)? GetCheckCounts(GameId game)
+    {
+        ArchipelagoSession? session;
+        lock (_gate) session = _session;
+        if (session == null || State != ApConnectionState.Connected) return null;
+        try
+        {
+            int total = session.Locations.AllLocations.Count(id => IdSpace.GameForId(id) == game);
+            int found = session.Locations.AllLocationsChecked.Count(id => IdSpace.GameForId(id) == game);
+            return (found, total);
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
+    }
+
     public long? ResolveLocationId(string locationName)
     {
         if (string.IsNullOrWhiteSpace(locationName)) return null;

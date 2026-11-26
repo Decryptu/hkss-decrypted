@@ -42,6 +42,11 @@ body { overflow: clip; }
 .panel p[role=status] { margin: .6rem 0 0; text-align: center; }
 .panel p.warn { color: #f0c97a; }
 .panel p.error { color: #f0928a; }
+.panel table.stats { margin: 0 auto 1rem; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.panel table.stats caption { color: var(--dim); font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; padding-bottom: .3rem; }
+.panel table.stats th, .panel table.stats td { padding: .15rem .8rem; text-align: right; }
+.panel table.stats tbody th { text-align: left; color: var(--dim); font-weight: normal; }
+.panel table.stats thead th { color: var(--dim); font-weight: normal; border-bottom: 1px solid #ffffff22; }
 .panel label { display: grid; gap: .2rem; font-size: .9rem; color: var(--dim); }
 .panel label.check { grid-column: 1 / -1; display: flex; gap: .5rem; align-items: center; }
 .panel input:not([type=checkbox]) { font: inherit; color: #fff; background: #0c0c12; border: 1px solid #ffffff22; border-radius: 3px; padding: .3rem .5rem; }

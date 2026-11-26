@@ -21,9 +21,38 @@ pub struct RunGoals {
     pub hk_goal_completed: bool,
     #[serde(default)]
     pub ss_goal_completed: bool,
+    #[serde(default, deserialize_with = "null_default")]
+    pub hk_stats: GameStats,
+    #[serde(default, deserialize_with = "null_default")]
+    pub ss_stats: GameStats,
 }
 
-/// Best-effort read of per-game goal flags from `state.json`. Missing or unreadable files return false.
+/// One game's end-of-run stats, written to `state.json` by the game plugins.
+#[derive(Clone, Default, Deserialize, Serialize)]
+pub struct GameStats {
+    #[serde(default)]
+    pub play_seconds: f64,
+    #[serde(default)]
+    pub deaths: u32,
+    #[serde(default)]
+    pub kills: u32,
+    #[serde(default)]
+    pub completion_percent: f64,
+    #[serde(default)]
+    pub checks_found: u32,
+    #[serde(default)]
+    pub checks_total: u32,
+}
+
+fn null_default<'de, D, T>(deserializer: D) -> Result<T, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: Default + Deserialize<'de>,
+{
+    Ok(Option::<T>::deserialize(deserializer)?.unwrap_or_default())
+}
+
+/// Best-effort read of per-game goal flags and stats from `state.json`. Missing or unreadable files return defaults.
 pub fn load_goals(dir: &Path) -> RunGoals {
     fs::read(dir.join("state.json"))
         .ok()
@@ -102,6 +131,17 @@ mod tests {
         let partial = load_goals(temp.path());
         assert!(partial.hk_goal_completed);
         assert!(!partial.ss_goal_completed);
+
+        fs::write(temp.path().join("state.json"), "{").unwrap();
+        fs::write(
+            temp.path().join("state.json"),
+            r#"{"hk_stats": {"play_seconds": 61.5, "deaths": 3, "checks_found": 2, "checks_total": 9}, "ss_stats": null}"#,
+        )
+        .unwrap();
+        let stats = load_goals(temp.path());
+        assert_eq!(stats.hk_stats.deaths, 3);
+        assert_eq!(stats.hk_stats.checks_total, 9);
+        assert_eq!(stats.ss_stats.play_seconds, 0.0);
 
         fs::write(temp.path().join("state.json"), "{").unwrap();
         let corrupt = load_goals(temp.path());
