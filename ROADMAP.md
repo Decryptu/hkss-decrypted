@@ -56,6 +56,8 @@ v0.1.18 enables all 16 Hollow Knight `StartLocation` options in combo runs (`Kin
 
 Next release: Silksong's alternate starting locations (`starting_location`) are supported in combo runs, and shuffled entrances include the Moss Grotto to Bone Bottom route. When either applies, the town warp to the Bone Bottom gate works from the first arrival in Pharloom, so the way back to Hallownest never depends on items. The Silksong entrance randomizer now judges its opening from the Dirtmouth gate, which fixes generation failures with alternate starts in both games. The PopTracker pack and the Hollow Knight in-game check map no longer count a transition as reached when its partner is sealed. Still to verify in game: each alternate Silksong start on the first trip from Dirtmouth, and the town warp to Bone Bottom before visiting it.
 
+Also next release: **Instant travel**, an opt-in launcher setting that keeps the game you leave paused in memory, so travelling back to it skips the restart. Still to verify in game: travel in both directions several times, items and seal keys found in the other game arriving after waking, Links & QoL after waking, a Steel Soul death in the other game, closing the active game while the other is paused, full screen and several monitors, and low free memory falling back to closing.
+
 Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, and a save that fails.
 
 ## Feature Parity & Missing Ports
@@ -70,7 +72,7 @@ Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle
 
 ## Later
 
-- Suspending the other game for instant travel as an option, live tracking on the player hub's map page.
+- Live tracking on the player hub's map page.
 
 ## Decisions
 

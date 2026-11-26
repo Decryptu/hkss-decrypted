@@ -5,11 +5,15 @@ using UnityEngine;
 
 namespace HKSS.Unity;
 
-/// <summary>Saves, hands over to the launcher's travel screen and closes this game.</summary>
+/// <summary>
+/// Saves, hands over to the launcher's travel screen and closes this game, or with instant travel
+/// waits in memory (the launcher pauses the process) until the player comes back.
+/// </summary>
 internal sealed class Travel : MonoBehaviour
 {
     private const float FadeTime = 0.7f;
     private const float CoverTimeout = 3f;
+    private const float ResumePoll = 0.1f;
 
     private bool _travelling;
 
@@ -104,10 +108,46 @@ internal sealed class Travel : MonoBehaviour
         }
 
         HkssPlugin.Signals.Send(Signal.Travel, HkssPlugin.ThisGame.Other());
-        for (float t = 0f; t < CoverTimeout && !HkssPlugin.Signals.CoverIsUp(); t += Time.unscaledDeltaTime)
+        Signal? cover = null;
+        for (float t = 0f; t < CoverTimeout; t += Time.unscaledDeltaTime)
+        {
+            cover = HkssPlugin.Signals.ReadCover();
+            if (cover?.State == Signal.Cover) break;
             yield return null;
+        }
+
+        if (cover?.State == Signal.Cover && cover.Park == true)
+        {
+            // Instant travel: stay as we are. The launcher hides and pauses this process, and wakes
+            // it when the player comes back through the other game's gate.
+            HkssPlugin.Log.LogInfo("Travelling: save written, waiting in memory.");
+            HkssPlugin.Signals.Send(Signal.Parked);
+            while (!HkssPlugin.Signals.ResumeRequested())
+                yield return new WaitForSecondsRealtime(ResumePoll);
+            Return(gm, hero);
+            yield break;
+        }
+
         HkssPlugin.Log.LogInfo("Travelling: save written, closing.");
         Application.Quit();
+    }
+
+    /// <summary>
+    /// Back from the other game after instant travel: the player is still at this gate, where a
+    /// cold start would have put them. Catch up on what changed meanwhile, then hand back control.
+    /// </summary>
+    private void Return(GameManager gm, HeroController hero)
+    {
+        HkssPlugin.Log.LogInfo("Travelling: back from the other game.");
+        // The room connection went quiet while paused; a fresh login replays any items found meanwhile.
+        ApManager.Instance?.ReconnectAfterPause();
+        // A Steel Soul death in the other game ends this one too.
+        DoubleSteelSoul.ShowDefeatOverlay();
+        AudioListener.volume = 1f;
+        gm.cameraCtrl.FadeSceneIn();
+        hero.RegainControl();
+        _travelling = false;
+        HkssPlugin.Signals.Send(Signal.Ready, detail: "resumed");
     }
 
 #if DEBUG

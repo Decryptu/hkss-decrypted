@@ -52,6 +52,10 @@
   let activeRun = $state<number | null>(null);
   let failedRun = $state<number | null>(null);
   let showSettings = $state(false);
+  type LauncherSettings = { instant_travel: boolean; memory_mb: number | null };
+  let launcherSettings = $state<LauncherSettings | null>(null);
+  // Both games together hold about 3.5 GB, which leaves too little on smaller PCs.
+  const instantTravelMemoryMb = 16 * 1024 - 512;
   const busy = $derived(playing || testing || updating);
 
   function edit(slot: Slot) {
@@ -197,9 +201,20 @@
   const checks = (found: number, total: number) => (total > 0 ? `${found} / ${total}` : `${found}`);
   const goalText = (done: boolean, s: Stats) => (done ? "Done" : played(s) ? "Not yet" : "Not started");
 
+  async function setInstantTravel(enabled: boolean) {
+    error = "";
+    try {
+      await invoke("set_instant_travel", { enabled });
+    } catch (e) {
+      error = String(e);
+    }
+    launcherSettings = await invoke<LauncherSettings>("launcher_settings").catch(() => launcherSettings);
+  }
+
   async function refresh() {
     try {
       const first = !status;
+      launcherSettings = await invoke<LauncherSettings>("launcher_settings").catch(() => launcherSettings);
       status = await invoke<Status>("status");
       if (first) checkUpdate(false);
     } catch (e) {
@@ -264,6 +279,18 @@
       </button>
       <div id="launcher-settings" class="settings-panel" hidden={!showSettings}>
         <h2>Launcher settings</h2>
+        {#if launcherSettings}
+          {@const lowMemory = launcherSettings.memory_mb !== null && launcherSettings.memory_mb < instantTravelMemoryMb}
+          <div class="settings-section">
+            <label class="check">
+              <input type="checkbox" checked={launcherSettings.instant_travel} disabled={busy}
+                onchange={(e) => setInstantTravel(e.currentTarget.checked)}>
+              Instant travel
+            </label>
+            <p>Keep the game you leave paused in memory, so going back to it takes a moment instead of a restart. Both games together use about 3.5 GB; with too little free memory, travel closes the game as usual.</p>
+            {#if lowMemory}<p class="update-check-note">This PC has {Math.round((launcherSettings.memory_mb ?? 0) / 1024)} GB of memory. 16 GB or more is recommended.</p>{/if}
+          </div>
+        {/if}
         <div class="settings-section">
           <p>Check GitHub Releases for a newer launcher and mod payload.</p>
           <div class="actions">

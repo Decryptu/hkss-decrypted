@@ -59,4 +59,34 @@ public sealed class RunTests : IDisposable
         File.WriteAllText(cover, """{"session":"s1","state":"cover"}""");
         Assert.True(new SignalChannel(run).CoverIsUp());
     }
+
+    [Fact]
+    public void InstantTravelParksThenResumes()
+    {
+        RunContext run = Run();
+        var channel = new SignalChannel(run);
+        Directory.CreateDirectory(run.SignalDir);
+        string cover = Path.Combine(run.SignalDir, "cover.json");
+
+        // Exactly what the launcher writes when it wants the game to stay open.
+        File.WriteAllText(cover, """{"session":"s1","state":"cover","park":true}""");
+        Assert.True(channel.CoverIsUp());
+        Assert.True(channel.ReadCover()!.Park);
+        Assert.False(channel.ResumeRequested());
+
+        channel.Send(Signal.Parked);
+        Assert.Equal("""{"session":"s1","state":"parked"}""",
+            File.ReadAllText(Path.Combine(run.SignalDir, "hollow_knight.json")));
+
+        // The other game's cover does not wake this one; this game's resume does.
+        File.WriteAllText(cover, """{"session":"other","state":"resume"}""");
+        Assert.False(channel.ResumeRequested());
+        File.WriteAllText(cover, """{"session":"s1","state":"resume"}""");
+        Assert.True(channel.ResumeRequested());
+        Assert.False(channel.CoverIsUp());
+
+        // A cover without the flag still means close.
+        File.WriteAllText(cover, """{"session":"s1","state":"cover"}""");
+        Assert.Null(channel.ReadCover()!.Park);
+    }
 }

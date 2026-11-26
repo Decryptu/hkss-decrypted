@@ -11,11 +11,19 @@ public sealed class Signal
     public const string Ready = "ready";
     public const string Travel = "travel";
     public const string Error = "error";
+    /// <summary>Saved and waiting in memory for the launcher to pause it (instant travel).</summary>
+    public const string Parked = "parked";
+    /// <summary>Cover state: the launcher hides the game, which may now close (or park).</summary>
+    public const string Cover = "cover";
+    /// <summary>Cover state: the launcher woke this parked game and is waiting for it.</summary>
+    public const string Resume = "resume";
 
     [JsonProperty("session")] public string Session { get; set; } = "";
     [JsonProperty("state")] public string State { get; set; } = "";
     [JsonProperty("to", NullValueHandling = NullValueHandling.Ignore)] public string? To { get; set; }
     [JsonProperty("detail", NullValueHandling = NullValueHandling.Ignore)] public string? Detail { get; set; }
+    /// <summary>On a cover: stay open, saved and still, instead of closing (instant travel).</summary>
+    [JsonProperty("park", NullValueHandling = NullValueHandling.Ignore)] public bool? Park { get; set; }
 }
 
 /// <summary>One file per game in the run's signals folder, replaced atomically.</summary>
@@ -45,22 +53,29 @@ public sealed class SignalChannel
     }
 
     /// <summary>True once the launcher's travel screen hides this game, so it can close unseen.</summary>
-    public bool CoverIsUp()
+    public bool CoverIsUp() => ReadCover()?.State == Signal.Cover;
+
+    /// <summary>True when the launcher woke this game from instant travel.</summary>
+    public bool ResumeRequested() => ReadCover()?.State == Signal.Resume;
+
+    /// <summary>The launcher's cover file, if it was written for this launch of this game.</summary>
+    public Signal? ReadCover()
     {
         try
         {
-            if (!File.Exists(CoverFile)) return false;
+            if (!File.Exists(CoverFile)) return null;
             using var stream = new FileStream(
                 CoverFile,
                 FileMode.Open,
                 FileAccess.Read,
                 FileShare.ReadWrite | FileShare.Delete);
             using var reader = new StreamReader(stream);
-            return JsonConvert.DeserializeObject<Signal>(reader.ReadToEnd())?.Session == _run.Session;
+            Signal? cover = JsonConvert.DeserializeObject<Signal>(reader.ReadToEnd());
+            return cover?.Session == _run.Session ? cover : null;
         }
         catch (Exception e) when (e is IOException || e is JsonException || e is UnauthorizedAccessException)
         {
-            return false;
+            return null;
         }
     }
 }

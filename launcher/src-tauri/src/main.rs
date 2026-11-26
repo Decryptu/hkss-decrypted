@@ -9,6 +9,7 @@ mod room;
 mod room_check;
 mod runs;
 mod session;
+mod settings;
 mod steam;
 mod updater;
 
@@ -255,6 +256,30 @@ fn export_diagnostics(slot: u8) -> Result<String, String> {
     Ok(path.display().to_string())
 }
 
+#[derive(Serialize)]
+struct LauncherSettings {
+    instant_travel: bool,
+    /// Installed memory, so the menu can say whether instant travel suits this PC.
+    memory_mb: Option<u64>,
+}
+
+#[tauri::command]
+fn launcher_settings() -> LauncherSettings {
+    LauncherSettings {
+        instant_travel: settings::load(&runs::home()).instant_travel,
+        memory_mb: process::system_memory_mb().map(|(total, _)| total),
+    }
+}
+
+#[tauri::command]
+fn set_instant_travel(enabled: bool) -> Result<(), String> {
+    idle()?;
+    let home = runs::home();
+    let mut current = settings::load(&home);
+    current.instant_travel = enabled;
+    settings::save(&home, &current).map_err(|e| format!("The setting could not be saved: {e}"))
+}
+
 #[tauri::command]
 async fn check_update() -> Result<Option<updater::UpdateInfo>, String> {
     updater::check_latest(env!("CARGO_PKG_VERSION")).await
@@ -343,6 +368,8 @@ fn main() {
             delete_run,
             reset_run,
             set_double_steel_soul,
+            launcher_settings,
+            set_instant_travel,
             remove_game_folders,
             export_diagnostics,
             check_update,
@@ -361,6 +388,7 @@ fn main() {
         })
         .setup(|app| {
             updater::cleanup_stale_updates(&runs::home());
+            session::end_left_behind();
             // Development: HKSS_DEV_PLAY=<slot> starts a run without a click and exits when it ends.
             if let Some(slot) = env::var("HKSS_DEV_PLAY").ok().and_then(|slot| slot.parse().ok()) {
                 play(app.handle().clone(), slot)?;

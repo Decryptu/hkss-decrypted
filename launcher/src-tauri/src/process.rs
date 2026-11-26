@@ -1,17 +1,93 @@
 //! The few Windows calls the launcher needs around a game process.
 
-use std::{mem, ptr};
+use std::{mem, os::windows::io::AsRawHandle, path::Path, process::Child, ptr, thread::sleep, time::Duration};
 use windows_sys::Win32::{
-    Foundation::{CloseHandle, BOOL, HWND, LPARAM, RECT},
+    Foundation::{CloseHandle, BOOL, HANDLE, HWND, LPARAM, RECT},
     System::{
         ProcessStatus::{EnumProcesses, GetProcessMemoryInfo, PROCESS_MEMORY_COUNTERS, PROCESS_MEMORY_COUNTERS_EX},
-        Threading::{OpenProcess, QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_VM_READ},
+        SystemInformation::{GlobalMemoryStatusEx, MEMORYSTATUSEX},
+        Threading::{
+            OpenProcess, QueryFullProcessImageNameW, TerminateProcess, PROCESS_QUERY_LIMITED_INFORMATION,
+            PROCESS_TERMINATE, PROCESS_VM_READ,
+        },
     },
     UI::WindowsAndMessaging::{
-        EnumWindows, GetWindowLongW, GetWindowRect, GetWindowThreadProcessId, IsIconic, IsWindowVisible,
-        SetForegroundWindow, SetWindowPos, GWL_STYLE, SWP_NOACTIVATE, SWP_NOSIZE, SWP_NOZORDER, WS_CAPTION,
+        EnumWindows, GetWindowLongW, GetWindowRect, GetWindowThreadProcessId, IsIconic, IsWindow, IsWindowVisible,
+        SetForegroundWindow, SetWindowPos, ShowWindowAsync, GWL_STYLE, SWP_NOACTIVATE, SWP_NOSIZE, SWP_NOZORDER,
+        SW_HIDE, SW_SHOW, WS_CAPTION,
     },
 };
+
+#[link(name = "ntdll")]
+extern "system" {
+    fn NtSuspendProcess(process: HANDLE) -> i32;
+    fn NtResumeProcess(process: HANDLE) -> i32;
+}
+
+/// A process's main window, kept as a number so it can cross threads. Found while it is visible.
+pub fn window_id(pid: u32) -> Option<isize> {
+    window(pid).map(|window| window as isize)
+}
+
+/// Hides a window without waiting on its thread, then waits up to half a second for it to go.
+pub fn hide_window(id: isize) {
+    let window = id as HWND;
+    unsafe {
+        ShowWindowAsync(window, SW_HIDE);
+        for _ in 0..50 {
+            if IsWindowVisible(window) == 0 {
+                break;
+            }
+            sleep(Duration::from_millis(10));
+        }
+    }
+}
+
+/// Shows a window hidden by [`hide_window`]. False if the window is gone.
+pub fn show_window(id: isize) -> bool {
+    let window = id as HWND;
+    unsafe { IsWindow(window) != 0 && ShowWindowAsync(window, SW_SHOW) != 0 }
+}
+
+/// Stops every thread of a running child. It keeps its memory and carries on where it was after [`resume`].
+pub fn suspend(child: &Child) -> bool {
+    unsafe { NtSuspendProcess(child.as_raw_handle() as HANDLE) >= 0 }
+}
+
+pub fn resume(child: &Child) -> bool {
+    unsafe { NtResumeProcess(child.as_raw_handle() as HANDLE) >= 0 }
+}
+
+/// Physical memory installed and free now, in megabytes.
+pub fn system_memory_mb() -> Option<(u64, u64)> {
+    let mut status: MEMORYSTATUSEX = unsafe { mem::zeroed() };
+    status.dwLength = mem::size_of::<MEMORYSTATUSEX>() as u32;
+    const MB: u64 = 1024 * 1024;
+    (unsafe { GlobalMemoryStatusEx(&mut status) } != 0).then_some((status.ullTotalPhys / MB, status.ullAvailPhys / MB))
+}
+
+/// Ends a game an earlier launcher left paused, but only if that process still runs from `folder`.
+pub fn kill_left_behind(pid: u32, folder: &Path) -> bool {
+    unsafe {
+        let handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_TERMINATE, 0, pid);
+        if handle.is_null() {
+            return false;
+        }
+        let mut buf = vec![0u16; 1024];
+        let mut len = buf.len() as u32;
+        let ours = QueryFullProcessImageNameW(handle, 0, buf.as_mut_ptr(), &mut len) != 0
+            && is_inside(&String::from_utf16_lossy(&buf[..len as usize]), folder);
+        let killed = ours && TerminateProcess(handle, 1) != 0;
+        CloseHandle(handle);
+        killed
+    }
+}
+
+fn is_inside(path: &str, folder: &Path) -> bool {
+    let folder = folder.to_string_lossy().trim_end_matches(['\\', '/']).to_ascii_lowercase();
+    let path = path.to_ascii_lowercase();
+    path.len() > folder.len() && path.starts_with(&folder) && matches!(path.as_bytes()[folder.len()], b'\\' | b'/')
+}
 
 struct Search {
     pid: u32,
@@ -110,4 +186,35 @@ pub fn is_running(exe_name: &str) -> bool {
         }
     }
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::process::{Command, Stdio};
+
+    #[test]
+    fn only_games_in_the_mirror_folder_count() {
+        let folder = Path::new(r"C:\Users\a\AppData\Local\HKSS\games");
+        assert!(is_inside(r"C:\Users\a\AppData\Local\HKSS\games\silksong\Hollow Knight Silksong.exe", folder));
+        assert!(is_inside(r"c:\users\A\appdata\local\hkss\GAMES\hollow_knight\hollow_knight.exe", folder));
+        assert!(!is_inside(r"C:\Users\a\AppData\Local\HKSS\games-old\x.exe", folder));
+        assert!(!is_inside(r"C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight.exe", folder));
+    }
+
+    #[test]
+    fn pauses_and_resumes_a_child() {
+        let mut child = Command::new("ping").args(["-n", "30", "127.0.0.1"]).stdout(Stdio::null()).spawn().unwrap();
+        assert!(suspend(&child));
+        assert!(child.try_wait().unwrap().is_none());
+        assert!(resume(&child));
+        child.kill().unwrap();
+        child.wait().unwrap();
+    }
+
+    #[test]
+    fn reads_system_memory() {
+        let (total, free) = system_memory_mb().unwrap();
+        assert!(total > 0 && free <= total);
+    }
 }

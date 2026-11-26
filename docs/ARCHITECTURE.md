@@ -107,7 +107,7 @@ A combo run needs two modded games that start in the right save and hand over to
 3. **Play.** Starts the run's current game with `HKSS_RUN_DIR` and `HKSS_SESSION` in its environment.
 4. **Switch games** behind the travel screen (see 7).
 
-5. **Manage runs and updates.** Per-run Archipelago room settings with a connection test, deleting runs, a diagnostics ZIP, removing the mirrored game folders, and in-place updates from GitHub Releases (checks `releases/latest` on startup or on demand in Launcher settings, downloads the Windows NSIS setup executable into `%LOCALAPPDATA%\HKSS\updates\`, verifies its size, PE header, and SHA-256 digest from GitHub's asset metadata, and launches it in passive update mode with automatic relaunch; stale installers are removed on startup). The NSIS installer bundles the mod files.
+5. **Manage runs and updates.** Launcher-wide settings in `launcher.json` (instant travel, see 7), per-run Archipelago room settings with a connection test, deleting runs, a diagnostics ZIP, removing the mirrored game folders, and in-place updates from GitHub Releases (checks `releases/latest` on startup or on demand in Launcher settings, downloads the Windows NSIS setup executable into `%LOCALAPPDATA%\HKSS\updates\`, verifies its size, PE header, and SHA-256 digest from GitHub's asset metadata, and launches it in passive update mode with automatic relaunch; stale installers are removed on startup). The NSIS installer bundles the mod files.
 
 A mirror contains junctions into the Steam library. Remove one link by link, never with a recursive delete that follows junctions.
 
@@ -119,14 +119,24 @@ A mirror contains junctions into the Steam library. Remove one link by link, nev
 
 **Reaching Bone Bottom.** Silksong's vanilla start leads to Bone Bottom without any item. Randomized Ledge Grab moves the start to Bone Bottom itself, as in Silksong Decrypted. Combo runs also accept Silksong's other starting locations (`starting_location`), and shuffled entrances include the Moss Grotto to Bone Bottom route. Those openings may not reach Bone Bottom without items, so the town warp to the Bone Bottom gate works from the first arrival in Pharloom, and the way back to Hallownest never depends on items. The world judges Silksong's opening from the Dirtmouth gate, which Hollow Knight progression opens.
 
-**One game at a time** (built). Keeping both open would cost about 3.5 GB of private memory, so the default closes one and starts the other:
+**One game at a time** (built, the default). Keeping both open costs about 3.5 GB of private memory, so the default closes one and starts the other:
 
 1. The game fades out picture and sound and saves. If saving fails, travel is cancelled and the player keeps playing.
 2. The plugin writes a `travel` signal. The launcher raises its full-screen travel screen and confirms it; the game then closes (or after 3 seconds without an answer).
 3. The launcher records the new game in `run.json` and starts it, muted, behind the travel screen. The plugin shortens the logo and menu waits, loads the save (or starts a new game and skips its opening films) and writes `ready` once the player is in the level.
 4. The launcher puts a windowed game where the other one was, gives it focus and fades the travel screen out.
 
-If a game closes or crashes without asking to travel, the run stays in that game and the launcher returns to its menu. If it crashes after `travel`, the save is already on disk. Suspending the other game for instant travel is a possible later option for PCs with enough memory.
+If a game closes or crashes without asking to travel, the run stays in that game and the launcher returns to its menu. If it crashes after `travel`, the save is already on disk.
+
+**Instant travel** (built, opt-in in Launcher settings; 16 GB of memory recommended). The game the player leaves stays in memory, paused, so going back to it skips the restart:
+
+1. Steps 1 and 2 as above, but the cover carries `"park": true`. Instead of closing, the game answers `parked` and stays still: faded out, muted, without control, at the gate.
+2. The launcher hides its window, suspends the process (`NtSuspendProcess`) and starts or wakes the other game.
+3. To wake it, the launcher writes a `resume` cover for its session, resumes the process and shows its window. The plugin logs in to the room again (a paused socket may have timed out; the server replays every item, so ones found meanwhile are applied), shows the Double Steel Soul defeat if the other game fell, fades in, hands back control and writes `ready`. The player is at the gate, where a cold start would have put them.
+
+Every fallback is the normal path, because the paused game saved before it parked: with less than 3 GB of free memory the game closes as usual (unless the other game is the one paused); a game that cannot be suspended, or does not answer within 20 seconds of waking, is closed and started from its save. When the run ends, however it ends, the paused game is closed. Its process ID is kept in `parked-<game>.json` under the HKSS folder, so a launcher that crashed leaves nothing behind: the next start ends that process if it still runs from the mirror folder.
+
+`state.json` is always read, changed and written back in one step, never cached, so a woken game does not undo what the other game recorded.
 
 **Signals** are one JSON file per game in the run's `signals` folder, replaced atomically and tagged with the launch session so old files are ignored.
 

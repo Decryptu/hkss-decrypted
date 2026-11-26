@@ -110,6 +110,24 @@ internal sealed class ApManager : MonoBehaviour
         Client.Connect(Settings);
     }
 
+    /// <summary>
+    /// Logs in again after the process was paused for instant travel: the old socket may have
+    /// timed out, and the server replays every item, so ones found meanwhile are applied.
+    /// </summary>
+    internal void ReconnectAfterPause()
+    {
+        if (_manualDisconnect || !Settings.IsConfigured) return;
+        if (Client.State != ApConnectionState.Connected && Client.State != ApConnectionState.Connecting
+            && !Settings.AutoConnect) return;
+        _pendingItems.Clear();
+        _inMemoryProcessed = -1;
+        _nextGrantRetryTime = 0f;
+        _reconnectBackoffSeconds = 3f;
+        _autoConnectAttempted = true;
+        OnDisconnected?.Invoke();
+        Client.Connect(Settings);
+    }
+
     internal void Disconnect()
     {
         _manualDisconnect = true;

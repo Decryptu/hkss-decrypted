@@ -1,7 +1,7 @@
 //! Plays a run: starts the current game behind the travel screen, and swaps games on request.
 
-use crate::{game::Game, mirror, preflight, process, runs, steam};
-use serde::Deserialize;
+use crate::{game::Game, mirror, preflight, process, runs, settings, steam};
+use serde::{Deserialize, Serialize};
 use std::{
     fs::{self, File, OpenOptions},
     io::{self, Write},
@@ -19,6 +19,11 @@ const PLUGIN_TIMEOUT: Duration = Duration::from_secs(20);
 /// The save is already confirmed on disk when a game asks to travel.
 const CLOSE_TIMEOUT: Duration = Duration::from_secs(8);
 const FADE: Duration = Duration::from_millis(500);
+/// A paused game that does not answer in this time is closed and started again from its save.
+const RESUME_TIMEOUT: Duration = Duration::from_secs(20);
+/// Free memory needed to keep a game paused while the other one starts (about 2 GB for the
+/// newcomer, plus room for the rest of the PC).
+const PARK_MIN_FREE_MB: u64 = 3072;
 
 /// The launcher windows, so the loop can be read without Tauri.
 pub trait Screen {
@@ -37,7 +42,49 @@ struct Signal {
 
 enum Outcome {
     Closed,
-    Travel(Game),
+    Travel(Game, Option<Parked>),
+}
+
+/// A game kept paused in memory after it saved and asked to travel (instant travel). The run
+/// ends it if the player never goes back: its save is already on disk.
+struct Parked {
+    game: Game,
+    child: Option<Child>,
+    session: String,
+    window: Option<isize>,
+    record: PathBuf,
+}
+
+impl Drop for Parked {
+    fn drop(&mut self) {
+        if let Some(mut child) = self.child.take() {
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+        let _ = fs::remove_file(&self.record);
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+struct ParkedRecord {
+    pid: u32,
+}
+
+fn parked_record(game: Game) -> PathBuf {
+    runs::home().join(format!("parked-{}.json", game.key()))
+}
+
+/// Ends games an earlier launcher left paused (it crashed or was killed), so they never linger
+/// unseen. Each one had saved before it was paused.
+pub fn end_left_behind() {
+    let games = runs::home().join("games");
+    for game in Game::ALL {
+        let record = parked_record(game);
+        if let Some(parked) = fs::read(&record).ok().and_then(|b| serde_json::from_slice::<ParkedRecord>(&b).ok()) {
+            process::kill_left_behind(parked.pid, &games);
+        }
+        let _ = fs::remove_file(record);
+    }
 }
 
 pub fn play(slot: u8, payload: &Path, screen: &dyn Screen) -> Result<(), String> {
@@ -53,10 +100,19 @@ fn play_run(slot: u8, payload: &Path, screen: &dyn Screen) -> io::Result<()> {
     let mut run = existing.unwrap_or(runs::Run { current: Game::HollowKnight });
     let mut log = Log::open(&dir)?;
     let mut place = None;
+    let instant = settings::load(&runs::home()).instant_travel;
+    end_left_behind();
+    // Dropping this when the run ends, however it ends, closes any game still paused.
+    let mut parked: Vec<Parked> = Vec::new();
     loop {
-        match play_game(run.current, &dir, payload, screen, &mut place, &mut log, &mut needs_initial_save, &run)? {
+        let resume = parked.iter().position(|p| p.game == run.current).map(|i| parked.remove(i));
+        // Waking a paused game needs no new memory, so parking this one is always affordable then.
+        let other_paused = !parked.is_empty();
+        let travel = TravelMode { instant, resume, other_paused };
+        match play_game(run.current, &dir, payload, screen, &mut place, &mut log, &mut needs_initial_save, &run, travel)? {
             Outcome::Closed => return Ok(()),
-            Outcome::Travel(to) => {
+            Outcome::Travel(to, left) => {
+                parked.extend(left);
                 run.current = to;
                 runs::save(&dir, &run)?;
             }
@@ -64,6 +120,16 @@ fn play_run(slot: u8, payload: &Path, screen: &dyn Screen) -> io::Result<()> {
     }
 }
 
+struct TravelMode {
+    /// Keep the game the player leaves paused instead of closing it.
+    instant: bool,
+    /// This game, paused when the player left it.
+    resume: Option<Parked>,
+    /// The other game is paused, so travelling wakes it instead of starting it.
+    other_paused: bool,
+}
+
+#[allow(clippy::too_many_arguments)]
 fn play_game(
     game: Game,
     dir: &Path,
@@ -73,48 +139,20 @@ fn play_game(
     log: &mut Log,
     needs_initial_save: &mut bool,
     run: &runs::Run,
+    travel: TravelMode,
 ) -> io::Result<Outcome> {
-    let install = steam::find(game).ok_or_else(|| io::Error::other(format!("{} is not installed in Steam.", game.name())))?;
-    if process::is_running(game.exe()) {
-        let msg = format!("{} is already running. Close it before starting a run.", game.name());
-        log.write(format_args!("{} blocked: already running", game.key()));
-        return Err(io::Error::other(msg));
-    }
-    let report = preflight::inspect(game, &install);
-    if let Some(err) = report.first_error() {
-        log.write(format_args!("{} blocked: {} ({})", game.key(), err.code, err.summary));
-        return Err(io::Error::other(err.detail.clone()));
-    }
-
-    screen.raise_cover(game);
-    let mirror_dir = runs::home().join("games").join(game.key());
-    let exe = mirror::prepare(game, &install.dir, &mirror_dir, payload)?;
-    clear_preloader_logs(&mirror_dir);
-
-    let session = new_session();
-    let started = Instant::now();
-    let mut child = Command::new(&exe)
-        .current_dir(exe.parent().expect("the mirror folder"))
-        .env_remove("DOORSTOP_DISABLE")
-        .env_remove("DOORSTOP_ENABLED")
-        .env("HKSS_RUN_DIR", dir)
-        .env("HKSS_SESSION", &session)
-        .arg("-logFile")
-        .arg(dir.join("logs").join(format!("{}-player.log", game.key())))
-        .spawn()?;
-    if *needs_initial_save {
-        runs::save(dir, run)?;
-        *needs_initial_save = false;
-    }
-    log.write(format_args!(
-        "{} start (build {}, unity {})",
-        game.key(),
-        install.build,
-        report.unity_version.as_deref().unwrap_or("unknown")
-    ));
-
     let signals = dir.join("signals");
     let signal_file = signals.join(format!("{}.json", game.key()));
+    let mirror_dir = runs::home().join("games").join(game.key());
+    let resumed = travel.resume.and_then(|parked| {
+        screen.raise_cover(game);
+        resume(parked, &signals, &signal_file, log)
+    });
+    let (mut child, session, started) = match resumed {
+        Some(resumed) => resumed,
+        None => start(game, dir, payload, screen, &mirror_dir, log, needs_initial_save, run)?,
+    };
+
     let mut visible = false;
     let mut signal = None;
     loop {
@@ -126,7 +164,8 @@ fn play_game(
                     let to = signal.to.ok_or_else(|| io::Error::other("Travel without a destination"))?;
                     log.memory(game, child.id(), "travel");
                     *place = process::position(child.id());
-                    return leave(child, game, to, &session, &signals, screen, log);
+                    let park = travel.instant && (travel.other_paused || memory_allows_parking(log));
+                    return leave(child, game, to, &session, &signals, screen, log, park);
                 }
                 "ready" | "error" if !visible => {
                     visible = true;
@@ -184,6 +223,102 @@ fn play_game(
     }
 }
 
+/// Starts a game from its save behind the travel screen.
+#[allow(clippy::too_many_arguments)]
+fn start(
+    game: Game,
+    dir: &Path,
+    payload: &Path,
+    screen: &dyn Screen,
+    mirror_dir: &Path,
+    log: &mut Log,
+    needs_initial_save: &mut bool,
+    run: &runs::Run,
+) -> io::Result<(Child, String, Instant)> {
+    let install = steam::find(game).ok_or_else(|| io::Error::other(format!("{} is not installed in Steam.", game.name())))?;
+    if process::is_running(game.exe()) {
+        let msg = format!("{} is already running. Close it before starting a run.", game.name());
+        log.write(format_args!("{} blocked: already running", game.key()));
+        return Err(io::Error::other(msg));
+    }
+    let report = preflight::inspect(game, &install);
+    if let Some(err) = report.first_error() {
+        log.write(format_args!("{} blocked: {} ({})", game.key(), err.code, err.summary));
+        return Err(io::Error::other(err.detail.clone()));
+    }
+
+    screen.raise_cover(game);
+    let exe = mirror::prepare(game, &install.dir, mirror_dir, payload)?;
+    clear_preloader_logs(mirror_dir);
+
+    let session = new_session();
+    let started = Instant::now();
+    let child = Command::new(&exe)
+        .current_dir(exe.parent().expect("the mirror folder"))
+        .env_remove("DOORSTOP_DISABLE")
+        .env_remove("DOORSTOP_ENABLED")
+        .env("HKSS_RUN_DIR", dir)
+        .env("HKSS_SESSION", &session)
+        .arg("-logFile")
+        .arg(dir.join("logs").join(format!("{}-player.log", game.key())))
+        .spawn()?;
+    if *needs_initial_save {
+        runs::save(dir, run)?;
+        *needs_initial_save = false;
+    }
+    log.write(format_args!(
+        "{} start (build {}, unity {})",
+        game.key(),
+        install.build,
+        report.unity_version.as_deref().unwrap_or("unknown")
+    ));
+
+    Ok((child, session, started))
+}
+
+/// Wakes a paused game behind the travel screen. `None` when it does not answer: it is then
+/// closed, and the caller starts it again from the save it wrote before it was paused.
+fn resume(mut parked: Parked, signals: &Path, signal_file: &Path, log: &mut Log) -> Option<(Child, String, Instant)> {
+    let game = parked.game;
+    let mut child = parked.child.take()?;
+    let session = parked.session.clone();
+    let window = parked.window;
+    drop(parked);
+    let started = Instant::now();
+    let asked = format!(r#"{{"session":"{session}","state":"resume"}}"#);
+    if write_cover_with_retry(&signals.join("cover.json"), asked.as_bytes()).is_ok() && process::resume(&child) {
+        if let Some(window) = window {
+            process::show_window(window);
+        }
+        while started.elapsed() < RESUME_TIMEOUT {
+            if !matches!(child.try_wait(), Ok(None)) {
+                break;
+            }
+            if read_signal(signal_file, &session).is_some_and(|s| s.state == "ready") {
+                log.write(format_args!("{} resumed in {:.2} s", game.key(), started.elapsed().as_secs_f32()));
+                return Some((child, session, started));
+            }
+            sleep(POLL);
+        }
+    }
+    log.write(format_args!("{} did not resume, starting it again", game.key()));
+    let _ = child.kill();
+    let _ = child.wait();
+    None
+}
+
+fn memory_allows_parking(log: &mut Log) -> bool {
+    match process::system_memory_mb() {
+        Some((_, free)) if free >= PARK_MIN_FREE_MB => true,
+        Some((_, free)) => {
+            log.write(format_args!("instant travel skipped: {free} MB free, {PARK_MIN_FREE_MB} MB needed"));
+            false
+        }
+        None => false,
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
 fn leave(
     mut child: Child,
     game: Game,
@@ -192,17 +327,39 @@ fn leave(
     signals: &Path,
     screen: &dyn Screen,
     log: &mut Log,
+    park: bool,
 ) -> io::Result<Outcome> {
     let asked = Instant::now();
     screen.raise_cover(to);
     sleep(Duration::from_millis(60));
-    let cover_payload = format!(r#"{{"session":"{session}","state":"cover"}}"#);
+    let cover_payload = if park {
+        format!(r#"{{"session":"{session}","state":"cover","park":true}}"#)
+    } else {
+        format!(r#"{{"session":"{session}","state":"cover"}}"#)
+    };
+    let signal_file = signals.join(format!("{}.json", game.key()));
     if let Err(err) = write_cover_with_retry(&signals.join("cover.json"), cover_payload.as_bytes()) {
         let _ = child.kill();
         let _ = child.wait();
         return Err(err);
     }
     while child.try_wait()?.is_none() {
+        // A plugin without instant travel just closes, which is handled like any other close.
+        if park && read_signal(&signal_file, session).is_some_and(|s| s.state == "parked") {
+            match park_game(child, game, session) {
+                Ok(parked) => {
+                    log.write(format_args!("{} paused for {} in {:.2} s", game.key(), to.key(), asked.elapsed().as_secs_f32()));
+                    return Ok(Outcome::Travel(to, Some(parked)));
+                }
+                Err(mut child) => {
+                    // It saved and is waiting to be woken, so closing it loses nothing.
+                    log.write(format_args!("{} could not be paused, closing it", game.key()));
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    return Ok(Outcome::Travel(to, None));
+                }
+            }
+        }
         if asked.elapsed() > CLOSE_TIMEOUT {
             log.write(format_args!("{} had to be stopped", game.key()));
             let _ = child.kill();
@@ -212,7 +369,25 @@ fn leave(
         sleep(POLL);
     }
     log.write(format_args!("{} left for {} in {:.2} s", game.key(), to.key(), asked.elapsed().as_secs_f32()));
-    Ok(Outcome::Travel(to))
+    Ok(Outcome::Travel(to, None))
+}
+
+/// Hides a game that saved and is waiting, then stops its threads. Gives the child back if it
+/// could not be paused.
+fn park_game(child: Child, game: Game, session: &str) -> Result<Parked, Child> {
+    let window = process::window_id(child.id());
+    if let Some(window) = window {
+        process::hide_window(window);
+    }
+    if !process::suspend(&child) {
+        if let Some(window) = window {
+            process::show_window(window);
+        }
+        return Err(child);
+    }
+    let record = parked_record(game);
+    let _ = fs::write(&record, serde_json::to_vec(&ParkedRecord { pid: child.id() }).unwrap_or_default());
+    Ok(Parked { game, child: Some(child), session: session.to_owned(), window, record })
 }
 
 fn write_cover_with_retry(target: &Path, bytes: &[u8]) -> io::Result<()> {
@@ -343,11 +518,53 @@ mod tests {
 
         // Simulate an outgoing game that exits with a non-zero crash code right after sending travel.
         let child = Command::new("cmd").args(["/C", "exit", "1"]).spawn().unwrap();
-        let outcome = leave(child, Game::HollowKnight, Game::Silksong, "s-crash", &signals, &screen, &mut log).unwrap();
+        let outcome = leave(child, Game::HollowKnight, Game::Silksong, "s-crash", &signals, &screen, &mut log, true).unwrap();
 
-        assert!(matches!(outcome, Outcome::Travel(Game::Silksong)));
+        assert!(matches!(outcome, Outcome::Travel(Game::Silksong, None)));
         assert_eq!(*screen.raised.lock().unwrap(), vec![Game::Silksong]);
         let cover = fs::read_to_string(signals.join("cover.json")).unwrap();
         assert!(cover.contains("\"s-crash\""));
+    }
+
+    #[test]
+    fn a_parked_game_is_paused_then_woken_where_it_was() {
+        let temp = tempfile::tempdir().unwrap();
+        std::env::set_var("HKSS_HOME", temp.path());
+        let signals = temp.path().join("signals");
+        fs::create_dir_all(&signals).unwrap();
+        let mut log = Log::open(temp.path()).unwrap();
+        let screen = RecordingScreen { raised: std::sync::Mutex::new(Vec::new()) };
+        let game_file = signals.join("hollow_knight.json");
+
+        // The plugin answers a cover that asks to park by saying it is parked.
+        fs::write(&game_file, r#"{"session":"s-park","state":"parked"}"#).unwrap();
+        let child = Command::new("ping").args(["-n", "60", "127.0.0.1"]).stdout(std::process::Stdio::null()).spawn().unwrap();
+        let outcome = leave(child, Game::HollowKnight, Game::Silksong, "s-park", &signals, &screen, &mut log, true).unwrap();
+        let Outcome::Travel(Game::Silksong, Some(parked)) = outcome else { panic!("the game was not parked") };
+        assert!(fs::read_to_string(signals.join("cover.json")).unwrap().contains(r#""park":true"#));
+        assert!(parked_record(Game::HollowKnight).is_file());
+
+        // Waking it asks the plugin to resume; it answers ready and keeps its session.
+        fs::write(&game_file, r#"{"session":"s-park","state":"ready"}"#).unwrap();
+        let (mut child, session, _) = resume(parked, &signals, &game_file, &mut log).unwrap();
+        assert_eq!(session, "s-park");
+        assert!(child.try_wait().unwrap().is_none());
+        assert!(fs::read_to_string(signals.join("cover.json")).unwrap().contains(r#""state":"resume""#));
+        assert!(!parked_record(Game::HollowKnight).exists());
+        child.kill().unwrap();
+        child.wait().unwrap();
+    }
+
+    #[test]
+    fn a_parked_game_closes_when_the_run_ends() {
+        let child = Command::new("ping").args(["-n", "60", "127.0.0.1"]).stdout(std::process::Stdio::null()).spawn().unwrap();
+        let pid = child.id();
+        let temp = tempfile::tempdir().unwrap();
+        let record = temp.path().join("parked.json");
+        fs::write(&record, "{}").unwrap();
+        drop(Parked { game: Game::Silksong, child: Some(child), session: "s".into(), window: None, record: record.clone() });
+        assert!(!record.exists());
+        let listed = Command::new("tasklist").args(["/FI", &format!("PID eq {pid}"), "/NH"]).output().unwrap();
+        assert!(!String::from_utf8_lossy(&listed.stdout).contains(&pid.to_string()));
     }
 }
