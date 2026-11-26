@@ -10,6 +10,7 @@ mod room_check;
 mod runs;
 mod session;
 mod steam;
+mod updater;
 
 use game::Game;
 use serde::Serialize;
@@ -22,6 +23,7 @@ use std::{
 use tauri::{AppHandle, Emitter, Manager, WebviewWindow};
 
 static PLAYING: AtomicBool = AtomicBool::new(false);
+static UPDATING: AtomicBool = AtomicBool::new(false);
 
 #[derive(Serialize)]
 struct GameStatus {
@@ -143,6 +145,9 @@ fn status() -> Result<Status, String> {
 
 #[tauri::command]
 fn play(app: AppHandle, slot: u8) -> Result<(), String> {
+    if UPDATING.load(Ordering::SeqCst) {
+        return Err("An update is currently being installed.".into());
+    }
     if !steam::is_running() {
         return Err("Start Steam first.".into());
     }
@@ -174,10 +179,13 @@ fn play(app: AppHandle, slot: u8) -> Result<(), String> {
     Ok(())
 }
 
-/// Changes to a run's files wait until no game is open.
+/// Changes to a run's files wait until no game is open and no update is running.
 fn idle() -> Result<(), String> {
     if PLAYING.load(Ordering::SeqCst) {
         return Err("Close the game first.".into());
+    }
+    if UPDATING.load(Ordering::SeqCst) {
+        return Err("Wait for the update to finish first.".into());
     }
     Ok(())
 }
@@ -225,6 +233,40 @@ fn export_diagnostics(slot: u8) -> Result<String, String> {
 }
 
 #[tauri::command]
+async fn check_update() -> Result<Option<updater::UpdateInfo>, String> {
+    updater::check_latest(env!("CARGO_PKG_VERSION")).await
+}
+
+struct UpdatingGuard;
+
+impl Drop for UpdatingGuard {
+    fn drop(&mut self) {
+        UPDATING.store(false, Ordering::SeqCst);
+    }
+}
+
+#[tauri::command]
+async fn install_update(app: AppHandle, info: updater::UpdateInfo) -> Result<(), String> {
+    if PLAYING.load(Ordering::SeqCst) {
+        return Err("Close the game before installing an update.".into());
+    }
+    if UPDATING.swap(true, Ordering::SeqCst) {
+        return Err("An update is already in progress.".into());
+    }
+    let _guard = UpdatingGuard;
+
+    let app_for_progress = app.clone();
+    let installer_path = updater::download_and_verify(&runs::home(), &info, move |progress| {
+        let _ = app_for_progress.emit("update-progress", progress);
+    })
+    .await?;
+
+    updater::launch_installer(&installer_path)?;
+    app.exit(0);
+    Ok(())
+}
+
+#[tauri::command]
 fn open_releases() {
     let _ = std::process::Command::new("explorer").arg(RELEASES).spawn();
 }
@@ -269,7 +311,19 @@ impl session::Screen for Windows {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![status, play, test_connection, save_room, clear_room, delete_run, remove_game_folders, export_diagnostics, open_releases])
+        .invoke_handler(tauri::generate_handler![
+            status,
+            play,
+            test_connection,
+            save_room,
+            clear_room,
+            delete_run,
+            remove_game_folders,
+            export_diagnostics,
+            check_update,
+            install_update,
+            open_releases
+        ])
         .on_window_event(|window, event| {
             // The hidden cover must not keep the launcher alive, and closing it must not orphan a game.
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
@@ -281,6 +335,7 @@ fn main() {
             }
         })
         .setup(|app| {
+            updater::cleanup_stale_updates(&runs::home());
             // Development: HKSS_DEV_PLAY=<slot> starts a run without a click and exits when it ends.
             if let Some(slot) = env::var("HKSS_DEV_PLAY").ok().and_then(|slot| slot.parse().ok()) {
                 play(app.handle().clone(), slot)?;

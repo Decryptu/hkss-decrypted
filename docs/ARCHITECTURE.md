@@ -106,9 +106,7 @@ A combo run needs two modded games that start in the right save and hand over to
 3. **Play.** Starts the run's current game with `HKSS_RUN_DIR` and `HKSS_SESSION` in its environment.
 4. **Switch games** behind the travel screen (see 7).
 
-5. **Manage runs.** Per-run Archipelago room settings with a connection test, deleting runs, a diagnostics ZIP, removing the mirrored game folders, and a startup check that links to new releases. The NSIS installer bundles the mod files.
-
-**Planned.** In-place updates (today the launcher only links to the new release).
+5. **Manage runs and updates.** Per-run Archipelago room settings with a connection test, deleting runs, a diagnostics ZIP, removing the mirrored game folders, and in-place updates from GitHub Releases (checks `releases/latest` on startup or on demand in Launcher settings, downloads the Windows NSIS setup executable into `%LOCALAPPDATA%\HKSS\updates\`, verifies its size, PE header, and SHA-256 digest from GitHub's asset metadata, and launches it in passive update mode with automatic relaunch; stale installers are removed on startup). The NSIS installer bundles the mod files.
 
 A mirror contains junctions into the Steam library. Remove one link by link, never with a recursive delete that follows junctions.
 

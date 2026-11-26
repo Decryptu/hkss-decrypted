@@ -14,7 +14,7 @@
       { "label": "main", "title": "HKSS Launcher", "width": 900, "height": 720, "minWidth": 640, "minHeight": 560, "backgroundColor": "#040406" },
       { "label": "cover", "title": "HKSS Travel", "visible": false, "decorations": false, "resizable": false, "skipTaskbar": true, "alwaysOnTop": true, "focus": false, "shadow": false, "backgroundColor": "#040406" }
     ],
-    "security": { "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src ipc: http://ipc.localhost https://api.github.com" }
+    "security": { "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src ipc: http://ipc.localhost" }
   },
   "bundle": {
     "active": false,

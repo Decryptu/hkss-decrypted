@@ -27,13 +27,28 @@
   let editing = $state<number | null>(null);
   let draft = $state<Room>(blankRoom());
   let message = $state("");
-  let update = $state<string | null>(null);
+  type UpdateInfo = {
+    version: string;
+    tag: string;
+    asset_name: string;
+    download_url: string;
+    sha256: string | null;
+    size: number;
+    release_url: string;
+  };
+  type UpdateProgress = { stage: "downloading" | "verifying" | "installing"; downloaded: number; total: number | null };
+  let update = $state<UpdateInfo | null>(null);
+  let checkingUpdate = $state(false);
+  let updateNotice = $state("");
+  let updating = $state(false);
+  let updateProgress = $state<UpdateProgress | null>(null);
   type CheckResult = { world_version: string | null; version_warning: string | null };
   let testing = $state(false);
   let connection = $state<{ text: string; kind: "ok" | "warn" | "error" } | null>(null);
   let activeRun = $state<number | null>(null);
   let failedRun = $state<number | null>(null);
   let showSettings = $state(false);
+  const busy = $derived(playing || testing || updating);
 
   function edit(slot: Slot) {
     showSettings = false;
@@ -92,31 +107,47 @@
       act("remove_game_folders", {}, "Modded game folders removed.");
   }
 
-  const parseVersion = (v: string) => {
-    const match = /^v?(\d+)\.(\d+)\.(\d+)/.exec(v.trim());
-    return match ? [Number(match[1]), Number(match[2]), Number(match[3])] : null;
-  };
+  const formatMb = (bytes: number) => (bytes / (1024 * 1024)).toFixed(1);
+  const updatePercent = $derived.by(() => {
+    const total = updateProgress?.total ?? update?.size ?? 0;
+    if (!updateProgress || total <= 0) return 0;
+    return Math.min(100, Math.round((updateProgress.downloaded / total) * 100));
+  });
 
-  const newer = (a: string, b: string) => {
-    const pa = parseVersion(a), pb = parseVersion(b);
-    if (!pa || !pb) return false;
-    for (let i = 0; i < 3; i++) if (pa[i] !== pb[i]) return pa[i] > pb[i];
-    return false;
-  };
-
-  async function checkUpdate(version: string) {
+  async function checkUpdate(manual = false) {
+    if (checkingUpdate || updating) return;
+    if (manual) {
+      checkingUpdate = true;
+      updateNotice = "";
+    }
     try {
-      const r = await fetch("https://api.github.com/repos/Decryptu/hkss-decrypted/releases/latest", {
-        headers: { Accept: "application/vnd.github+json" },
-        signal: AbortSignal.timeout(5000),
-      });
-      if (!r.ok) return;
-      const release = await r.json();
-      if (release.draft || release.prerelease) return;
-      const tag = String(release.tag_name ?? "").replace(/^v/, "");
-      if (tag && newer(tag, version)) update = tag;
-    } catch {
-      // Offline or rate-limited: nothing to report.
+      const found = await invoke<UpdateInfo | null>("check_update");
+      update = found;
+      if (manual) {
+        updateNotice = found
+          ? `Update available: v${found.version}.`
+          : `Up to date (v${status?.version ?? ""}).`;
+      }
+    } catch (e) {
+      if (manual) updateNotice = String(e);
+    } finally {
+      if (manual) checkingUpdate = false;
+    }
+  }
+
+  async function installUpdate() {
+    if (!update || busy) return;
+    error = message = updateNotice = "";
+    editing = null;
+    showSettings = false;
+    updating = true;
+    updateProgress = { stage: "downloading", downloaded: 0, total: update.size };
+    try {
+      await invoke("install_update", { info: update });
+    } catch (e) {
+      error = String(e);
+      updating = false;
+      updateProgress = null;
     }
   }
 
@@ -147,14 +178,14 @@
     try {
       const first = !status;
       status = await invoke<Status>("status");
-      if (first) checkUpdate(status.version);
+      if (first) checkUpdate(false);
     } catch (e) {
       error = String(e);
     }
   }
 
   async function play(slot: number) {
-    if (!ready || playing || testing) return;
+    if (!ready || busy) return;
     error = message = "";
     failedRun = null;
     activeRun = slot;
@@ -180,9 +211,13 @@
       activeRun = null;
       refresh();
     });
+    const progress = listen<UpdateProgress>("update-progress", (e) => {
+      updateProgress = e.payload;
+    });
     return () => {
       removeEventListener("focus", refresh);
       ended.then((stop) => stop());
+      progress.then((stop) => stop());
     };
   });
 </script>
@@ -197,7 +232,7 @@
   {#if status}
     <div class="launcher-settings">
       <button type="button" class="settings-cog" title="Launcher settings" aria-label="Launcher settings"
-        aria-expanded={showSettings} aria-controls="launcher-settings" disabled={playing || testing}
+        aria-expanded={showSettings} aria-controls="launcher-settings" disabled={busy}
         onclick={() => { showSettings = !showSettings; }}>
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path stroke-linejoin="round" d="M10 3h4l.5 2.5 1.6.9 2.4-.8 2 3.4-1.9 1.7v1.8l1.9 1.7-2 3.4-2.4-.8-1.6.9L14 20h-4l-.5-2.3-1.6-.9-2.4.8-2-3.4 1.9-1.7v-1.8L3.5 9l2-3.4 2.4.8 1.6-.9z"/>
@@ -206,20 +241,31 @@
       </button>
       <div id="launcher-settings" class="settings-panel" hidden={!showSettings}>
         <h2>Launcher settings</h2>
-        <p>Free up disk space. The launcher rebuilds these folders the next time you play.</p>
-        <div class="actions">
-          <button type="button" disabled={playing || testing} onclick={removeGameFolders}>Remove modded game folders</button>
+        <div class="settings-section">
+          <p>Check GitHub Releases for a newer launcher and mod payload.</p>
+          <div class="actions">
+            <button type="button" class="secondary" disabled={busy || checkingUpdate} onclick={() => checkUpdate(true)}>
+              {checkingUpdate ? "Checking…" : "Check for updates"}
+            </button>
+          </div>
+          {#if updateNotice}<p class="update-check-note" role="status">{updateNotice}</p>{/if}
+        </div>
+        <div class="settings-section">
+          <p>Free up disk space. The launcher rebuilds these folders the next time you play.</p>
+          <div class="actions">
+            <button type="button" disabled={busy} onclick={removeGameFolders}>Remove modded game folders</button>
+          </div>
         </div>
       </div>
     </div>
     <ul class="menu" role="list">
       {#each status.slots as slot (slot.id)}
         <li>
-          <button disabled={!ready || playing || testing || !!slot.error} onclick={() => play(slot.id)}>
+          <button disabled={!ready || busy || !!slot.error} onclick={() => play(slot.id)}>
             <span>Run {slot.id}</span>
             <small>{slot.error ? `Corrupted data (${slot.error})` : `${slot.current ? place(slot.current) : "New run"}${slot.room ? ` · ${slot.room.slot} @ ${slot.room.host}` : " · offline"}${goalBadge(slot)}`}</small>
           </button>
-          <button class="more" disabled={playing || testing} aria-expanded={editing === slot.id} onclick={() => edit(slot)}>Settings</button>
+          <button class="more" disabled={busy} aria-expanded={editing === slot.id} onclick={() => edit(slot)}>Settings</button>
         </li>
         {#if editing === slot.id}
           <li class="panel">
@@ -281,10 +327,29 @@
     {/if}
     {#if !status.steam_running || hasBlockingIssue}
       <div class="actions">
-        <button type="button" disabled={playing || testing} onclick={refresh}>Recheck</button>
+        <button type="button" disabled={busy} onclick={refresh}>Recheck</button>
       </div>
     {/if}
-    {#if update}<p class="notice update" role="status">Update available: v{update} (current: v{status.version}). <button class="link" onclick={() => invoke("open_releases")}>Download release</button></p>{/if}
+    {#if update}
+      <div class="notice update" role="status">
+        {#if updating}
+          {#if updateProgress?.stage === "verifying"}
+            Verifying v{update.version} checksum…
+          {:else if updateProgress?.stage === "installing"}
+            Starting v{update.version} installer…
+          {:else}
+            Downloading v{update.version}… {formatMb(updateProgress?.downloaded ?? 0)} / {formatMb(updateProgress?.total ?? update.size)} MB ({updatePercent}%)
+            <div class="update-bar" aria-hidden="true"><div style="width: {updatePercent}%"></div></div>
+          {/if}
+        {:else}
+          Update available: v{update.version} (current: v{status.version}, {formatMb(update.size)} MB).
+          {#if update.sha256}
+            <button class="link" disabled={busy} onclick={installUpdate}>Install update</button> ·
+          {/if}
+          <button class="link" onclick={() => invoke("open_releases")}>Release page</button>
+        {/if}
+      </div>
+    {/if}
     <p class="footer">Mods &amp; Archipelago are bundled automatically · Steam installs stay vanilla · v{status.version}</p>
   {/if}
   {#if message}<p class="notice" role="status">{message}</p>{/if}
@@ -292,8 +357,8 @@
   {#if failedRun !== null}
     {@const id = failedRun}
     <div class="actions">
-      <button disabled={!ready || playing || testing} onclick={() => play(id)}>Retry run {id}</button>
-      <button disabled={playing || testing} onclick={() => exportReport(id)}>Export bug report</button>
+      <button disabled={!ready || busy} onclick={() => play(id)}>Retry run {id}</button>
+      <button disabled={busy} onclick={() => exportReport(id)}>Export bug report</button>
     </div>
   {/if}
 </main>

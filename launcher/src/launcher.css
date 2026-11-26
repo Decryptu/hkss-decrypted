@@ -21,6 +21,11 @@ body { overflow: clip; }
 .notice { color: var(--dim); font-style: italic; margin: 1rem auto 0; max-width: 52ch; }
 .notice.error { color: #f0928a; }
 .notice.update { color: #f0c97a; font-style: normal; }
+.update-bar { width: min(22rem, 100%); height: 4px; margin: .45rem auto 0; background: #ffffff1a; border-radius: 2px; overflow: hidden; }
+.update-bar div { height: 100%; background: linear-gradient(90deg, var(--soul), #f0c97a); transition: width .12s linear; }
+.settings-panel .settings-section + .settings-section { margin-top: .85rem; padding-top: .85rem; border-top: 1px solid #ffffff1a; }
+.settings-panel .actions button.secondary:hover:enabled { color: #fff; border-color: var(--soul); }
+.settings-panel .update-check-note { margin: .5rem 0 0; font-size: .85rem; color: #f0c97a; }
 
 /* Travel screen: hides one game closing and the other starting. */
 .cover { position: fixed; inset: 0; display: grid; place-content: center; justify-items: center; gap: 1rem; cursor: none; background: #040406; opacity: 0; transition: opacity .45s ease; }
