@@ -151,15 +151,21 @@ function HK.evaluate(items, slot, sealed)
     HK.vanilla_shade_cloak = slot.vanilla_shade_cloak
     local events = HK.vanilla_events(options)
     local order, rules, reached = HK_LOGIC.nodeOrder, HK_LOGIC.nodeRules, state.reached
+    -- Like HKWorld.create_regions: a waypoint's location awards the waypoint itself, but a
+    -- transition's location awards only the transition it leads to. A transition is reached by
+    -- arriving through its partner, so a sealed partner keeps it unreached.
+    local fired = {}
     local changed = true
     while changed do
         changed = false
         for _, node in ipairs(order) do
-            if not reached[node] and not is_blocked(node) and state:eval(rules[node]) then
-                reached[node] = true
+            if not fired[node] and not is_blocked(node) and state:eval(rules[node]) then
+                fired[node] = true
                 changed = true
                 local target = connectors[node]
-                if target and target ~= "" and not reached[target] and not is_blocked(target) then
+                if target == nil then
+                    reached[node] = true
+                elseif target ~= "" and not reached[target] and not is_blocked(target) then
                     reached[target] = true
                 end
             end

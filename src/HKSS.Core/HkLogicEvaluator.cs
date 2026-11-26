@@ -570,7 +570,11 @@ public static class HkLogicEvaluator
         var state = new HkLogicState(graph, counts, options, notchCosts, input.LocationCosts, reached);
         state.SealedScenes = sealedScenes;
 
-        // Fixed-point propagation across rooms, transitions, connectors, and events
+        // Fixed-point propagation across rooms, transitions, connectors, and events.
+        // Like the world: a waypoint's rule awards the waypoint itself, but a transition's rule awards
+        // only the transition it leads to. A transition is reached by arriving through its partner,
+        // so a sealed partner keeps it unreached.
+        var fired = new HashSet<string>(StringComparer.Ordinal);
         bool changed = true;
         int guard = 0;
         while (changed && guard++ < 64)
@@ -578,17 +582,19 @@ public static class HkLogicEvaluator
             changed = false;
             foreach (var kv in graph.NodeRules)
             {
-                if (reached.Contains(kv.Key)) continue;
+                if (fired.Contains(kv.Key)) continue;
                 if (HkLogicState.IsNodeSealed(kv.Key, sealedScenes)) continue;
                 if (kv.Value.Evaluate(state))
                 {
-                    reached.Add(kv.Key);
+                    fired.Add(kv.Key);
                     changed = true;
-                    if (connectors.TryGetValue(kv.Key, out string? target) && !string.IsNullOrEmpty(target)
-                        && !HkLogicState.IsNodeSealed(target!, sealedScenes))
+                    if (!connectors.TryGetValue(kv.Key, out string? target))
                     {
-                        if (reached.Add(target!))
-                            changed = true;
+                        reached.Add(kv.Key);
+                    }
+                    else if (!string.IsNullOrEmpty(target) && !HkLogicState.IsNodeSealed(target!, sealedScenes))
+                    {
+                        reached.Add(target!);
                     }
                 }
             }

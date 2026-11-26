@@ -136,7 +136,11 @@ def _run_cases(
     CROSS_GAME_ITEMS_BY_NAME: dict,
 ) -> None:
 
+    only = {name for name in os.environ.get("HKSS_TEST_ONLY", "").split(",") if name}
+
     def run_case(label: str, yamls: dict[str, str]) -> None:
+        if only and label not in only:
+            return
         prev_cwd = os.getcwd()
         with tempfile.TemporaryDirectory() as td:
             os.chdir(td)
@@ -329,6 +333,25 @@ def _run_cases(
                     assert not empty.has("Town", p), "Greenpath start should not reach Dirtmouth at sphere 0"
                     ss_locs = [l for l in mw.get_locations(p) if l.address is not None and l.name.startswith("SS ")]
                     assert ss_locs and not any(l.can_reach(empty) for l in ss_locs), "Pharloom must stay locked until Dirtmouth is reached"
+                if label == "solo_both_ss_alt_start":
+                    assert sd["silksong"]["starting_location"] == "bellhart", sd["silksong"]["starting_location"]
+                if label == "solo_both_ss_alt_start_entrances":
+                    from BaseClasses import CollectionState
+                    from worlds.hkss.silksong.entrance_randomization import POOL
+
+                    ss_sd = sd["silksong"]
+                    assert ss_sd["starting_location"] == "wormways", ss_sd["starting_location"]
+                    assert sd["hollow_knight"]["options"]["StartLocationName"] == "Greenpath"
+                    route = {s: t for s, t in (ss_sd.get("entrance_pairs") or {}).items()
+                             if s.startswith(("moss-grotto/", "bone-bottom/"))}
+                    assert route and any(t != POOL[s]["vanilla"] for s, t in route.items()), \
+                        "The Moss Grotto to Bone Bottom route should be shuffled with full entrances"
+                    events = [l for l in mw.get_locations(p) if l.address is None]
+                    empty = CollectionState(mw)
+                    empty.sweep_for_advancements(locations=events)
+                    ss_locs = [l for l in mw.get_locations(p) if l.address is not None and l.name.startswith("SS ")]
+                    assert not empty.has("Town", p) and not any(l.can_reach(empty) for l in ss_locs), \
+                        "Pharloom must stay locked until Dirtmouth is reached"
                 if label == "solo_both_hk_alt_start_edge":
                     hk_sd = sd["hollow_knight"]
                     assert hk_sd["options"]["StartLocationName"] == "Outside Colosseum", hk_sd["options"]
@@ -478,6 +501,28 @@ def _run_cases(
             "  shuffle_entrances: full\n"
         )
     })
+    run_case("solo_both_ss_alt_start", {
+        "ComboSsAltStart.yaml": (
+            "name: ComboSsAltStart\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  starting_location: bellhart\n"
+            "  cross_game_seals: 2\n"
+        )
+    })
+    run_case("solo_both_ss_alt_start_entrances", {
+        "ComboSsAltStartEr.yaml": (
+            "name: ComboSsAltStartEr\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  starting_location: wormways\n"
+            "  StartLocation: greenpath\n"
+            "  cross_game_seals: 2\n"
+            "  shuffle_entrances: full\n"
+        )
+    })
     run_case("multiworld_4p", {
         "P1_Both.yaml": (
             "name: P1_Both\n"
@@ -510,7 +555,10 @@ def main() -> None:
     parser.add_argument("--ap-dir", type=Path, default=DEFAULT_AP_DIR)
     parser.add_argument("--apworld", type=Path, default=DEFAULT_APWORLD)
     parser.add_argument("--seed", type=int, default=12345)
+    parser.add_argument("--only", default="", help="Comma-separated case labels to run (default: all).")
     args = parser.parse_args()
+    if args.only:
+        os.environ["HKSS_TEST_ONLY"] = args.only
 
     check_id_space_mirror()
     check_apworld_archive(args.apworld)

@@ -59,6 +59,9 @@ CASES = {
                                "directional_cling_grip: true", "swim_ability_rando: true"),
     "hk_alt_start_greenpath": ("StartLocation: greenpath", "cross_game_seals: 2"),
     "hk_alt_start_colosseum": ("StartLocation: outside_colosseum", "cross_game_seals: 4", "shuffle_entrances: full"),
+    "ss_alt_start_bellhart": ("starting_location: bellhart", "cross_game_seals: 2"),
+    "ss_alt_start_both_entrances": ("starting_location: wormways", "StartLocation: greenpath",
+                                    "cross_game_seals: 2", "shuffle_entrances: full"),
 }
 FRACTIONS = (0, 0.05, 0.15, 0.3, 0.5, 0.7, 0.9, 1.0)
 

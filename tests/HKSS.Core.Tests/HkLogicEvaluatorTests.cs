@@ -44,6 +44,11 @@ public class HkLogicEvaluatorTests
         Assert.True(sealedState.IsSceneSealed("Mines_31"));
         Assert.Equal(HkReachability.Unreachable, sealedState.EvaluateLocation("Crystal_Heart"));
         Assert.True(sealedState.IsNodeReached("Town"));
+
+        // As in the world, a transition counts as reached only by arriving through its partner:
+        // the Crossroads door into Crystal Peak is open while Crystal Peak is, and closed while it is sealed.
+        Assert.True(open.IsNodeReached("Crossroads_45[right1]"));
+        Assert.False(sealedState.IsNodeReached("Crossroads_45[right1]"));
     }
 
     [Fact]

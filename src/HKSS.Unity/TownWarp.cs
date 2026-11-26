@@ -42,7 +42,7 @@ internal sealed class TownWarp : MonoBehaviour
         }
 
 #if SILKSONG
-        if (!HkssPlugin.State.Load().BonetownGateOpen)
+        if (!HkssPlugin.State.Load().BonetownGateOpen && !OpeningMayMissBoneBottom())
         {
             HkssPlugin.Log.LogInfo("Town warp refused: reach Bone Bottom first to open its gate.");
             return false;
@@ -100,15 +100,46 @@ internal sealed class TownWarp : MonoBehaviour
         pd.travelling = false;
         pd.atBench = false;
 
-        gm.RespawningHero = true;
-        gm.BeginSceneTransition(new GameManager.SceneLoadInfo
+        // Same guard as the randomizer's own Bone Bottom warp: an unfinished opening Moss Mother
+        // stays undefeated when Hornet skips past her.
+        bool protectedOpeningBoss = SilksongRandomizer.Patches.MossMotherWarpSafety.PrepareForBoneBottomWarp();
+        try
         {
-            SceneName = TownGate.TownScene,
-            EntryGateName = TownGate.RespawnMarkerName,
-        });
+            gm.RespawningHero = true;
+            gm.BeginSceneTransition(new GameManager.SceneLoadInfo
+            {
+                SceneName = TownGate.TownScene,
+                EntryGateName = TownGate.RespawnMarkerName,
+            });
+        }
+        catch
+        {
+            if (protectedOpeningBoss) SilksongRandomizer.Patches.MossMotherWarpSafety.CancelPreparedWarp();
+            _warping = false;
+            throw;
+        }
         while (gm.IsInSceneTransition) yield return null;
 #endif
 
         _warping = false;
     }
+
+#if SILKSONG
+    /// <summary>
+    /// True when this run's Silksong opening might not walk to Bone Bottom without items: an
+    /// alternate starting location, or shuffled entrances on the Moss Grotto route. The gate warp
+    /// is then open from the first arrival, so the way back to Hallownest never depends on
+    /// items that may be in Hallownest.
+    /// </summary>
+    internal static bool OpeningMayMissBoneBottom()
+    {
+        SilksongRandomizer.SaveState? state = SilksongRandomizer.SaveState.Instance;
+        if (state == null || !state.IsRoomBound) return false;
+        bool alternateStart = !string.IsNullOrEmpty(state.startingLocation)
+            && state.startingLocation != SilksongRandomizer.Archipelago.StartingLocationVanilla;
+        bool shuffledEntrances = !string.IsNullOrEmpty(state.entranceLayoutJson)
+            && state.entranceLayoutJson != "{}";
+        return alternateStart || shuffledEntrances;
+    }
+#endif
 }

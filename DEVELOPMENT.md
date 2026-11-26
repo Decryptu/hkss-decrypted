@@ -37,7 +37,7 @@ pwsh tools/backup-saves.ps1
 ```powershell
 dotnet test tests/HKSS.Core.Tests
 python tools/build_apworld.py                # vendors worlds/hk and silksong into dist/hkss.apworld
-python tools/test_apworld.py                 # verifies IDs, archive, solo and multiworld generation on AP 0.6.8
+python tools/test_apworld.py                 # verifies IDs, archive, solo and multiworld generation on AP 0.6.8 (--only <case,...> runs some cases)
 python tools/export_cross_game_areas.py      # sealable areas and their scenes (apworld/hkss/cross_game_areas.json); --check verifies
 pwsh tools/build-payload.ps1                 # BepInEx and both plugins into local/payload
 cd launcher

@@ -113,11 +113,11 @@ A mirror contains junctions into the Steam library. Remove one link by link, nev
 
 ### 7. Travelling between games
 
-**For the player.** A run starts in Hallownest. Dirtmouth has a gate to Pharloom. The first trip starts Silksong from its beginning; on reaching Bone Bottom its gate opens, and from then on travel is town to town. A warp back to the current game's town covers getting stuck; changing games always uses the gate.
+**For the player.** A run starts in Hallownest. Dirtmouth has a gate to Pharloom. The first trip starts Silksong from its beginning, or from the chosen starting location; on reaching Bone Bottom its gate opens, and from then on travel is town to town. A warp back to the current game's town covers getting stuck; changing games always uses the gate.
 
 **Gates** (built). A standing door with the game's normal "Enter" prompt, built at runtime from the player's own game assets (a Dream Gate style portal in Dirtmouth, a Weaver door in Bone Bottom). The plugin creates it as its own object on ground that is clear in every state of the town, because both towns change: Bone Bottom in Act 3 (`Black Thread States`, `seenBonetownDestroyed`) and after the Skull Tyrant (`skullKingInvaded`), Dirtmouth with the Grimm Troupe, Divine and Nymm. Travel is refused without control, in memories and in boss fights.
 
-**Reaching Bone Bottom.** Silksong's start leads to Bone Bottom without any item. Randomized Ledge Grab moves the start to Bone Bottom itself, as in Silksong Decrypted. Other starting locations, and shuffled entrances on this route, are not offered in combo runs at first.
+**Reaching Bone Bottom.** Silksong's vanilla start leads to Bone Bottom without any item. Randomized Ledge Grab moves the start to Bone Bottom itself, as in Silksong Decrypted. Combo runs also accept Silksong's other starting locations (`starting_location`), and shuffled entrances include the Moss Grotto to Bone Bottom route. Those openings may not reach Bone Bottom without items, so the town warp to the Bone Bottom gate works from the first arrival in Pharloom, and the way back to Hallownest never depends on items. The world judges Silksong's opening from the Dirtmouth gate, which Hollow Knight progression opens.
 
 **One game at a time** (built). Keeping both open would cost about 3.5 GB of private memory, so the default closes one and starts the other:
 

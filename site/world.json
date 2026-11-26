@@ -2,7 +2,7 @@
   "game": "Hollow Knight x Silksong",
   "version": "0.1.18",
   "minimumArchipelago": "0.6.8",
-  "archiveSha256": "dfa82cd9711cbaf9e00047edfa804c4da5903c18fe6e382b1ebc0d04490de953",
+  "archiveSha256": "b8dc6162f13460c704f587331d90fe918b61b3d632d212e63f854731d97fbb76",
   "routes": {
     "HK": [
       [
@@ -1379,7 +1379,7 @@
       "options": {
         "starting_location": {
           "label": "Starting Location",
-          "help": "Choose your starting location and F4 destination. Alternate starts have a checkpoint immediately.\nBone Bottom's F4 warp unlocks after visiting.\n\nSongclave requires an Act 2 or later goal.\nRandomized Ledge Grab replaces Vanilla with Bone Bottom.",
+          "help": "Choose your starting location and F4 destination. Alternate starts have a checkpoint immediately.\nBone Bottom's F4 warp unlocks after visiting. In combo runs, F4 is the town warp to the\nBone Bottom gate, which works from the first arrival in Pharloom with an alternate start.\n\nSongclave requires an Act 2 or later goal.\nRandomized Ledge Grab replaces Vanilla with Bone Bottom.",
           "kind": "choice",
           "default": "vanilla",
           "choices": [

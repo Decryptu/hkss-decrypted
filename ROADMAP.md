@@ -54,6 +54,8 @@ v0.1.17 finishes cross-game seals (Silksong in-game check map seal logic and fas
 
 v0.1.18 enables all 16 Hollow Knight `StartLocation` options in combo runs (`King's Pass`, `Stag Nest`, `West Crossroads`, `East Crossroads`, `Ancestral Mound`, `West Fog Canyon`, `East Fog Canyon`, `Queen's Station`, `Fungal Wastes`, `Greenpath`, `Lower Greenpath`, `West Blue Lake`, `City Storerooms`, `King's Station`, `Outside Colosseum`, and `Crystallized Mound`), exports `StartLocationName` in Hollow Knight slot data for the plugin and in-game check map, guards cross-game seals and coupled HK entrance randomization so Dirtmouth remains reachable without Silksong seal keys, updates `HkLogicEvaluator` and the PopTracker pack for alternate HK starts and Dirtmouth-gated Pharloom reachability, and memoizes HK seal scene lookups to speed up sealed entrance-rando generation. Still to verify in game: alternate Hollow Knight start spawns, helper platforms, and scene edits in a live combo run.
 
+Next release: Silksong's alternate starting locations (`starting_location`) are supported in combo runs, and shuffled entrances include the Moss Grotto to Bone Bottom route. When either applies, the town warp to the Bone Bottom gate works from the first arrival in Pharloom, so the way back to Hallownest never depends on items. The Silksong entrance randomizer now judges its opening from the Dirtmouth gate, which fixes generation failures with alternate starts in both games. The PopTracker pack and the Hollow Knight in-game check map no longer count a transition as reached when its partner is sealed. Still to verify in game: each alternate Silksong start on the first trip from Dirtmouth, and the town warp to Bone Bottom before visiting it.
+
 Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, and a save that fails.
 
 ## Feature Parity & Missing Ports
@@ -68,7 +70,6 @@ Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle
 
 ## Later
 
-- Alternate Silksong starting locations, and shuffled entrances on the Moss Grotto to Bone Bottom route, in combo runs.
 - Suspending the other game for instant travel as an option, live tracking on the player hub's map page.
 
 ## Decisions

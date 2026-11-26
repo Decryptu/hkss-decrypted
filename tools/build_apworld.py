@@ -731,7 +731,32 @@ def vendor_silksong(ss_src: Path, ss_dst: Path) -> None:
                 "strip_ss_prefix(location.name) in world.location_name_to_id",
                 "location.name in world.location_name_to_id",
             )
+        if rel == "entrance_randomization.py":
+            # Combo runs enter Pharloom through the Dirtmouth gate. With an alternate Hollow Knight
+            # start, sphere 0 holds only Hollow Knight checks, so judge Silksong's opening from the gate.
+            t = must_replace(
+                t,
+                "def _early_item_assignment(world):\n"
+                "    state = CollectionState(world.multiworld)\n",
+                "def _early_item_assignment(world):\n"
+                "    state = CollectionState(world.multiworld)\n"
+                "    if getattr(world, 'has_hk', False):\n"
+                "        state.collect(world.multiworld.get_location('Town', world.player).item, True)\n",
+                "silksong/entrance_randomization.py combo early items",
+            )
         p.write_text(t, encoding="utf-8")
+
+    # 8a. options.py: in combo runs F4 is the HKSS town warp, which opens the Bone Bottom gate from the start
+    so_p = ss_dst / "options.py"
+    so_text = so_p.read_text(encoding="utf-8-sig")
+    so_text = must_replace(
+        so_text,
+        "    Bone Bottom's F4 warp unlocks after visiting.\n",
+        "    Bone Bottom's F4 warp unlocks after visiting. In combo runs, F4 is the town warp to the\n"
+        "    Bone Bottom gate, which works from the first arrival in Pharloom with an alternate start.\n",
+        "silksong/options.py StartingLocation doc",
+    )
+    so_p.write_text(so_text, encoding="utf-8")
 
     # 8b. tracker/wishes.py: look up prefixed location names in world.location_name_to_id
     tw_p = ss_dst / "tracker" / "wishes.py"

@@ -33,7 +33,7 @@ function render(world) {
       ["connect", "Connect your run",
         "In HKSS Launcher, open Settings on an unused run. Enter the host address, port, your exact YAML slot name and the room password if required. Choose Test connection, then Save room and start the run."],
       ["travel", "Find the town gates",
-        "Combo runs start in Hallownest. Enter the Dirtmouth gate to reach Pharloom. After you reach Bone Bottom, its gate leads back to Dirtmouth."],
+        "Combo runs start in Hallownest. Enter the Dirtmouth gate to reach Pharloom. After you reach Bone Bottom, its gate leads back to Dirtmouth. With an alternate Silksong start or shuffled entrances, the town warp takes you to the Bone Bottom gate from the start."],
     ] : []),
   ];
 
