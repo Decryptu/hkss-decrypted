@@ -39,6 +39,9 @@ internal static class PlayerOptions
     internal static ConfigEntry<bool> BenchRecovery { get; private set; } = null!;
     internal static ConfigEntry<DeathRecovery> DeathLink { get; private set; } = null!;
     internal static ConfigEntry<CheckPinFilter> MapFilter { get; private set; } = null!;
+    internal static ConfigEntry<bool> DamageNumbers { get; private set; } = null!;
+    internal static ConfigEntry<bool> EnemyHealthBars { get; private set; } = null!;
+    internal static ConfigEntry<bool> BossHealthBar { get; private set; } = null!;
     internal static Shortcut? Capturing { get; set; }
     private static int _capturedFrame = -1;
 
@@ -49,6 +52,9 @@ internal static class PlayerOptions
         MapFilter = config.Bind("Map", "Check pin filter", CheckPinFilter.GameDefault);
         DeathLink = config.Bind("DeathLink", "Shade or cocoon", DeathRecovery.RoomDefault);
         BenchRecovery = config.Bind("Recovery", "Allow bench recovery", false);
+        DamageNumbers = config.Bind("Combat", "Damage numbers", false);
+        EnemyHealthBars = config.Bind("Combat", "Enemy health bars", false);
+        BossHealthBar = config.Bind("Combat", "Boss health bar", false);
         Bindings.Add(Shortcut.TownWarp, config.Bind("Hotkeys", "Town Warp", Key.F4));
         Bindings.Add(Shortcut.ApPanel, config.Bind("Hotkeys", "Archipelago Panel", Key.F6));
         Bindings.Add(Shortcut.Benchwarp, config.Bind("Hotkeys", "Benchwarp Panel", Key.F7));

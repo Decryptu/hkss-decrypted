@@ -56,6 +56,7 @@ npm run release   # after tools/build-payload.ps1 -Configuration Release: NSIS i
 | `HKSS_DEV_PLAY` | Starts that run slot without a click; the launcher exits when it ends. |
 | `HKSS_DEV_AUTOTRAVEL` | Debug plugins only: travels this many seconds after the game is ready, once the player has control. F8 travels at once. |
 | `HKSS_DEV_START_IN_TOWN` | Debug plugins only: `hk`, `ss`, or `both` warps a fresh run from the tutorial scene straight to that game's town gate behind the travel screen. |
+| `HKSS_DEV_COMBAT_TEST` | Debug plugins only: `1` turns on the combat display, brings the three nearest enemies next to the player and hits them a few times. Combine it with `HKSS_DEV_SCREENSHOT_DIR` to check numbers and bars. |
 | `HKSS_DEV_SCREENSHOT_DIR` | Debug plugins only: saves `<game>.png` into this folder shortly after the game becomes ready. |
 | `HKSS_AP_HOST` | Overrides the Archipelago server host (accepts `host` or `host:port`) from `ap.json`. Press `F6` in game to open the connection panel. |
 | `HKSS_AP_PORT` | Overrides the Archipelago server port from `ap.json`. |
@@ -64,7 +65,7 @@ npm run release   # after tools/build-payload.ps1 -Configuration Release: NSIS i
 
 Run logs are in `runs/slot-<n>/logs/`: `launcher.log` has timings and memory, `<game>-player.log` is Unity's log. BepInEx logs to `games/<game>/BepInEx/LogOutput.log`.
 
-The Archipelago panel opens with F6 by default. Under **Links & QoL**, both games share the same run-local settings in `player-options.cfg`. Auto-quill fills visited rooms where you own the area map. The check pin filter can use the game's setting, show unchecked or checked pins, or filter unchecked pins by reachability. The DeathLink shade/cocoon setting applies to incoming deaths and defaults to the room setting. Bench recovery is opt-in and can return you to a discovered bench when input is stuck during otherwise safe gameplay. To rebind a shortcut, select it and press the new key. Escape cancels.
+The Archipelago panel opens with F6 by default. Under **Links & QoL**, both games share the same run-local settings in `player-options.cfg`. Auto-quill fills visited rooms where you own the area map. The check pin filter can use the game's setting, show unchecked or checked pins, or filter unchecked pins by reachability. The DeathLink shade/cocoon setting applies to incoming deaths and defaults to the room setting. Bench recovery is opt-in and can return you to a discovered bench when input is stuck during otherwise safe gameplay. The Combat section turns on damage numbers, health bars over enemies you hit and a boss health bar at the bottom of the screen. Enemies count as bosses when they have a lot of health; in Hollow Knight, any enemy whose health Godhome rescales also counts. To rebind a shortcut, select it and press the new key. Escape cancels.
 
 To delete a test home, first remove each junction in `games/<game>/` with `cmd /c rmdir <link>`. A recursive delete that follows junctions would delete the Steam install.
 

@@ -499,6 +499,15 @@ internal sealed partial class ApOverlay : MonoBehaviour
         }
 
         GUILayout.Space(8f);
+        GUILayout.Label("Combat", _sectionStyle);
+        PlayerOptions.DamageNumbers.Value = GUILayout.Toggle(PlayerOptions.DamageNumbers.Value,
+            "Damage numbers on hits");
+        PlayerOptions.EnemyHealthBars.Value = GUILayout.Toggle(PlayerOptions.EnemyHealthBars.Value,
+            "Health bars over enemies you hit");
+        PlayerOptions.BossHealthBar.Value = GUILayout.Toggle(PlayerOptions.BossHealthBar.Value,
+            "Boss health bar");
+
+        GUILayout.Space(8f);
         GUILayout.Label("Death & Recovery", _sectionStyle);
         var deathMode = PlayerOptions.DeathLink.Value;
         if (GUILayout.Button($"DeathLink shade / cocoon · {deathMode switch

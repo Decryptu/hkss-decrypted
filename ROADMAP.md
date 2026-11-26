@@ -66,6 +66,8 @@ Cross-game QoL settings are ready for playtesting in the **Links & QoL** tab. Ve
 
 Combined end-of-run stats are wired into `state.json`, the `F6` **Stats** tab, and the launcher's run Settings panel. Besides play time, completion, checks, deaths and kills they track rooms explored, longest life, hits landed and taken, masks lost, geo and rosaries, jumps, dashes, distance, trips between worlds, when each goal was reached, the deadliest and most-visited areas, a title for the run and earned feats. Confirm the in-game display updates cleanly after travelling in both directions, and that the jump, dash, hit and currency counts look plausible in both games.
 
+Damage numbers, health bars over enemies you hit and a boss health bar are in the **Combat** section of **Links & QoL**, all off by default. A debug test showed them in both games. Playtest them in real fights: multi-part and multi-phase bosses (Mantis Lords, Watcher Knights, Radiance, Silksong bosses that share one body), that every boss gets the bottom bar and no ordinary enemy does, and the boss names in each language.
+
 Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle gates are closed, and after they reopen.
 
 ## Planned features
@@ -73,10 +75,9 @@ Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle
 Features that players know from popular Hollow Knight and Silksong mods, in priority order. Each one should work the same way in both games. Check the licence of any mod before porting its code.
 
 1. **Skins.** A **Skins** tab in `F6` for the Knight and Hornet that reads existing community skin packs: Custom Knight's folder layout in Hollow Knight, Patchwork/Stitchwork in Silksong. It covers sprites, effects and the HUD. Options: a skin for each world, or a random skin at each bench.
-2. **Damage numbers and health bars.** Optional damage numbers on hits, enemy health bars and a boss health bar in both games, like ShowDamage HealthBar and DamageValuesRewritten.
-3. **More check types.** New world options for levers, breakable walls and grass in both games, with logic in the `.apworld`, both in-game check maps and the PopTracker pack. Later candidates: ropes, benches as items, extra doors and keys, Godhome bosses.
-4. **Chaos and challenge traps.** A world option that applies timed challenge modifiers (darkness, double enemies, a broken nail, attacking in one direction only), either on a timer or as received trap items.
-5. **Practice panel.** Save states, teleport, no-clip and invincibility, based on what DebugMod offers. It is off by default in a multiworld, and the run stats record that it was used. It helps playtesters escape softlocks and reproduce bugs.
+2. **More check types.** New world options for levers, breakable walls and grass in both games, with logic in the `.apworld`, both in-game check maps and the PopTracker pack. Later candidates: ropes, benches as items, extra doors and keys, Godhome bosses.
+3. **Chaos and challenge traps.** A world option that applies timed challenge modifiers (darkness, double enemies, a broken nail, attacking in one direction only), either on a timer or as received trap items.
+4. **Practice panel.** Save states, teleport, no-clip and invincibility, based on what DebugMod offers. It is off by default in a multiworld, and the run stats record that it was used. It helps playtesters escape softlocks and reproduce bugs.
 
 ## Decisions
 
