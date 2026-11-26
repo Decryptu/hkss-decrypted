@@ -130,10 +130,8 @@ def option_schema(option, ap):
     return result
 
 
-def export(archive: Path, ap_dir: Path, rooms_path: Path) -> dict:
-    with ZipFile(archive) as package:
-        release = json.loads(package.read("hkss/archipelago.json"))
-
+def load_world(archive: Path, ap_dir: Path):
+    """Import the packaged world with the installed Archipelago libraries and return HKSSWorld."""
     # Use the installed generation libraries without running the installer's updater.
     module_update = types.ModuleType("ModuleUpdate")
     module_update.update = lambda *args, **kwargs: None
@@ -146,10 +144,19 @@ def export(archive: Path, ap_dir: Path, rooms_path: Path) -> dict:
     previous_logging = logging.root.manager.disable
     logging.disable(logging.CRITICAL)
     try:
-        import Options as ap
+        import Options  # noqa: F401  (imported here so its logging is silenced too)
         from hkss import HKSSWorld
     finally:
         logging.disable(previous_logging)
+    return HKSSWorld
+
+
+def export(archive: Path, ap_dir: Path, rooms_path: Path) -> dict:
+    with ZipFile(archive) as package:
+        release = json.loads(package.read("hkss/archipelago.json"))
+
+    HKSSWorld = load_world(archive, ap_dir)
+    import Options as ap
     from hkss.hk.ExtractedData import connectors, location_to_region_lookup, multi_locations
     from hkss.hk.Options import hollow_knight_randomize_options
     from hkss.silksong.enemy_souls import CATALOGUE

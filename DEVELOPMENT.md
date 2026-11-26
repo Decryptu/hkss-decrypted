@@ -126,6 +126,12 @@ python tools/export_hub_data.py --apworld dist/hkss.apworld
 python tools/export_hub_data.py --apworld dist/hkss.apworld --check
 ```
 
+Build the PopTracker pack from the same `.apworld` and attach `dist/hkss-poptracker.zip` to the release. The pack has item grids, an area overview map per game and Archipelago auto-tracking, but no logic yet.
+
+```powershell
+python tools/export_poptracker.py --apworld dist/hkss.apworld
+```
+
 Review and include `site/world.json` with the update. It records the world version and archive digest. In a fresh browser profile, check the setup paths, import and download a YAML, and filter the map for each game. The hub works under the project path on GitHub Pages.
 
 The logo is `site/assets/logo.png` (1024×1024, transparent). `logo.webp` (512, used by the page), `logo-256.png` (README) and `favicon.png` (64×64) are resized from it.
