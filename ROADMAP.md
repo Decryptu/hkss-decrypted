@@ -58,6 +58,8 @@ Next release: Silksong's alternate starting locations (`starting_location`) are 
 
 Also next release: **Instant travel**, an opt-in launcher setting that keeps the game you leave paused in memory, so travelling back to it skips the restart. Still to verify in game: travel in both directions several times, items and seal keys found in the other game arriving after waking, Links & QoL after waking, a Steel Soul death in the other game, closing the active game while the other is paused, full screen and several monitors, and low free memory falling back to closing.
 
+Also next release: **Live tracking** on the player hub's item map. It follows a slot in a running room as checks are found, or reads the seed's spoiler log, with progress per area and what each found check held. Still to verify: following a room on archipelago.gg over `wss://` from the published hub.
+
 Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, and a save that fails.
 
 ## Feature Parity & Missing Ports
@@ -69,10 +71,6 @@ Cross-game QoL settings are ready for playtesting in the **Links & QoL** tab. Ve
 Combined end-of-run stats are wired into `state.json`, the `F6` **Stats** tab, and the launcher's run Settings panel; confirm the in-game display updates cleanly after travelling in both directions.
 
 Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle gates are closed, and after they reopen.
-
-## Later
-
-- Live tracking on the player hub's map page.
 
 ## Decisions
 

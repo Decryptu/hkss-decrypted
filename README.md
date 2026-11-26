@@ -14,7 +14,7 @@ An unofficial combo randomizer and [Archipelago](https://archipelago.gg) world f
 
 ## Play
 
-First playtest release: follow the [setup checklist](https://decryptu.github.io/hkss-decrypted/setup.html) for the installer and `hkss.apworld`. Use the [YAML generator](https://decryptu.github.io/hkss-decrypted/yaml.html) to configure your slot and the [item map](https://decryptu.github.io/hkss-decrypted/map.html) to find checks. The tested builds are Hollow Knight 1.5.12620 and Silksong 1.0.30000 on Steam, with Windows and Archipelago 0.6.8 or newer.
+First playtest release: follow the [setup checklist](https://decryptu.github.io/hkss-decrypted/setup.html) for the installer and `hkss.apworld`. Use the [YAML generator](https://decryptu.github.io/hkss-decrypted/yaml.html) to configure your slot and the [item map](https://decryptu.github.io/hkss-decrypted/map.html) to find checks and follow your run live. The tested builds are Hollow Knight 1.5.12620 and Silksong 1.0.30000 on Steam, with Windows and Archipelago 0.6.8 or newer.
 
 - **One mod for both games** on BepInEx 5: Hollow Knight's randomizer and [Silksong Decrypted](https://github.com/Decryptu/silksong-decrypted) ported to the current Steam builds.
 - **One Archipelago game**, `Hollow Knight x Silksong`: one YAML and one slot covering both games, with single-game modes.

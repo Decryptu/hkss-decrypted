@@ -137,6 +137,59 @@
 .check-result.ss strong { color: #f0928a; }
 .check-result span { color: var(--dim); }
 .check-result code { justify-self: start; }
+.tracking { margin-bottom: 1.5rem; }
+.tracking h2 { margin-bottom: 0; }
+.tracking .hub-controls + .hub-controls { margin-top: .65rem; }
+.tracking-actions { display: flex; flex-wrap: wrap; align-items: end; gap: .5rem; }
+.hub-controls .tracking-toggle { display: flex; align-items: center; gap: .6rem; align-self: end; min-height: 2.35rem; cursor: pointer; }
+.tracking-toggle input {
+  appearance: none;
+  flex: 0 0 auto;
+  width: .86rem;
+  height: .86rem;
+  margin-inline: .18rem;
+  border: 1px solid var(--soul);
+  transform: rotate(45deg);
+  cursor: pointer;
+}
+.tracking-toggle input:checked { background: var(--soul); box-shadow: inset 0 0 0 .13rem var(--bg); }
+#tracking-status:empty { display: none; }
+.kingdom-progress {
+  color: var(--dim);
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: .75em;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+.atlas-areas .tracked {
+  background-image: linear-gradient(to right, #a9c8f033 var(--found), transparent var(--found));
+  background-repeat: no-repeat;
+  background-size: 100% 3px;
+  background-position: bottom;
+}
+.ss .atlas-areas .tracked { background-image: linear-gradient(to right, #f0928a40 var(--found), transparent var(--found)); }
+.atlas-areas .cleared { border-color: var(--soul); }
+.atlas-areas .cleared small { color: var(--soul); }
+.ss .atlas-areas .cleared { border-color: #f0928a; }
+.ss .atlas-areas .cleared small { color: #f0928a; }
+.check-result.found strong { opacity: .8; }
+.found-mark { color: var(--ink); }
+.check-item { grid-column: 1 / -1; color: var(--ink) !important; }
+.mark-button { justify-self: start; grid-column: 1 / -1; }
+@keyframes lit {
+  from { box-shadow: 0 0 1.2rem .2rem #a9c8f099; }
+  to { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes lit-ss {
+  from { box-shadow: 0 0 1.2rem .2rem #f0928a99; }
+  to { box-shadow: 0 0 0 0 transparent; }
+}
+.lit { animation: lit 2.5s ease-out; }
+.ss .lit, .check-result.ss.lit { animation-name: lit-ss; }
+@media (prefers-reduced-motion: reduce) {
+  .lit { animation: none; outline: 1px solid var(--soul); }
+}
 @media (max-width: 36rem) {
   .option-row, .check-result { grid-template-columns: minmax(0, 1fr); }
 }

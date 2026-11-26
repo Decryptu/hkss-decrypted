@@ -149,8 +149,10 @@ The pages share a catalog exported from the shipped `.apworld`. The setup and do
 - **Setup** offers separate steps for players, hosts and hosts who also play. The host checklist links directly to the matching `.apworld` and explains how to open it. Manual installation is available as a fallback.
 - **YAML generator** builds its form from the world’s Archipelago template options and supports presets, validation, single-slot import and download.
 - **Item map** uses schematic area layouts, world connection data and all registered check IDs. Players can filter by game, area or check type. The atlas uses project styling and does not require game artwork.
-
-Live tracking from a spoiler log or room is planned for later.
+- **Live tracking** on the item map (`site/tracker.js`) follows one slot. It can follow a running room, open the seed's spoiler log, or both.
+  - **Room.** The page joins with the `Tracker` tag and `items_handling` 0, so it never sends checks or receives items. `Connected` gives the seed's checks and the ones already found. `RoomUpdate` adds new finds, which light up their area tiles. `LocationScouts` with `create_as_hint` 0 names what each found check held, using item names from the room's data package. On an https page, addresses without a scheme use `wss://` only, except for this computer. A dropped connection retries with backoff and keeps the progress on screen.
+  - **Spoiler log.** The map shows the slot's checks and what each one holds. Contents of checks not found yet stay hidden unless the player shows them. Without a room, players mark checks found by hand.
+  - **Saved in the browser.** The room address, slot name, parsed spoiler and marks are kept in `localStorage`, with marks per seed and player. The password is never stored.
 
 ### Licensing
 

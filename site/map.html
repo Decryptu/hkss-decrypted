@@ -26,6 +26,28 @@
       <p data-world-version></p>
     </header>
     <p data-load-error role="alert"></p>
+    <section id="tracking" class="tracking" hidden aria-labelledby="tracking-title">
+      <h2 id="tracking-title">Track a run</h2>
+      <p class="hub-note">Follow your slot in a running room to light up checks as you find them, or open the seed's spoiler log. Tracking only reads: it never sends checks or items.</p>
+      <form id="room-form" class="hub-controls" autocomplete="off">
+        <label>Room address <input name="address" placeholder="archipelago.gg:38281" spellcheck="false" required></label>
+        <label>Slot name <input name="slot" spellcheck="false" required></label>
+        <label>Password <input name="password" type="password" placeholder="If the room has one"></label>
+        <div class="tracking-actions">
+          <button type="submit" name="connect">Follow room</button>
+          <button type="button" name="disconnect" hidden>Stop following</button>
+        </div>
+      </form>
+      <form id="spoiler-form" class="hub-controls">
+        <label>Spoiler log <input type="file" name="file" accept=".txt,text/plain"></label>
+        <label data-spoiler-player hidden>Player <select name="player"></select></label>
+        <label class="tracking-toggle" data-spoiler-only hidden><input type="checkbox" name="reveal"> Show items at checks not found yet</label>
+        <div class="tracking-actions" data-spoiler-only hidden>
+          <button type="button" name="forget">Close spoiler log</button>
+        </div>
+      </form>
+      <p id="tracking-status" class="hub-status" role="status" aria-live="polite"></p>
+    </section>
     <form id="map-filters" hidden class="hub-controls" role="search" aria-label="Filter checks">
       <label>Game
         <select name="game">
@@ -36,9 +58,16 @@
       </label>
       <label>Area <select name="area"></select></label>
       <label>Check type <select name="type"></select></label>
+      <label data-tracking-only hidden>Progress
+        <select name="status">
+          <option value="">Found and not found</option>
+          <option value="missing">Not found yet</option>
+          <option value="found">Found</option>
+        </select>
+      </label>
       <label>Find a check <input type="search" name="query" placeholder="Name, room or ID"></label>
     </form>
-    <p class="hub-note">Select a map area to see its checks. Lines show connections between areas. Available checks vary with seed settings. <span class="atlas-scroll-hint">Scroll sideways to see the full map.</span></p>
+    <p class="hub-note">Select a map area to see its checks. Lines show connections between areas. <span data-seed-note>Available checks vary with seed settings.</span> <span class="atlas-scroll-hint">Scroll sideways to see the full map.</span></p>
     <div id="atlas" class="atlas"></div>
     <div class="map-results-header">
       <h2 id="map-results-title" tabindex="-1">All checks</h2>
