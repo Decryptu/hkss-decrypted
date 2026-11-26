@@ -126,10 +126,13 @@ python tools/export_hub_data.py --apworld dist/hkss.apworld
 python tools/export_hub_data.py --apworld dist/hkss.apworld --check
 ```
 
-Build the PopTracker pack from the same `.apworld` and attach `dist/hkss-poptracker.zip` to the release. The pack has item grids, an area overview map per game and Archipelago auto-tracking, but no logic yet.
+Build the PopTracker pack from the same `.apworld` and attach `dist/hkss-poptracker.zip` to the release. The pack has item grids, an area overview map per game, Archipelago auto-tracking and logic for both games. The logic engines are Lua sources in `tools/poptracker/`; the exporter adds the rule data from the world (`tools/poptracker_logic.py`). Silksong's per-slot logic arrives in the slot data when PopTracker connects.
+
+Then check that the pack's logic still agrees with the world. The check generates seeds for several option sets and compares the pack's answers with the world's own reachability for random item sets. It needs `lupa` (`pip install lupa`):
 
 ```powershell
 python tools/export_poptracker.py --apworld dist/hkss.apworld
+python tools/test_poptracker_logic.py --apworld dist/hkss.apworld
 ```
 
 Review and include `site/world.json` with the update. It records the world version and archive digest. In a fresh browser profile, check the setup paths, import and download a YAML, and filter the map for each game. The hub works under the project path on GitHub Pages.

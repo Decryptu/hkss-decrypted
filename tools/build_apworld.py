@@ -185,6 +185,19 @@ def vendor_hk(hk_src: Path, hk_dst: Path) -> None:
         '                if location.basename == "Vessel_Fragment-Basin":',
         "hk/__init__.py Vessel_Fragment-Basin",
     )
+    # CostSanity walks every region of the slot, which also holds Silksong locations.
+    text = must_replace(
+        text,
+        "            for location in region.locations:\n"
+        "                if location.vanilla:\n"
+        "                    continue\n"
+        "                if not location.costs:",
+        "            for location in region.locations:\n"
+        "                if not isinstance(location, HKLocation) or location.vanilla:\n"
+        "                    continue\n"
+        "                if not location.costs:",
+        "hk/__init__.py apply_costsanity HK locations",
+    )
     # Return completion predicate instead of overwriting multiworld.completion_condition directly
     text = must_replace(
         text,
@@ -293,6 +306,22 @@ def vendor_hk(hk_src: Path, hk_dst: Path) -> None:
         '        slot_data["is_race"] = self.settings.disable_spoilers or self.multiworld.is_race',
         '        slot_data["is_race"] = bool(getattr(self.parent_world.settings, "disable_spoilers", False)) or self.multiworld.is_race',
         "hk/__init__.py fill_slot_data is_race",
+    )
+    # Trackers cannot know which split cloak side a vanilla Shade Cloak became (a random pick).
+    text = must_replace(
+        text,
+        "        slot_data[\"is_race\"] = bool(getattr(self.parent_world.settings, \"disable_spoilers\", False)) or self.multiworld.is_race\n"
+        "\n"
+        "        return slot_data\n",
+        "        slot_data[\"is_race\"] = bool(getattr(self.parent_world.settings, \"disable_spoilers\", False)) or self.multiworld.is_race\n"
+        "\n"
+        "        for location in self.multiworld.get_locations(self.player):\n"
+        "            if (isinstance(location, HKLocation) and location.address is None and location.name == \"Shade_Cloak\"\n"
+        "                    and location.item is not None and location.item.name.endswith(\"_Mothwing_Cloak\")):\n"
+        "                slot_data[\"vanilla_shade_cloak\"] = strip_hk_prefix(location.item.name)\n"
+        "\n"
+        "        return slot_data\n",
+        "hk/__init__.py fill_slot_data vanilla shade cloak side",
     )
     # create_item / create_location / HKItem / HKLocation prefixing & ID mapping
     text = must_replace(
@@ -782,6 +811,25 @@ def vendor_silksong(ss_src: Path, ss_dst: Path) -> None:
         r"(?<!\.)\b(item|location|loc)\.name\b(?!\s*=[^=])",
         r"strip_ss_prefix(\1.name)",
         t,
+    )
+    # Tell trackers which vanilla pickups the logic collects as events (the PopTracker pack
+    # evaluates the map logic and cannot rebuild the world's category and goal exclusions).
+    t = must_replace(
+        t,
+        "                        'requirement': slot_data['requirements'][strip_ss_prefix(location.name)],\n"
+        "                    })\n"
+        "        return slot_data\n",
+        "                        'requirement': slot_data['requirements'][strip_ss_prefix(location.name)],\n"
+        "                    })\n"
+        "        slot_data['tracker_vanilla_sources'] = sorted(\n"
+        "            [strip_ss_prefix(location.name), strip_ss_prefix(location.item.name)]\n"
+        "            for location in self.get_locations()\n"
+        "            if location.address is None and location.item is not None\n"
+        "            and location.item.player == self.player and location.item.advancement\n"
+        "            and strip_ss_prefix(location.name) in slot_data['requirements']\n"
+        "        )\n"
+        "        return slot_data\n",
+        "silksong/__init__.py fill_slot_data tracker vanilla sources",
     )
     # Restore collect() / _collect_with_silk_supply() exact item.name usage (handled by HKSSWorld)
     init_p.write_text(t, encoding="utf-8")

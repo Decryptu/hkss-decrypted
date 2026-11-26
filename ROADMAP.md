@@ -54,7 +54,7 @@ Cross-game QoL settings are ready for playtesting in the **Links & QoL** tab. Ve
 
 The combined end-of-run stats are ready for playtesting: each game records play time, completion, deaths, kills and Archipelago check counts in `state.json`; the `F6` **Stats** tab shows both games side by side (and opens on its own when the combo goal is completed), and the launcher shows the same table in a run's Settings panel. Verify that deaths and kills are counted once each, that totals survive travel in both directions, and that a new seed in the same run slot clears them.
 
-A PopTracker pack is built by `tools/export_poptracker.py` (item grids for both games, an area overview map per game, Archipelago auto-tracking, no logic yet). Verify during the playtest that received items and checked locations update for both games.
+A PopTracker pack is built by `tools/export_poptracker.py` (item grids for both games, an area overview map per game, Archipelago auto-tracking, and logic for both games that follows each slot's options). `tools/test_poptracker_logic.py` checks the pack's logic against the world. Verify during the playtest that received items, checked locations and in-logic checks update for both games.
 
 Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle gates are closed, and after they reopen.
 
@@ -64,7 +64,7 @@ Verify the Forgotten Crossroads spike grub in a newly generated split-cloak seed
 
 - More unified shuffles: entrances and rooms in combo mode, charms/crests, shops, grubs/fleas, journal entries, lore tablets.
 - Cross-game rules and items (abilities that unlock routes in the other game) as opt-in options.
-- Suspending the other game for instant travel as an option, PopTracker logic, live tracking on the player hub's map page.
+- Suspending the other game for instant travel as an option, live tracking on the player hub's map page.
 
 ## Decisions
 
