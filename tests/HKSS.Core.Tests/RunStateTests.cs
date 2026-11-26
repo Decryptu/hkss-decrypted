@@ -178,6 +178,61 @@ public sealed class RunStateTests : IDisposable
     }
 
     [Fact]
+    public void ExtendedStatsDeriveRecordsAndFeats()
+    {
+        var hkStore = new RunStateStore(MakeContext(GameId.HollowKnight));
+        var ssStore = new RunStateStore(MakeContext(GameId.Silksong));
+
+        hkStore.UpdateStats(s =>
+        {
+            GameStats hk = s.GetStats(GameId.HollowKnight);
+            hk.PlaySeconds = 5000;
+            hk.RecordDeath(1000, "DEEPNEST");
+            hk.RecordDeath(1100, "DEEPNEST");
+            hk.RecordDeath(4000, "GREEN_PATH");
+            hk.Kills = 30;
+            hk.Distance = 1534;
+            hk.RoomsVisited.Add("Town");
+            hk.SecondsByArea["CROSSROADS"] = 1200;
+            s.Travels = 9;
+        });
+        ssStore.UpdateStats(s =>
+        {
+            GameStats ss = s.GetStats(GameId.Silksong);
+            ss.PlaySeconds = 5000;
+            ss.SecondsByArea["BONETOWN"] = 1800;
+        });
+        hkStore.MarkGoalCompleted(GameId.HollowKnight);
+        ssStore.UpdateStats(s => s.GetStats(GameId.Silksong).PlaySeconds = 5600);
+        ssStore.MarkGoalCompleted(GameId.Silksong);
+
+        RunSummary sum = hkStore.LoadSummary();
+        Assert.Equal(3, sum.HollowKnight.Deaths);
+        Assert.Equal(2900, sum.HollowKnight.LongestLifeSeconds);
+        Assert.Equal(5600, sum.LongestLifeSeconds); // Silksong is deathless so far
+        Assert.Equal(10.0, sum.KillsPerDeath);
+        Assert.Equal("Deepnest", sum.DeadliestArea?.Name);
+        Assert.Equal(2, sum.DeadliestArea?.Value);
+        Assert.Equal("Bone Bottom", sum.FavouriteArea?.Name);
+        Assert.Equal(10000, sum.HollowKnight.GoalAtSeconds);
+        Assert.Equal(600, sum.GoalGapSeconds);
+        Assert.Equal(1, sum.TotalRoomsVisited);
+        Assert.Equal("1.5 km", RunSummary.FormatDistance(sum.TotalDistance));
+        Assert.Equal("Cog Core Test", RunSummary.AreaName(GameId.Silksong, "COG_CORE_TEST"));
+        Assert.Contains(sum.Feats, f => f.Title == "Twin Crowns");
+        Assert.Contains(sum.Feats, f => f.Title == "Perfect Balance");
+        Assert.Contains(sum.Feats, f => f.Title == "Frequent Flier");
+        Assert.Contains(sum.Feats, f => f.Title == "Swift Pilgrim");
+        Assert.Equal("Knight and Hornet", sum.Epithet);
+        string json = File.ReadAllText(Path.Combine(_dir, RunStateStore.StateFileName));
+        Assert.Contains("\"epithet\": \"Knight and Hornet\"", json);
+        Assert.Contains("\"title\": \"Twin Crowns\"", json);
+
+        Assert.True(hkStore.EnsureSeedBinding("seed-B|x") || hkStore.EnsureSeedBinding("seed-C|x"));
+        Assert.Equal(0, hkStore.LoadSummary().Travels);
+    }
+
+    [Fact]
     public void OldStateWithoutStatsLoadsEmptyStats()
     {
         File.WriteAllText(Path.Combine(_dir, RunStateStore.StateFileName), "{\"hk_goal_completed\": true, \"hk_stats\": null}");

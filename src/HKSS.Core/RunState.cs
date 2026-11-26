@@ -72,6 +72,10 @@ public sealed class RunState
     [JsonProperty("ss_stats")]
     public GameStats SsStats { get; set; } = new();
 
+    /// <summary>Trips between the two games in this run.</summary>
+    [JsonProperty("travels")]
+    public int Travels { get; set; }
+
     /// <summary>True when Double Steel Soul is active for this combo run.</summary>
     [JsonProperty("double_steel_soul")]
     public bool DoubleSteelSoul { get; set; }
@@ -87,6 +91,32 @@ public sealed class RunState
     /// <summary>Scene name where the Steel Soul run fell, if known.</summary>
     [JsonProperty("steel_soul_defeated_scene")]
     public string SteelSoulDefeatedScene { get; set; } = string.Empty;
+
+    /// <summary>The run's title, derived from its stats (for the launcher; recomputed on every save).</summary>
+    [JsonProperty("epithet")]
+    public string Epithet { get; set; } = string.Empty;
+
+    /// <summary>Feats earned so far, derived from the stats (for the launcher; recomputed on every save).</summary>
+    [JsonProperty("feats")]
+    public List<Feat> Feats { get; set; } = new();
+
+    /// <summary>Area with the most deaths, as <c>Name (count)</c> (for the launcher; recomputed on every save).</summary>
+    [JsonProperty("deadliest_area")]
+    public string DeadliestArea { get; set; } = string.Empty;
+
+    /// <summary>Area with the most play time, as <c>Name (H:MM:SS)</c> (for the launcher; recomputed on every save).</summary>
+    [JsonProperty("favourite_area")]
+    public string FavouriteArea { get; set; } = string.Empty;
+
+    /// <summary>Recomputes the derived summary fields from the stats.</summary>
+    public void RefreshSummary()
+    {
+        var summary = new RunSummary(this);
+        Epithet = summary.Epithet;
+        Feats = new List<Feat>(summary.Feats);
+        DeadliestArea = summary.DeadliestArea is { } d ? $"{d.Name} ({d.Value:0})" : string.Empty;
+        FavouriteArea = summary.FavouriteArea is { } f ? $"{f.Name} ({RunSummary.FormatDuration(f.Value)})" : string.Empty;
+    }
 
     public GameStats GetStats(GameId game) => game switch
     {
@@ -167,6 +197,7 @@ public sealed class RunStateStore
     public void Save(RunState state)
     {
         if (state == null) throw new ArgumentNullException(nameof(state));
+        state.RefreshSummary();
         string? dir = Path.GetDirectoryName(_path);
         if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
         string json = JsonConvert.SerializeObject(state, Formatting.Indented);
@@ -239,6 +270,7 @@ public sealed class RunStateStore
         state.SsGoalCompleted = false;
         state.HkStats = new GameStats();
         state.SsStats = new GameStats();
+        state.Travels = 0;
         state.SealKeys = new List<long>();
         state.DoubleSteelSoul = false;
         state.SteelSoulDefeated = false;
@@ -317,6 +349,9 @@ public sealed class RunStateStore
         RunState state = Load();
         if (state.GetGoalCompleted(game)) return false;
         state.SetGoalCompleted(game, true);
+        GameStats stats = state.GetStats(game);
+        if (stats.GoalAtSeconds <= 0)
+            stats.GoalAtSeconds = state.GetStats(GameId.HollowKnight).PlaySeconds + state.GetStats(GameId.Silksong).PlaySeconds;
         Save(state);
         return true;
     }

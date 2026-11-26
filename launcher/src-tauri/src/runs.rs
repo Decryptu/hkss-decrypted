@@ -33,6 +33,25 @@ pub struct RunGoals {
     pub hk_stats: GameStats,
     #[serde(default, deserialize_with = "null_default")]
     pub ss_stats: GameStats,
+    #[serde(default)]
+    pub travels: u32,
+    #[serde(default, deserialize_with = "null_default")]
+    pub epithet: String,
+    #[serde(default, deserialize_with = "null_default")]
+    pub feats: Vec<Feat>,
+    #[serde(default, deserialize_with = "null_default")]
+    pub deadliest_area: String,
+    #[serde(default, deserialize_with = "null_default")]
+    pub favourite_area: String,
+}
+
+/// A light-hearted award computed by the game plugins.
+#[derive(Clone, Default, Deserialize, Serialize)]
+pub struct Feat {
+    #[serde(default)]
+    pub title: String,
+    #[serde(default)]
+    pub description: String,
 }
 
 /// One game's end-of-run stats, written to `state.json` by the game plugins.
@@ -50,6 +69,31 @@ pub struct GameStats {
     pub checks_found: u32,
     #[serde(default)]
     pub checks_total: u32,
+    #[serde(default)]
+    pub hits_taken: u32,
+    #[serde(default)]
+    pub masks_lost: u32,
+    #[serde(default)]
+    pub hits_landed: u32,
+    #[serde(default)]
+    pub currency_earned: u64,
+    #[serde(default)]
+    pub jumps: u32,
+    #[serde(default)]
+    pub dashes: u32,
+    #[serde(default)]
+    pub distance: f64,
+    #[serde(default)]
+    pub rooms_entered: u32,
+    /// Distinct rooms entered; `state.json` lists their names, only the count is kept.
+    #[serde(default, deserialize_with = "count_list")]
+    pub rooms_visited: u32,
+    #[serde(default)]
+    pub longest_life_seconds: f64,
+    #[serde(default)]
+    pub last_death_seconds: f64,
+    #[serde(default)]
+    pub goal_at_seconds: f64,
 }
 
 fn null_default<'de, D, T>(deserializer: D) -> Result<T, D::Error>
@@ -58,6 +102,14 @@ where
     T: Default + Deserialize<'de>,
 {
     Ok(Option::<T>::deserialize(deserializer)?.unwrap_or_default())
+}
+
+fn count_list<'de, D>(deserializer: D) -> Result<u32, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let list = Option::<Vec<serde::de::IgnoredAny>>::deserialize(deserializer)?;
+    Ok(list.map_or(0, |l| l.len() as u32))
 }
 
 /// Best-effort read of per-game goal flags and stats from `state.json`. Missing or unreadable files return defaults.
@@ -158,13 +210,18 @@ mod tests {
         fs::write(temp.path().join("state.json"), "{").unwrap();
         fs::write(
             temp.path().join("state.json"),
-            r#"{"hk_stats": {"play_seconds": 61.5, "deaths": 3, "checks_found": 2, "checks_total": 9}, "ss_stats": null}"#,
+            r#"{"hk_stats": {"play_seconds": 61.5, "deaths": 3, "checks_found": 2, "checks_total": 9, "rooms_visited": ["Town", "Tutorial_01"], "deaths_by_area": {"TOWN": 3}}, "ss_stats": null, "travels": 4, "epithet": "Knight and Hornet", "feats": [{"title": "Twin Crowns", "description": "x"}], "deadliest_area": null}"#,
         )
         .unwrap();
         let stats = load_goals(temp.path());
         assert_eq!(stats.hk_stats.deaths, 3);
         assert_eq!(stats.hk_stats.checks_total, 9);
         assert_eq!(stats.ss_stats.play_seconds, 0.0);
+        assert_eq!(stats.hk_stats.rooms_visited, 2);
+        assert_eq!(stats.travels, 4);
+        assert_eq!(stats.epithet, "Knight and Hornet");
+        assert_eq!(stats.feats[0].title, "Twin Crowns");
+        assert_eq!(stats.deadliest_area, "");
 
         fs::write(temp.path().join("state.json"), "{").unwrap();
         let corrupt = load_goals(temp.path());

@@ -107,6 +107,7 @@ internal sealed class Travel : MonoBehaviour
             yield break;
         }
 
+        RunStatsTracker.RecordTravel();
         HkssPlugin.Signals.Send(Signal.Travel, HkssPlugin.ThisGame.Other());
         Signal? cover = null;
         for (float t = 0f; t < CoverTimeout; t += Time.unscaledDeltaTime)

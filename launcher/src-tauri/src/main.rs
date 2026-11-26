@@ -49,6 +49,11 @@ struct SlotStatus {
     steel_soul_defeated_scene: Option<String>,
     hk_stats: runs::GameStats,
     ss_stats: runs::GameStats,
+    travels: u32,
+    epithet: String,
+    feats: Vec<runs::Feat>,
+    deadliest_area: String,
+    favourite_area: String,
     error: Option<String>,
 }
 
@@ -146,6 +151,11 @@ fn status() -> Result<Status, String> {
             steel_soul_defeated_scene: (!goals.steel_soul_defeated_scene.is_empty()).then_some(goals.steel_soul_defeated_scene),
             hk_stats: goals.hk_stats,
             ss_stats: goals.ss_stats,
+            travels: goals.travels,
+            epithet: goals.epithet,
+            feats: goals.feats,
+            deadliest_area: goals.deadliest_area,
+            favourite_area: goals.favourite_area,
             error,
         });
     }

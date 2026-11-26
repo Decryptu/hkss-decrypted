@@ -64,7 +64,7 @@ Both games should offer a seamless, matching experience: any randomizer, UI, or 
 
 Cross-game QoL settings are ready for playtesting in the **Links & QoL** tab. Verify that auto-quill, check pin filtering, DeathLink shade/cocoon handling, bench recovery and shortcut changes behave consistently after travel in both directions.
 
-Combined end-of-run stats are wired into `state.json`, the `F6` **Stats** tab, and the launcher's run Settings panel; confirm the in-game display updates cleanly after travelling in both directions.
+Combined end-of-run stats are wired into `state.json`, the `F6` **Stats** tab, and the launcher's run Settings panel. Besides play time, completion, checks, deaths and kills they track rooms explored, longest life, hits landed and taken, masks lost, geo and rosaries, jumps, dashes, distance, trips between worlds, when each goal was reached, the deadliest and most-visited areas, a title for the run and earned feats. Confirm the in-game display updates cleanly after travelling in both directions, and that the jump, dash, hit and currency counts look plausible in both games.
 
 Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle gates are closed, and after they reopen.
 

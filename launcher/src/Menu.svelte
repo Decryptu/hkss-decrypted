@@ -7,7 +7,26 @@
   type Issue = { severity: "error" | "warning"; code: string; summary: string; detail: string };
   type Game = { key: string; name: string; build: string | null; tested: boolean; unity_version: string | null; issues: Issue[] };
   type Room = { host: string; port: number; slot: string; password: string; auto_connect: boolean };
-  type Stats = { play_seconds: number; deaths: number; kills: number; completion_percent: number; checks_found: number; checks_total: number };
+  type Stats = {
+    play_seconds: number;
+    deaths: number;
+    kills: number;
+    completion_percent: number;
+    checks_found: number;
+    checks_total: number;
+    hits_taken: number;
+    masks_lost: number;
+    hits_landed: number;
+    currency_earned: number;
+    jumps: number;
+    dashes: number;
+    distance: number;
+    rooms_visited: number;
+    longest_life_seconds: number;
+    last_death_seconds: number;
+    goal_at_seconds: number;
+  };
+  type Feat = { title: string; description: string };
   type Slot = {
     id: number;
     current: string | null;
@@ -20,6 +39,11 @@
     steel_soul_defeated_scene: string | null;
     hk_stats: Stats;
     ss_stats: Stats;
+    travels: number;
+    epithet: string;
+    feats: Feat[];
+    deadliest_area: string;
+    favourite_area: string;
     error: string | null;
   };
   type Status = { games: Game[]; slots: Slot[]; steam_running: boolean; version: string };
@@ -200,6 +224,14 @@
   };
   const checks = (found: number, total: number) => (total > 0 ? `${found} / ${total}` : `${found}`);
   const goalText = (done: boolean, s: Stats) => (done ? "Done" : played(s) ? "Not yet" : "Not started");
+  const num = (n: number) => Math.round(n).toLocaleString("en-US");
+  const distance = (units: number) => (units >= 1000 ? `${(units / 1000).toFixed(1)} km` : `${Math.round(units)} m`);
+  const bestLife = (s: Stats) => Math.max(s.longest_life_seconds, s.play_seconds - s.last_death_seconds, 0);
+  const goalAt = (s: Stats) => (s.goal_at_seconds > 0 ? duration(s.goal_at_seconds) : "—");
+  const hkShare = (hk: Stats, ss: Stats) => {
+    const total = hk.play_seconds + ss.play_seconds;
+    return total > 0 ? hk.play_seconds / total : 0.5;
+  };
 
   async function setInstantTravel(enabled: boolean) {
     error = "";
@@ -352,18 +384,51 @@
             {#if played(slot.hk_stats) || played(slot.ss_stats)}
               {@const hk = slot.hk_stats}
               {@const ss = slot.ss_stats}
-              <table class="stats">
-                <caption>{slot.steel_soul_defeated ? defeatLabel(slot) : slot.hk_goal_completed && slot.ss_goal_completed ? "Run complete" : "Run so far"}</caption>
-                <thead><tr><th></th><th>Hallownest</th><th>Pharloom</th><th>Total</th></tr></thead>
-                <tbody>
-                  <tr><th>Goal</th><td>{goalText(slot.hk_goal_completed, hk)}</td><td>{goalText(slot.ss_goal_completed, ss)}</td><td></td></tr>
-                  <tr><th>Play time</th><td>{duration(hk.play_seconds)}</td><td>{duration(ss.play_seconds)}</td><td>{duration(hk.play_seconds + ss.play_seconds)}</td></tr>
-                  <tr><th>Completion</th><td>{Math.round(hk.completion_percent)}%</td><td>{Math.round(ss.completion_percent)}%</td><td></td></tr>
-                  <tr><th>Checks</th><td>{checks(hk.checks_found, hk.checks_total)}</td><td>{checks(ss.checks_found, ss.checks_total)}</td><td>{checks(hk.checks_found + ss.checks_found, hk.checks_total + ss.checks_total)}</td></tr>
-                  <tr><th>Deaths</th><td>{hk.deaths}</td><td>{ss.deaths}</td><td>{hk.deaths + ss.deaths}</td></tr>
-                  <tr><th>Kills</th><td>{hk.kills}</td><td>{ss.kills}</td><td>{hk.kills + ss.kills}</td></tr>
-                </tbody>
-              </table>
+              {@const share = hkShare(hk, ss)}
+              {@const totalSeconds = hk.play_seconds + ss.play_seconds}
+              {@const totalDeaths = hk.deaths + ss.deaths}
+              <section class="run-stats">
+                <h3>{slot.steel_soul_defeated ? defeatLabel(slot) : slot.hk_goal_completed && slot.ss_goal_completed ? "Run complete" : "Run so far"}</h3>
+                {#if slot.epithet}<p class="epithet">“{slot.epithet}”</p>{/if}
+                <div class="split" role="img" aria-label={`Hallownest ${Math.round(share * 100)}%, Pharloom ${Math.round((1 - share) * 100)}%`}>
+                  <span class="hk" style:width={`${share * 100}%`}></span><span class="ss"></span>
+                </div>
+                <p class="split-legend"><span class="hk">Hallownest {Math.round(share * 100)}%</span><span>{duration(totalSeconds)}</span><span class="ss">Pharloom {Math.round((1 - share) * 100)}%</span></p>
+                <table class="stats">
+                  <thead><tr><th></th><th class="hk">Hallownest</th><th class="ss">Pharloom</th><th>Total</th></tr></thead>
+                  <tbody>
+                    <tr><th>Goal</th><td>{goalText(slot.hk_goal_completed, hk)}</td><td>{goalText(slot.ss_goal_completed, ss)}</td><td></td></tr>
+                    {#if hk.goal_at_seconds > 0 || ss.goal_at_seconds > 0}<tr><th>Goal reached at</th><td>{goalAt(hk)}</td><td>{goalAt(ss)}</td><td></td></tr>{/if}
+                    <tr><th>Play time</th><td>{duration(hk.play_seconds)}</td><td>{duration(ss.play_seconds)}</td><td>{duration(totalSeconds)}</td></tr>
+                    <tr><th>Completion</th><td>{Math.round(hk.completion_percent)}%</td><td>{Math.round(ss.completion_percent)}%</td><td></td></tr>
+                    <tr><th>Checks</th><td>{checks(hk.checks_found, hk.checks_total)}</td><td>{checks(ss.checks_found, ss.checks_total)}</td><td>{checks(hk.checks_found + ss.checks_found, hk.checks_total + ss.checks_total)}</td></tr>
+                    <tr><th>Rooms explored</th><td>{num(hk.rooms_visited)}</td><td>{num(ss.rooms_visited)}</td><td>{num(hk.rooms_visited + ss.rooms_visited)}</td></tr>
+                    <tr><th>Deaths</th><td>{num(hk.deaths)}</td><td>{num(ss.deaths)}</td><td>{num(totalDeaths)}</td></tr>
+                    <tr><th>Longest life</th><td>{duration(bestLife(hk))}</td><td>{duration(bestLife(ss))}</td><td>{duration(Math.max(bestLife(hk), bestLife(ss)))}</td></tr>
+                    <tr><th>Kills</th><td>{num(hk.kills)}</td><td>{num(ss.kills)}</td><td>{num(hk.kills + ss.kills)}</td></tr>
+                    <tr><th>Hits landed</th><td>{num(hk.hits_landed)}</td><td>{num(ss.hits_landed)}</td><td>{num(hk.hits_landed + ss.hits_landed)}</td></tr>
+                    <tr><th>Hits taken</th><td>{num(hk.hits_taken)}</td><td>{num(ss.hits_taken)}</td><td>{num(hk.hits_taken + ss.hits_taken)}</td></tr>
+                    <tr><th>Masks lost</th><td>{num(hk.masks_lost)}</td><td>{num(ss.masks_lost)}</td><td>{num(hk.masks_lost + ss.masks_lost)}</td></tr>
+                    <tr><th>Geo / Rosaries</th><td>{num(hk.currency_earned)}</td><td>{num(ss.currency_earned)}</td><td></td></tr>
+                    <tr><th>Jumps</th><td>{num(hk.jumps)}</td><td>{num(ss.jumps)}</td><td>{num(hk.jumps + ss.jumps)}</td></tr>
+                    <tr><th>Dashes</th><td>{num(hk.dashes)}</td><td>{num(ss.dashes)}</td><td>{num(hk.dashes + ss.dashes)}</td></tr>
+                    <tr><th>Distance</th><td>{distance(hk.distance)}</td><td>{distance(ss.distance)}</td><td>{distance(hk.distance + ss.distance)}</td></tr>
+                  </tbody>
+                </table>
+                <dl class="records">
+                  <dt>Trips between worlds</dt><dd>{num(slot.travels)}</dd>
+                  {#if totalSeconds >= 60}<dt>Checks per hour</dt><dd>{((hk.checks_found + ss.checks_found) / (totalSeconds / 3600)).toFixed(1)}</dd>{/if}
+                  <dt>Kills per death</dt><dd>{totalDeaths > 0 ? ((hk.kills + ss.kills) / totalDeaths).toFixed(1) : "Deathless"}</dd>
+                  {#if slot.deadliest_area}<dt>Deadliest area</dt><dd>{slot.deadliest_area}</dd>{/if}
+                  {#if slot.favourite_area}<dt>Favourite haunt</dt><dd>{slot.favourite_area}</dd>{/if}
+                </dl>
+                {#if slot.feats.length}
+                  <h4>Feats</h4>
+                  <ul class="feats" role="list">
+                    {#each slot.feats as feat (feat.title)}<li><strong>{feat.title}</strong><span>{feat.description}</span></li>{/each}
+                  </ul>
+                {/if}
+              </section>
             {/if}
           </li>
         {/if}

@@ -50,8 +50,25 @@ body { overflow: clip; }
 .panel p[role=status] { margin: .6rem 0 0; text-align: center; }
 .panel p.warn { color: #f0c97a; }
 .panel p.error { color: #f0928a; }
-.panel table.stats { margin: 0 auto 1rem; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
-.panel table.stats caption { color: var(--dim); font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; padding-bottom: .3rem; }
+.panel table.stats { margin: .2rem auto .6rem; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.run-stats { --hk: #a9c8f0; --ss: #e0645a; --gold: #e6d08a; max-width: 34rem; margin: 0 auto 1rem; text-align: center; }
+.run-stats h3 { margin: 0; color: var(--dim); font: 400 .85rem var(--display); letter-spacing: .12em; text-transform: uppercase; }
+.run-stats h4 { margin: .9rem 0 .4rem; color: var(--dim); font: 400 .8rem var(--display); letter-spacing: .12em; text-transform: uppercase; }
+.run-stats h4::before, .run-stats h4::after { content: "—"; margin: 0 .5em; opacity: .5; }
+.run-stats .epithet { margin: .2rem 0 .6rem; color: var(--gold); font-style: italic; font-size: 1.1rem; }
+.run-stats .split { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: var(--ss); }
+.run-stats .split .hk { background: var(--hk); box-shadow: 0 0 8px var(--hk); }
+.run-stats .split .ss { flex: 1; }
+.run-stats .split-legend { display: flex; justify-content: space-between; margin: .25rem 0 .7rem; font-size: .8rem; color: var(--dim); font-variant-numeric: tabular-nums; }
+.run-stats .hk { color: var(--hk); }
+.run-stats .ss { color: var(--ss); }
+.run-stats .records { display: grid; grid-template-columns: auto auto; justify-content: center; gap: .15rem 1.2rem; margin: .4rem 0 0; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.run-stats .records dt { color: var(--dim); text-align: left; }
+.run-stats .records dd { margin: 0; text-align: right; }
+.run-stats .feats { display: grid; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.run-stats .feats li { display: grid; font-size: .85rem; color: var(--dim); }
+.run-stats .feats strong { color: var(--gold); font: 400 .95rem var(--display); letter-spacing: .04em; }
+.run-stats .feats strong::before { content: "✦ "; opacity: .7; }
 .panel table.stats th, .panel table.stats td { padding: .15rem .8rem; text-align: right; }
 .panel table.stats tbody th { text-align: left; color: var(--dim); font-weight: normal; }
 .panel table.stats thead th { color: var(--dim); font-weight: normal; border-bottom: 1px solid #ffffff22; }
