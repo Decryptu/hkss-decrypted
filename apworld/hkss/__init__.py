@@ -12,6 +12,14 @@ from settings import Bool, FilePath, Group
 from worlds.AutoWorld import WebWorld
 
 from .cross_game import Seal, apply_hk_seals, apply_ss_seals, choose_seals, describe, seal_key_items
+from .cross_game_items import (
+    CROSS_GAME_ITEMS,
+    CROSS_GAME_ITEMS_BY_NAME,
+    CrossGameItemSpec,
+    create_cross_game_item,
+    is_cross_game_item,
+    merge_cross_game_items,
+)
 from .hk import HKItem, HKWorld
 from .hk.ExtractedData import connectors as HK_VANILLA_CONNECTORS
 from .hk.Options import CostSanity
@@ -78,6 +86,8 @@ class HKSSWebWorld(WebWorld):
 
 def _build_item_name_to_id() -> dict[str, int]:
     table: dict[str, int] = {}
+    for spec in CROSS_GAME_ITEMS:
+        table[spec.name] = spec.code
     for name, code in HKWorld.item_name_to_id.items():
         if code is not None:
             table[hk_name(name)] = hk_id(code)
@@ -100,6 +110,7 @@ def _build_location_name_to_id() -> dict[str, int]:
 
 def _build_item_name_groups(all_items: dict[str, int]) -> dict[str, set[str]]:
     groups: dict[str, set[str]] = {
+        "Shared": {spec.name for spec in CROSS_GAME_ITEMS if spec.name in all_items},
         "Hollow Knight": {name for name in all_items if name.startswith(HK_PREFIX)},
         "Silksong": {name for name in all_items if name.startswith(SS_PREFIX)},
     }
@@ -173,6 +184,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         self._hk_entrance_pairs: dict[str, str] = {}
         self._hk_entrance_rando_type: int = 0
         self._seals: list[Seal] = []
+        self._cross_game_items: list[CrossGameItemSpec] = []
 
     @property
     def has_hk(self) -> bool:
@@ -255,8 +267,11 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             self.hk.create_items()
         if self.has_silksong:
             SilksongWorld.create_items(self)
+        self._cross_game_items = merge_cross_game_items(self)
 
     def create_item(self, name: str, *args, **kwargs) -> Item:
+        if name in CROSS_GAME_ITEMS_BY_NAME:
+            return create_cross_game_item(CROSS_GAME_ITEMS_BY_NAME[name], self.player)
         if name.startswith(HK_PREFIX):
             return self.hk.create_item(strip_hk_prefix(name))
         if name.startswith(SS_PREFIX):
@@ -345,6 +360,33 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         return self.item_mapping.get(raw_name, raw_name)
 
     def collect(self, state: CollectionState, item: Item) -> bool:
+        spec = CROSS_GAME_ITEMS_BY_NAME.get(item.name)
+        if spec is not None:
+            if not item.advancement:
+                return False
+            state.add_item(item.name, self.player)
+            hk_prefixed = hk_name(spec.hk_item)
+            state.add_item(hk_prefixed, self.player)
+            if spec.hk_item != "Swim":
+                state.add_item(spec.hk_item, self.player)
+            if self.has_hk:
+                self.hk.collect_effects(state, HKItem(hk_prefixed, True, None, "Item", self.player))
+            ss_prefixed = ss_name(spec.ss_item)
+            collected_name = self._silksong_collect_name(state, spec.ss_item, remove=False)
+            state.add_item(ss_prefixed, self.player)
+            if collected_name:
+                state.add_item(collected_name, self.player)
+            if hasattr(self, "_silk_supply"):
+                self._silk_supply.collect(state, spec.ss_item)
+                if collected_name and collected_name != spec.ss_item:
+                    self._silk_supply.collect(state, collected_name)
+            self._invalidate_rule_cache(
+                state,
+                (item.name, hk_prefixed, ss_prefixed, spec.ss_item, collected_name or "", self.item_mapping.get(spec.ss_item, "")),
+                only_false=True,
+            )
+            return True
+
         if item.name.startswith(HK_PREFIX):
             changed = CachedRuleBuilderWorld.collect(self, state, item)
             if changed:
@@ -384,6 +426,31 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         return changed
 
     def remove(self, state: CollectionState, item: Item) -> bool:
+        spec = CROSS_GAME_ITEMS_BY_NAME.get(item.name)
+        if spec is not None:
+            if not item.advancement:
+                return False
+            state.remove_item(item.name, self.player)
+            hk_prefixed = hk_name(spec.hk_item)
+            state.remove_item(hk_prefixed, self.player)
+            if spec.hk_item != "Swim":
+                state.remove_item(spec.hk_item, self.player)
+            if self.has_hk:
+                self.hk.remove_effects(state, HKItem(hk_prefixed, True, None, "Item", self.player))
+            ss_prefixed = ss_name(spec.ss_item)
+            collected_name = self._silksong_collect_name(state, spec.ss_item, remove=True)
+            state.remove_item(ss_prefixed, self.player)
+            if collected_name:
+                state.remove_item(collected_name, self.player)
+            if hasattr(state, "_hkss_silksong_silk_supply"):
+                state._hkss_silksong_silk_supply.pop(self.player, None)
+            self._invalidate_rule_cache(
+                state,
+                (item.name, hk_prefixed, ss_prefixed, spec.ss_item, collected_name or "", self.item_mapping.get(spec.ss_item, "")),
+                only_false=False,
+            )
+            return True
+
         if item.name.startswith(HK_PREFIX):
             changed = CachedRuleBuilderWorld.remove(self, state, item)
             if changed:
@@ -451,7 +518,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         ]
         hk_pool_items = [
             item for item in self.multiworld.itempool
-            if item.player == self.player and item.name.startswith(HK_PREFIX)
+            if item.player == self.player and (item.name.startswith(HK_PREFIX) or is_cross_game_item(item.name))
         ]
 
         seal_keys = seal_key_items(self, self._seals)
@@ -499,6 +566,11 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             SilksongWorld.extend_hint_information(self, hint_data)
 
     def write_spoiler(self, spoiler_handle) -> None:
+        if self._cross_game_items:
+            player_name = self.multiworld.get_player_name(self.player)
+            spoiler_handle.write(f"\nCross-Game Items ({player_name}):\n")
+            for spec in self._cross_game_items:
+                spoiler_handle.write(f"  {spec.describe()}\n")
         if self._seals:
             player_name = self.multiworld.get_player_name(self.player)
             spoiler_handle.write(f"\nCross-Game Seals ({player_name}):\n")
@@ -551,6 +623,9 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             "death_link": bool(self.options.death_link.value),
             "cross_game_seals": [
                 seal.slot_data(self.item_name_to_id[seal.key]) for seal in self._seals
+            ],
+            "cross_game_items": [
+                spec.slot_data() for spec in self._cross_game_items
             ],
             "hollow_knight": hk_data,
             "silksong": SilksongWorld.fill_slot_data(self) if self.has_silksong else None,

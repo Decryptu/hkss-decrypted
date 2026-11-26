@@ -780,6 +780,11 @@ internal static class HkCheckMap
         {
             foreach (ItemInfo item in received)
             {
+                if (CrossGameItems.TryGet(item.ItemId, out CrossGameItem? shared))
+                {
+                    owned.Add(shared!.HollowKnightItem);
+                    continue;
+                }
                 if (!IdSpace.IsHollowKnight(item.ItemId)) continue;
                 string? name = client!.Session!.Items.GetItemName(item.ItemId);
                 if (!string.IsNullOrWhiteSpace(name))

@@ -28,7 +28,12 @@ end
 local function inventory(prefix)
     local items = {}
     for name, count in pairs(LOGIC.received) do
-        if name:sub(1, 3) == prefix then items[name:sub(4)] = (items[name:sub(4)] or 0) + count end
+        if name:sub(1, 3) == prefix then
+            items[name:sub(4)] = (items[name:sub(4)] or 0) + count
+        elseif CROSS_GAME_ITEMS and CROSS_GAME_ITEMS[name] then
+            local mapped = prefix == "HK " and CROSS_GAME_ITEMS[name].hk or CROSS_GAME_ITEMS[name].ss
+            if mapped then items[mapped] = (items[mapped] or 0) + count end
+        end
     end
     for code, name in pairs(GRID_ITEMS) do
         if name:sub(1, 3) == prefix then

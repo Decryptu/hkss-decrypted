@@ -307,11 +307,17 @@ internal sealed class HkRandomizer
         }
 
         bool isMySlot = itemInfo.IsReceiverRelatedToActivePlayer;
+        CrossGameItem? sharedItem = null;
+        bool isOwnShared = isMySlot && CrossGameItems.TryGet(itemInfo.ItemId, out sharedItem);
         bool isLocalHk = isMySlot && IdSpace.IsHollowKnight(itemInfo.ItemId);
         bool isOwnSilksong = isMySlot && IdSpace.IsSilksong(itemInfo.ItemId);
 
         AbstractItem item;
-        if (isLocalHk)
+        if (isOwnShared)
+        {
+            item = _itemFactory.CreateSharedHkItem(sharedItem!, itemInfo);
+        }
+        else if (isLocalHk)
         {
             item = _itemFactory.CreateLocalHkItem(rawItemName, itemInfo);
         }

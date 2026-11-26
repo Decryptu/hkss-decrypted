@@ -53,6 +53,10 @@ CASES = {
     "seals": ("cross_game_seals: 4",),
     "seals_entrances": ("cross_game_seals: 4", "shuffle_entrances: full", "SplitMantisClaw: true",
                         "SplitMothwingCloak: true", "directional_cling_grip: true", "directional_clawline: true"),
+    "cross_game_items": ("cross_game_items: true", "cross_game_seals: 2"),
+    "cross_game_items_split": ("cross_game_items: true", "SplitMothwingCloak: true", "SplitMantisClaw: true",
+                               "RandomizeSwim: true", "directional_swift_step: true",
+                               "directional_cling_grip: true", "swim_ability_rando: true"),
 }
 FRACTIONS = (0, 0.05, 0.15, 0.3, 0.5, 0.7, 0.9, 1.0)
 

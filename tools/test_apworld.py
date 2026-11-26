@@ -41,6 +41,18 @@ def check_id_space_mirror() -> None:
         assert m is not None, f"Missing {name} in IdSpace.cs"
         parsed = int(m.group(1).replace("_", ""), 0)
         assert parsed == value, f"IdSpace.cs {name}={parsed} != ids.py {value}"
+
+    cgi_cs = (REPO_ROOT / "src" / "HKSS.Core" / "CrossGameItems.cs").read_text(encoding="utf-8")
+    cgi_py = (REPO_ROOT / "apworld" / "hkss" / "cross_game_items.py").read_text(encoding="utf-8")
+    py_entries = re.findall(
+        r'CrossGameItemSpec\(COMBO_BLOCK_START \+ (\d+), "([^"]+)", "([^"]+)", "([^"]+)"\)',
+        cgi_py,
+    )
+    cs_entries = re.findall(
+        r'new CrossGameItem\(IdSpace\.ComboBlockStart \+ (\d+), "([^"]+)", "([^"]+)", "([^"]+)"\)',
+        cgi_cs,
+    )
+    assert py_entries and py_entries == cs_entries, (py_entries, cs_entries)
     print("PASS id_space_mirror")
 
 
@@ -54,6 +66,7 @@ def check_apworld_archive(apworld_path: Path) -> None:
             "hkss/ids.py",
             "hkss/options.py",
             "hkss/cross_game.py",
+            "hkss/cross_game_items.py",
             "hkss/cross_game_areas.json",
             "hkss/archipelago.json",
             "hkss/VENDORED.json",
@@ -86,12 +99,42 @@ def run_generation_suite(ap_dir: Path, apworld_path: Path, seed: int) -> None:
         shutil.copyfile(apworld_path, world_dir / "hkss.apworld")
         from Generate import main as gen_main
         from Main import main as run_main
-        from worlds.hkss.ids import HK_BLOCK_END, HK_BLOCK_START, SS_BLOCK_END, SS_BLOCK_START
+        from worlds.hkss.ids import (
+            COMBO_BLOCK_END,
+            COMBO_BLOCK_START,
+            HK_BLOCK_END,
+            HK_BLOCK_START,
+            SS_BLOCK_END,
+            SS_BLOCK_START,
+        )
+        from worlds.hkss.cross_game_items import CROSS_GAME_ITEMS_BY_NAME
 
-        _run_cases(gen_main, run_main, seed, HK_BLOCK_START, HK_BLOCK_END, SS_BLOCK_START, SS_BLOCK_END)
+        _run_cases(
+            gen_main,
+            run_main,
+            seed,
+            COMBO_BLOCK_START,
+            COMBO_BLOCK_END,
+            HK_BLOCK_START,
+            HK_BLOCK_END,
+            SS_BLOCK_START,
+            SS_BLOCK_END,
+            CROSS_GAME_ITEMS_BY_NAME,
+        )
 
 
-def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END: int, SS_BLOCK_START: int, SS_BLOCK_END: int) -> None:
+def _run_cases(
+    gen_main,
+    run_main,
+    seed: int,
+    COMBO_BLOCK_START: int,
+    COMBO_BLOCK_END: int,
+    HK_BLOCK_START: int,
+    HK_BLOCK_END: int,
+    SS_BLOCK_START: int,
+    SS_BLOCK_END: int,
+    CROSS_GAME_ITEMS_BY_NAME: dict,
+) -> None:
 
     def run_case(label: str, yamls: dict[str, str]) -> None:
         prev_cwd = os.getcwd()
@@ -177,6 +220,8 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
                             assert HK_BLOCK_START <= it.code <= HK_BLOCK_END, it
                         elif it.name.startswith("SS "):
                             assert SS_BLOCK_START <= it.code <= SS_BLOCK_END, it
+                        elif it.name in CROSS_GAME_ITEMS_BY_NAME:
+                            assert COMBO_BLOCK_START <= it.code <= COMBO_BLOCK_END, it
                         else:
                             raise AssertionError(f"Unprefixed real item: {it.name}")
                 if label == "solo_both_unified_shuffles":
@@ -230,8 +275,44 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
                     state.collect(w.create_item(seal.key), True)
                     state.sweep_for_advancements(locations=events)
                     assert all(l.can_reach(state) for l in inside), seal.area
-                if label == "solo_both" and sd["cross_game_seals"] != []:
-                    raise AssertionError("Seals must be off by default")
+                if label == "solo_both":
+                    if sd["cross_game_seals"] != []:
+                        raise AssertionError("Seals must be off by default")
+                    if sd["cross_game_items"] != []:
+                        raise AssertionError("Cross-game items must be off by default")
+                if label == "solo_both_cross_game_items":
+                    from BaseClasses import CollectionState
+
+                    shared_names = {entry["name"] for entry in sd["cross_game_items"]}
+                    assert shared_names == {"Shared Dash", "Shared Wall Jump", "Shared Double Jump"}, shared_names
+                    placed_names = {
+                        l.item.name for l in mw.get_locations(p)
+                        if l.address is not None and l.item and l.item.player == p
+                    }
+                    for name in ("Shared Dash", "Shared Wall Jump", "Shared Double Jump"):
+                        assert name in placed_names, name
+                    for replaced in (
+                        "HK Mothwing_Cloak", "SS Swift Step",
+                        "HK Mantis_Claw", "SS Cling Grip",
+                        "HK Monarch_Wings", "SS Faydown Cloak",
+                    ):
+                        assert replaced not in placed_names, replaced
+                    state = CollectionState(mw)
+                    state.collect(w.create_item("Shared Dash"), True)
+                    assert state.has("HK Mothwing_Cloak", p)
+                    assert state.has("Mothwing_Cloak", p)
+                    assert state.has("SS Swift Step", p)
+                    assert state.has("Swift Step", p)
+                if label == "solo_both_cross_game_items_split":
+                    shared_names = {entry["name"] for entry in sd["cross_game_items"]}
+                    assert shared_names == {
+                        "Shared Double Jump",
+                        "Shared Swim",
+                        "Shared Dash (Left)",
+                        "Shared Dash (Right)",
+                        "Shared Wall Jump (Left)",
+                        "Shared Wall Jump (Right)",
+                    }, shared_names
                 if sd["games"] == "both" and mw.players == 1:
                     hk_in_ss = sum(
                         1 for l in mw.get_locations(p)
@@ -326,6 +407,32 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
             "  games: both\n"
             "  cross_game_seals: 2\n"
             "  shuffle_entrances: within_areas\n"
+        )
+    })
+    run_case("solo_both_cross_game_items", {
+        "ComboSharedItems.yaml": (
+            "name: ComboSharedItems\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  cross_game_items: true\n"
+            "  cross_game_seals: 2\n"
+            "  shuffle_entrances: within_areas\n"
+        )
+    })
+    run_case("solo_both_cross_game_items_split", {
+        "ComboSharedSplit.yaml": (
+            "name: ComboSharedSplit\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  cross_game_items: true\n"
+            "  SplitMothwingCloak: true\n"
+            "  SplitMantisClaw: true\n"
+            "  RandomizeSwim: true\n"
+            "  directional_swift_step: true\n"
+            "  directional_cling_grip: true\n"
+            "  swim_ability_rando: true\n"
         )
     })
     run_case("multiworld_4p", {

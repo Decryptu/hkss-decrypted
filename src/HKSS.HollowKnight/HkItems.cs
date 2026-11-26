@@ -35,6 +35,15 @@ public sealed class HkUIDef : MsgUIDef
         return result;
     }
 
+    public static HkUIDef CreateForSharedItem(AbstractItem item, string sharedName, string? sender = null)
+    {
+        UIDef? source = item.GetResolvedUIDef();
+        var result = new HkUIDef(source);
+        result.name = new BoxedString(string.IsNullOrEmpty(sender) ? sharedName : $"{sharedName} from {sender}");
+        result.shopDesc = new BoxedString("A shared ability that unlocks in both Hallownest and Pharloom.");
+        return result;
+    }
+
     public static HkUIDef CreateForSentItem(AbstractItem item, string recipient)
     {
         var result = new HkUIDef(item.UIDef);
@@ -253,6 +262,16 @@ internal sealed class HkItemFactory
         }
 
         AddTag(item, itemInfo, isLocalHkItem: true);
+        return item;
+    }
+
+    public AbstractItem CreateSharedHkItem(CrossGameItem sharedItem, ScoutedItemInfo itemInfo)
+    {
+        AbstractItem item = CreateLocalHkItem(sharedItem.HollowKnightItem, itemInfo);
+        if (item.UIDef != null)
+        {
+            item.UIDef = HkUIDef.CreateForSharedItem(item, sharedItem.Name);
+        }
         return item;
     }
 

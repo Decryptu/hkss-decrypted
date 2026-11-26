@@ -81,6 +81,13 @@ function onItem(index, item_id, item_name, player_number)
             object.AcquiredCount = object.AcquiredCount + object.Increment
         end
     end
+    local shared = name and CROSS_GAME_ITEMS and CROSS_GAME_ITEMS[name]
+    if shared and shared.codes then
+        for _, code in ipairs(shared.codes) do
+            local target = Tracker:FindObjectForCode(code)
+            if target then target.Active = true end
+        end
+    end
     touch_logic()
 end
 

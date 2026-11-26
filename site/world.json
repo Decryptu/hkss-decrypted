@@ -2,7 +2,7 @@
   "game": "Hollow Knight x Silksong",
   "version": "0.1.16",
   "minimumArchipelago": "0.6.8",
-  "archiveSha256": "19eda15d0126bd088cf6e6ff3bfcf9fd22b47156a51f977247f411a62b2b3db9",
+  "archiveSha256": "bdcdd69a9051f3e082362fe401699cf384a1847e2bafc6336310b8f67d179fb1",
   "routes": {
     "HK": [
       [
@@ -435,6 +435,12 @@
           "min": 0,
           "max": 4,
           "names": {}
+        },
+        "cross_game_items": {
+          "label": "Cross-Game Items",
+          "help": "Merge paired movement abilities into single shared items that unlock in both games.\n\nFor example, Shared Dash grants both Mothwing Cloak (Hallownest) and Swift Step (Pharloom),\nShared Wall Jump grants Mantis Claw and Cling Grip, Shared Double Jump grants Monarch Wings\nand Faydown Cloak, and Shared Swim grants Swim when randomized in both games. Directional\nsplits are also merged when matching split options are enabled in both games.\n\nOff by default. Only used when both games are in the slot.",
+          "kind": "toggle",
+          "default": false
         }
       }
     },
@@ -3685,6 +3691,15 @@
       "SS Wreath of Purity",
       "SS Yellow Vesticrest",
       "Scream",
+      "Shared",
+      "Shared Dash",
+      "Shared Dash (Left)",
+      "Shared Dash (Right)",
+      "Shared Double Jump",
+      "Shared Swim",
+      "Shared Wall Jump",
+      "Shared Wall Jump (Left)",
+      "Shared Wall Jump (Right)",
       "SilkHeart",
       "Silkeaters",
       "Silksong",

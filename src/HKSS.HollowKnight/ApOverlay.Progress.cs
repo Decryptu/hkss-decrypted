@@ -88,6 +88,8 @@ internal sealed partial class ApOverlay
     private static string FormatName(long id, string? name, string fallback)
     {
         name = string.IsNullOrWhiteSpace(name) ? $"{fallback} #{id}" : name;
+        if (CrossGameItems.TryGet(id, out CrossGameItem? shared))
+            return $"{shared!.Name} (Both)";
         return IdSpace.GameForId(id) is GameId game
             ? $"{IdSpace.StripPrefix(name)} ({ItemRouter.WorldName(game)})"
             : name;

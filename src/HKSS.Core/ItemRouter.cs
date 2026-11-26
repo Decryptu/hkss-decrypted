@@ -71,7 +71,8 @@ public static class ItemRouter
         string raw = string.IsNullOrWhiteSpace(itemName) ? $"Item #{combinedItemId}" : itemName!;
         string display = IdSpace.StripPrefix(raw);
         string sender = string.IsNullOrWhiteSpace(senderName) ? "Archipelago" : senderName!;
-        GameId? owner = IdSpace.GameForId(combinedItemId);
+        bool isShared = CrossGameItems.TryGet(combinedItemId, out CrossGameItem? shared);
+        GameId? owner = isShared ? thisGame : IdSpace.GameForId(combinedItemId);
 
         if (itemIndex < processedCount)
         {
@@ -79,12 +80,28 @@ public static class ItemRouter
                 RouteAction.SkipAlreadyProcessed,
                 itemIndex,
                 combinedItemId,
-                owner.HasValue ? IdSpace.ToUpstream(owner.Value, combinedItemId) : null,
+                !isShared && owner.HasValue ? IdSpace.ToUpstream(owner.Value, combinedItemId) : null,
                 owner,
                 raw,
-                display,
+                isShared ? shared!.Name : display,
                 sender,
                 string.Empty);
+        }
+
+        if (isShared)
+        {
+            string sharedName = shared!.Name;
+            string msg = $"Received {sharedName} from {sender} (both worlds)";
+            return new RoutedItem(
+                RouteAction.ApplyLocally,
+                itemIndex,
+                combinedItemId,
+                null,
+                thisGame,
+                raw,
+                sharedName,
+                sender,
+                msg);
         }
 
         if (owner == thisGame)

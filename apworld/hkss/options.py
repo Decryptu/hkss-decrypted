@@ -12,7 +12,7 @@ from dataclasses import fields, make_dataclass
 from typing import get_type_hints
 
 import Options as _Options
-from Options import Choice, DeathLink, OptionGroup, PerGameCommonOptions, Range
+from Options import Choice, DeathLink, OptionGroup, PerGameCommonOptions, Range, Toggle
 
 from .hk.Options import hollow_knight_options
 from .silksong import options as _ss_options_mod
@@ -149,6 +149,21 @@ class CrossGameSeals(Range):
     default = 0
 
 
+class CrossGameItems(Toggle):
+    """Merge paired movement abilities into single shared items that unlock in both games.
+
+    For example, Shared Dash grants both Mothwing Cloak (Hallownest) and Swift Step (Pharloom),
+    Shared Wall Jump grants Mantis Claw and Cling Grip, Shared Double Jump grants Monarch Wings
+    and Faydown Cloak, and Shared Swim grants Swim when randomized in both games. Directional
+    splits are also merged when matching split options are enabled in both games.
+
+    Off by default. Only used when both games are in the slot.
+    """
+
+    display_name = "Cross-Game Items"
+    default = False
+
+
 _COMMON_FIELD_NAMES = {f.name for f in fields(PerGameCommonOptions)}
 
 _shared_fields = [
@@ -162,6 +177,7 @@ _shared_fields = [
     ("shuffle_journal_entries", ShuffleJournalEntries),
     ("shuffle_lore_tablets", ShuffleLoreTablets),
     ("cross_game_seals", CrossGameSeals),
+    ("cross_game_items", CrossGameItems),
 ]
 
 _hk_fields = [
@@ -200,6 +216,7 @@ def _build_option_groups() -> list[OptionGroup]:
                 ShuffleJournalEntries,
                 ShuffleLoreTablets,
                 CrossGameSeals,
+                CrossGameItems,
             ],
         ),
         OptionGroup(

@@ -480,7 +480,8 @@ internal sealed class HkClientHost : MonoBehaviour
             }
         }
 
-        string icItemName = IdSpace.StripPrefix(routed.DisplayName);
+        bool isShared = CrossGameItems.TryGet(routed.CombinedItemId, out CrossGameItem? sharedItem);
+        string icItemName = isShared ? sharedItem!.HollowKnightItem : IdSpace.StripPrefix(routed.DisplayName);
         AbstractItem? item = Finder.GetItem(icItemName);
         if (item == null)
         {
@@ -489,9 +490,16 @@ internal sealed class HkClientHost : MonoBehaviour
             return true;
         }
 
-        if (item.UIDef != null && !string.IsNullOrEmpty(evt.SenderName))
+        if (item.UIDef != null)
         {
-            item.UIDef = HkUIDef.CreateForReceivedItem(item, evt.SenderName);
+            if (isShared)
+            {
+                item.UIDef = HkUIDef.CreateForSharedItem(item, sharedItem!.Name, evt.SenderName);
+            }
+            else if (!string.IsNullOrEmpty(evt.SenderName))
+            {
+                item.UIDef = HkUIDef.CreateForReceivedItem(item, evt.SenderName);
+            }
         }
 
         HkRemotePlacement remotePmt = HkRemotePlacement.GetOrAddSingleton();

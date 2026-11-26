@@ -1160,7 +1160,7 @@ namespace SilksongRandomizer
 
             ItemInfo[] allReceived = sharedClient != null
                 ? session.Items.AllItemsReceived
-                    .Where(item => item != null && HKSS.Core.IdSpace.IsSilksong(item.ItemId))
+                    .Where(item => item != null && HKSS.Core.CrossGameItems.IsForGame(HKSS.Core.GameId.Silksong, item.ItemId))
                     .ToArray()
                 : session.Items.AllItemsReceived.ToArray();
             List<ReceivedItemReceipt> serverItems = ReceivedItemReceipt.FromServer(
@@ -1432,7 +1432,7 @@ namespace SilksongRandomizer
                 bool filterToSilksong = sharedClient != null;
                 foreach (ItemInfo item in allItems)
                 {
-                    if (filterToSilksong && !HKSS.Core.IdSpace.IsSilksong(item.ItemId))
+                    if (filterToSilksong && !HKSS.Core.CrossGameItems.IsForGame(HKSS.Core.GameId.Silksong, item.ItemId))
                     {
                         continue;
                     }
@@ -2055,7 +2055,7 @@ namespace SilksongRandomizer
             if (sharedClient != null)
             {
                 allItems = allItems
-                    .Where(item => item != null && HKSS.Core.IdSpace.IsSilksong(item.ItemId))
+                    .Where(item => item != null && HKSS.Core.CrossGameItems.IsForGame(HKSS.Core.GameId.Silksong, item.ItemId))
                     .ToList();
             }
 
@@ -2147,6 +2147,11 @@ namespace SilksongRandomizer
             if (item == null)
             {
                 return null;
+            }
+
+            if (HKSS.Core.CrossGameItems.TryGet(item.ItemId, out var shared))
+            {
+                return ItemSet.GetCanonicalItemName(shared.SilksongItem);
             }
 
             string itemName = item.ItemName;
@@ -3989,7 +3994,16 @@ namespace SilksongRandomizer
                     StringComparison.Ordinal))
             {
                 itemName = HKSS.Core.IdSpace.StripPrefix(itemName);
-                if (HKSS.Core.IdSpace.IsHollowKnight(info.ItemId))
+                if (HKSS.Core.CrossGameItems.TryGet(info.ItemId, out var shared))
+                {
+                    itemName = shared.Name;
+                    gameName = "Hollow Knight: Silksong";
+                    if (info.Player.Slot == Slot)
+                    {
+                        userName = "Both Worlds";
+                    }
+                }
+                else if (HKSS.Core.IdSpace.IsHollowKnight(info.ItemId))
                 {
                     gameName = "Hollow Knight";
                     if (info.Player.Slot == Slot)
@@ -4171,7 +4185,16 @@ namespace SilksongRandomizer
                 ))
             {
                 itemName = HKSS.Core.IdSpace.StripPrefix(itemName);
-                if (HKSS.Core.IdSpace.IsHollowKnight(hint.ItemId))
+                if (HKSS.Core.CrossGameItems.TryGet(hint.ItemId, out var shared))
+                {
+                    itemName = shared.Name;
+                    receivingGame = "Hollow Knight: Silksong";
+                    if (hint.ReceivingPlayer == Slot)
+                    {
+                        userName = "Both Worlds";
+                    }
+                }
+                else if (HKSS.Core.IdSpace.IsHollowKnight(hint.ItemId))
                 {
                     receivingGame = "Hollow Knight";
                     if (hint.ReceivingPlayer == Slot)
