@@ -831,6 +831,31 @@ def vendor_silksong(ss_src: Path, ss_dst: Path) -> None:
         "        return slot_data\n",
         "silksong/__init__.py fill_slot_data tracker vanilla sources",
     )
+    # 9b. room_graph_data.json: allow reaching Clawline Statue without already owning Clawline
+    # or Faydown Cloak so skill_randomization: vanilla does not deadlock on Clawline -> Faydown Cloak.
+    rg_p = ss_dst / "room_graph_data.json"
+    if rg_p.exists():
+        rg = json.loads(rg_p.read_text(encoding="utf-8"))
+        patched_clawline = False
+        for room in rg.get("rooms", ()):
+            if room.get("id") != "underworks/underworks-clawline-room":
+                continue
+            for conn in room.get("connections", ()):
+                if conn.get("id") == "underworks/underworks-clawline-room#main-side-door>clawline-statue@cp":
+                    req = conn.get("requirement", {})
+                    dnf = req.get("dnf", [])
+                    vanilla_branch = [
+                        "macro:progressive-swift-step-first",
+                        "item:drifters-cloak",
+                        "capability:ledge-grab",
+                    ]
+                    if vanilla_branch not in dnf:
+                        dnf.append(vanilla_branch)
+                    patched_clawline = True
+        if not patched_clawline:
+            raise RuntimeError("Expected underworks-clawline-room#main-side-door>clawline-statue@cp in room_graph_data.json")
+        rg_p.write_text(json.dumps(rg, indent=2) + "\n", encoding="utf-8")
+
     # Restore collect() / _collect_with_silk_supply() exact item.name usage (handled by HKSSWorld)
     init_p.write_text(t, encoding="utf-8")
 

@@ -44,6 +44,8 @@ v0.1.12 fixes Forgotten Crossroads spike grub logic when Split Mothwing Cloak is
 
 v0.1.13 persists both games' goal completion in `state.json` and syncs both halves on connect from either game, shows a toast when the first game's goal is completed, displays both games' goal status in Hollow Knight's `F6` Inventory tab, Silksong's Archipelago inventory, and the launcher's run slots, auto-reloads Slot 1 after ending credits so players return straight to their last bench to travel to the other game, and aligns the plugin version with the release version.
 
+v0.1.14 adds combined end-of-run stats (play time, completion, deaths, kills, and checks across both games in the `F6` **Stats** tab and launcher run Settings), ships the PopTracker pack (`dist/hkss-poptracker.zip`) with item grids, area overview maps, Archipelago auto-tracking, and full per-slot logic for both games, fixes `CostSanity` generation in both-games slots, fixes Silksong `skill_randomization: vanilla` generation (Clawline Statue reachability cycle), adds tracker slot-data hints for vanilla Silksong pickups and split Shade Cloak, and updates the vendored Silksong world to `v0.5.5-rc.6`.
+
 Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, a game that crashes during travel, and the Silksong plugin's refusal to run without the launcher.
 
 ## Feature Parity & Missing Ports

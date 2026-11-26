@@ -216,6 +216,15 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
             "  combo_goal: either\n"
         )
     })
+    run_case("solo_both_vanilla_ss_skills", {
+        "ComboVanillaSSSkills.yaml": (
+            "name: ComboVanillaSSSkills\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  skill_randomization: vanilla\n"
+        )
+    })
     run_case("multiworld_4p", {
         "P1_Both.yaml": (
             "name: P1_Both\n"
