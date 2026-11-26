@@ -1,7 +1,7 @@
 """Build the HKSS PopTracker pack from the packaged Archipelago world and the hub catalog.
 
-The pack has one item grid per game, one overview map per game with a pin per area (every check
-of that area is a section), and Archipelago auto-tracking for items and checked locations. It has
+The pack has one item grid per game, one overview map per game with pins of up to 12 checks per
+area (every check is a section), and Archipelago auto-tracking for items and checked locations. It has
 no logic: every check shows as reachable. Images are drawn here, so no game assets are shipped.
 """
 
@@ -44,7 +44,9 @@ LAYOUTS = {
         "Weavenest": (0, 6), "Deep Docks": (3, 6), "The Abyss": (4, 6), "Unmapped": (5, 6),
     },
 }
-CELL_W, CELL_H, MARGIN = 180, 110, 40
+CELL_W, CELL_H, MARGIN = 230, 110, 40
+CHUNK = 12  # checks per pin, so a pin's popup fits on screen
+PIN, PIN_STEP, PINS_PER_ROW = 16, 19, 10
 
 # Tracked items: (Archipelago item name without the game prefix, label, maximum count).
 # A maximum of 1 is a toggle; anything else counts up as copies arrive.
@@ -149,7 +151,7 @@ def overview_map(path: Path, game: str, positions: dict[str, tuple[int, int]], r
     label_font = font(15)
     for area in positions:
         cx, cy = centre(area)
-        draw.rounded_rectangle((cx - 78, cy - 30, cx + 78, cy + 30), radius=10,
+        draw.rounded_rectangle((cx - 105, cy - 30, cx + 105, cy + 30), radius=10,
                                fill=(26, 26, 36), outline=COLOURS[game], width=2)
         draw.text((cx, cy + 20), area, fill=(225, 220, 210), font=label_font, anchor="mm")
     image.save(path)
@@ -189,7 +191,7 @@ def build(archive: Path, ap_dir: Path, out: Path) -> dict:
             grids[game].append(item_code)
     (out / "items/items.json").write_text(json.dumps(items, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    # Maps and locations: one pin per area, one section per check.
+    # Maps and locations: pins of up to CHUNK checks per area, one section per check.
     maps, locations, location_mapping = [], [], {}
     for game, layout in LAYOUTS.items():
         checks = [check for check in catalog["checks"] if check["game"] == game]
@@ -201,7 +203,7 @@ def build(archive: Path, ap_dir: Path, out: Path) -> dict:
         map_name = GAMES[game]
         overview_map(out / f"images/maps/{game.lower()}.png", game, positions,
                      [tuple(route) for route in catalog["routes"][game]])
-        maps.append({"name": map_name, "location_size": 40, "location_border_thickness": 4,
+        maps.append({"name": map_name, "location_size": PIN, "location_border_thickness": 2,
                      "img": f"images/maps/{game.lower()}.png"})
 
         by_area: dict[str, list[dict]] = {}
@@ -212,21 +214,27 @@ def build(archive: Path, ap_dir: Path, out: Path) -> dict:
             if area not in positions:
                 positions[area] = (5, rows + len(extra))
             x, y = positions[area]
-            location_name = f"{map_name}: {area}"
-            sections = []
-            for check in sorted(by_area[area], key=lambda c: c["name"].lower()):
-                section = check["name"]
-                sections.append({"name": section, "item_count": 1})
-                location_mapping[check["id"]] = f"@{map_name}/{location_name}/{section}"
-            names = [s["name"] for s in sections]
+            ordered = sorted(by_area[area], key=lambda c: c["name"].lower())
+            names = [c["name"] for c in ordered]
             if len(names) != len(set(names)):
-                raise SystemExit(f"Duplicate check names in {location_name}")
-            children.append({
-                "name": location_name,
-                "sections": sections,
-                "map_locations": [{"map": map_name, "x": MARGIN + x * CELL_W + CELL_W // 2,
-                                   "y": MARGIN + y * CELL_H + CELL_H // 2 - 10}],
-            })
+                raise SystemExit(f"Duplicate check names in {area}")
+            chunks = [ordered[i:i + CHUNK] for i in range(0, len(ordered), CHUNK)]
+            cx, cy = MARGIN + x * CELL_W + CELL_W // 2, MARGIN + y * CELL_H + CELL_H // 2
+            for index, chunk in enumerate(chunks):
+                location_name = f"{map_name}: {area}" + (f" ({index + 1}/{len(chunks)})" if len(chunks) > 1 else "")
+                row, column = divmod(index, PINS_PER_ROW)
+                in_row = min(PINS_PER_ROW, len(chunks) - row * PINS_PER_ROW)
+                sections = []
+                for check in chunk:
+                    sections.append({"name": check["name"], "item_count": 1})
+                    location_mapping[check["id"]] = f"@{map_name}/{location_name}/{check['name']}"
+                children.append({
+                    "name": location_name,
+                    "sections": sections,
+                    "map_locations": [{"map": map_name,
+                                       "x": cx + round((column - (in_row - 1) / 2) * PIN_STEP),
+                                       "y": cy - 16 + row * PIN_STEP}],
+                })
         locations.append({"name": map_name, "children": children})
     (out / "maps/maps.json").write_text(json.dumps(maps, indent=2) + "\n", encoding="utf-8")
     (out / "locations/locations.json").write_text(
@@ -325,10 +333,33 @@ local function reset_locations()
     end
 end
 
+-- Checks that are not in this slot (excluded by its options) are shown as done.
+local function clear_absent_locations()
+    if not Archipelago.MissingLocations or not Archipelago.CheckedLocations then
+        return
+    end
+    local present = {}
+    for _, id in ipairs(Archipelago.MissingLocations) do
+        present[id] = true
+    end
+    for _, id in ipairs(Archipelago.CheckedLocations) do
+        present[id] = true
+    end
+    for id, entry in pairs(LOCATION_MAPPING) do
+        if not present[id] then
+            local object = Tracker:FindObjectForCode(entry[1])
+            if object then
+                object.AvailableChestCount = 0
+            end
+        end
+    end
+end
+
 function onClear(slot_data)
     CUR_INDEX = -1
     reset_locations()
     reset_items()
+    clear_absent_locations()
 end
 
 function onItem(index, item_id, item_name, player_number)
@@ -373,8 +404,8 @@ A [PopTracker](https://github.com/black-sliver/PopTracker) pack for the Hollow K
 Archipelago world. Generated by `tools/export_poptracker.py`; do not edit by hand.
 
 - Item grids for Hallownest and Pharloom progression, filled automatically from Archipelago.
-- One overview map per game with a pin per area; each check of that area is a section, and
-  checked locations are cleared automatically.
+- One overview map per game with pins of up to 12 checks per area; checked locations, and
+  checks that are not in your slot, are cleared automatically.
 - No logic yet: every check is shown as reachable. The in-game check map (`F10`) has full logic.
 
 Install: put the `.zip` in PopTracker's `packs` folder, open it, then use the AP button to connect
