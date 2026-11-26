@@ -46,6 +46,8 @@ v0.1.13 persists both games' goal completion in `state.json` and syncs both halv
 
 v0.1.14 adds combined end-of-run stats (play time, completion, deaths, kills, and checks across both games in the `F6` **Stats** tab and launcher run Settings), ships the PopTracker pack (`dist/hkss-poptracker.zip`) with item grids, area overview maps, Archipelago auto-tracking, and full per-slot logic for both games, fixes `CostSanity` generation in both-games slots, fixes Silksong `skill_randomization: vanilla` generation (Clawline Statue reachability cycle), adds tracker slot-data hints for vanilla Silksong pickups and split Shade Cloak, and updates the vendored Silksong world to `v0.5.5-rc.6`.
 
+v0.1.15 adds unified combo shuffle options in the `Combo` option group (`shuffle_entrances`, `shuffle_charms_and_crests`, `shuffle_shops`, `shuffle_grubs_and_fleas`, `shuffle_journal_entries`, `shuffle_lore_tablets`), implements Hollow Knight coupled entrance/room randomization (`interiors`, `within_areas`, `full`) verified against `GeneratedRules.py`, hardens end-of-run death/kill stats against double-counting and new-seed leaks, and makes PopTracker location auto-tracking idempotent.
+
 Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, and a save that fails.
 
 ## Feature Parity & Missing Ports
