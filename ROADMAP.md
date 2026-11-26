@@ -46,7 +46,7 @@ v0.1.13 persists both games' goal completion in `state.json` and syncs both halv
 
 v0.1.14 adds combined end-of-run stats (play time, completion, deaths, kills, and checks across both games in the `F6` **Stats** tab and launcher run Settings), ships the PopTracker pack (`dist/hkss-poptracker.zip`) with item grids, area overview maps, Archipelago auto-tracking, and full per-slot logic for both games, fixes `CostSanity` generation in both-games slots, fixes Silksong `skill_randomization: vanilla` generation (Clawline Statue reachability cycle), adds tracker slot-data hints for vanilla Silksong pickups and split Shade Cloak, and updates the vendored Silksong world to `v0.5.5-rc.6`.
 
-Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, a save that fails, a game that crashes during travel, and the Silksong plugin's refusal to run without the launcher.
+Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, and a save that fails.
 
 ## Feature Parity & Missing Ports
 
@@ -54,13 +54,9 @@ Both games should offer a seamless, matching experience: any randomizer, UI, or 
 
 Cross-game QoL settings are ready for playtesting in the **Links & QoL** tab. Verify that auto-quill, check pin filtering, DeathLink shade/cocoon handling, bench recovery and shortcut changes behave consistently after travel in both directions.
 
-The combined end-of-run stats are ready for playtesting: each game records play time, completion, deaths, kills and Archipelago check counts in `state.json`; the `F6` **Stats** tab shows both games side by side (and opens on its own when the combo goal is completed), and the launcher shows the same table in a run's Settings panel. Verify that deaths and kills are counted once each, that totals survive travel in both directions, and that a new seed in the same run slot clears them.
-
-A PopTracker pack is built by `tools/export_poptracker.py` (item grids for both games, an area overview map per game, Archipelago auto-tracking, and logic for both games that follows each slot's options). `tools/test_poptracker_logic.py` checks the pack's logic against the world. Verify during the playtest that received items, checked locations and in-logic checks update for both games.
+Combined end-of-run stats are wired into `state.json`, the `F6` **Stats** tab, and the launcher's run Settings panel; confirm the in-game display updates cleanly after travelling in both directions.
 
 Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle gates are closed, and after they reopen.
-
-Verify the Forgotten Crossroads spike grub in a newly generated split-cloak seed. The world and check map require left dash for that check when the cloak is split.
 
 ## Later
 

@@ -1,6 +1,7 @@
 -- Archipelago auto-tracking: items received and locations checked in this slot.
 
 CUR_INDEX = -1
+CHECKED_LOCATIONS = {}
 
 local function reset_items()
     for _, entry in pairs(ITEM_MAPPING) do
@@ -53,6 +54,7 @@ end
 
 function onClear(slot_data)
     CUR_INDEX = -1
+    CHECKED_LOCATIONS = {}
     LOGIC.received = {}
     LOGIC.set_slot(slot_data)
     reset_locations()
@@ -83,12 +85,16 @@ function onItem(index, item_id, item_name, player_number)
 end
 
 function onLocation(location_id, location_name)
+    if CHECKED_LOCATIONS[location_id] then
+        return
+    end
+    CHECKED_LOCATIONS[location_id] = true
     local entry = LOCATION_MAPPING[location_id]
     if not entry then
         return
     end
     local object = Tracker:FindObjectForCode(entry[1])
-    if object then
+    if object and object.AvailableChestCount > 0 then
         object.AvailableChestCount = object.AvailableChestCount - 1
     end
 end

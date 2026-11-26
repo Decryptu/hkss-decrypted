@@ -163,6 +163,70 @@ class PackRunner:
         """PopTracker passes async arguments and results as JSON."""
         return self.lua.eval(to_lua(json.loads(json.dumps(self.to_python(value)))))
 
+    def verify_autotracking(self, pack: Path, slot_data, locations):
+        """Verify pack JSON mappings and AP auto-tracking callbacks for both games."""
+        items_json = json.loads((pack / "items/items.json").read_text(encoding="utf-8"))
+        item_types = {entry["codes"]: entry["type"] for entry in items_json}
+        for item_id, entry in self.g.ITEM_MAPPING.items():
+            code, kind = entry[1], entry[2]
+            assert code in item_types, f"ITEM_MAPPING[{item_id}] references unknown item code {code}"
+            assert item_types[code] == kind, f"ITEM_MAPPING[{item_id}] type {kind} != {item_types[code]}"
+
+        locs_json = json.loads((pack / "locations/locations.json").read_text(encoding="utf-8"))
+        valid_paths = set()
+        for game_node in locs_json:
+            for group in game_node.get("children", []):
+                for section in group.get("sections", []):
+                    valid_paths.add(f"@{game_node['name']}/{group['name']}/{section['name']}")
+        for loc_id, entry in self.g.LOCATION_MAPPING.items():
+            path = entry[1]
+            assert path in valid_paths, f"LOCATION_MAPPING[{loc_id}] references unknown path {path}"
+
+        g = self.g
+        present_ids = [self.location_ids[name] for name in locations if name in self.location_ids]
+        hk_loc_id = next(lid for lid in present_ids if self.g.LOCATION_NAMES[lid].startswith("HK "))
+        ss_loc_id = next(lid for lid in present_ids if self.g.LOCATION_NAMES[lid].startswith("SS "))
+        absent_id = next((lid for lid in self.g.LOCATION_MAPPING.keys() if lid not in set(present_ids)), None)
+
+        g.Archipelago.MissingLocations = self.lua.eval(to_lua(present_ids))
+        g.Archipelago.CheckedLocations = self.lua.eval("{}")
+        g.HANDLERS.clear(self.lua.eval(to_lua(slot_data)))
+
+        if absent_id is not None:
+            absent_obj = g.Tracker.FindObjectForCode(g.Tracker, g.LOCATION_MAPPING[absent_id][1])
+            assert absent_obj.AvailableChestCount == 0, "Absent location should be cleared on connect"
+
+        for loc_id in (hk_loc_id, ss_loc_id):
+            obj = g.Tracker.FindObjectForCode(g.Tracker, g.LOCATION_MAPPING[loc_id][1])
+            assert obj.AvailableChestCount == 1, f"Present location {loc_id} should start unchecked"
+            g.HANDLERS.location(loc_id, g.LOCATION_NAMES[loc_id])
+            assert obj.AvailableChestCount == 0, f"Location {loc_id} should clear on check"
+            g.HANDLERS.location(loc_id, g.LOCATION_NAMES[loc_id])
+            assert obj.AvailableChestCount == 0, f"Duplicate location {loc_id} must not underflow"
+
+        sample_items = [
+            ("HK Mothwing_Cloak", "toggle"),
+            ("HK Grub", "consumable"),
+            ("SS Swift Step", "toggle"),
+            ("SS Flea", "consumable"),
+        ]
+        for idx, (name, kind) in enumerate(sample_items):
+            item_id = self.item_ids[name]
+            code = g.ITEM_MAPPING[item_id][1]
+            g.HANDLERS.item(idx, item_id, name, 1)
+            obj = g.Tracker.FindObjectForCode(g.Tracker, code)
+            if kind == "toggle":
+                assert obj.Active is True, f"{name} toggle should be active"
+            else:
+                assert obj.AcquiredCount == 1, f"{name} count should be 1"
+            # Replaying the same index must be ignored.
+            g.HANDLERS.item(idx, item_id, name, 1)
+            if kind == "consumable":
+                assert obj.AcquiredCount == 1, f"Duplicate index for {name} must be ignored"
+
+        g.Archipelago.MissingLocations = None
+        g.Archipelago.CheckedLocations = None
+
     def reachable(self, slot_data, items, locations):
         g = self.g
         g.HANDLERS.clear(self.lua.eval(to_lua(slot_data)))
@@ -216,6 +280,9 @@ def main() -> None:
             finally:
                 os.chdir(cwd)
             slot_data, locations, sets = ground_truth(mw, args.seed + index)
+            if index == 0:
+                runner.verify_autotracking(args.pack.resolve(), slot_data, locations)
+                print(f"{case}: autotracking mappings & callbacks verified (HK + SS)")
             mismatches = []
             for items, expected in sets:
                 actual = runner.reachable(slot_data, items, locations)

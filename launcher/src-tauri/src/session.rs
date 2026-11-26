@@ -320,4 +320,34 @@ mod tests {
             new_session()
         });
     }
+
+    struct RecordingScreen {
+        raised: std::sync::Mutex<Vec<Game>>,
+    }
+
+    impl Screen for RecordingScreen {
+        fn raise_cover(&self, to: Game) {
+            self.raised.lock().unwrap().push(to);
+        }
+        fn lower_cover(&self) {}
+        fn hide_cover(&self) {}
+    }
+
+    #[test]
+    fn leave_completes_travel_even_if_outgoing_game_crashes() {
+        let temp = tempfile::tempdir().unwrap();
+        let signals = temp.path().join("signals");
+        fs::create_dir_all(&signals).unwrap();
+        let mut log = Log::open(temp.path()).unwrap();
+        let screen = RecordingScreen { raised: std::sync::Mutex::new(Vec::new()) };
+
+        // Simulate an outgoing game that exits with a non-zero crash code right after sending travel.
+        let child = Command::new("cmd").args(["/C", "exit", "1"]).spawn().unwrap();
+        let outcome = leave(child, Game::HollowKnight, Game::Silksong, "s-crash", &signals, &screen, &mut log).unwrap();
+
+        assert!(matches!(outcome, Outcome::Travel(Game::Silksong)));
+        assert_eq!(*screen.raised.lock().unwrap(), vec![Game::Silksong]);
+        let cover = fs::read_to_string(signals.join("cover.json")).unwrap();
+        assert!(cover.contains("\"s-crash\""));
+    }
 }

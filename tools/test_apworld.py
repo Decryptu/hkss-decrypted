@@ -136,6 +136,8 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
                 if w.game != "Hollow Knight x Silksong":
                     continue
                 if label == "solo_hollow_knight_only":
+                    from BaseClasses import CollectionState
+
                     costs = sd["hollow_knight"]["location_costs"]
                     for shop, currency, low, high in (
                         ("Grubfather", "GRUBS", 15, 23),
@@ -147,6 +149,18 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
                         ]
                         assert low <= min(prices) < max(prices) <= high, (shop, prices)
                         assert prices == sorted(prices), (shop, prices)
+
+                    spike_grub = mw.get_location("HK Grub-Crossroads_Spike", p)
+                    events = [l for l in mw.get_locations(p) if l.address is None]
+                    right_state = CollectionState(mw)
+                    right_state.collect(w.create_item("HK Right_Mothwing_Cloak"), True)
+                    right_state.sweep_for_advancements(locations=events)
+                    assert not spike_grub.can_reach(right_state), "Crossroads spike grub must not be reachable with only right dash"
+
+                    left_state = CollectionState(mw)
+                    left_state.collect(w.create_item("HK Left_Mothwing_Cloak"), True)
+                    left_state.sweep_for_advancements(locations=events)
+                    assert spike_grub.can_reach(left_state), "Crossroads spike grub must be reachable with left dash"
                 for loc in mw.get_locations(p):
                     if loc.address is not None:
                         if loc.name.startswith("HK "):
@@ -182,6 +196,7 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
             "Hollow Knight x Silksong:\n"
             "  games: hollow_knight_only\n"
             "  SplitMothwingCloak: true\n"
+            "  RandomizeGrubs: true\n"
             # Both price pairs are valid individual rolls but inverted as a pair.
             "  MinimumGrubPrice: 23\n"
             "  MaximumGrubPrice: 15\n"

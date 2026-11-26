@@ -343,6 +343,7 @@ internal sealed class ApManager : MonoBehaviour
             HkssPlugin.Log.LogWarning("[AP] Connected to a different Archipelago room/seed; reset run state counters and queued checks.");
             _pendingNamedChecks.Clear();
             _inMemoryProcessed = 0;
+            RunStatsTracker.ResetPending();
         }
     }
 

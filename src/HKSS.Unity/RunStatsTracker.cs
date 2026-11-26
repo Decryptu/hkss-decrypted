@@ -44,11 +44,21 @@ internal sealed class RunStatsTracker : MonoBehaviour
             HkssPlugin.Log.LogWarning("Run stats: HealthManager.Die not found; kills will not be counted.");
     }
 
-    private static void OnHeroDie(object[] __args)
+    private static void OnHeroDie(HeroController __instance, object[] __args)
     {
-        // Silksong's Die(nonLethal, frostDeath): non-lethal "deaths" are not deaths.
+        if (__instance != null && __instance.cState.dead) return;
+#if SILKSONG
+        // Silksong's Die(nonLethal, frostDeath): non-lethal and memory-scene wake-ups are not deaths.
         if (__args.Length > 0 && __args[0] is bool nonLethal && nonLethal) return;
+        if (GameManager.instance != null && GameManager.instance.IsMemoryScene()) return;
+#endif
         _pendingDeaths++;
+    }
+
+    internal static void ResetPending()
+    {
+        _pendingDeaths = 0;
+        _pendingKills = 0;
     }
 
     private static void BeforeEnemyDie(HealthManager __instance, out bool __state) => __state = __instance.GetIsDead();
