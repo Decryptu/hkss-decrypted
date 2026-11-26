@@ -42,6 +42,10 @@ struct SlotStatus {
     room: Option<room::Room>,
     hk_goal_completed: bool,
     ss_goal_completed: bool,
+    double_steel_soul: bool,
+    steel_soul_defeated: bool,
+    steel_soul_defeated_game: Option<String>,
+    steel_soul_defeated_scene: Option<String>,
     hk_stats: runs::GameStats,
     ss_stats: runs::GameStats,
     error: Option<String>,
@@ -135,6 +139,10 @@ fn status() -> Result<Status, String> {
             room,
             hk_goal_completed: goals.hk_goal_completed,
             ss_goal_completed: goals.ss_goal_completed,
+            double_steel_soul: goals.double_steel_soul,
+            steel_soul_defeated: goals.steel_soul_defeated,
+            steel_soul_defeated_game: (!goals.steel_soul_defeated_game.is_empty()).then_some(goals.steel_soul_defeated_game),
+            steel_soul_defeated_scene: (!goals.steel_soul_defeated_scene.is_empty()).then_some(goals.steel_soul_defeated_scene),
             hk_stats: goals.hk_stats,
             ss_stats: goals.ss_stats,
             error,
@@ -216,6 +224,21 @@ fn delete_run(slot: u8) -> Result<(), String> {
     idle()?;
     let dir = runs::dir(slot).map_err(|e| e.to_string())?;
     manage::delete_run(&dir).map_err(|e| format!("Run {slot} could not be deleted: {e}"))
+}
+
+#[tauri::command]
+fn reset_run(slot: u8) -> Result<(), String> {
+    idle()?;
+    let dir = runs::dir(slot).map_err(|e| e.to_string())?;
+    manage::reset_run(&dir).map_err(|e| format!("Run {slot} could not be reset: {e}"))
+}
+
+#[tauri::command]
+fn set_double_steel_soul(slot: u8, enabled: bool) -> Result<(), String> {
+    idle()?;
+    let dir = runs::dir(slot).map_err(|e| e.to_string())?;
+    runs::set_double_steel_soul(&dir, enabled)
+        .map_err(|e| format!("Run {slot} Double Steel Soul setting could not be saved: {e}"))
 }
 
 #[tauri::command]
@@ -318,6 +341,8 @@ fn main() {
             save_room,
             clear_room,
             delete_run,
+            reset_run,
+            set_double_steel_soul,
             remove_game_folders,
             export_diagnostics,
             check_update,

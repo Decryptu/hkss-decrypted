@@ -2,7 +2,7 @@
   "game": "Hollow Knight x Silksong",
   "version": "0.1.16",
   "minimumArchipelago": "0.6.8",
-  "archiveSha256": "bdcdd69a9051f3e082362fe401699cf384a1847e2bafc6336310b8f67d179fb1",
+  "archiveSha256": "f7af73a6f9288bb2fb2a981abf62fea8edded4fd02baa9d446a5797461c05a1a",
   "routes": {
     "HK": [
       [
@@ -439,6 +439,12 @@
         "cross_game_items": {
           "label": "Cross-Game Items",
           "help": "Merge paired movement abilities into single shared items that unlock in both games.\n\nFor example, Shared Dash grants both Mothwing Cloak (Hallownest) and Swift Step (Pharloom),\nShared Wall Jump grants Mantis Claw and Cling Grip, Shared Double Jump grants Monarch Wings\nand Faydown Cloak, and Shared Swim grants Swim when randomized in both games. Directional\nsplits are also merged when matching split options are enabled in both games.\n\nOff by default. Only used when both games are in the slot.",
+          "kind": "toggle",
+          "default": false
+        },
+        "double_steel_soul": {
+          "label": "Double Steel Soul",
+          "help": "Play both games in Steel Soul mode for one combo run.\n\nA Steel Soul death in either Hallownest or Pharloom marks the combo run defeated across both\ngames (even while the other game is closed). Both games and the launcher surface the defeat,\nand the launcher can reset the run with fresh saves in both games.\n\nOff by default.",
           "kind": "toggle",
           "default": false
         }

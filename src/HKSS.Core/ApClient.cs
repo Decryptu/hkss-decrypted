@@ -97,6 +97,7 @@ public sealed class ApClient : IDisposable
     public bool HkGoalCompleted { get; private set; }
     public bool SsGoalCompleted { get; private set; }
     public bool DeathLinkEnabled { get; private set; }
+    public bool DoubleSteelSoul { get; private set; }
     public string? WorldVersion { get; private set; }
     public Dictionary<string, object>? SlotData { get; private set; }
     public ArchipelagoSession? Session { get { lock (_gate) return _session; } }
@@ -174,6 +175,7 @@ public sealed class ApClient : IDisposable
             string gamesMode = ReadString(ok.SlotData, "games", GoalTracker.GamesBoth);
             string comboGoal = ReadString(ok.SlotData, "combo_goal", GoalTracker.ComboGoalBoth);
             bool deathLink = ReadBool(ok.SlotData, "death_link", false);
+            bool doubleSteelSoul = ReadBool(ok.SlotData, "double_steel_soul", false);
             string rawWorldVersion = ReadString(ok.SlotData, "world_version", string.Empty).Trim();
             string? worldVersion = rawWorldVersion.Length > 0 ? rawWorldVersion : null;
 
@@ -192,6 +194,7 @@ public sealed class ApClient : IDisposable
                 GamesMode = gamesMode;
                 ComboGoal = comboGoal;
                 DeathLinkEnabled = deathLink;
+                DoubleSteelSoul = doubleSteelSoul;
                 WorldVersion = worldVersion;
                 SlotData = ok.SlotData;
                 State = ApConnectionState.Connected;

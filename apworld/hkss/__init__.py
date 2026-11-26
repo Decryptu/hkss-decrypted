@@ -621,6 +621,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             "games": self.options.games.current_key,
             "combo_goal": self.options.combo_goal.current_key,
             "death_link": bool(self.options.death_link.value),
+            "double_steel_soul": bool(self.options.double_steel_soul.value),
             "cross_game_seals": [
                 seal.slot_data(self.item_name_to_id[seal.key]) for seal in self._seals
             ],

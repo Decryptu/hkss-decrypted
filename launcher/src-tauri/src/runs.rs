@@ -21,6 +21,14 @@ pub struct RunGoals {
     pub hk_goal_completed: bool,
     #[serde(default)]
     pub ss_goal_completed: bool,
+    #[serde(default)]
+    pub double_steel_soul: bool,
+    #[serde(default)]
+    pub steel_soul_defeated: bool,
+    #[serde(default)]
+    pub steel_soul_defeated_game: String,
+    #[serde(default)]
+    pub steel_soul_defeated_scene: String,
     #[serde(default, deserialize_with = "null_default")]
     pub hk_stats: GameStats,
     #[serde(default, deserialize_with = "null_default")]
@@ -58,6 +66,21 @@ pub fn load_goals(dir: &Path) -> RunGoals {
         .ok()
         .and_then(|bytes| serde_json::from_slice::<RunGoals>(&bytes).ok())
         .unwrap_or_default()
+}
+
+/// Persists the `double_steel_soul` flag in `state.json`, preserving all other fields.
+pub fn set_double_steel_soul(dir: &Path, enabled: bool) -> io::Result<()> {
+    fs::create_dir_all(dir)?;
+    let path = dir.join("state.json");
+    let mut map = fs::read(&path)
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok())
+        .and_then(|val| val.as_object().cloned())
+        .unwrap_or_default();
+    map.insert("double_steel_soul".into(), serde_json::Value::Bool(enabled));
+    let temp = dir.join("state.json.new");
+    fs::write(&temp, serde_json::to_vec_pretty(&serde_json::Value::Object(map))?)?;
+    fs::rename(temp, path)
 }
 
 pub fn home() -> PathBuf {
@@ -146,5 +169,25 @@ mod tests {
         fs::write(temp.path().join("state.json"), "{").unwrap();
         let corrupt = load_goals(temp.path());
         assert!(!corrupt.hk_goal_completed && !corrupt.ss_goal_completed);
+    }
+
+    #[test]
+    fn double_steel_soul_flag_and_defeat_round_trip() {
+        let temp = tempfile::tempdir().unwrap();
+        set_double_steel_soul(temp.path(), true).unwrap();
+        let enabled = load_goals(temp.path());
+        assert!(enabled.double_steel_soul);
+        assert!(!enabled.steel_soul_defeated);
+
+        fs::write(
+            temp.path().join("state.json"),
+            r#"{"double_steel_soul": true, "steel_soul_defeated": true, "steel_soul_defeated_game": "silksong", "steel_soul_defeated_scene": "Bone_01"}"#,
+        )
+        .unwrap();
+        let defeated = load_goals(temp.path());
+        assert!(defeated.double_steel_soul);
+        assert!(defeated.steel_soul_defeated);
+        assert_eq!(defeated.steel_soul_defeated_game, "silksong");
+        assert_eq!(defeated.steel_soul_defeated_scene, "Bone_01");
     }
 }

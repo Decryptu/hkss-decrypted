@@ -14,6 +14,10 @@
     room: Room | null;
     hk_goal_completed: boolean;
     ss_goal_completed: boolean;
+    double_steel_soul: boolean;
+    steel_soul_defeated: boolean;
+    steel_soul_defeated_game: string | null;
+    steel_soul_defeated_scene: string | null;
     hk_stats: Stats;
     ss_stats: Stats;
     error: string | null;
@@ -102,6 +106,13 @@
     if (confirm(`Delete run ${id}? Both saves and its room settings are removed for good.`))
       act("delete_run", { slot: id }, `Run ${id} deleted.`);
   }
+  function resetRun(id: number) {
+    if (confirm(`Reset run ${id}? Both Hallownest and Pharloom saves will be wiped for a fresh start. Your room settings and Double Steel Soul setting are kept.`))
+      act("reset_run", { slot: id }, `Run ${id} reset with fresh saves in both games.`);
+  }
+  function toggleDoubleSteelSoul(id: number, enabled: boolean) {
+    act("set_double_steel_soul", { slot: id, enabled }, `Run ${id} Double Steel Soul ${enabled ? "enabled" : "disabled"}.`, false);
+  }
   function removeGameFolders() {
     if (confirm("Remove the modded game folders? Your Steam games and runs are not touched; the folders are rebuilt on the next run."))
       act("remove_game_folders", {}, "Modded game folders removed.");
@@ -157,14 +168,26 @@
   const hasBlockingIssue = $derived(gameIssues.some((i) => i.severity === "error"));
   const ready = $derived(!!status && status.steam_running && status.games.every((g) => g.build) && !hasBlockingIssue);
   const place = (key: string) => (key === "silksong" ? "Pharloom" : "Hallownest");
+  const defeatLabel = (slot: Slot) => {
+    const where = slot.steel_soul_defeated_game ? place(slot.steel_soul_defeated_game) : "this run";
+    return slot.steel_soul_defeated_scene ? `Defeated in ${where} (${slot.steel_soul_defeated_scene})` : `Defeated in ${where}`;
+  };
+  const steelSoulBadge = (slot: Slot) =>
+    slot.steel_soul_defeated
+      ? ` · ${defeatLabel(slot)}`
+      : slot.double_steel_soul
+        ? " · Double Steel Soul"
+        : "";
   const goalBadge = (slot: Slot) =>
-    slot.hk_goal_completed && slot.ss_goal_completed
-      ? " · Both goals done"
-      : slot.hk_goal_completed
-        ? " · HK goal done"
-        : slot.ss_goal_completed
-          ? " · SS goal done"
-          : "";
+    slot.steel_soul_defeated
+      ? ""
+      : slot.hk_goal_completed && slot.ss_goal_completed
+        ? " · Both goals done"
+        : slot.hk_goal_completed
+          ? " · HK goal done"
+          : slot.ss_goal_completed
+            ? " · SS goal done"
+            : "";
 
   const played = (s: Stats) => s.play_seconds > 0 || s.deaths > 0 || s.kills > 0 || s.checks_found > 0;
   const duration = (seconds: number) => {
@@ -260,11 +283,14 @@
     </div>
     <ul class="menu" role="list">
       {#each status.slots as slot (slot.id)}
-        <li>
+        <li class:defeated={slot.steel_soul_defeated}>
           <button disabled={!ready || busy || !!slot.error} onclick={() => play(slot.id)}>
             <span>Run {slot.id}</span>
-            <small>{slot.error ? `Corrupted data (${slot.error})` : `${slot.current ? place(slot.current) : "New run"}${slot.room ? ` · ${slot.room.slot} @ ${slot.room.host}` : " · offline"}${goalBadge(slot)}`}</small>
+            <small>{slot.error ? `Corrupted data (${slot.error})` : `${slot.current ? place(slot.current) : "New run"}${slot.room ? ` · ${slot.room.slot} @ ${slot.room.host}` : " · offline"}${steelSoulBadge(slot)}${goalBadge(slot)}`}</small>
           </button>
+          {#if slot.steel_soul_defeated}
+            <button class="more reset-inline" disabled={busy} onclick={() => resetRun(slot.id)}>Reset run</button>
+          {/if}
           <button class="more" disabled={busy} aria-expanded={editing === slot.id} onclick={() => edit(slot)}>Settings</button>
         </li>
         {#if editing === slot.id}
@@ -276,11 +302,21 @@
               <label>Slot <input bind:value={draft.slot} placeholder="Your slot name" required></label>
               <label>Password <input type="password" bind:value={draft.password} autocomplete="off"></label>
               <label class="check"><input type="checkbox" bind:checked={draft.auto_connect}> Connect when the game starts</label>
+              <label class="check">
+                <input
+                  type="checkbox"
+                  checked={slot.double_steel_soul}
+                  disabled={busy || slot.steel_soul_defeated}
+                  onchange={(e) => toggleDoubleSteelSoul(slot.id, e.currentTarget.checked)}
+                >
+                Double Steel Soul (Steel Soul across both games; YAML option also enables it)
+              </label>
               <div class="actions">
                 <button type="submit">Save room</button>
                 <button type="button" onclick={(e) => testConnection(e.currentTarget.form)}>Test connection</button>
                 {#if slot.room || slot.error}<button type="button" onclick={() => clearRoom(slot.id)}>Play offline</button>{/if}
                 <button type="button" onclick={() => exportReport(slot.id)}>Bug report</button>
+                {#if slot.current || slot.steel_soul_defeated}<button type="button" class="danger" onclick={() => resetRun(slot.id)}>Reset run</button>{/if}
                 {#if slot.current || slot.error}<button type="button" class="danger" onclick={() => deleteRun(slot.id)}>Delete run</button>{/if}
               </div>
               </fieldset>
@@ -290,7 +326,7 @@
               {@const hk = slot.hk_stats}
               {@const ss = slot.ss_stats}
               <table class="stats">
-                <caption>{slot.hk_goal_completed && slot.ss_goal_completed ? "Run complete" : "Run so far"}</caption>
+                <caption>{slot.steel_soul_defeated ? defeatLabel(slot) : slot.hk_goal_completed && slot.ss_goal_completed ? "Run complete" : "Run so far"}</caption>
                 <thead><tr><th></th><th>Hallownest</th><th>Pharloom</th><th>Total</th></tr></thead>
                 <tbody>
                   <tr><th>Goal</th><td>{goalText(slot.hk_goal_completed, hk)}</td><td>{goalText(slot.ss_goal_completed, ss)}</td><td></td></tr>

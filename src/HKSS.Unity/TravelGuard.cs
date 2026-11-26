@@ -18,6 +18,12 @@ internal static class TravelGuard
             return false;
         }
 
+        if (DoubleSteelSoul.IsDefeated)
+        {
+            reason = "Steel Soul run is defeated";
+            return false;
+        }
+
         if (recoverInputLock && (Travel.Instance?.IsTravelling == true || TownWarp.Instance?.IsWarping == true))
         {
             reason = "travel already in progress";

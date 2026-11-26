@@ -250,6 +250,7 @@ internal sealed class ApManager : MonoBehaviour
                 PushToast($"Connected as {Client.ConnectedSlot}", ToastKind.Info);
                 CheckWorldVersion();
                 SyncSeedBinding();
+                DoubleSteelSoul.SyncFromSlotData(Client.DoubleSteelSoul);
                 FlushQueuedChecks();
                 Client.SyncGoalProgress(
                     HkssPlugin.State.IsGoalCompleted(GameId.HollowKnight),

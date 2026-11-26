@@ -280,7 +280,11 @@ def _run_cases(
                         raise AssertionError("Seals must be off by default")
                     if sd["cross_game_items"] != []:
                         raise AssertionError("Cross-game items must be off by default")
+                    if sd.get("double_steel_soul") is not False:
+                        raise AssertionError("Double Steel Soul must be off by default")
                 if label == "solo_both_cross_game_items":
+                    if sd.get("double_steel_soul") is not True:
+                        raise AssertionError("Double Steel Soul must be True when enabled")
                     from BaseClasses import CollectionState
 
                     shared_names = {entry["name"] for entry in sd["cross_game_items"]}
@@ -416,6 +420,7 @@ def _run_cases(
             "Hollow Knight x Silksong:\n"
             "  games: both\n"
             "  cross_game_items: true\n"
+            "  double_steel_soul: true\n"
             "  cross_game_seals: 2\n"
             "  shuffle_entrances: within_areas\n"
         )

@@ -164,6 +164,20 @@ class CrossGameItems(Toggle):
     default = False
 
 
+class DoubleSteelSoul(Toggle):
+    """Play both games in Steel Soul mode for one combo run.
+
+    A Steel Soul death in either Hallownest or Pharloom marks the combo run defeated across both
+    games (even while the other game is closed). Both games and the launcher surface the defeat,
+    and the launcher can reset the run with fresh saves in both games.
+
+    Off by default.
+    """
+
+    display_name = "Double Steel Soul"
+    default = False
+
+
 _COMMON_FIELD_NAMES = {f.name for f in fields(PerGameCommonOptions)}
 
 _shared_fields = [
@@ -178,6 +192,7 @@ _shared_fields = [
     ("shuffle_lore_tablets", ShuffleLoreTablets),
     ("cross_game_seals", CrossGameSeals),
     ("cross_game_items", CrossGameItems),
+    ("double_steel_soul", DoubleSteelSoul),
 ]
 
 _hk_fields = [
@@ -217,6 +232,7 @@ def _build_option_groups() -> list[OptionGroup]:
                 ShuffleLoreTablets,
                 CrossGameSeals,
                 CrossGameItems,
+                DoubleSteelSoul,
             ],
         ),
         OptionGroup(

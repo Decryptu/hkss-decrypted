@@ -125,14 +125,28 @@ internal sealed class AutoLoad : MonoBehaviour
 #endif
 
         Mark("menu");
+        if (DoubleSteelSoul.IsDefeated)
+        {
+            DoubleSteelSoul.ShowDefeatOverlay();
+            Finish(Signal.Ready, "steel-soul-defeated");
+            return;
+        }
         _step = Step.CheckingSave;
         Platform.Current.IsSaveSlotInUse(RunContext.SaveSlot, used =>
         {
             _step = Step.Loading;
             gm.profileID = RunContext.SaveSlot;
-            if (used) gm.LoadGameFromUI(RunContext.SaveSlot);
-            else ui.StartNewGame();
-            Mark(used ? "loading save" : "starting a new game");
+            if (used)
+            {
+                gm.LoadGameFromUI(RunContext.SaveSlot);
+                Mark("loading save");
+            }
+            else
+            {
+                bool steelSoul = DoubleSteelSoul.IsEnabled;
+                ui.StartNewGame(steelSoul, false);
+                Mark(steelSoul ? "starting a new Steel Soul game" : "starting a new game");
+            }
         });
     }
 

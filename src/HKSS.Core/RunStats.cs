@@ -45,6 +45,10 @@ public sealed class RunSummary
     public GameStats Silksong { get; }
     public bool HkGoalCompleted { get; }
     public bool SsGoalCompleted { get; }
+    public bool DoubleSteelSoul { get; }
+    public bool SteelSoulDefeated { get; }
+    public string SteelSoulDefeatedGame { get; }
+    public string SteelSoulDefeatedScene { get; }
 
     public RunSummary(RunState state)
     {
@@ -53,6 +57,10 @@ public sealed class RunSummary
         Silksong = state.GetStats(GameId.Silksong).Clone();
         HkGoalCompleted = state.HkGoalCompleted;
         SsGoalCompleted = state.SsGoalCompleted;
+        DoubleSteelSoul = state.DoubleSteelSoul;
+        SteelSoulDefeated = state.SteelSoulDefeated;
+        SteelSoulDefeatedGame = state.SteelSoulDefeatedGame ?? string.Empty;
+        SteelSoulDefeatedScene = state.SteelSoulDefeatedScene ?? string.Empty;
     }
 
     public GameStats Get(GameId game) => game == GameId.HollowKnight ? HollowKnight : Silksong;

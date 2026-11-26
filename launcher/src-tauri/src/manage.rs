@@ -3,7 +3,7 @@
 //! Removal never follows a link. The game folders hold junctions into the Steam installs, so a
 //! link is removed as a link and whatever it points to is left alone.
 
-use crate::{game::Game, preflight, room, steam};
+use crate::{game::Game, preflight, room, runs, steam};
 use std::{
     fmt::Write as _,
     fs, io,
@@ -54,6 +54,20 @@ fn remove_link(path: &Path, meta: &fs::Metadata) -> io::Result<()> {
 /// Deletes one run: both saves, its room, and its logs.
 pub fn delete_run(dir: &Path) -> io::Result<()> {
     remove_tree(dir)
+}
+
+/// Resets a run with fresh saves in both games, clearing defeat/progress state while keeping
+/// Archipelago room settings (`ap.json`) and the Double Steel Soul toggle.
+pub fn reset_run(dir: &Path) -> io::Result<()> {
+    let double_steel_soul = runs::load_goals(dir).double_steel_soul;
+    remove_tree(&dir.join("saves"))?;
+    remove_tree(&dir.join("signals"))?;
+    remove_tree(&dir.join("run.json"))?;
+    remove_tree(&dir.join("state.json"))?;
+    if double_steel_soul {
+        runs::set_double_steel_soul(dir, true)?;
+    }
+    Ok(())
 }
 
 /// Removes the modded copies of both games. The next run builds them again.
@@ -290,5 +304,35 @@ mod tests {
             pos += 46 + name_len + extra_len + comment_len;
         }
         assert_eq!(pos, eocd);
+    }
+
+    #[test]
+    fn reset_run_clears_saves_and_defeat_while_keeping_room_and_steel_soul() {
+        let temp = tempfile::tempdir().unwrap();
+        let dir = temp.path().join("runs/slot-1");
+        fs::create_dir_all(dir.join("saves/hollow_knight")).unwrap();
+        fs::create_dir_all(dir.join("saves/silksong")).unwrap();
+        fs::create_dir_all(dir.join("signals")).unwrap();
+        fs::write(dir.join("saves/hollow_knight/hkss_user1.dat"), "hk").unwrap();
+        fs::write(dir.join("saves/silksong/hkss_user1.dat"), "ss").unwrap();
+        fs::write(dir.join("signals/hollow_knight.json"), "{}").unwrap();
+        fs::write(dir.join("run.json"), r#"{"current":"silksong"}"#).unwrap();
+        fs::write(
+            dir.join("state.json"),
+            r#"{"double_steel_soul":true,"steel_soul_defeated":true,"steel_soul_defeated_game":"hollow_knight","hk_goal_completed":true}"#,
+        )
+        .unwrap();
+        room::save(&dir, &Room { slot: "Knight".into(), ..Room::default() }).unwrap();
+
+        reset_run(&dir).unwrap();
+
+        assert!(!dir.join("saves").exists());
+        assert!(!dir.join("signals").exists());
+        assert!(!dir.join("run.json").exists());
+        assert_eq!(room::load(&dir).unwrap().unwrap().slot, "Knight");
+        let goals = runs::load_goals(&dir);
+        assert!(goals.double_steel_soul);
+        assert!(!goals.steel_soul_defeated);
+        assert!(!goals.hk_goal_completed);
     }
 }

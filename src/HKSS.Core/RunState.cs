@@ -72,6 +72,22 @@ public sealed class RunState
     [JsonProperty("ss_stats")]
     public GameStats SsStats { get; set; } = new();
 
+    /// <summary>True when Double Steel Soul is active for this combo run.</summary>
+    [JsonProperty("double_steel_soul")]
+    public bool DoubleSteelSoul { get; set; }
+
+    /// <summary>True once a Steel Soul death in either game has defeated this combo run.</summary>
+    [JsonProperty("steel_soul_defeated")]
+    public bool SteelSoulDefeated { get; set; }
+
+    /// <summary>Game key (<c>hollow_knight</c> or <c>silksong</c>) where the Steel Soul run fell.</summary>
+    [JsonProperty("steel_soul_defeated_game")]
+    public string SteelSoulDefeatedGame { get; set; } = string.Empty;
+
+    /// <summary>Scene name where the Steel Soul run fell, if known.</summary>
+    [JsonProperty("steel_soul_defeated_scene")]
+    public string SteelSoulDefeatedScene { get; set; } = string.Empty;
+
     public GameStats GetStats(GameId game) => game switch
     {
         GameId.HollowKnight => HkStats ??= new GameStats(),
@@ -224,6 +240,39 @@ public sealed class RunStateStore
         state.HkStats = new GameStats();
         state.SsStats = new GameStats();
         state.SealKeys = new List<long>();
+        state.DoubleSteelSoul = false;
+        state.SteelSoulDefeated = false;
+        state.SteelSoulDefeatedGame = string.Empty;
+        state.SteelSoulDefeatedScene = string.Empty;
+        Save(state);
+        return true;
+    }
+
+    public bool IsDoubleSteelSoul() => Load().DoubleSteelSoul;
+
+    public bool SetDoubleSteelSoul(bool enabled)
+    {
+        RunState state = Load();
+        if (state.DoubleSteelSoul == enabled) return false;
+        state.DoubleSteelSoul = enabled;
+        Save(state);
+        return true;
+    }
+
+    public bool IsSteelSoulDefeated() => Load().SteelSoulDefeated;
+
+    /// <summary>
+    /// Marks the combo run defeated by a Steel Soul death in <paramref name="game"/>.
+    /// Idempotent: preserves the first game and scene that caused the defeat.
+    /// </summary>
+    public bool MarkSteelSoulDefeated(GameId game, string? scene = null)
+    {
+        RunState state = Load();
+        if (state.SteelSoulDefeated) return false;
+        state.DoubleSteelSoul = true;
+        state.SteelSoulDefeated = true;
+        state.SteelSoulDefeatedGame = game.Key();
+        state.SteelSoulDefeatedScene = scene?.Trim() ?? string.Empty;
         Save(state);
         return true;
     }

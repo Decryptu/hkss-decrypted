@@ -180,21 +180,25 @@ internal sealed partial class ApOverlay : MonoBehaviour
     private void DrawStatusBadge(ApManager ap)
     {
         ApConnectionState state = ap.Client.State;
-        string text = state switch
-        {
-            ApConnectionState.Connected => $"AP: {ap.Client.ConnectedSlot} [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
-            ApConnectionState.Connecting => $"AP: Connecting... [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
-            ApConnectionState.Failed => $"AP: Error [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
-            _ => $"AP: Offline [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
-        };
+        string text = DoubleSteelSoul.IsDefeated
+            ? $"STEEL SOUL DEFEATED [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]"
+            : state switch
+            {
+                ApConnectionState.Connected => $"AP: {ap.Client.ConnectedSlot} [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
+                ApConnectionState.Connecting => $"AP: Connecting... [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
+                ApConnectionState.Failed => $"AP: Error [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
+                _ => $"AP: Offline [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
+            };
 
-        Color color = state switch
-        {
-            ApConnectionState.Connected => new Color(0.55f, 0.95f, 0.65f, 0.95f),
-            ApConnectionState.Connecting => new Color(0.95f, 0.85f, 0.45f, 0.95f),
-            ApConnectionState.Failed => new Color(1.0f, 0.45f, 0.45f, 0.95f),
-            _ => new Color(0.75f, 0.78f, 0.85f, 0.85f),
-        };
+        Color color = DoubleSteelSoul.IsDefeated
+            ? new Color(1.0f, 0.35f, 0.35f, 0.98f)
+            : state switch
+            {
+                ApConnectionState.Connected => new Color(0.55f, 0.95f, 0.65f, 0.95f),
+                ApConnectionState.Connecting => new Color(0.95f, 0.85f, 0.45f, 0.95f),
+                ApConnectionState.Failed => new Color(1.0f, 0.45f, 0.45f, 0.95f),
+                _ => new Color(0.75f, 0.78f, 0.85f, 0.85f),
+            };
 
         Color prev = GUI.contentColor;
         GUI.contentColor = color;
@@ -344,6 +348,17 @@ internal sealed partial class ApOverlay : MonoBehaviour
 
         GUILayout.Space(6f);
         GUILayout.Label($"Status: {ap.Client.StatusDetail}", _labelStyle);
+        if (DoubleSteelSoul.IsDefeated)
+        {
+            string where = string.IsNullOrWhiteSpace(DoubleSteelSoul.DefeatedScene)
+                ? DoubleSteelSoul.DefeatedWorldName
+                : $"{DoubleSteelSoul.DefeatedWorldName} ({DoubleSteelSoul.DefeatedScene})";
+            GUILayout.Label($"Mode: Double Steel Soul — Defeated in {where}", _sectionStyle);
+        }
+        else if (DoubleSteelSoul.IsEnabled)
+        {
+            GUILayout.Label("Mode: Double Steel Soul (Active)", _sectionStyle);
+        }
 
         CrossGameSeals seals = SealGuard.Current;
         if (seals.All.Count > 0)

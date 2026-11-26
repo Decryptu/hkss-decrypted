@@ -49,6 +49,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
             OverlayCursor.Install(_harmony);
             RunStatsTracker.Install(_harmony);
             SealGuard.Install(_harmony);
+            DoubleSteelSoul.Install(_harmony);
 #if HOLLOW_KNIGHT
             _harmony.CreateClassProcessor(typeof(HKSS.HollowKnight.HkAutoQuill)).Patch();
 #endif
@@ -69,6 +70,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
         gameObject.AddComponent<ApManager>();
         gameObject.AddComponent<ApOverlay>();
         gameObject.AddComponent<RunStatsTracker>();
+        gameObject.AddComponent<DoubleSteelSoul>();
 #if HOLLOW_KNIGHT
         gameObject.AddComponent<HKSS.HollowKnight.HkClientHost>();
 #elif SILKSONG

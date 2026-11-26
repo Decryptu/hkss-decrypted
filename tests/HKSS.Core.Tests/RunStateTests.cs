@@ -201,4 +201,36 @@ public sealed class RunStateTests : IDisposable
         Assert.True(ssStore.EnsureSeedBinding("seed-B|Slot"));
         Assert.Empty(hkStore.GetSealKeys());
     }
+
+    [Fact]
+    public void DoubleSteelSoulDefeatPersistsAcrossGamesAndResetsOnSeedChange()
+    {
+        var hkStore = new RunStateStore(MakeContext(GameId.HollowKnight));
+        var ssStore = new RunStateStore(MakeContext(GameId.Silksong));
+
+        Assert.False(hkStore.IsDoubleSteelSoul());
+        Assert.False(hkStore.IsSteelSoulDefeated());
+
+        Assert.True(hkStore.SetDoubleSteelSoul(true));
+        Assert.False(hkStore.SetDoubleSteelSoul(true));
+        Assert.True(ssStore.IsDoubleSteelSoul());
+
+        Assert.True(hkStore.MarkSteelSoulDefeated(GameId.HollowKnight, "Deepnest_01"));
+        Assert.False(ssStore.MarkSteelSoulDefeated(GameId.Silksong, "Bone_01"));
+
+        RunSummary sum = ssStore.LoadSummary();
+        Assert.True(sum.DoubleSteelSoul);
+        Assert.True(sum.SteelSoulDefeated);
+        Assert.Equal("hollow_knight", sum.SteelSoulDefeatedGame);
+        Assert.Equal("Deepnest_01", sum.SteelSoulDefeatedScene);
+
+        hkStore.EnsureSeedBinding("seed-A|Slot");
+        Assert.True(hkStore.IsSteelSoulDefeated());
+
+        Assert.True(ssStore.EnsureSeedBinding("seed-B|Slot"));
+        Assert.False(hkStore.IsDoubleSteelSoul());
+        Assert.False(hkStore.IsSteelSoulDefeated());
+        Assert.Equal(string.Empty, hkStore.Load().SteelSoulDefeatedGame);
+        Assert.Equal(string.Empty, hkStore.Load().SteelSoulDefeatedScene);
+    }
 }

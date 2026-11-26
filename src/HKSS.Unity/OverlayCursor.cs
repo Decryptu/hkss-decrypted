@@ -11,6 +11,7 @@ internal static class OverlayCursor
     {
         Archipelago = 1,
         Benchwarp = 2,
+        SteelSoul = 4,
     }
 
     private static Panel _openPanels;

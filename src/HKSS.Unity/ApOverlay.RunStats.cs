@@ -20,7 +20,12 @@ internal sealed partial class ApOverlay
         RunSummary s = _runSummary;
 
         bool done = s.HkGoalCompleted && s.SsGoalCompleted;
-        GUILayout.Label(done ? "Run complete" : "Run in progress", _sectionStyle);
+        string heading = s.SteelSoulDefeated
+            ? $"Steel Soul defeated in {DoubleSteelSoul.FormatWorldName(s.SteelSoulDefeatedGame)}"
+            : done
+                ? (s.DoubleSteelSoul ? "Double Steel Soul complete" : "Run complete")
+                : (s.DoubleSteelSoul ? "Double Steel Soul — In progress" : "Run in progress");
+        GUILayout.Label(heading, _sectionStyle);
         GUILayout.Space(4f);
 
         GUILayout.BeginHorizontal();
