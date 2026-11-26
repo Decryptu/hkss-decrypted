@@ -2,7 +2,7 @@
   "game": "Hollow Knight x Silksong",
   "version": "0.1.14",
   "minimumArchipelago": "0.6.8",
-  "archiveSha256": "94d7744604a69cc9cea3faaee965f981d51004fd40cb973b271171312d1a4787",
+  "archiveSha256": "083635c9edbedec598b83fda761d84f66e4df97d9e7f5a511ba19e190fbe6ba0",
   "routes": {
     "HK": [
       [
@@ -306,6 +306,126 @@
           "help": "When you die, everyone who enabled death link dies. Of course, the reverse is true too.",
           "kind": "toggle",
           "default": false
+        },
+        "shuffle_entrances": {
+          "label": "Shuffle Entrances",
+          "help": "Unified coupled entrance and room randomization across both games.\n\nper_game: use each game's own entrance setting.\noff: keep all entrances vanilla in both games.\ninteriors: shuffle interior doorway pairs in both games.\nwithin_areas: shuffle coupled room transitions inside each area.\nfull: shuffle coupled room transitions across each game's world.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "interiors",
+            "within_areas",
+            "full"
+          ],
+          "aliases": [
+            "false"
+          ],
+          "numbers": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "shuffle_charms_and_crests": {
+          "label": "Shuffle Charms & Crests",
+          "help": "Unified randomization for Hollow Knight Charms and Silksong Crests & Tools.\n\nper_game: use each game's individual option.\noff: keep Charms, Crests, and Tools vanilla.\non: randomize Charms, Crests, and Tools into the shared item pool.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "shuffle_shops": {
+          "label": "Shuffle Shops",
+          "help": "Unified shop price/cost randomization across both games.\n\nper_game: use each game's individual shop options.\nvanilla: keep shop costs and prices vanilla in both games.\nrandomized: enable Hollow Knight shop Costsanity and Silksong shop price shuffling.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "vanilla",
+            "randomized"
+          ],
+          "aliases": [],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "shuffle_grubs_and_fleas": {
+          "label": "Shuffle Grubs & Fleas",
+          "help": "Unified randomization for Hollow Knight Grubs and Silksong Fleas.\n\nper_game: use each game's individual option.\noff: keep Grubs and Fleas vanilla.\non: randomize Grubs and Fleas into the shared item pool.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "shuffle_journal_entries": {
+          "label": "Shuffle Journal Entries",
+          "help": "Unified randomization for Hunter's Journal entries in both games.\n\nper_game: use each game's individual option.\noff: keep journal entries vanilla.\non: randomize journal entries into the shared item pool in both games.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "shuffle_lore_tablets": {
+          "label": "Shuffle Lore Tablets",
+          "help": "Unified randomization for Lore Tablets in both games.\n\nper_game: use each game's individual option.\noff: keep lore tablets vanilla.\non: randomize lore tablets into the shared item pool in both games.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
         }
       }
     },

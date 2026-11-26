@@ -47,6 +47,9 @@ CASES = {
     "entrances_areas": ("entrance_randomization: coupled", "entrance_randomization_scope: within_areas",
                         "goal: cursed_ending", "combo_goal: either"),
     "vanilla_skills": ("skill_randomization: vanilla", "silk_skill_randomization: vanilla"),
+    "unified": ("shuffle_entrances: within_areas", "shuffle_charms_and_crests: on",
+                "shuffle_shops: randomized", "shuffle_grubs_and_fleas: on",
+                "shuffle_journal_entries: on", "shuffle_lore_tablets: on"),
 }
 FRACTIONS = (0, 0.05, 0.15, 0.3, 0.5, 0.7, 0.9, 1.0)
 

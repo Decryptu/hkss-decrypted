@@ -177,6 +177,31 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
                             assert SS_BLOCK_START <= it.code <= SS_BLOCK_END, it
                         else:
                             raise AssertionError(f"Unprefixed real item: {it.name}")
+                if label == "solo_both_unified_shuffles":
+                    hk_sd = sd["hollow_knight"]
+                    ss_sd = sd["silksong"]
+                    hk_pairs = hk_sd.get("entrance_pairs") or {}
+                    assert len(hk_pairs) >= 10, hk_pairs
+                    assert all(hk_pairs.get(dst) == src for src, dst in hk_pairs.items()), "HK entrance pairs must be reciprocal"
+                    assert hk_sd["options"]["EntranceRandoType"] == 5
+                    assert hk_sd["options"]["RandomizeCharms"] == 1
+                    assert hk_sd["options"]["RandomizeGrubs"] == 1
+                    assert hk_sd["options"]["RandomizeJournalEntries"] == 1
+                    assert hk_sd["options"]["RandomizeLoreTablets"] == 1
+                    assert hk_sd["options"]["CostSanity"] == 2
+                    assert ss_sd["entrance_randomization"] == "coupled"
+                    assert ss_sd["entrance_randomization_scope"] == "interiors"
+                    assert len(ss_sd.get("entrance_pairs") or {}) > 0
+                if label == "solo_both_unified_entrances_full":
+                    hk_sd = sd["hollow_knight"]
+                    ss_sd = sd["silksong"]
+                    hk_pairs = hk_sd.get("entrance_pairs") or {}
+                    assert len(hk_pairs) >= 40, len(hk_pairs)
+                    assert all(hk_pairs.get(dst) == src for src, dst in hk_pairs.items()), "HK entrance pairs must be reciprocal"
+                    assert "Town[left1]" not in hk_pairs and "Tutorial_01[right1]" not in hk_pairs
+                    assert hk_sd["options"]["EntranceRandoType"] == 3
+                    assert ss_sd["entrance_randomization"] == "coupled"
+                    assert ss_sd["entrance_randomization_scope"] == "full"
                 if sd["games"] == "both" and mw.players == 1:
                     hk_in_ss = sum(
                         1 for l in mw.get_locations(p)
@@ -238,6 +263,29 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
             "Hollow Knight x Silksong:\n"
             "  games: both\n"
             "  skill_randomization: vanilla\n"
+        )
+    })
+    run_case("solo_both_unified_shuffles", {
+        "ComboUnified.yaml": (
+            "name: ComboUnified\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  shuffle_entrances: interiors\n"
+            "  shuffle_charms_and_crests: on\n"
+            "  shuffle_shops: randomized\n"
+            "  shuffle_grubs_and_fleas: on\n"
+            "  shuffle_journal_entries: on\n"
+            "  shuffle_lore_tablets: on\n"
+        )
+    })
+    run_case("solo_both_unified_entrances_full", {
+        "ComboEntrancesFull.yaml": (
+            "name: ComboEntrancesFull\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  shuffle_entrances: full\n"
         )
     })
     run_case("multiworld_4p", {

@@ -11,7 +11,10 @@ from rule_builder.cached_world import CachedRuleBuilderWorld
 from settings import Bool, FilePath, Group
 from worlds.AutoWorld import WebWorld
 
-from .hk import HKWorld
+from .hk import HKItem, HKWorld
+from .hk.ExtractedData import connectors as HK_VANILLA_CONNECTORS
+from .hk.Options import CostSanity
+from .hk_entrances import SCOPE_TO_RANDO_TYPE, shuffle_solvable as shuffle_hk_entrances
 from .ids import (
     GAME_NAME,
     HK_PREFIX,
@@ -23,9 +26,26 @@ from .ids import (
     strip_hk_prefix,
     strip_ss_prefix,
 )
-from .options import ComboGoal, Games, HKSSOptions, hkss_option_groups
+from .options import (
+    ComboGoal,
+    Games,
+    HKSSOptions,
+    ShuffleCharmsAndCrests,
+    ShuffleEntrances,
+    ShuffleGrubsAndFleas,
+    ShuffleJournalEntries,
+    ShuffleLoreTablets,
+    ShuffleShops,
+    hkss_option_groups,
+)
 from .silksong import SilksongWorld
 from .silksong.items import PROGRESSIVE_SWIFT_STEP_ITEM
+from .silksong.options import (
+    EntranceRandomization,
+    EntranceRandomizationScope,
+    GlobalRandomization,
+    PurchasePriceRandomization,
+)
 
 
 class HKSSSettings(Group):
@@ -148,6 +168,9 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         self.hk = HKWorld(multiworld, player, parent_world=self)
         self._hk_completion_condition = None
         self._silksong_completion_rule = None
+        self._hk_entrance_scope: str | None = None
+        self._hk_entrance_pairs: dict[str, str] = {}
+        self._hk_entrance_rando_type: int = 0
 
     @property
     def has_hk(self) -> bool:
@@ -157,7 +180,61 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
     def has_silksong(self) -> bool:
         return self.options.games.value != Games.option_hollow_knight_only
 
+    def _apply_unified_shuffles(self) -> None:
+        opts = self.options
+
+        if opts.shuffle_charms_and_crests.value != ShuffleCharmsAndCrests.option_per_game:
+            on = opts.shuffle_charms_and_crests.value == ShuffleCharmsAndCrests.option_on
+            opts.RandomizeCharms.value = int(on)
+            val = GlobalRandomization.option_true if on else GlobalRandomization.option_false
+            opts.crest_randomization.value = val
+            opts.tool_randomization.value = val
+
+        if opts.shuffle_shops.value != ShuffleShops.option_per_game:
+            randomized = opts.shuffle_shops.value == ShuffleShops.option_randomized
+            opts.CostSanity.value = CostSanity.option_shopsonly if randomized else CostSanity.option_off
+            price_val = PurchasePriceRandomization.option_shuffle if randomized else PurchasePriceRandomization.option_vanilla
+            opts.normal_shop_prices.value = price_val
+            opts.map_prices.value = price_val
+            opts.pin_prices.value = price_val
+            opts.upgrade_prices.value = price_val
+
+        if opts.shuffle_grubs_and_fleas.value != ShuffleGrubsAndFleas.option_per_game:
+            on = opts.shuffle_grubs_and_fleas.value == ShuffleGrubsAndFleas.option_on
+            opts.RandomizeGrubs.value = int(on)
+            opts.flea_randomization.value = GlobalRandomization.option_true if on else GlobalRandomization.option_false
+
+        if opts.shuffle_journal_entries.value != ShuffleJournalEntries.option_per_game:
+            on = opts.shuffle_journal_entries.value == ShuffleJournalEntries.option_on
+            opts.RandomizeJournalEntries.value = int(on)
+            opts.journal_randomization.value = GlobalRandomization.option_true if on else GlobalRandomization.option_false
+
+        if opts.shuffle_lore_tablets.value != ShuffleLoreTablets.option_per_game:
+            on = opts.shuffle_lore_tablets.value == ShuffleLoreTablets.option_on
+            opts.RandomizeLoreTablets.value = int(on)
+            opts.lore_tablet_randomization.value = GlobalRandomization.option_true if on else GlobalRandomization.option_false
+
+        ent = opts.shuffle_entrances.value
+        if ent == ShuffleEntrances.option_off:
+            opts.entrance_randomization.value = EntranceRandomization.option_off
+            self._hk_entrance_scope = None
+        elif ent in (
+            ShuffleEntrances.option_interiors,
+            ShuffleEntrances.option_within_areas,
+            ShuffleEntrances.option_full,
+        ):
+            scope_map = {
+                ShuffleEntrances.option_interiors: ("interiors", EntranceRandomizationScope.option_interiors),
+                ShuffleEntrances.option_within_areas: ("within_areas", EntranceRandomizationScope.option_within_areas),
+                ShuffleEntrances.option_full: ("full", EntranceRandomizationScope.option_full),
+            }
+            hk_scope, ss_scope = scope_map[ent]
+            opts.entrance_randomization.value = EntranceRandomization.option_coupled
+            opts.entrance_randomization_scope.value = ss_scope
+            self._hk_entrance_scope = hk_scope
+
     def generate_early(self) -> None:
+        self._apply_unified_shuffles()
         self.hk.options = self.options
         self.hk.random = self.random
         if self.has_hk:
@@ -351,7 +428,59 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         if self.has_silksong:
             SilksongWorld.fill_hook(self, progitempool, usefulitempool, filleritempool, fill_locations)
 
+    def _connect_hk_entrances(self) -> None:
+        if not (self.has_hk and self._hk_entrance_scope):
+            return
+        menu_region = self.multiworld.get_region("Menu", self.player)
+        connector_locs = {
+            loc.name: loc
+            for loc in menu_region.locations
+            if loc.address is None and loc.name in HK_VANILLA_CONNECTORS and HK_VANILLA_CONNECTORS[loc.name]
+        }
+        hk_real_locs = [
+            loc for loc in self.multiworld.get_locations(self.player)
+            if loc.address is not None and loc.name.startswith(HK_PREFIX)
+        ]
+        hk_events = [
+            loc for loc in menu_region.locations
+            if loc.address is None
+        ]
+        hk_pool_items = [
+            item for item in self.multiworld.itempool
+            if item.player == self.player and item.name.startswith(HK_PREFIX)
+        ]
+
+        def eval_hk_state() -> CollectionState:
+            state = CollectionState(self.multiworld)
+            for item in hk_pool_items:
+                state.collect(item, True)
+            state.sweep_for_advancements(locations=hk_events)
+            return state
+
+        baseline_state = eval_hk_state()
+        baseline_locs = [loc for loc in hk_real_locs if loc.can_reach(baseline_state)]
+        baseline_goal = self._hk_completion_condition(baseline_state) if self._hk_completion_condition else True
+
+        def apply_pairs(pairs: dict[str, str]) -> None:
+            for name, loc in connector_locs.items():
+                target = pairs.get(name, HK_VANILLA_CONNECTORS[name])
+                loc.item = None
+                loc.place_locked_item(HKItem(target, True, None, "Event", self.player))
+
+        def is_valid(pairs: dict[str, str]) -> bool:
+            apply_pairs(pairs)
+            state = eval_hk_state()
+            if baseline_goal and self._hk_completion_condition and not self._hk_completion_condition(state):
+                return False
+            return all(loc.can_reach(state) for loc in baseline_locs)
+
+        pairs = shuffle_hk_entrances(self._hk_entrance_scope, self.random, is_valid)
+        apply_pairs(pairs)
+        self._hk_entrance_pairs = pairs
+        self._hk_entrance_rando_type = SCOPE_TO_RANDO_TYPE[self._hk_entrance_scope]
+
     def connect_entrances(self) -> None:
+        self._connect_hk_entrances()
         if self.has_silksong:
             SilksongWorld.connect_entrances(self)
 
@@ -360,6 +489,11 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             SilksongWorld.extend_hint_information(self, hint_data)
 
     def write_spoiler(self, spoiler_handle) -> None:
+        if self.has_hk and self._hk_entrance_pairs:
+            player_name = self.multiworld.get_player_name(self.player)
+            spoiler_handle.write(f"\nHollow Knight Entrances ({player_name}):\n")
+            for src in sorted(self._hk_entrance_pairs):
+                spoiler_handle.write(f"  {src} -> {self._hk_entrance_pairs[src]}\n")
         if self.has_silksong:
             SilksongWorld.write_spoiler(self, spoiler_handle)
 
@@ -390,12 +524,17 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         HKWorld.stage_write_spoiler(multiworld, spoiler_handle)
 
     def fill_slot_data(self) -> dict[str, Any]:
+        hk_data = self.hk.fill_slot_data() if self.has_hk else None
+        if hk_data is not None and self._hk_entrance_pairs:
+            hk_data["entrance_pairs"] = dict(self._hk_entrance_pairs)
+            hk_data["options"]["EntranceRandoType"] = self._hk_entrance_rando_type
+            hk_data["options"]["ShuffleEntrancesMode"] = 0
         return {
             "world_version": WORLD_VERSION,
             "games": self.options.games.current_key,
             "combo_goal": self.options.combo_goal.current_key,
             "death_link": bool(self.options.death_link.value),
-            "hollow_knight": self.hk.fill_slot_data() if self.has_hk else None,
+            "hollow_knight": hk_data,
             "silksong": SilksongWorld.fill_slot_data(self) if self.has_silksong else None,
         }
 

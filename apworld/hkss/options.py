@@ -38,12 +38,112 @@ class ComboGoal(Choice):
     default = 0
 
 
+class ShuffleEntrances(Choice):
+    """Unified coupled entrance and room randomization across both games.
+
+    per_game: use each game's own entrance setting.
+    off: keep all entrances vanilla in both games.
+    interiors: shuffle interior doorway pairs in both games.
+    within_areas: shuffle coupled room transitions inside each area.
+    full: shuffle coupled room transitions across each game's world.
+    """
+
+    display_name = "Shuffle Entrances"
+    option_per_game = 0
+    option_off = 1
+    option_interiors = 2
+    option_within_areas = 3
+    option_full = 4
+    default = 0
+
+
+class ShuffleCharmsAndCrests(Choice):
+    """Unified randomization for Hollow Knight Charms and Silksong Crests & Tools.
+
+    per_game: use each game's individual option.
+    off: keep Charms, Crests, and Tools vanilla.
+    on: randomize Charms, Crests, and Tools into the shared item pool.
+    """
+
+    display_name = "Shuffle Charms & Crests"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ShuffleShops(Choice):
+    """Unified shop price/cost randomization across both games.
+
+    per_game: use each game's individual shop options.
+    vanilla: keep shop costs and prices vanilla in both games.
+    randomized: enable Hollow Knight shop Costsanity and Silksong shop price shuffling.
+    """
+
+    display_name = "Shuffle Shops"
+    option_per_game = 0
+    option_vanilla = 1
+    option_randomized = 2
+    default = 0
+
+
+class ShuffleGrubsAndFleas(Choice):
+    """Unified randomization for Hollow Knight Grubs and Silksong Fleas.
+
+    per_game: use each game's individual option.
+    off: keep Grubs and Fleas vanilla.
+    on: randomize Grubs and Fleas into the shared item pool.
+    """
+
+    display_name = "Shuffle Grubs & Fleas"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ShuffleJournalEntries(Choice):
+    """Unified randomization for Hunter's Journal entries in both games.
+
+    per_game: use each game's individual option.
+    off: keep journal entries vanilla.
+    on: randomize journal entries into the shared item pool in both games.
+    """
+
+    display_name = "Shuffle Journal Entries"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ShuffleLoreTablets(Choice):
+    """Unified randomization for Lore Tablets in both games.
+
+    per_game: use each game's individual option.
+    off: keep lore tablets vanilla.
+    on: randomize lore tablets into the shared item pool in both games.
+    """
+
+    display_name = "Shuffle Lore Tablets"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
 _COMMON_FIELD_NAMES = {f.name for f in fields(PerGameCommonOptions)}
 
 _shared_fields = [
     ("games", Games),
     ("combo_goal", ComboGoal),
     ("death_link", DeathLink),
+    ("shuffle_entrances", ShuffleEntrances),
+    ("shuffle_charms_and_crests", ShuffleCharmsAndCrests),
+    ("shuffle_shops", ShuffleShops),
+    ("shuffle_grubs_and_fleas", ShuffleGrubsAndFleas),
+    ("shuffle_journal_entries", ShuffleJournalEntries),
+    ("shuffle_lore_tablets", ShuffleLoreTablets),
 ]
 
 _hk_fields = [
@@ -69,7 +169,20 @@ HKSSOptions = make_dataclass(
 
 def _build_option_groups() -> list[OptionGroup]:
     groups: list[OptionGroup] = [
-        OptionGroup("Combo", [Games, ComboGoal, DeathLink]),
+        OptionGroup(
+            "Combo",
+            [
+                Games,
+                ComboGoal,
+                DeathLink,
+                ShuffleEntrances,
+                ShuffleCharmsAndCrests,
+                ShuffleShops,
+                ShuffleGrubsAndFleas,
+                ShuffleJournalEntries,
+                ShuffleLoreTablets,
+            ],
+        ),
         OptionGroup(
             "Hollow Knight",
             [opt_cls for _, opt_cls in _hk_fields],

@@ -60,7 +60,6 @@ Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle
 
 ## Later
 
-- More unified shuffles: entrances and rooms in combo mode, charms/crests, shops, grubs/fleas, journal entries, lore tablets.
 - Cross-game rules and items (abilities that unlock routes in the other game) as opt-in options.
 - Suspending the other game for instant travel as an option, live tracking on the player hub's map page.
 
