@@ -1,8 +1,8 @@
 {
   "game": "Hollow Knight x Silksong",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "minimumArchipelago": "0.6.8",
-  "archiveSha256": "9ae97674d058630994e6f96716a9269b2de5608237d4c9cfb5133da2738a3fb5",
+  "archiveSha256": "19eda15d0126bd088cf6e6ff3bfcf9fd22b47156a51f977247f411a62b2b3db9",
   "routes": {
     "HK": [
       [
@@ -426,6 +426,15 @@
             1,
             2
           ]
+        },
+        "cross_game_seals": {
+          "label": "Cross-Game Seals",
+          "help": "Number of areas in each game that stay sealed until you find a key ability from the other game.\n\nFor example, Deepnest may need Silksong's Faydown Cloak, and Shellwood may need Hollow Knight's\nMantis Claw. Doorways into a sealed area turn you back until the key has been received. The\nrandomizer's logic expects the key before anything in the area. Starting areas, travel gate\ntowns, early hubs, and Silksong's Act 3 areas are never sealed.\n\n0 turns seals off. Only used when both games are in the slot.",
+          "kind": "range",
+          "default": 0,
+          "min": 0,
+          "max": 4,
+          "names": {}
         }
       }
     },
