@@ -104,6 +104,30 @@ def ss_data(world) -> tuple[dict, dict]:
     return tables, constants
 
 
+def seal_data(world) -> dict:
+    """Scenes and areas that cross-game seals use. Call after export_hub_data.load_world().
+
+    hkLocationScenes: Hollow Knight checks in sealable scenes, by location name without "HK ".
+    ssEventAreas: Silksong room events in sealable areas, by logic name ("Room Event: ...").
+    """
+    from hkss.cross_game import hk_scene, load_areas, ss_event_areas
+
+    areas = load_areas()
+    hk_scenes = {scene for scenes in areas["hollow_knight"].values() for scene in scenes}
+    ss_areas = {data["area_id"] for data in areas["silksong"].values()}
+    location_scenes = {}
+    for name in world.location_name_to_id:
+        if name.startswith("HK "):
+            scene = hk_scene(name, hk_scenes)
+            if scene in hk_scenes:
+                location_scenes[name[3:]] = scene
+    event_areas = {name: area for name, area in ss_event_areas().items() if area in ss_areas}
+    return {
+        "hkLocationScenes": dict(sorted(location_scenes.items())),
+        "ssEventAreas": dict(sorted(event_areas.items())),
+    }
+
+
 def to_lua(value) -> str:
     """Serialize JSON-like data as a Lua table constructor."""
     if value is None:

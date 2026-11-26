@@ -345,6 +345,20 @@ internal sealed partial class ApOverlay : MonoBehaviour
         GUILayout.Space(6f);
         GUILayout.Label($"Status: {ap.Client.StatusDetail}", _labelStyle);
 
+        CrossGameSeals seals = SealGuard.Current;
+        if (seals.All.Count > 0)
+        {
+            GUILayout.Space(6f);
+            GUILayout.Label("Cross-game seals", _labelStyle);
+            foreach (CrossGameSeal seal in seals.All)
+            {
+                string state = SealGuard.HasKeyForDisplay(seal.KeyId)
+                    ? "open"
+                    : $"needs {seal.KeyDisplayName} from {seal.KeyWorld}";
+                GUILayout.Label($"• {seal.Area} ({ItemRouter.WorldName(seal.Game)}): {state}", _labelStyle);
+            }
+        }
+
         var logs = ap.RecentLogs;
         if (logs.Count > 0)
         {

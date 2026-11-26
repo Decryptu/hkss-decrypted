@@ -48,6 +48,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
             ThinSlice.Install(_harmony);
             OverlayCursor.Install(_harmony);
             RunStatsTracker.Install(_harmony);
+            SealGuard.Install(_harmony);
 #if HOLLOW_KNIGHT
             _harmony.CreateClassProcessor(typeof(HKSS.HollowKnight.HkAutoQuill)).Patch();
 #endif

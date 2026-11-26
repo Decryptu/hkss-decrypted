@@ -81,9 +81,31 @@ local function apply_item(counts, name)
     end
 end
 
--- items: {[clean item name] = count}; slot: slot_data.hollow_knight or nil.
-function HK.evaluate(items, slot)
+-- Scene of a logic node: a transition (Scene[gate]) or a waypoint named after a scene
+-- (cross_game._hk_scene_of: exact name, else the longest sealed scene followed by "_").
+local function node_in(sealed, name)
+    local scene = name:match("^([^%[]+)%[") or name
+    if sealed[scene] then return true end
+    for candidate in pairs(sealed) do
+        if name:sub(1, #candidate + 1) == candidate .. "_" then return true end
+    end
+    return false
+end
+
+-- items: {[clean item name] = count}; slot: slot_data.hollow_knight or nil;
+-- sealed: {[scene] = true} for cross-game seals still closed, or nil.
+function HK.evaluate(items, slot, sealed)
     slot = slot or {}
+    sealed = sealed or {}
+    local blocked = {}
+    local function is_blocked(name)
+        local value = blocked[name]
+        if value == nil then
+            value = next(sealed) ~= nil and node_in(sealed, name)
+            blocked[name] = value
+        end
+        return value
+    end
     -- Before a slot is connected, assume the world's default options.
     local options = slot.options or HK_LOGIC.defaultOptions or {}
     -- The world grants the unrandomized starting abilities as start items, so a connected slot
@@ -116,6 +138,7 @@ function HK.evaluate(items, slot)
         notch_costs = slot.notch_costs or {},
         location_costs = slot.location_costs or {},
         reached = { [HK_LOGIC.start] = true },
+        sealed = sealed,
     }, State)
 
     HK.vanilla_shade_cloak = slot.vanilla_shade_cloak
@@ -125,16 +148,19 @@ function HK.evaluate(items, slot)
     while changed do
         changed = false
         for _, node in ipairs(order) do
-            if not reached[node] and state:eval(rules[node]) then
+            if not reached[node] and not is_blocked(node) and state:eval(rules[node]) then
                 reached[node] = true
                 changed = true
                 local target = connectors[node]
-                if target and target ~= "" and not reached[target] then reached[target] = true end
+                if target and target ~= "" and not reached[target] and not is_blocked(target) then
+                    reached[target] = true
+                end
             end
         end
         -- Vanilla placements the world turned into events: collect each once it is reachable.
         for _, event in ipairs(events) do
-            if not event.done and state:reach_rule(event.location, event.costs) then
+            if not event.done and not state:location_sealed(event.location)
+                and state:reach_rule(event.location, event.costs) then
                 event.done = true
                 apply_item(counts, event.item)
                 changed = true
@@ -228,8 +254,15 @@ function State:reach_rule(name, costs)
     return true
 end
 
+-- True when the location is in a scene of a cross-game seal that is still closed.
+function State:location_sealed(name)
+    local scene = SEAL_DATA and SEAL_DATA.hkLocationScenes[name]
+    return scene ~= nil and self.sealed[scene] == true
+end
+
 -- name: Archipelago location name without the "HK " prefix. Nil when there is no rule.
 function State:can_reach(name)
     if find_rule(name) == nil then return nil end
+    if self:location_sealed(name) then return false end
     return self:reach_rule(name, self.location_costs[name] or HK_LOGIC.locationCosts[name])
 end

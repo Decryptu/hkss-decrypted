@@ -12,7 +12,7 @@ from dataclasses import fields, make_dataclass
 from typing import get_type_hints
 
 import Options as _Options
-from Options import Choice, DeathLink, OptionGroup, PerGameCommonOptions
+from Options import Choice, DeathLink, OptionGroup, PerGameCommonOptions, Range
 
 from .hk.Options import hollow_knight_options
 from .silksong import options as _ss_options_mod
@@ -132,6 +132,23 @@ class ShuffleLoreTablets(Choice):
     default = 0
 
 
+class CrossGameSeals(Range):
+    """Number of areas in each game that stay sealed until you find a key ability from the other game.
+
+    For example, Deepnest may need Silksong's Faydown Cloak, and Shellwood may need Hollow Knight's
+    Mantis Claw. Doorways into a sealed area turn you back until the key has been received. The
+    randomizer's logic expects the key before anything in the area. Starting areas, travel gate
+    towns, early hubs, and Silksong's Act 3 areas are never sealed.
+
+    0 turns seals off. Only used when both games are in the slot.
+    """
+
+    display_name = "Cross-Game Seals"
+    range_start = 0
+    range_end = 4
+    default = 0
+
+
 _COMMON_FIELD_NAMES = {f.name for f in fields(PerGameCommonOptions)}
 
 _shared_fields = [
@@ -144,6 +161,7 @@ _shared_fields = [
     ("shuffle_grubs_and_fleas", ShuffleGrubsAndFleas),
     ("shuffle_journal_entries", ShuffleJournalEntries),
     ("shuffle_lore_tablets", ShuffleLoreTablets),
+    ("cross_game_seals", CrossGameSeals),
 ]
 
 _hk_fields = [
@@ -181,6 +199,7 @@ def _build_option_groups() -> list[OptionGroup]:
                 ShuffleGrubsAndFleas,
                 ShuffleJournalEntries,
                 ShuffleLoreTablets,
+                CrossGameSeals,
             ],
         ),
         OptionGroup(

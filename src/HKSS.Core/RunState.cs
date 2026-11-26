@@ -57,6 +57,13 @@ public sealed class RunState
     [JsonProperty("ss_checked_locations")]
     public List<long> SsCheckedLocations { get; set; } = new();
 
+    /// <summary>
+    /// Combined item IDs of cross-game seal keys already received, so sealed areas stay open
+    /// while the game is offline.
+    /// </summary>
+    [JsonProperty("seal_keys")]
+    public List<long> SealKeys { get; set; } = new();
+
     /// <summary>Hollow Knight statistics for the end-of-run summary.</summary>
     [JsonProperty("hk_stats")]
     public GameStats HkStats { get; set; } = new();
@@ -216,8 +223,28 @@ public sealed class RunStateStore
         state.SsGoalCompleted = false;
         state.HkStats = new GameStats();
         state.SsStats = new GameStats();
+        state.SealKeys = new List<long>();
         Save(state);
         return true;
+    }
+
+    public IReadOnlyList<long> GetSealKeys() => Load().SealKeys ?? new List<long>();
+
+    /// <summary>Remembers received seal keys. Returns true if any key was new.</summary>
+    public bool RecordSealKeys(IEnumerable<long> keyIds)
+    {
+        if (keyIds == null) throw new ArgumentNullException(nameof(keyIds));
+        RunState state = Load();
+        state.SealKeys ??= new List<long>();
+        bool changed = false;
+        foreach (long id in keyIds)
+        {
+            if (state.SealKeys.Contains(id)) continue;
+            state.SealKeys.Add(id);
+            changed = true;
+        }
+        if (changed) Save(state);
+        return changed;
     }
 
     public RunSummary LoadSummary() => new(Load());

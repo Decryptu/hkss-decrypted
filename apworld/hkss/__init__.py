@@ -11,6 +11,7 @@ from rule_builder.cached_world import CachedRuleBuilderWorld
 from settings import Bool, FilePath, Group
 from worlds.AutoWorld import WebWorld
 
+from .cross_game import Seal, apply_hk_seals, apply_ss_seals, choose_seals, describe, seal_key_items
 from .hk import HKItem, HKWorld
 from .hk.ExtractedData import connectors as HK_VANILLA_CONNECTORS
 from .hk.Options import CostSanity
@@ -171,6 +172,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         self._hk_entrance_scope: str | None = None
         self._hk_entrance_pairs: dict[str, str] = {}
         self._hk_entrance_rando_type: int = 0
+        self._seals: list[Seal] = []
 
     @property
     def has_hk(self) -> bool:
@@ -312,6 +314,8 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         if self.has_silksong:
             SilksongWorld.set_rules(self)
         self._refresh_completion_rule()
+        self._seals = choose_seals(self, self.options.cross_game_seals.value)
+        apply_hk_seals(self, self._seals)
 
     def _enable_silk_supply(self, supply) -> None:
         self._silk_supply = supply
@@ -450,9 +454,13 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             if item.player == self.player and item.name.startswith(HK_PREFIX)
         ]
 
+        seal_keys = seal_key_items(self, self._seals)
+
         def eval_hk_state() -> CollectionState:
             state = CollectionState(self.multiworld)
             for item in hk_pool_items:
+                state.collect(item, True)
+            for item in seal_keys:
                 state.collect(item, True)
             state.sweep_for_advancements(locations=hk_events)
             return state
@@ -483,12 +491,19 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         self._connect_hk_entrances()
         if self.has_silksong:
             SilksongWorld.connect_entrances(self)
+        # Silksong's entrance randomizer reconnects exits, so its seals go on the final entrances.
+        apply_ss_seals(self, self._seals)
 
     def extend_hint_information(self, hint_data: dict[int, dict[int, str]]) -> None:
         if self.has_silksong:
             SilksongWorld.extend_hint_information(self, hint_data)
 
     def write_spoiler(self, spoiler_handle) -> None:
+        if self._seals:
+            player_name = self.multiworld.get_player_name(self.player)
+            spoiler_handle.write(f"\nCross-Game Seals ({player_name}):\n")
+            for seal in self._seals:
+                spoiler_handle.write(f"  {describe(seal)}\n")
         if self.has_hk and self._hk_entrance_pairs:
             player_name = self.multiworld.get_player_name(self.player)
             spoiler_handle.write(f"\nHollow Knight Entrances ({player_name}):\n")
@@ -534,6 +549,9 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             "games": self.options.games.current_key,
             "combo_goal": self.options.combo_goal.current_key,
             "death_link": bool(self.options.death_link.value),
+            "cross_game_seals": [
+                seal.slot_data(self.item_name_to_id[seal.key]) for seal in self._seals
+            ],
             "hollow_knight": hk_data,
             "silksong": SilksongWorld.fill_slot_data(self) if self.has_silksong else None,
         }

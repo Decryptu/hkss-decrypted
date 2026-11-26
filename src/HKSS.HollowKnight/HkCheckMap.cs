@@ -436,9 +436,11 @@ internal static class HkCheckMap
 
                 string rawLocName = ResolveRawLocationName(pmt, item, i, locId);
                 bool isChecked = item.WasEverObtained();
-                HkReachability reach = logic != null
-                    ? logic.EvaluateLocation(rawLocName)
-                    : HkReachability.Unknown;
+                HkReachability reach = logic == null
+                    ? HkReachability.Unknown
+                    : logic.IsSceneSealed(sceneName)
+                        ? HkReachability.Unreachable
+                        : logic.EvaluateLocation(rawLocName);
 
                 if (!isChecked)
                 {
@@ -799,6 +801,7 @@ internal static class HkCheckMap
             LocationCosts = slot?.LocationCosts,
             EntrancePairs = slot?.EntrancePairs,
             StartLocationName = slot?.Options.StartLocationName,
+            SealedScenes = SealGuard.ClosedScenes(),
             BaseNotches = 3,
             BaseMaskShards = 20,
         };

@@ -31,6 +31,12 @@ namespace ItemChanger
         public static event Action<Transition>? OnBeginSceneTransition;
 
         /// <summary>
+        /// HKSS: called after transition overrides with the gate the player used and the final target.
+        /// Returning true sends the player back through the gate they used instead.
+        /// </summary>
+        public static Func<Transition, Transition, bool>? TransitionBlocker;
+
+        /// <summary>
         /// Called before GameManager.StartNewGame.
         /// </summary>
         public static event Action? BeforeStartNewGame;
@@ -545,6 +551,25 @@ namespace ItemChanger
                             LogError($"Error invoking OnTransitionOverride with parameters {source}, {origTarget}, {modified}:\n{e}");
                         }
                         target = new(modified.SceneName, modified.GateName);
+                    }
+
+                    if (TransitionBlocker != null)
+                    {
+                        bool blocked = false;
+                        try
+                        {
+                            blocked = TransitionBlocker(source, target);
+                        }
+                        catch (Exception e)
+                        {
+                            LogError($"Error invoking TransitionBlocker with parameters {source}, {target}:\n{e}");
+                        }
+                        if (blocked)
+                        {
+                            info.SceneName = source.SceneName;
+                            info.EntryGateName = source.GateName;
+                            target = source;
+                        }
                     }
                 }
             }

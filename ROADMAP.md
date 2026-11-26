@@ -48,6 +48,8 @@ v0.1.14 adds combined end-of-run stats (play time, completion, deaths, kills, an
 
 v0.1.15 adds unified combo shuffle options in the `Combo` option group (`shuffle_entrances`, `shuffle_charms_and_crests`, `shuffle_shops`, `shuffle_grubs_and_fleas`, `shuffle_journal_entries`, `shuffle_lore_tablets`), implements Hollow Knight coupled entrance/room randomization (`interiors`, `within_areas`, `full`) verified against `GeneratedRules.py`, hardens end-of-run death/kill stats against double-counting and new-seed leaks, and makes PopTracker location auto-tracking idempotent.
 
+Unreleased: cross-game seals. The opt-in `cross_game_seals` option (0 to 4 areas per game) seals areas until a key ability from the other game is found, for example Deepnest needing Silksong's Faydown Cloak. Generation logic, both plugins (doorways send the player back, and the `F6` Connection tab lists seals), Hollow Knight's check map, the PopTracker pack and the spoiler log all support it. Still to verify in game: the bounce back at horizontal, vertical and door transitions in both games, with and without shuffled entrances, and seals opening when the key arrives while the other game is running.
+
 Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, and a save that fails.
 
 ## Feature Parity & Missing Ports
@@ -62,7 +64,12 @@ Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle
 
 ## Later
 
-- Cross-game rules and items (abilities that unlock routes in the other game) as opt-in options.
+- Alternate Hollow Knight starting locations in combo runs (the combo world only offers King's Pass).
+- Alternate Silksong starting locations, and shuffled entrances on the Moss Grotto to Bone Bottom route, in combo runs.
+- Seals for warps: Stags, trams, Bellways, Ventricas, Benchwarp and Dream Gate can still enter a sealed area in game (out of logic).
+- Seals in Silksong's in-game map logic (Hollow Knight's check map and the PopTracker pack already handle them).
+- Cross-game items: abilities that work in both games, for example one dash item for Mothwing Cloak and Swift Step.
+- In-place launcher updates (the launcher links to new releases but does not install them).
 - Suspending the other game for instant travel as an option, live tracking on the player hub's map page.
 
 ## Decisions

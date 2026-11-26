@@ -363,10 +363,20 @@ function State:location(name, active)
     return result
 end
 
+-- True for room nodes and room events in a cross-game sealed area that is still closed.
+local function in_sealed_area(name, sealed)
+    if name == nil or next(sealed) == nil then return false end
+    local area = name:match("^Room Node: ([^/]+)/")
+    if area then return sealed[area] == true end
+    area = SEAL_DATA and SEAL_DATA.ssEventAreas[name]
+    return area ~= nil and sealed[area] == true
+end
+
 -- items: {[item name without "SS "] = count}; slot: slot_data.silksong or nil;
--- logic: SS.payload(slot), cached by the caller.
-function SS.evaluate(items, slot, logic)
+-- logic: SS.payload(slot), cached by the caller; sealed: {[area id] = true} or nil.
+function SS.evaluate(items, slot, logic, sealed)
     slot = slot or {}
+    sealed = sealed or {}
     local inventory = {}
     local enabled = directional(slot)
     -- With split directional dash, each Progressive Swift Step grants the next of Sprint and the
@@ -420,7 +430,8 @@ function SS.evaluate(items, slot, logic)
         local index = pending[head]
         head = head + 1
         queued[index] = false
-        if not completed[index] and state:group(rules[index]) then
+        if not completed[index] and not in_sealed_area(names[index], sealed)
+            and state:group(rules[index]) then
             completed[index] = true
             local event = events[index]
             if event then

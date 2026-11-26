@@ -22,6 +22,8 @@ public sealed class HkLogicInput
     public IReadOnlyDictionary<string, Dictionary<string, int>>? LocationCosts { get; set; }
     public IReadOnlyDictionary<string, string>? EntrancePairs { get; set; }
     public string? StartLocationName { get; set; }
+    /// <summary>Scenes of cross-game seals that are still closed: nothing in them is reachable.</summary>
+    public IReadOnlyCollection<string>? SealedScenes { get; set; }
     public int BaseNotches { get; set; } = 3;
     public int BaseMaskShards { get; set; } = 20;
 }
@@ -74,6 +76,30 @@ public sealed class HkLogicState
     }
 
     public bool IsNodeReached(string node) => _reachedNodes.Contains(node);
+
+    internal IReadOnlyCollection<string> SealedScenes { get; set; } = Array.Empty<string>();
+
+    /// <summary>True when the scene belongs to a cross-game seal that is still closed.</summary>
+    public bool IsSceneSealed(string? scene) => scene != null && SealedScenes.Contains(scene);
+
+    /// <summary>
+    /// True when a logic node (a transition "Scene[gate]" or a waypoint named after a scene) is in
+    /// a closed seal's scene. Mirrors <c>cross_game._hk_scene_of</c>.
+    /// </summary>
+    internal static bool IsNodeSealed(string node, IReadOnlyCollection<string> sealedScenes)
+    {
+        if (sealedScenes.Count == 0) return false;
+        int bracket = node.IndexOf('[');
+        string scene = bracket >= 0 ? node.Substring(0, bracket) : node;
+        if (sealedScenes.Contains(scene)) return true;
+        foreach (string candidate in sealedScenes)
+        {
+            if (node.Length > candidate.Length && node[candidate.Length] == '_' &&
+                node.StartsWith(candidate, StringComparison.Ordinal))
+                return true;
+        }
+        return false;
+    }
 
     public HkReachability EvaluateLocation(string rawLocationName)
     {
@@ -540,6 +566,10 @@ public static class HkLogicEvaluator
 
         IReadOnlyList<int> notchCosts = input.NotchCosts ?? Array.Empty<int>();
         var state = new HkLogicState(graph, counts, options, notchCosts, input.LocationCosts, reached);
+        IReadOnlyCollection<string> sealedScenes = input.SealedScenes != null
+            ? new HashSet<string>(input.SealedScenes, StringComparer.Ordinal)
+            : (IReadOnlyCollection<string>)Array.Empty<string>();
+        state.SealedScenes = sealedScenes;
 
         // Fixed-point propagation across rooms, transitions, connectors, and events
         bool changed = true;
@@ -550,11 +580,13 @@ public static class HkLogicEvaluator
             foreach (var kv in graph.NodeRules)
             {
                 if (reached.Contains(kv.Key)) continue;
+                if (HkLogicState.IsNodeSealed(kv.Key, sealedScenes)) continue;
                 if (kv.Value.Evaluate(state))
                 {
                     reached.Add(kv.Key);
                     changed = true;
-                    if (connectors.TryGetValue(kv.Key, out string? target) && !string.IsNullOrEmpty(target))
+                    if (connectors.TryGetValue(kv.Key, out string? target) && !string.IsNullOrEmpty(target)
+                        && !HkLogicState.IsNodeSealed(target!, sealedScenes))
                     {
                         if (reached.Add(target!))
                             changed = true;

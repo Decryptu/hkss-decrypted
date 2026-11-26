@@ -186,4 +186,19 @@ public sealed class RunStateTests : IDisposable
         Assert.False(sum.HollowKnight.Played);
         Assert.Equal(0, sum.TotalDeaths);
     }
+
+    [Fact]
+    public void SealKeysPersistAcrossGamesAndResetOnSeedChange()
+    {
+        var hkStore = new RunStateStore(MakeContext(GameId.HollowKnight));
+        var ssStore = new RunStateStore(MakeContext(GameId.Silksong));
+        hkStore.EnsureSeedBinding("seed-A|Slot");
+
+        Assert.True(hkStore.RecordSealKeys(new[] { 84200100L }));
+        Assert.False(hkStore.RecordSealKeys(new[] { 84200100L }));
+        Assert.Equal(new[] { 84200100L }, ssStore.GetSealKeys());
+
+        Assert.True(ssStore.EnsureSeedBinding("seed-B|Slot"));
+        Assert.Empty(hkStore.GetSealKeys());
+    }
 }

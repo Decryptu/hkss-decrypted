@@ -53,6 +53,8 @@ def check_apworld_archive(apworld_path: Path) -> None:
             "hkss/__init__.py",
             "hkss/ids.py",
             "hkss/options.py",
+            "hkss/cross_game.py",
+            "hkss/cross_game_areas.json",
             "hkss/archipelago.json",
             "hkss/VENDORED.json",
             "hkss/hk/__init__.py",
@@ -202,6 +204,34 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
                     assert hk_sd["options"]["EntranceRandoType"] == 3
                     assert ss_sd["entrance_randomization"] == "coupled"
                     assert ss_sd["entrance_randomization_scope"] == "full"
+                if label == "solo_both_seals":
+                    from BaseClasses import CollectionState
+
+                    seals = sd["cross_game_seals"]
+                    assert len(seals) == 4, seals
+                    assert {s["game"] for s in seals} == {"hollow_knight", "silksong"}, seals
+                    for seal in seals:
+                        other = "SS " if seal["game"] == "hollow_knight" else "HK "
+                        assert seal["key"].startswith(other), seal
+                        assert seal["key_id"] == w.item_name_to_id[seal["key"]], seal
+                        assert seal["scenes"] and ("area_id" in seal) == (seal["game"] == "silksong"), seal
+                    # Every progression item except one HK seal's key: that seal's checks stay out of logic.
+                    seal = next(s for s in w._seals if s.game == "hollow_knight")
+                    events = [l for l in mw.get_locations(p) if l.address is None]
+                    state = CollectionState(mw)
+                    for l in mw.get_locations(p):
+                        if l.item and l.item.player == p and l.item.advancement and l.item.name != seal.key:
+                            state.collect(l.item, True)
+                    state.sweep_for_advancements(locations=events)
+                    from worlds.hkss.cross_game import hk_scene
+                    inside = [l for l in mw.get_locations(p) if l.address and l.name.startswith("HK ")
+                              and hk_scene(l.name, seal.scenes) in seal.scenes]
+                    assert inside and not any(l.can_reach(state) for l in inside), seal.area
+                    state.collect(w.create_item(seal.key), True)
+                    state.sweep_for_advancements(locations=events)
+                    assert all(l.can_reach(state) for l in inside), seal.area
+                if label == "solo_both" and sd["cross_game_seals"] != []:
+                    raise AssertionError("Seals must be off by default")
                 if sd["games"] == "both" and mw.players == 1:
                     hk_in_ss = sum(
                         1 for l in mw.get_locations(p)
@@ -286,6 +316,16 @@ def _run_cases(gen_main, run_main, seed: int, HK_BLOCK_START: int, HK_BLOCK_END:
             "Hollow Knight x Silksong:\n"
             "  games: both\n"
             "  shuffle_entrances: full\n"
+        )
+    })
+    run_case("solo_both_seals", {
+        "ComboSeals.yaml": (
+            "name: ComboSeals\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  cross_game_seals: 2\n"
+            "  shuffle_entrances: within_areas\n"
         )
     })
     run_case("multiworld_4p", {

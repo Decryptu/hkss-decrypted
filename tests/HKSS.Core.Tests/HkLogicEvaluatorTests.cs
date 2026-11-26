@@ -23,6 +23,30 @@ public class HkLogicEvaluatorTests
     }
 
     [Fact]
+    public void SealedScenes_BlockRoomsAndRoutesThroughThem()
+    {
+        string[] items = { "Vengeful_Spirit", "Mothwing_Cloak", "Mantis_Claw", "Lumafly_Lantern" };
+        HkLogicState open = HkLogicEvaluator.Evaluate(new HkLogicInput { OwnedItems = items });
+        Assert.True(open.IsNodeReached("Mines_01[left1]"));
+        Assert.False(open.IsSceneSealed("Mines_01"));
+
+        // Seal every Crystal Peak scene: its rooms, transitions and waypoints stay out of reach.
+        HkLogicState sealedState = HkLogicEvaluator.Evaluate(new HkLogicInput
+        {
+            OwnedItems = items,
+            SealedScenes = new[] { "Mines_01", "Mines_02", "Mines_03", "Mines_04", "Mines_05", "Mines_06",
+                "Mines_07", "Mines_10", "Mines_11", "Mines_13", "Mines_16", "Mines_17", "Mines_18",
+                "Mines_19", "Mines_20", "Mines_23", "Mines_24", "Mines_25", "Mines_28", "Mines_29",
+                "Mines_30", "Mines_31", "Mines_32", "Mines_33", "Mines_34", "Mines_35", "Mines_36", "Mines_37" },
+        });
+        Assert.False(sealedState.IsNodeReached("Mines_01[left1]"));
+        Assert.False(sealedState.IsNodeReached("Mines_33[left1]"));
+        Assert.True(sealedState.IsSceneSealed("Mines_31"));
+        Assert.Equal(HkReachability.Unreachable, sealedState.EvaluateLocation("Crystal_Heart"));
+        Assert.True(sealedState.IsNodeReached("Town"));
+    }
+
+    [Fact]
     public void FreshStart_ReachesCrossroadsBasics_BlocksDeepProgression()
     {
         HkLogicState state = HkLogicEvaluator.Evaluate(new HkLogicInput());
