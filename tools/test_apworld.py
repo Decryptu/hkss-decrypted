@@ -317,6 +317,22 @@ def _run_cases(
                         "Shared Wall Jump (Left)",
                         "Shared Wall Jump (Right)",
                     }, shared_names
+                if label == "solo_both_hk_alt_start":
+                    from BaseClasses import CollectionState
+
+                    hk_sd = sd["hollow_knight"]
+                    assert hk_sd["options"]["StartLocationName"] == "Greenpath", hk_sd["options"]
+                    assert all(s["area"] != "Greenpath" for s in sd["cross_game_seals"]), sd["cross_game_seals"]
+                    events = [l for l in mw.get_locations(p) if l.address is None]
+                    empty = CollectionState(mw)
+                    empty.sweep_for_advancements(locations=events)
+                    assert not empty.has("Town", p), "Greenpath start should not reach Dirtmouth at sphere 0"
+                    ss_locs = [l for l in mw.get_locations(p) if l.address is not None and l.name.startswith("SS ")]
+                    assert ss_locs and not any(l.can_reach(empty) for l in ss_locs), "Pharloom must stay locked until Dirtmouth is reached"
+                if label == "solo_both_hk_alt_start_edge":
+                    hk_sd = sd["hollow_knight"]
+                    assert hk_sd["options"]["StartLocationName"] == "Outside Colosseum", hk_sd["options"]
+                    assert all(s["area"] != "Kingdom's Edge" for s in sd["cross_game_seals"]), sd["cross_game_seals"]
                 if sd["games"] == "both" and mw.players == 1:
                     hk_in_ss = sum(
                         1 for l in mw.get_locations(p)
@@ -438,6 +454,28 @@ def _run_cases(
             "  directional_swift_step: true\n"
             "  directional_cling_grip: true\n"
             "  swim_ability_rando: true\n"
+        )
+    })
+    run_case("solo_both_hk_alt_start", {
+        "ComboAltStartGreenpath.yaml": (
+            "name: ComboAltStartGreenpath\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  StartLocation: greenpath\n"
+            "  cross_game_seals: 2\n"
+            "  shuffle_entrances: within_areas\n"
+        )
+    })
+    run_case("solo_both_hk_alt_start_edge", {
+        "ComboAltStartEdge.yaml": (
+            "name: ComboAltStartEdge\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  StartLocation: outside_colosseum\n"
+            "  cross_game_seals: 4\n"
+            "  shuffle_entrances: full\n"
         )
     })
     run_case("multiworld_4p", {

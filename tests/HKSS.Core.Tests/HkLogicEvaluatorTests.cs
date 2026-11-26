@@ -127,4 +127,26 @@ public class HkLogicEvaluatorTests
         });
         Assert.Equal(HkReachability.Reachable, enoughGrubs.EvaluateLocation("Grubfather_1"));
     }
+
+    [Fact]
+    public void AlternateStartLocations_SeedTransitionAndFollowInitialConnector()
+    {
+        HkLogicState greenpath = HkLogicEvaluator.Evaluate(new HkLogicInput
+        {
+            StartLocationName = "Greenpath",
+        });
+
+        Assert.True(greenpath.IsNodeReached("Fungus1_32[left1]"));
+        Assert.False(greenpath.IsNodeReached("Town"));
+        Assert.Equal(HkReachability.Reachable, greenpath.EvaluateLocation("Mothwing_Cloak"));
+
+        HkLogicState colosseum = HkLogicEvaluator.Evaluate(new HkLogicInput
+        {
+            StartLocationName = "Outside Colosseum",
+        });
+
+        Assert.True(colosseum.IsNodeReached("Deepnest_East_09[right1]"));
+        Assert.False(colosseum.IsNodeReached("Town"));
+        Assert.Equal(HkReachability.Reachable, colosseum.EvaluateLocation("Geo_Rock-Above_King's_Station"));
+    }
 }

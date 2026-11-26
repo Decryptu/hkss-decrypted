@@ -132,12 +132,19 @@ function HK.evaluate(items, slot, sealed)
         connectors = merged
     end
 
+    local start_node = (HK_LOGIC.startsById and HK_LOGIC.startsById[options.StartLocation]) or HK_LOGIC.start
+    local initial_reached = { [start_node] = true }
+    local start_target = connectors[start_node]
+    if start_target and start_target ~= "" and not is_blocked(start_target) then
+        initial_reached[start_target] = true
+    end
+
     local state = setmetatable({
         counts = counts,
         options = options,
         notch_costs = slot.notch_costs or {},
         location_costs = slot.location_costs or {},
-        reached = { [HK_LOGIC.start] = true },
+        reached = initial_reached,
         sealed = sealed,
     }, State)
 

@@ -110,6 +110,65 @@ def vendor_hk(hk_src: Path, hk_dst: Path) -> None:
             )
         p.write_text(text, encoding="utf-8")
 
+    # 1b. Enable all 16 "ANY"-logic Hollow Knight starting locations in ExtractedData.py and Options.py
+    ed_p = hk_dst / "ExtractedData.py"
+    ed_text = ed_p.read_text(encoding="utf-8")
+    ed_text = must_replace(
+        ed_text,
+        '''starts = {"king's_pass": 'Tutorial_01'}''',
+        '''starts = {
+    "king's_pass": 'Tutorial_01',
+    "stag_nest": 'Cliffs_03[right1]',
+    "west_crossroads": 'Crossroads_36[right1]',
+    "east_crossroads": 'Crossroads_03[top1]',
+    "ancestral_mound": 'Crossroads_ShamanTemple[left1]',
+    "west_fog_canyon": 'Fungus3_30[bot1]',
+    "east_fog_canyon": 'Fungus3_25[right1]',
+    "queen's_station": 'Fungus2_01[left1]',
+    "fungal_wastes": 'Fungus2_28[left1]',
+    "greenpath": 'Fungus1_32[left1]',
+    "lower_greenpath": 'Fungus1_13[right1]',
+    "west_blue_lake": 'Crossroads_50[left1]',
+    "city_storerooms": 'Ruins1_17[right1]',
+    "king's_station": 'Ruins2_10b[right1]',
+    "outside_colosseum": 'Deepnest_East_09[right1]',
+    "crystallized_mound": 'Mines_35[left1]',
+}
+start_display_names = {
+    "king's_pass": "King's Pass",
+    "stag_nest": "Stag Nest",
+    "west_crossroads": "West Crossroads",
+    "east_crossroads": "East Crossroads",
+    "ancestral_mound": "Ancestral Mound",
+    "west_fog_canyon": "West Fog Canyon",
+    "east_fog_canyon": "East Fog Canyon",
+    "queen's_station": "Queen's Station",
+    "fungal_wastes": "Fungal Wastes",
+    "greenpath": "Greenpath",
+    "lower_greenpath": "Lower Greenpath",
+    "west_blue_lake": "West Blue Lake",
+    "city_storerooms": "City Storerooms",
+    "king's_station": "King's Station",
+    "outside_colosseum": "Outside Colosseum",
+    "crystallized_mound": "Crystallized Mound",
+}''',
+        "hk/ExtractedData.py starts",
+    )
+    ed_p.write_text(ed_text, encoding="utf-8")
+
+    opt_p = hk_dst / "Options.py"
+    opt_text = opt_p.read_text(encoding="utf-8")
+    opt_text = must_replace(
+        opt_text,
+        '    "__doc__": "Choose your start location. "\n'
+        '               "This is currently only locked to King\'s Pass.",',
+        '    "__doc__": "Choose your Hollow Knight starting location. "\n'
+        '               "In combo runs, Silksong (Pharloom) unlocks once you can reach Dirtmouth.",\n'
+        '    "default": 0,',
+        "hk/Options.py StartLocation doc",
+    )
+    opt_p.write_text(opt_text, encoding="utf-8")
+
     # 2. Rewrite hk/__init__.py
     init_p = hk_dst / "__init__.py"
     text = init_p.read_text(encoding="utf-8")
@@ -279,11 +338,31 @@ def vendor_hk(hk_src: Path, hk_dst: Path) -> None:
     # fill_slot_data handles shared death_link and non-HK locations without .costs
     text = must_replace(
         text,
+        "from .ExtractedData import locations, starts, multi_locations, event_names, item_effects, connectors, \\\n"
+        "    vanilla_shop_costs, vanilla_location_costs",
+        "from .ExtractedData import locations, starts, start_display_names, multi_locations, event_names, item_effects, connectors, \\\n"
+        "    vanilla_shop_costs, vanilla_location_costs",
+        "hk/__init__.py import start_display_names",
+    )
+    text = must_replace(
+        text,
         "        for option_name in hollow_knight_options:\n"
         "            option = getattr(self.options, option_name)",
         "        for option_name in hollow_knight_options:\n"
         "            option = self.options.death_link if option_name == 'DeathLink' else getattr(self.options, option_name)",
         "hk/__init__.py fill_slot_data options",
+    )
+    text = must_replace(
+        text,
+        "        # 32 bit int\n"
+        '        slot_data["seed"] = self.random.randint(-2147483647, 2147483646)',
+        '        options["StartLocationName"] = start_display_names.get(\n'
+        '            self.options.StartLocation.current_key, "King\'s Pass"\n'
+        '        )\n'
+        "\n"
+        "        # 32 bit int\n"
+        '        slot_data["seed"] = self.random.randint(-2147483647, 2147483646)',
+        "hk/__init__.py fill_slot_data StartLocationName",
     )
     text = must_replace(
         text,

@@ -57,6 +57,8 @@ CASES = {
     "cross_game_items_split": ("cross_game_items: true", "SplitMothwingCloak: true", "SplitMantisClaw: true",
                                "RandomizeSwim: true", "directional_swift_step: true",
                                "directional_cling_grip: true", "swim_ability_rando: true"),
+    "hk_alt_start_greenpath": ("StartLocation: greenpath", "cross_game_seals: 2"),
+    "hk_alt_start_colosseum": ("StartLocation: outside_colosseum", "cross_game_seals: 4", "shuffle_entrances: full"),
 }
 FRACTIONS = (0, 0.05, 0.15, 0.3, 0.5, 0.7, 0.9, 1.0)
 

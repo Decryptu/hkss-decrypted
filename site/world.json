@@ -1,8 +1,8 @@
 {
   "game": "Hollow Knight x Silksong",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "minimumArchipelago": "0.6.8",
-  "archiveSha256": "4078fb20fc5ac0bc8fd84bce2709ad4d9ad23178ff9686a2bbffef66e6ee42f9",
+  "archiveSha256": "dfa82cd9711cbaf9e00047edfa804c4da5903c18fe6e382b1ebc0d04490de953",
   "routes": {
     "HK": [
       [
@@ -553,15 +553,45 @@
       "options": {
         "StartLocation": {
           "label": "Start Location",
-          "help": "Choose your start location. This is currently only locked to King's Pass.",
+          "help": "Choose your Hollow Knight starting location. In combo runs, Silksong (Pharloom) unlocks once you can reach Dirtmouth.",
           "kind": "choice",
           "default": "king's_pass",
           "choices": [
-            "king's_pass"
+            "king's_pass",
+            "stag_nest",
+            "west_crossroads",
+            "east_crossroads",
+            "ancestral_mound",
+            "west_fog_canyon",
+            "east_fog_canyon",
+            "queen's_station",
+            "fungal_wastes",
+            "greenpath",
+            "lower_greenpath",
+            "west_blue_lake",
+            "city_storerooms",
+            "king's_station",
+            "outside_colosseum",
+            "crystallized_mound"
           ],
           "aliases": [],
           "numbers": [
-            0
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
           ]
         },
         "StartingGeo": {

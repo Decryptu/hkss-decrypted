@@ -124,6 +124,40 @@ def _hk_start_scene(world: "HKSSWorld") -> str | None:
     return start.partition("[")[0] if isinstance(start, str) else None
 
 
+def _town_reachable_without_scenes(world: "HKSSWorld", blocked_scenes: frozenset[str]) -> bool:
+    """True when Hollow Knight can still reach Dirtmouth (Town) using only HK items without entering blocked_scenes."""
+    from BaseClasses import CollectionState
+    from .cross_game_items import is_cross_game_item
+    from .hk.ExtractedData import connectors
+
+    player = world.player
+    menu = world.multiworld.get_region("Menu", player)
+    state = CollectionState(world.multiworld)
+    for item in world.multiworld.itempool:
+        if item.player == player and item.advancement and (
+            item.name.startswith(HK_PREFIX) or is_cross_game_item(item.name)
+        ):
+            state.collect(item, True)
+
+    all_blocked = tuple(blocked_scenes)
+    events = []
+    for loc in menu.locations:
+        if loc.address is not None or loc.name.startswith(SS_PREFIX):
+            continue
+        if all_blocked:
+            src_scene = hk_scene(loc.name, all_blocked)
+            if src_scene in blocked_scenes:
+                continue
+            if loc.name in connectors and loc.item is not None:
+                tgt_scene = hk_scene(loc.item.name, all_blocked)
+                if tgt_scene in blocked_scenes:
+                    continue
+        events.append(loc)
+
+    state.sweep_for_advancements(locations=events)
+    return state.has("Town", player)
+
+
 def choose_seals(world: "HKSSWorld", count: int) -> list[Seal]:
     """Picks up to `count` sealed areas per game, each with a different key from the other game's pool."""
     if count <= 0 or not (world.has_hk and world.has_silksong):
@@ -145,8 +179,20 @@ def choose_seals(world: "HKSSWorld", count: int) -> list[Seal]:
     seals: list[Seal] = []
     rng.shuffle(hk_areas)
     rng.shuffle(ss_keys)
-    for area, key in zip(hk_areas[:count], ss_keys):
-        seals.append(Seal(HOLLOW_KNIGHT, area, frozenset(areas[HOLLOW_KNIGHT][area]), key))
+    sealed_hk_scenes: set[str] = set()
+    ss_key_iter = iter(ss_keys)
+    for area in hk_areas:
+        if len(seals) >= count:
+            break
+        area_scenes = frozenset(areas[HOLLOW_KNIGHT][area])
+        candidate_blocked = frozenset(sealed_hk_scenes | area_scenes)
+        if not _town_reachable_without_scenes(world, candidate_blocked):
+            continue
+        key = next(ss_key_iter, None)
+        if key is None:
+            break
+        sealed_hk_scenes.update(area_scenes)
+        seals.append(Seal(HOLLOW_KNIGHT, area, area_scenes, key))
 
     rng.shuffle(ss_areas)
     rng.shuffle(hk_keys)
@@ -174,10 +220,15 @@ def apply_hk_seals(world: "HKSSWorld", seals: list[Seal]) -> None:
     scene_key = {scene: seal.key for seal in hk_seals for scene in seal.scenes}
     all_scenes = tuple(scene_key)
     player = world.player
+    key_cache: dict[str, str | None] = {}
 
     def key_for(name: str) -> str | None:
+        if name in key_cache:
+            return key_cache[name]
         scene = hk_scene(name, all_scenes)
-        return scene_key.get(scene) if scene else None
+        result = scene_key.get(scene) if scene else None
+        key_cache[name] = result
+        return result
 
     for location in world.multiworld.get_locations(player):
         if location.name.startswith(SS_PREFIX):

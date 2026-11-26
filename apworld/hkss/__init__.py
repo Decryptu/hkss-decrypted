@@ -523,18 +523,25 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
 
         seal_keys = seal_key_items(self, self._seals)
 
-        def eval_hk_state() -> CollectionState:
+        def eval_hk_state(include_seal_keys: bool = True) -> CollectionState:
             state = CollectionState(self.multiworld)
             for item in hk_pool_items:
                 state.collect(item, True)
-            for item in seal_keys:
-                state.collect(item, True)
+            if include_seal_keys:
+                for item in seal_keys:
+                    state.collect(item, True)
             state.sweep_for_advancements(locations=hk_events)
             return state
 
         baseline_state = eval_hk_state()
         baseline_locs = [loc for loc in hk_real_locs if loc.can_reach(baseline_state)]
         baseline_goal = self._hk_completion_condition(baseline_state) if self._hk_completion_condition else True
+        need_unsealed_town = (
+            self.has_silksong
+            and bool(seal_keys)
+            and self.options.StartLocation.current_key != "king's_pass"
+            and eval_hk_state(include_seal_keys=False).has("Town", self.player)
+        )
 
         def apply_pairs(pairs: dict[str, str]) -> None:
             for name, loc in connector_locs.items():
@@ -547,7 +554,11 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             state = eval_hk_state()
             if baseline_goal and self._hk_completion_condition and not self._hk_completion_condition(state):
                 return False
-            return all(loc.can_reach(state) for loc in baseline_locs)
+            if not all(loc.can_reach(state) for loc in baseline_locs):
+                return False
+            if need_unsealed_town and not eval_hk_state(include_seal_keys=False).has("Town", self.player):
+                return False
+            return True
 
         pairs = shuffle_hk_entrances(self._hk_entrance_scope, self.random, is_valid)
         apply_pairs(pairs)

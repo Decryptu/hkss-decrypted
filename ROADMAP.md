@@ -52,6 +52,8 @@ v0.1.16 adds the opt-in `cross_game_seals` option (0 to 4 areas per game) sealin
 
 v0.1.17 finishes cross-game seals (Silksong in-game check map seal logic and fast-travel warp blocks across Benchwarp, Stags, trams, Dream Gate, Bellways, Ventricas, and Beastling Call), adds opt-in `cross_game_items` (`Shared Dash`, `Shared Wall Jump`, `Shared Double Jump`, `Shared Swim`, and matching directional splits across APWorld, both plugins, both in-game check maps, PopTracker, and spoiler log), adds opt-in `double_steel_soul` (Steel Soul across both games, shared defeat state in `state.json` even while the other game is closed, defeat overlays in both games and the launcher, and one-click **Reset run** with fresh saves in both), and adds in-place launcher updates from GitHub Releases (startup and manual checks, streaming download with progress bar, SHA-256/size/PE verification, passive NSIS install with automatic relaunch, and startup cleanup). Still to verify in game: seal doorway bounces and warp blocks, seals opening while the other game is running, shared items granting in both games on pickup and cross-game receipt, and Double Steel Soul defeat propagation across both games.
 
+v0.1.18 enables all 16 Hollow Knight `StartLocation` options in combo runs (`King's Pass`, `Stag Nest`, `West Crossroads`, `East Crossroads`, `Ancestral Mound`, `West Fog Canyon`, `East Fog Canyon`, `Queen's Station`, `Fungal Wastes`, `Greenpath`, `Lower Greenpath`, `West Blue Lake`, `City Storerooms`, `King's Station`, `Outside Colosseum`, and `Crystallized Mound`), exports `StartLocationName` in Hollow Knight slot data for the plugin and in-game check map, guards cross-game seals and coupled HK entrance randomization so Dirtmouth remains reachable without Silksong seal keys, updates `HkLogicEvaluator` and the PopTracker pack for alternate HK starts and Dirtmouth-gated Pharloom reachability, and memoizes HK seal scene lookups to speed up sealed entrance-rando generation. Still to verify in game: alternate Hollow Knight start spawns, helper platforms, and scene edits in a live combo run.
+
 Still to verify during playtesting: gate placement in altered town states (Grimm Troupe / Nymm in Dirtmouth; Skull Tyrant / Act 3 in Bone Bottom), exclusive full screen, several monitors, controllers, a slower PC, and a save that fails.
 
 ## Feature Parity & Missing Ports
@@ -66,7 +68,6 @@ Recheck Hollow Knight Benchwarp before triggering an encounter, while its battle
 
 ## Later
 
-- Alternate Hollow Knight starting locations in combo runs (the combo world only offers King's Pass).
 - Alternate Silksong starting locations, and shuffled entrances on the Moss Grotto to Bone Bottom route, in combo runs.
 - Suspending the other game for instant travel as an option, live tracking on the player hub's map page.
 

@@ -46,10 +46,13 @@ local ok, err = pcall(function()
         end
     end
     local ss = SS.evaluate(arg.ss or {}, silksong, SS.payload(silksong), ss_sealed)
+    local can_reach_pharloom = (slot.hollow_knight == nil) or (hk:count("Town") >= 1)
     for id, name in pairs(LOCATION_NAMES) do
         local reach
         if name:sub(1, 3) == "HK " then
             reach = hk:can_reach(name:sub(4))
+        elseif not can_reach_pharloom then
+            reach = false
         else
             reach = ss:can_reach(name:sub(4))
         end

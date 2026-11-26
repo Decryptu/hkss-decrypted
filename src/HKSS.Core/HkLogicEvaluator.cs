@@ -480,29 +480,22 @@ public static class HkLogicEvaluator
         ["King's Pass"] = "Tutorial_01",
         ["Kings Pass"] = "Tutorial_01",
         ["king's_pass"] = "Tutorial_01",
-        ["Dirtmouth"] = "Town",
+        ["Stag Nest"] = "Cliffs_03[right1]",
+        ["West Crossroads"] = "Crossroads_36[right1]",
+        ["East Crossroads"] = "Crossroads_03[top1]",
         ["Ancestral Mound"] = "Crossroads_ShamanTemple[left1]",
-        ["Crossroads Stag"] = "Crossroads_47[right1]",
-        ["Greenpath"] = "Fungus1_01b[left1]",
-        ["Greenpath Stag"] = "Fungus1_16_alt[right1]",
-        ["Queen's Station"] = "Fungus2_02[right1]",
-        ["Mantis Village"] = "Fungus2_13",
-        ["Fungal Core"] = "Fungus2_30[top1]",
-        ["City Storerooms"] = "Ruins1_29[left1]",
-        ["King's Station"] = "Ruins2_08[left1]",
-        ["Resting Grounds"] = "RestingGrounds_09[left1]",
-        ["Hallownest's Crown"] = "Mines_34[bot1]",
-        ["Crystal Peak"] = "Mines_29[left1]",
-        ["Kingdom's Edge"] = "Deepnest_East_06[door1]",
-        ["Hive"] = "Hive_01[right2]",
-        ["Distant Village"] = "Deepnest_10",
-        ["Failed Tramway"] = "Deepnest_14[left1]",
-        ["Queen's Gardens"] = "Fungus3_40[right1]",
-        ["Howling Cliffs"] = "Cliffs_02",
+        ["West Fog Canyon"] = "Fungus3_30[bot1]",
+        ["East Fog Canyon"] = "Fungus3_25[right1]",
+        ["Queen's Station"] = "Fungus2_01[left1]",
+        ["Fungal Wastes"] = "Fungus2_28[left1]",
+        ["Greenpath"] = "Fungus1_32[left1]",
         ["Lower Greenpath"] = "Fungus1_13[right1]",
-        ["West Fog Canyon"] = "Fungus3_01",
-        ["East Fog Canyon"] = "Fungus3_26",
-        ["West Waterways"] = "Waterways_02",
+        ["West Blue Lake"] = "Crossroads_50[left1]",
+        ["City Storerooms"] = "Ruins1_17[right1]",
+        ["King's Station"] = "Ruins2_10b[right1]",
+        ["Outside Colosseum"] = "Deepnest_East_09[right1]",
+        ["Crystallized Mound"] = "Mines_35[left1]",
+        ["Dirtmouth"] = "Town",
     };
 
     public static string? GetItemType(string rawName)
@@ -559,16 +552,22 @@ public static class HkLogicEvaluator
             }
         }
 
-        // Seed start node
-        var reached = new HashSet<string>(StringComparer.Ordinal);
-        string startNode = ResolveStartNode(graph, input.StartLocationName);
-        reached.Add(startNode);
-
-        IReadOnlyList<int> notchCosts = input.NotchCosts ?? Array.Empty<int>();
-        var state = new HkLogicState(graph, counts, options, notchCosts, input.LocationCosts, reached);
+        // Seed start node (and follow its outgoing connector immediately when starting on a transition)
         IReadOnlyCollection<string> sealedScenes = input.SealedScenes != null
             ? new HashSet<string>(input.SealedScenes, StringComparer.Ordinal)
             : (IReadOnlyCollection<string>)Array.Empty<string>();
+        var reached = new HashSet<string>(StringComparer.Ordinal);
+        string startNode = ResolveStartNode(graph, input.StartLocationName);
+        reached.Add(startNode);
+        if (connectors.TryGetValue(startNode, out string? startTarget)
+            && !string.IsNullOrEmpty(startTarget)
+            && !HkLogicState.IsNodeSealed(startTarget!, sealedScenes))
+        {
+            reached.Add(startTarget!);
+        }
+
+        IReadOnlyList<int> notchCosts = input.NotchCosts ?? Array.Empty<int>();
+        var state = new HkLogicState(graph, counts, options, notchCosts, input.LocationCosts, reached);
         state.SealedScenes = sealedScenes;
 
         // Fixed-point propagation across rooms, transitions, connectors, and events
@@ -603,11 +602,15 @@ public static class HkLogicEvaluator
         if (string.IsNullOrWhiteSpace(startLocationName))
             return "Tutorial_01";
 
-        if (AlternateStartNodes.TryGetValue(startLocationName!, out string? mapped))
-            return mapped;
+        string normalized = startLocationName!.Trim().ToLowerInvariant().Replace(' ', '_');
+        if (graph.Starts.TryGetValue(normalized, out string? fromNormalized))
+            return fromNormalized;
 
         if (graph.Starts.TryGetValue(startLocationName!, out string? fromGraph))
             return fromGraph;
+
+        if (AlternateStartNodes.TryGetValue(startLocationName!, out string? mapped))
+            return mapped;
 
         return "Tutorial_01";
     }

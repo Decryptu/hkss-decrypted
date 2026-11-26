@@ -56,6 +56,7 @@ def hk_data(world=None) -> dict:
         "nodeRules": logic["nodeRules"],
         "nodeOrder": list(logic["nodeRules"]),
         "start": starts["king's_pass"],
+        "startsById": {index: node for index, node in enumerate(starts.values())},
         "vanilla": vanilla,
         "logicless": sorted(logicless_options),
         "whitePalace": white_palace,
