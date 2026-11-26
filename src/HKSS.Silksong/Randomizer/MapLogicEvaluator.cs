@@ -1480,7 +1480,11 @@ namespace SilksongRandomizer
             SaveState state
         )
         {
-            return (IsActThreeActive ? "Act 3\n" : "") + string.Join(
+            HashSet<string> closedAreas = HKSS.Unity.SealGuard.ClosedAreaIds();
+            string sealedPrefix = closedAreas.Count > 0
+                ? "Sealed:" + string.Join(",", closedAreas.OrderBy(a => a, StringComparer.Ordinal)) + "\n"
+                : string.Empty;
+            return sealedPrefix + (IsActThreeActive ? "Act 3\n" : "") + string.Join(
                 "\n",
                 payload.CheckedSources.Where(source =>
                     IsCheckedLogicSource(state, source)).Concat(GetWarpNodes(state))
@@ -1844,18 +1848,21 @@ namespace SilksongRandomizer
             ParsedPayload payload, Dictionary<string, int> inventory, bool goalCompleted,
             SaveState state, out bool[] completed)
         {
+            HashSet<string> closedAreas = HKSS.Unity.SealGuard.ClosedAreaIds();
             Dictionary<string, bool> values =
                 payload.AbstractRequirements.Keys.ToDictionary(
                     name => name,
-                    name => !string.IsNullOrWhiteSpace(
-                        payload.AbstractRequirements[name].CheckedSource) &&
+                    name => !HKSS.Core.CrossGameSeals.IsSilksongRequirementSealed(name, closedAreas) &&
+                        !string.IsNullOrWhiteSpace(
+                            payload.AbstractRequirements[name].CheckedSource) &&
                         IsCheckedLogicSource(
                             state,
                             payload.AbstractRequirements[name].CheckedSource),
                     StringComparer.Ordinal
                 );
             foreach (string node in GetWarpNodes(state))
-                if (values.ContainsKey(node)) values[node] = true;
+                if (values.ContainsKey(node) && !HKSS.Core.CrossGameSeals.IsSilksongRequirementSealed(node, closedAreas))
+                    values[node] = true;
             completed = new bool[payload.EvaluationRules.Length];
             ResolvePendingRequirements(payload, inventory, inventory, goalCompleted, state,
                 values, completed, Enumerable.Range(0, payload.EvaluationRules.Length));
@@ -1867,6 +1874,7 @@ namespace SilksongRandomizer
             Dictionary<string, int> startingInventory, bool goalCompleted, SaveState state,
             Dictionary<string, bool> values, bool[] completed, IEnumerable<int> initialPending)
         {
+            HashSet<string> closedAreas = HKSS.Unity.SealGuard.ClosedAreaIds();
             bool hasCrest = CrestItemNames.Any(name => CountItem(startingInventory, name) > 0);
             bool hasSilkSpear = CountItem(startingInventory, "Silkspear") > 0 &&
                 NonArchitectCrestItemNames.Any(name => CountItem(startingInventory, name) > 0);
@@ -1896,6 +1904,8 @@ namespace SilksongRandomizer
                 bool isEvent = index >= payload.AbstractNames.Length;
                 LogicEvent logicEvent = isEvent ? payload.LogicEvents[index - payload.AbstractNames.Length] : null;
                 if (!isEvent && payload.AbstractNames[index] == "Event: Act 3 Started" && !IsActThreeActive)
+                    continue;
+                if (!isEvent && HKSS.Core.CrossGameSeals.IsSilksongRequirementSealed(payload.AbstractNames[index], closedAreas))
                     continue;
                 if (!isEvent && values[payload.AbstractNames[index]])
                 {

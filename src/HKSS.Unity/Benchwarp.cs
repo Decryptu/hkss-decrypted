@@ -194,6 +194,12 @@ internal sealed class Benchwarp : MonoBehaviour
             return false;
         if (_warping) return false;
 
+        string? currentScene = GameManager._instance?.GetSceneNameString();
+        if (SealGuard.ShouldBlock(currentScene, bench.SceneName))
+        {
+            return false;
+        }
+
         if (!TravelGuard.CanLeave(out string reason, recoverInputLock))
         {
             ApManager.Instance?.PushToast($"Benchwarp refused: {reason}", ToastKind.Error);
@@ -373,6 +379,7 @@ internal sealed class Benchwarp : MonoBehaviour
             return;
         }
 
+        string? currentScene = GameManager._instance?.GetSceneNameString();
         _scrollPos = GUILayout.BeginScrollView(_scrollPos);
         foreach (var (area, benches) in groups)
         {
@@ -380,7 +387,9 @@ internal sealed class Benchwarp : MonoBehaviour
             foreach (BenchEntry bench in benches)
             {
                 bool isLast = _store.LastBench != null && _store.LastBench.Equals(bench);
+                bool isSealed = SealGuard.IsBlockedForDisplay(currentScene, bench.SceneName);
                 string label = isLast ? $"★ {bench.DisplayName}" : bench.DisplayName;
+                if (isSealed) label += " [Sealed]";
                 if (GUILayout.Button(label, GUILayout.Height(24f)))
                 {
                     TryWarpToBench(bench);

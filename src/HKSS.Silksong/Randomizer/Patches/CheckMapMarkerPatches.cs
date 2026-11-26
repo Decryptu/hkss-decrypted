@@ -1569,6 +1569,14 @@ namespace SilksongRandomizer.Patches
                     _ => "Reachability unknown",
                 };
                 lines.Add(new LogicTooltipLine(status, Color.white));
+                if (reachability == MapCheckReachability.Unreachable)
+                {
+                    HKSS.Core.CrossGameSeal sealedArea = HKSS.Unity.SealGuard.ClosedForScene(closest.Scene?.Name);
+                    if (sealedArea != null)
+                    {
+                        lines.Add(new LogicTooltipLine("Sealed: " + sealedArea.Describe(), outOfLogicNameColor));
+                    }
+                }
                 foreach (LogicTooltipLine extra in
                     MapLogicEvaluator.Explain(state, logicName))
                 {

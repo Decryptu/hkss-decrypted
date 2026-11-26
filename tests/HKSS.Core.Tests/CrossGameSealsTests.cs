@@ -16,7 +16,7 @@ public sealed class CrossGameSealsTests
     private const string TwoSeals = @"[
         {""game"": ""hollow_knight"", ""area"": ""Deepnest"", ""scenes"": [""Deepnest_01"", ""Deepnest_02""],
          ""key"": ""SS Faydown Cloak"", ""key_id"": 84200100},
-        {""game"": ""silksong"", ""area"": ""Shellwood"", ""scenes"": [""Shellwood_01""],
+        {""game"": ""silksong"", ""area"": ""Shellwood"", ""area_id"": ""shellwood"", ""scenes"": [""Shellwood_01""],
          ""key"": ""HK Mantis_Claw"", ""key_id"": 84100050}
     ]";
 
@@ -28,12 +28,14 @@ public sealed class CrossGameSealsTests
         Assert.Equal(2, seals.All.Count);
         CrossGameSeal deepnest = seals.For(GameId.HollowKnight).Single();
         Assert.Equal("Deepnest", deepnest.Area);
+        Assert.Equal("", deepnest.AreaId);
         Assert.Equal(84200100, deepnest.KeyId);
         Assert.True(deepnest.Contains("Deepnest_02"));
         Assert.Equal("Faydown Cloak", deepnest.KeyDisplayName);
         Assert.Equal("Pharloom", deepnest.KeyWorld);
 
         CrossGameSeal shellwood = seals.For(GameId.Silksong).Single();
+        Assert.Equal("shellwood", shellwood.AreaId);
         Assert.Equal("Mantis Claw", shellwood.KeyDisplayName);
         Assert.Equal("Hallownest", shellwood.KeyWorld);
         Assert.Equal("Shellwood needs Mantis Claw from Hallownest", shellwood.Describe());
@@ -74,5 +76,29 @@ public sealed class CrossGameSealsTests
         // A Silksong seal never applies in Hollow Knight, even with a matching scene name.
         Assert.Null(seals.Blocking(GameId.HollowKnight, "Town", "Shellwood_01", _ => false));
         Assert.NotNull(seals.Blocking(GameId.Silksong, "Bone_East_01", "Shellwood_01", _ => false));
+    }
+
+    [Fact]
+    public void TracksClosedAreaIdsAndSilksongRoomNodes()
+    {
+        CrossGameSeals seals = CrossGameSeals.Parse(SlotData(TwoSeals));
+
+        HashSet<string> closed = seals.ClosedAreaIds(GameId.Silksong, _ => false);
+        Assert.Single(closed);
+        Assert.Contains("shellwood", closed);
+        Assert.Empty(seals.ClosedAreaIds(GameId.Silksong, id => id == 84100050));
+
+        Assert.Equal("shellwood", CrossGameSeals.SilksongRoomNodeArea("Room Node: shellwood/shellwood-01#room"));
+        Assert.Null(CrossGameSeals.SilksongRoomNodeArea("Room Event: some-event"));
+        Assert.Null(CrossGameSeals.SilksongRoomNodeArea("Event: Act 3 Started"));
+
+        Assert.True(CrossGameSeals.IsSilksongRequirementSealed("Room Node: shellwood/shellwood-01#room", closed));
+        Assert.False(CrossGameSeals.IsSilksongRequirementSealed("Room Node: greymoor/greymoor-01#room", closed));
+        Assert.False(CrossGameSeals.IsSilksongRequirementSealed("Room Event: some-event", closed));
+
+        CrossGameSeal? byScene = seals.ClosedForScene(GameId.Silksong, "Shellwood_01", _ => false);
+        Assert.NotNull(byScene);
+        Assert.Equal("Shellwood", byScene!.Area);
+        Assert.Null(seals.ClosedForScene(GameId.Silksong, "Shellwood_01", id => id == 84100050));
     }
 }
