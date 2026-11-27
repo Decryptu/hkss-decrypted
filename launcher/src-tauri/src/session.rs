@@ -265,6 +265,7 @@ fn start(
         .env("HKSS_RUN_DIR", dir)
         .env("HKSS_SESSION", &session)
         .env("HKSS_FAST_ENDINGS", fast_endings.as_str())
+        .env("HKSS_SETTINGS_FILE", settings::file_path(&runs::home()))
         .arg("-logFile")
         .arg(dir.join("logs").join(format!("{}-player.log", game.key())))
         .spawn()?;

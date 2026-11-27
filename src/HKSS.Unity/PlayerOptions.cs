@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using BepInEx.Configuration;
+using HKSS.Core;
 using UnityEngine.InputSystem;
 
 namespace HKSS.Unity;
@@ -51,9 +53,12 @@ internal static class PlayerOptions
     internal static Shortcut? Capturing { get; set; }
     internal static bool CapturedThisFrame => _capturedFrame == UnityEngine.Time.frameCount;
     private static int _capturedFrame = -1;
+    private static string? _sharedSettingsPath;
+    private static bool _syncingShared;
 
     internal static void Load(string runDir)
     {
+        _sharedSettingsPath = Environment.GetEnvironmentVariable(SharedSettings.EnvVariable);
         var config = new ConfigFile(Path.Combine(runDir, "player-options.cfg"), false);
         AutoQuill = config.Bind("Map", "Auto quill", false);
         ShowMapLogic = config.Bind("Map", "Show map logic", true);
@@ -73,7 +78,74 @@ internal static class PlayerOptions
         Bindings.Add(Shortcut.LastBench, config.Bind("Hotkeys", "Last Bench", Key.F8));
         Bindings.Add(Shortcut.RecentItems, config.Bind("Hotkeys", "Recent Items", Key.F9));
         Bindings.Add(Shortcut.MapLogic, config.Bind("Hotkeys", "Map Logic", Key.F10));
+
+        ReloadShared();
+
+        AutoQuill.SettingChanged += OnSharedSettingChanged;
+        ShowMapLogic.SettingChanged += OnSharedSettingChanged;
+        ShowRecentItems.SettingChanged += OnSharedSettingChanged;
+        BulkRelicTurnIn.SettingChanged += OnSharedSettingChanged;
+        DamageNumbers.SettingChanged += OnSharedSettingChanged;
+        EnemyHealthBars.SettingChanged += OnSharedSettingChanged;
+        BossHealthBar.SettingChanged += OnSharedSettingChanged;
     }
+
+    /// <summary>
+    /// Pulls shared launcher settings into this game (called on boot and when waking from instant travel).
+    /// </summary>
+    internal static void ReloadShared()
+    {
+        SharedSettings shared = SharedSettings.Load(
+            _sharedSettingsPath,
+            Environment.GetEnvironmentVariable(FastEndingsPolicy.EnvVariable));
+        _syncingShared = true;
+        try
+        {
+            FastEndings.Mode = shared.FastEndings;
+            if (!string.IsNullOrWhiteSpace(_sharedSettingsPath) && File.Exists(_sharedSettingsPath))
+            {
+                bool mapLogicChanged = ShowMapLogic.Value != shared.ShowMapLogic;
+                BulkRelicTurnIn.Value = shared.BulkRelicTurnIn;
+                AutoQuill.Value = shared.AutoQuill;
+                ShowMapLogic.Value = shared.ShowMapLogic;
+                ShowRecentItems.Value = shared.ShowRecentItems;
+                DamageNumbers.Value = shared.DamageNumbers;
+                EnemyHealthBars.Value = shared.EnemyHealthBars;
+                BossHealthBar.Value = shared.BossHealthBar;
+                if (mapLogicChanged)
+                {
+#if HOLLOW_KNIGHT
+                    HKSS.HollowKnight.HkCheckMap.MarkDirty();
+                    HKSS.HollowKnight.HkCheckMap.RefreshIfOpen();
+#elif SILKSONG
+                    SilksongRandomizer.Patches.CheckMapMarkerManager.RequestCurrentMarkerStateRefresh();
+#endif
+                }
+            }
+        }
+        finally
+        {
+            _syncingShared = false;
+        }
+    }
+
+    internal static void SaveShared()
+    {
+        if (_syncingShared || string.IsNullOrWhiteSpace(_sharedSettingsPath)) return;
+        SharedSettings.Save(_sharedSettingsPath, new SharedSettings
+        {
+            FastEndings = FastEndings.Mode,
+            BulkRelicTurnIn = BulkRelicTurnIn.Value,
+            AutoQuill = AutoQuill.Value,
+            ShowMapLogic = ShowMapLogic.Value,
+            ShowRecentItems = ShowRecentItems.Value,
+            DamageNumbers = DamageNumbers.Value,
+            EnemyHealthBars = EnemyHealthBars.Value,
+            BossHealthBar = BossHealthBar.Value,
+        });
+    }
+
+    private static void OnSharedSettingChanged(object sender, EventArgs e) => SaveShared();
 
     internal static string GetLabel(Shortcut shortcut) => Bindings[shortcut].Value.ToString();
 

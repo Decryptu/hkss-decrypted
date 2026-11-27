@@ -84,10 +84,12 @@ body { overflow: clip; }
 .launcher-settings { position: absolute; z-index: 2; inset: 1rem 1rem auto auto; text-align: right; }
 .settings-cog { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; color: var(--dim); background: #0c0c12; border: 1px solid #ffffff22; border-radius: 50%; }
 .settings-cog:hover:enabled, .settings-cog:focus-visible, .settings-cog[aria-expanded=true] { color: var(--soul); border-color: var(--soul); }
-.settings-panel { width: min(17rem, calc(100vw - 2rem)); margin-top: .5rem; padding: .9rem; color: var(--dim); background: #0c0c12; border: 1px solid #ffffff33; border-radius: 4px; text-align: left; box-shadow: 0 .4rem 1.2rem #0009; }
+.settings-panel { width: min(21rem, calc(100vw - 2rem)); max-height: calc(100vh - 5rem); overflow-y: auto; margin-top: .5rem; padding: .9rem; color: var(--dim); background: #0c0c12; border: 1px solid #ffffff33; border-radius: 4px; text-align: left; box-shadow: 0 .4rem 1.2rem #0009; }
 .settings-panel h2 { margin: 0; font: 400 1rem var(--display); color: var(--soul); }
+.settings-panel h3 { margin: 0; font: 400 .9rem var(--display); color: var(--soul); letter-spacing: .04em; }
 .settings-panel p { margin: .5rem 0 .75rem; }
-.settings-panel label.check { display: flex; gap: .5rem; align-items: center; margin-top: .6rem; color: #fff; }
+.settings-panel p.settings-hint { margin: .25rem 0 .5rem; font-size: .85rem; }
+.settings-panel label.check { display: flex; gap: .5rem; align-items: center; margin-top: .45rem; color: #fff; font-size: .92rem; }
 .settings-panel label.select-field { display: grid; gap: .35rem; margin-top: .4rem; color: #fff; font-size: .95rem; }
 .settings-panel select { font: inherit; color: #fff; background: #151520; border: 1px solid #ffffff33; border-radius: 3px; padding: .3rem .45rem; }
 .settings-panel select:focus-visible { outline: 1px solid var(--soul); }

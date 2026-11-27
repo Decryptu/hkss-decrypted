@@ -541,7 +541,7 @@ internal sealed partial class ApOverlay : MonoBehaviour
             PlayerOptions.BulkRelicTurnIn.Value,
             "Bulk relic turn-in (Lemm, Jinn, Scrounge & Cardinius)");
         if (GUILayout.Button($"Endings & credits · {FastEndingsPolicy.Label(FastEndings.Mode)}"))
-            FastEndings.Mode = FastEndingsPolicy.Next(FastEndings.Mode);
+            FastEndings.SetModeAndSave(FastEndingsPolicy.Next(FastEndings.Mode));
 
         GUILayout.Space(8f);
         GUILayout.Label("Map & HUD", _sectionStyle);

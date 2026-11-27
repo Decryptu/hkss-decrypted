@@ -27,7 +27,6 @@ internal sealed class FastEndings : MonoBehaviour
 
     internal static void Install(Harmony harmony)
     {
-        Mode = FastEndingsPolicy.Parse(Environment.GetEnvironmentVariable(FastEndingsPolicy.EnvVariable));
         HkssPlugin.Log.LogInfo($"[endings] Fast endings mode: {FastEndingsPolicy.ToKey(Mode)}");
 
         TryPatch(harmony, typeof(UnlockSkipModePatch), "UnlockSkipModePatch");
@@ -35,6 +34,12 @@ internal sealed class FastEndings : MonoBehaviour
 #if SILKSONG
         TryPatch(harmony, typeof(UnlockSkippableSequencePatch), "UnlockSkippableSequencePatch");
 #endif
+    }
+
+    internal static void SetModeAndSave(FastEndingsMode mode)
+    {
+        Mode = mode;
+        PlayerOptions.SaveShared();
     }
 
     private static void TryPatch(Harmony harmony, Type patchType, string name)
