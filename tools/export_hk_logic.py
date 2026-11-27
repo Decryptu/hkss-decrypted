@@ -156,6 +156,23 @@ def main() -> int:
     node_rules = {k: v for k, v in all_rules.items() if k in graph_node_set}
     location_rules = {k: v for k, v in all_rules.items() if k not in graph_node_set}
 
+    extra_checks_path = ROOT / "apworld" / "hkss" / "extra_checks_data.json"
+    extra_count = 0
+    if extra_checks_path.is_file():
+        extra_data = json.loads(extra_checks_path.read_text(encoding="utf-8"))
+        slash_expr = ["|", "LEFTSLASH", "RIGHTSLASH", "UPSLASH", "DOWNSLASH"]
+        for kind in ("levers", "breakable_walls", "grass"):
+            for entry in extra_data.get("hollow_knight", {}).get(kind, ()):
+                transitions = entry.get("transitions", [])
+                if not transitions:
+                    continue
+                room_expr = transitions[0] if len(transitions) == 1 else ["|", *transitions]
+                parts = [room_expr, slash_expr]
+                if entry.get("requiresQuake"):
+                    parts.append("QUAKE")
+                location_rules[entry["name"]] = ["&", *parts]
+                extra_count += 1
+
     payload = {
         "starts": extracted.starts,
         "connectors": connectors,

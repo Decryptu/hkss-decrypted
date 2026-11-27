@@ -32,6 +32,7 @@ internal sealed class SsClientHost : MonoBehaviour
         _log = log;
         RandomizerPlugin plugin = host.AddComponent<RandomizerPlugin>();
         plugin.InitializeHost(log, config, harmony);
+        SsExtraChecks.Install(harmony, log);
         host.AddComponent<SsClientHost>();
     }
 

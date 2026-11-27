@@ -26,6 +26,9 @@ internal enum HkPinCategory
     Soul = 16,
     Lore = 17,
     Flame = 18,
+    Lever = 19,
+    BreakableWall = 20,
+    Grass = 21,
 }
 
 /// <summary>
@@ -116,6 +119,12 @@ internal static class HkCheckMapIcons
             || clean.StartsWith("Hallownest_Seal", StringComparison.OrdinalIgnoreCase) || clean.StartsWith("King's_Idol", StringComparison.OrdinalIgnoreCase)
             || clean.StartsWith("Arcane_Egg", StringComparison.OrdinalIgnoreCase))
             return HkPinCategory.Relic;
+        if (clean.StartsWith("Lever-", StringComparison.OrdinalIgnoreCase))
+            return HkPinCategory.Lever;
+        if (clean.StartsWith("Breakable_Wall-", StringComparison.OrdinalIgnoreCase))
+            return HkPinCategory.BreakableWall;
+        if (clean.StartsWith("Grass-", StringComparison.OrdinalIgnoreCase))
+            return HkPinCategory.Grass;
         if (clean.EndsWith("_Stag", StringComparison.OrdinalIgnoreCase) || clean.Contains("Stag_Nest", StringComparison.OrdinalIgnoreCase))
             return HkPinCategory.Stag;
         if (clean.EndsWith("_Map", StringComparison.OrdinalIgnoreCase))
@@ -144,6 +153,9 @@ internal static class HkCheckMapIcons
         HkPinCategory.Soul => "Soul / Lifeblood",
         HkPinCategory.Lore => "Lore / Journal",
         HkPinCategory.Flame => "Grimmkin Flame",
+        HkPinCategory.Lever => "Lever",
+        HkPinCategory.BreakableWall => "Breakable Wall",
+        HkPinCategory.Grass => "Grass",
         _ => "Check",
     };
 
@@ -255,6 +267,9 @@ internal static class HkCheckMapIcons
         HkPinCategory.Soul => (new Color(0.48f, 0.78f, 0.98f, 1f), new Color(0.92f, 0.98f, 1.00f, 1f)),
         HkPinCategory.Lore => (new Color(0.56f, 0.72f, 0.72f, 1f), new Color(0.20f, 0.30f, 0.32f, 1f)),
         HkPinCategory.Flame => (new Color(0.98f, 0.30f, 0.22f, 1f), new Color(1.00f, 0.82f, 0.35f, 1f)),
+        HkPinCategory.Lever => (new Color(0.94f, 0.62f, 0.22f, 1f), new Color(0.32f, 0.20f, 0.08f, 1f)),
+        HkPinCategory.BreakableWall => (new Color(0.68f, 0.56f, 0.44f, 1f), new Color(0.22f, 0.16f, 0.12f, 1f)),
+        HkPinCategory.Grass => (new Color(0.36f, 0.82f, 0.40f, 1f), new Color(0.84f, 0.98f, 0.82f, 1f)),
         _ => (new Color(1.00f, 0.84f, 0.25f, 1f), new Color(1.00f, 0.96f, 0.78f, 1f)),
     };
 

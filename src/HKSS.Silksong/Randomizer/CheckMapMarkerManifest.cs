@@ -857,6 +857,9 @@ namespace SilksongRandomizer
             foreach (MapCheckPosition position in EnemySoulMapMarkers.Positions(SaveState.Instance, includeChecked))
                 yield return position;
 
+            foreach (MapCheckPosition position in HKSS.Silksong.SsExtraChecks.Positions(SaveState.Instance, includeChecked))
+                yield return position;
+
             foreach (MapCheckPosition position in JournalRandomization.MapPositions(StaticPositions))
                 yield return position;
 

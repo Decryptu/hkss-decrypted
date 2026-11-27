@@ -132,6 +132,111 @@ class ShuffleLoreTablets(Choice):
     default = 0
 
 
+class ShuffleLevers(Choice):
+    """Unified randomization for Levers in both games.
+
+    per_game: use each game's individual lever option.
+    off: keep levers as normal non-check switches.
+    on: pulling levers in either game sends a check from the shared item pool.
+    """
+
+    display_name = "Shuffle Levers"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ShuffleBreakableWalls(Choice):
+    """Unified randomization for Breakable Walls in both games.
+
+    per_game: use each game's individual breakable wall option.
+    off: keep breakable walls as normal non-check obstacles.
+    on: breaking breakable walls in either game sends a check from the shared item pool.
+    """
+
+    display_name = "Shuffle Breakable Walls"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ShuffleGrass(Choice):
+    """Unified randomization for Grass in both games.
+
+    per_game: use each game's individual grass option.
+    off: keep grass as normal scenery.
+    on: cutting grass in a grass-bearing room sends a check from the shared item pool.
+    """
+
+    display_name = "Shuffle Grass"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class RandomizeLevers(Toggle):
+    """Add Hollow Knight levers as checks in the shared item pool.
+
+    Levers still open their normal gates or shortcuts when hit, and also send a check.
+    """
+
+    display_name = "Randomize Levers"
+    default = False
+
+
+class RandomizeBreakableWalls(Toggle):
+    """Add Hollow Knight breakable walls and quake floors as checks in the shared item pool.
+
+    Walls still break normally when hit, and also send a check.
+    """
+
+    display_name = "Randomize Breakable Walls"
+    default = False
+
+
+class RandomizeGrass(Toggle):
+    """Add one check per Hollow Knight room that contains cuttable grass.
+
+    Cutting any grass in a room sends that room's grass check.
+    """
+
+    display_name = "Randomize Grass"
+    default = False
+
+
+class LeverRandomization(Toggle):
+    """Add Silksong levers as checks in the shared item pool.
+
+    Levers still activate their normal gates or mechanisms when hit, and also send a check.
+    """
+
+    display_name = "Lever Randomization"
+    default = False
+
+
+class BreakableWallRandomization(Toggle):
+    """Add Silksong breakable walls as checks in the shared item pool.
+
+    Walls still break normally when hit, and also send a check.
+    """
+
+    display_name = "Breakable Wall Randomization"
+    default = False
+
+
+class GrassRandomization(Toggle):
+    """Add one check per Silksong room that contains cuttable grass.
+
+    Cutting any grass in a room sends that room's grass check.
+    """
+
+    display_name = "Grass Randomization"
+    default = False
+
+
 class CrossGameSeals(Range):
     """Number of areas in each game that stay sealed until you find a key ability from the other game.
 
@@ -190,24 +295,39 @@ _shared_fields = [
     ("shuffle_grubs_and_fleas", ShuffleGrubsAndFleas),
     ("shuffle_journal_entries", ShuffleJournalEntries),
     ("shuffle_lore_tablets", ShuffleLoreTablets),
+    ("shuffle_levers", ShuffleLevers),
+    ("shuffle_breakable_walls", ShuffleBreakableWalls),
+    ("shuffle_grass", ShuffleGrass),
     ("cross_game_seals", CrossGameSeals),
     ("cross_game_items", CrossGameItems),
     ("double_steel_soul", DoubleSteelSoul),
+]
+
+_hk_extra_fields = [
+    ("RandomizeLevers", RandomizeLevers),
+    ("RandomizeBreakableWalls", RandomizeBreakableWalls),
+    ("RandomizeGrass", RandomizeGrass),
 ]
 
 _hk_fields = [
     (name, opt_cls)
     for name, opt_cls in hollow_knight_options.items()
     if name != "DeathLink" and name not in _COMMON_FIELD_NAMES
-]
+] + _hk_extra_fields
 
 _ss_type_hints = get_type_hints(SilksongOptions, globalns={**vars(_Options), **vars(_ss_options_mod)})
+
+_ss_extra_fields = [
+    ("lever_randomization", LeverRandomization),
+    ("breakable_wall_randomization", BreakableWallRandomization),
+    ("grass_randomization", GrassRandomization),
+]
 
 _ss_fields = [
     (f.name, _ss_type_hints[f.name])
     for f in fields(SilksongOptions)
     if f.name != "death_link" and f.name not in _COMMON_FIELD_NAMES
-]
+] + _ss_extra_fields
 
 HKSSOptions = make_dataclass(
     "HKSSOptions",
@@ -230,6 +350,9 @@ def _build_option_groups() -> list[OptionGroup]:
                 ShuffleGrubsAndFleas,
                 ShuffleJournalEntries,
                 ShuffleLoreTablets,
+                ShuffleLevers,
+                ShuffleBreakableWalls,
+                ShuffleGrass,
                 CrossGameSeals,
                 CrossGameItems,
                 DoubleSteelSoul,
@@ -241,8 +364,12 @@ def _build_option_groups() -> list[OptionGroup]:
             start_collapsed=True,
         ),
     ]
+    ss_extra_added = False
     for group in silksong_option_groups:
         filtered = [opt for opt in group.options if opt is not DeathLink]
+        if group.name == "Randomization Options":
+            filtered.extend(opt_cls for _, opt_cls in _ss_extra_fields)
+            ss_extra_added = True
         if filtered:
             groups.append(
                 OptionGroup(
@@ -251,6 +378,14 @@ def _build_option_groups() -> list[OptionGroup]:
                     start_collapsed=True,
                 )
             )
+    if not ss_extra_added:
+        groups.append(
+            OptionGroup(
+                "Silksong: Randomization Options",
+                [opt_cls for _, opt_cls in _ss_extra_fields],
+                start_collapsed=True,
+            )
+        )
     return groups
 
 

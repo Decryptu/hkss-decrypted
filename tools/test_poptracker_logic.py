@@ -62,6 +62,10 @@ CASES = {
     "ss_alt_start_bellhart": ("starting_location: bellhart", "cross_game_seals: 2"),
     "ss_alt_start_both_entrances": ("starting_location: wormways", "StartLocation: greenpath",
                                     "cross_game_seals: 2", "shuffle_entrances: full"),
+    "extra_checks": ("shuffle_levers: on", "shuffle_breakable_walls: on", "shuffle_grass: on",
+                     "RandomizeNail: true", "WhitePalace: include", "cross_game_seals: 2"),
+    "extra_checks_act2": ("shuffle_levers: on", "shuffle_breakable_walls: on", "shuffle_grass: on",
+                          "goal: act_2"),
 }
 FRACTIONS = (0, 0.05, 0.15, 0.3, 0.5, 0.7, 0.9, 1.0)
 

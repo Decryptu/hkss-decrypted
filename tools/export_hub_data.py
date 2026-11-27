@@ -161,6 +161,7 @@ def export(archive: Path, ap_dir: Path, rooms_path: Path) -> dict:
 
     HKSSWorld = load_world(archive, ap_dir)
     import Options as ap
+    from hkss.extra_checks import load_extra_checks_data
     from hkss.hk.ExtractedData import connectors, location_to_region_lookup, multi_locations
     from hkss.hk.Options import hollow_knight_randomize_options
     from hkss.silksong.enemy_souls import CATALOGUE
@@ -255,44 +256,86 @@ def export(archive: Path, ap_dir: Path, rooms_path: Path) -> dict:
     }
     area_names = {area for areas in ss_areas.values() for area in areas}
 
+    extra_data = load_extra_checks_data()
+    extra_type_labels = {
+        "lever": "Levers",
+        "breakable_wall": "Breakable Walls",
+        "grass": "Grass",
+    }
+    hk_extra_by_name = {
+        entry["name"]: entry
+        for kind in ("levers", "breakable_walls", "grass")
+        for entry in extra_data.get("hollow_knight", {}).get(kind, ())
+    }
+    ss_extra_by_name = {
+        entry["name"]: entry
+        for kind in ("levers", "breakable_walls", "grass")
+        for entry in extra_data.get("silksong", {}).get(kind, ())
+    }
+
     checks = []
     for name, code in sorted(HKSSWorld.location_name_to_id.items()):
         game, raw = name.split(" ", 1)
         map_room = None
         if game == "HK":
-            base = raw.removeprefix("Split_").removeprefix("Left_").removeprefix("Right_")
-            room = location_to_region_lookup.get(raw) or location_to_region_lookup.get(base)
-            if room:
-                if room in hk_mapped_rooms:
-                    map_room = room
-                else:
-                    parent = hk_interior.get(room.lower())
-                    if parent and parent.lower() in hk_mapped_ci:
-                        map_room = hk_mapped_ci[parent.lower()]
-                    elif room.lower() in hk_mapped_ci:
-                        map_room = hk_mapped_ci[room.lower()]
-            areas = [hk_area(room) or "Unmapped"]
-            check_types = hk_types.get(raw) or hk_types.get(base) or {"Other"}
-            shop, _, number = raw.rpartition("_")
-            if number.isdigit() and shop in multi_locations:
-                check_types = {"Shop"}
-            label = raw.replace("_", " ")
+            extra = hk_extra_by_name.get(raw)
+            if extra is not None:
+                room = extra["scene"]
+                cand = extra.get("mapRoom") or room
+                if cand in hk_mapped_rooms:
+                    map_room = cand
+                elif cand.lower() in hk_mapped_ci:
+                    map_room = hk_mapped_ci[cand.lower()]
+                elif room.lower() in hk_mapped_ci:
+                    map_room = hk_mapped_ci[room.lower()]
+                areas = [extra.get("area") or hk_area(room) or "Unmapped"]
+                check_types = {extra_type_labels.get(extra.get("kind", ""), "Other")}
+                label = raw.replace("_", " ").replace("-", " — ")
+            else:
+                base = raw.removeprefix("Split_").removeprefix("Left_").removeprefix("Right_")
+                room = location_to_region_lookup.get(raw) or location_to_region_lookup.get(base)
+                if room:
+                    if room in hk_mapped_rooms:
+                        map_room = room
+                    else:
+                        parent = hk_interior.get(room.lower())
+                        if parent and parent.lower() in hk_mapped_ci:
+                            map_room = hk_mapped_ci[parent.lower()]
+                        elif room.lower() in hk_mapped_ci:
+                            map_room = hk_mapped_ci[room.lower()]
+                areas = [hk_area(room) or "Unmapped"]
+                check_types = hk_types.get(raw) or hk_types.get(base) or {"Other"}
+                shop, _, number = raw.rpartition("_")
+                if number.isdigit() and shop in multi_locations:
+                    check_types = {"Shop"}
+                label = raw.replace("_", " ")
         else:
-            area_prefix = raw.partition(" - ")[0]
-            named_area = {area_prefix} if area_prefix in area_names else set()
-            areas = ss_areas[raw] or first_kill_areas.get(raw) or ss_check_areas.get(raw) or named_area or {"Unmapped"}
-            metadata = location_data_table.get(raw)
-            check_types = {
-                metadata.category if metadata else
-                "First Kill" if raw.startswith("First Kill: ") else "Other"
-            }
-            room = ss_manifest_rooms.get(raw) or ss_check_rooms.get(raw) or first_kill_rooms.get(raw)
-            if room:
+            extra = ss_extra_by_name.get(raw)
+            if extra is not None:
+                room = extra["scene"]
                 if room in ss_mapped_rooms:
                     map_room = room
                 elif room.lower() in ss_mapped_ci:
                     map_room = ss_mapped_ci[room.lower()]
-            label = raw
+                areas = {extra.get("area") or "Unmapped"}
+                check_types = {extra_type_labels.get(extra.get("kind", ""), "Other")}
+                label = raw
+            else:
+                area_prefix = raw.partition(" - ")[0]
+                named_area = {area_prefix} if area_prefix in area_names else set()
+                areas = ss_areas[raw] or first_kill_areas.get(raw) or ss_check_areas.get(raw) or named_area or {"Unmapped"}
+                metadata = location_data_table.get(raw)
+                check_types = {
+                    metadata.category if metadata else
+                    "First Kill" if raw.startswith("First Kill: ") else "Other"
+                }
+                room = ss_manifest_rooms.get(raw) or ss_check_rooms.get(raw) or first_kill_rooms.get(raw)
+                if room:
+                    if room in ss_mapped_rooms:
+                        map_room = room
+                    elif room.lower() in ss_mapped_ci:
+                        map_room = ss_mapped_ci[room.lower()]
+                label = raw
         entry = {
             "id": code, "key": name, "game": game, "name": label,
             "areas": sorted(areas), "types": sorted(check_types),

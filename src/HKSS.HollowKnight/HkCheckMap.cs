@@ -489,6 +489,59 @@ internal static class HkCheckMap
             }
         }
 
+        // 3b. Collect active HKSS extra checks (levers, breakable walls, grass)
+        foreach (ExtraCheckEntry extra in HkExtraChecks.GetActiveChecks())
+        {
+            string mapRoom = ResolveMapRoom(extra.Scene);
+            if (!RoomLookup.ContainsKey(mapRoom)) continue;
+
+            bool isChecked = HkExtraChecks.IsChecked(extra.Id);
+            HkReachability reach = logic == null
+                ? HkReachability.Unknown
+                : logic.IsSceneSealed(extra.Scene)
+                    ? HkReachability.Unreachable
+                    : logic.EvaluateLocation(extra.Name);
+
+            if (!isChecked)
+            {
+                _totalUnchecked++;
+                if (reach == HkReachability.Reachable)
+                    _totalReachable++;
+            }
+
+            if (!PassesCheckFilter(isChecked, reach))
+                continue;
+
+            bool isHinted = hintsByLocationId.TryGetValue(extra.Id, out string? hintText);
+            var entry = new HkCheckEntry
+            {
+                LocationId = extra.Id,
+                RawLocationName = extra.Name,
+                DisplayName = extra.Name.Replace('_', ' ').Replace("-", " — "),
+                PlacementName = extra.Name,
+                MapRoom = mapRoom,
+                Category = extra.Kind switch
+                {
+                    ExtraCheckKind.Lever => HkPinCategory.Lever,
+                    ExtraCheckKind.BreakableWall => HkPinCategory.BreakableWall,
+                    ExtraCheckKind.Grass => HkPinCategory.Grass,
+                    _ => HkPinCategory.Generic,
+                },
+                IsChecked = isChecked,
+                Reachability = reach,
+                CostSummary = null,
+                IsHinted = isHinted && !isChecked,
+                HintText = hintText,
+            };
+
+            if (!checksByRoom.TryGetValue(mapRoom, out List<HkCheckEntry>? list))
+            {
+                list = new List<HkCheckEntry>();
+                checksByRoom[mapRoom] = list;
+            }
+            list.Add(entry);
+        }
+
         // 4. Rebuild cluster pins per room
         var activeKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 

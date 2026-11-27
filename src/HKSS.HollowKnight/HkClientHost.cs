@@ -91,6 +91,7 @@ internal sealed class HkClientHost : MonoBehaviour
         Mod.Logger = log;
         ModHooks.Install(harmony, log);
         HkQolPatches.Install(harmony, log);
+        HkExtraChecks.Install(harmony, log);
         _icMod = new ItemChangerMod();
     }
 

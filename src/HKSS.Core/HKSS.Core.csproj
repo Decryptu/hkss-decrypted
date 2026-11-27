@@ -7,5 +7,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Data\hk_logic.json" LogicalName="HKSS.Core.Data.hk_logic.json" />
+    <EmbeddedResource Include="..\..\apworld\hkss\extra_checks_data.json" LogicalName="HKSS.Core.Data.extra_checks_data.json" />
   </ItemGroup>
 </Project>

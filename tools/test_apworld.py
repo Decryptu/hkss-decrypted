@@ -68,6 +68,8 @@ def check_apworld_archive(apworld_path: Path) -> None:
             "hkss/cross_game.py",
             "hkss/cross_game_items.py",
             "hkss/cross_game_areas.json",
+            "hkss/extra_checks.py",
+            "hkss/extra_checks_data.json",
             "hkss/archipelago.json",
             "hkss/VENDORED.json",
             "hkss/hk/__init__.py",
@@ -521,6 +523,32 @@ def _run_cases(
             "  StartLocation: greenpath\n"
             "  cross_game_seals: 2\n"
             "  shuffle_entrances: full\n"
+        )
+    })
+    run_case("solo_both_extra_checks", {
+        "ComboExtraChecks.yaml": (
+            "name: ComboExtraChecks\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  shuffle_levers: on\n"
+            "  shuffle_breakable_walls: on\n"
+            "  shuffle_grass: on\n"
+            "  RandomizeNail: true\n"
+            "  WhitePalace: include\n"
+            "  cross_game_seals: 2\n"
+        )
+    })
+    run_case("solo_both_extra_checks_act2", {
+        "ComboExtraChecksAct2.yaml": (
+            "name: ComboExtraChecksAct2\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  goal: act_2\n"
+            "  shuffle_levers: on\n"
+            "  shuffle_breakable_walls: on\n"
+            "  shuffle_grass: on\n"
         )
     })
     run_case("multiworld_4p", {

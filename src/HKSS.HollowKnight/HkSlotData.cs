@@ -101,6 +101,9 @@ public sealed class HkSlotOptions
     public bool RandomizeBossGeo { get; set; }
     public bool RandomizeSoulTotems { get; set; }
     public bool RandomizeLoreTablets { get; set; }
+    public bool RandomizeLevers { get; set; }
+    public bool RandomizeBreakableWalls { get; set; }
+    public bool RandomizeGrass { get; set; }
     public bool Slopeballs { get; set; }
     public bool RemoveSpellUpgrades { get; set; }
     public bool RandomizeElevatorPass { get; set; }

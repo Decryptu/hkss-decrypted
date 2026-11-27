@@ -20,6 +20,14 @@ from .cross_game_items import (
     is_cross_game_item,
     merge_cross_game_items,
 )
+from .extra_checks import (
+    build_extra_location_groups,
+    build_extra_location_name_to_id,
+    create_extra_filler_items,
+    create_extra_regions_and_locations,
+    export_ss_extra_requirements,
+    set_extra_rules,
+)
 from .hk import HKItem, HKWorld
 from .hk.ExtractedData import connectors as HK_VANILLA_CONNECTORS
 from .hk.Options import CostSanity
@@ -39,10 +47,13 @@ from .options import (
     ComboGoal,
     Games,
     HKSSOptions,
+    ShuffleBreakableWalls,
     ShuffleCharmsAndCrests,
     ShuffleEntrances,
+    ShuffleGrass,
     ShuffleGrubsAndFleas,
     ShuffleJournalEntries,
+    ShuffleLevers,
     ShuffleLoreTablets,
     ShuffleShops,
     hkss_option_groups,
@@ -105,6 +116,7 @@ def _build_location_name_to_id() -> dict[str, int]:
     for name, code in SilksongWorld.location_name_to_id.items():
         if code is not None:
             table[ss_name(name)] = ss_id(code)
+    table.update(build_extra_location_name_to_id())
     return table
 
 
@@ -140,6 +152,10 @@ def _build_location_name_groups(all_locations: dict[str, int]) -> dict[str, set[
             groups[f"SS {group_name}"] = prefixed
             if group_name != "Everywhere":
                 groups.setdefault(group_name, set()).update(prefixed)
+    for group_name, members in build_extra_location_groups().items():
+        filtered = {m for m in members if m in all_locations}
+        if filtered:
+            groups.setdefault(group_name, set()).update(filtered)
     return groups
 
 
@@ -185,6 +201,8 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         self._hk_entrance_rando_type: int = 0
         self._seals: list[Seal] = []
         self._cross_game_items: list[CrossGameItemSpec] = []
+        self._extra_hk_entries: list[dict[str, Any]] = []
+        self._extra_ss_entries: list[tuple[dict[str, Any], list[str]]] = []
 
     @property
     def has_hk(self) -> bool:
@@ -228,6 +246,21 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             opts.RandomizeLoreTablets.value = int(on)
             opts.lore_tablet_randomization.value = GlobalRandomization.option_true if on else GlobalRandomization.option_false
 
+        if opts.shuffle_levers.value != ShuffleLevers.option_per_game:
+            on = opts.shuffle_levers.value == ShuffleLevers.option_on
+            opts.RandomizeLevers.value = int(on)
+            opts.lever_randomization.value = int(on)
+
+        if opts.shuffle_breakable_walls.value != ShuffleBreakableWalls.option_per_game:
+            on = opts.shuffle_breakable_walls.value == ShuffleBreakableWalls.option_on
+            opts.RandomizeBreakableWalls.value = int(on)
+            opts.breakable_wall_randomization.value = int(on)
+
+        if opts.shuffle_grass.value != ShuffleGrass.option_per_game:
+            on = opts.shuffle_grass.value == ShuffleGrass.option_on
+            opts.RandomizeGrass.value = int(on)
+            opts.grass_randomization.value = int(on)
+
         ent = opts.shuffle_entrances.value
         if ent == ShuffleEntrances.option_off:
             opts.entrance_randomization.value = EntranceRandomization.option_off
@@ -261,12 +294,14 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             self.hk.create_regions()
         if self.has_silksong:
             SilksongWorld.create_regions(self)
+        self._extra_hk_entries, self._extra_ss_entries = create_extra_regions_and_locations(self)
 
     def create_items(self) -> None:
         if self.has_hk:
             self.hk.create_items()
         if self.has_silksong:
             SilksongWorld.create_items(self)
+        create_extra_filler_items(self, len(self._extra_hk_entries), len(self._extra_ss_entries))
         self._cross_game_items = merge_cross_game_items(self)
 
     def create_item(self, name: str, *args, **kwargs) -> Item:
@@ -328,6 +363,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             self._hk_completion_condition = self.hk.get_completion_condition()
         if self.has_silksong:
             SilksongWorld.set_rules(self)
+        set_extra_rules(self, self._extra_hk_entries, self._extra_ss_entries)
         self._refresh_completion_rule()
         self._seals = choose_seals(self, self.options.cross_game_seals.value)
         apply_hk_seals(self, self._seals)
@@ -623,10 +659,21 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
 
     def fill_slot_data(self) -> dict[str, Any]:
         hk_data = self.hk.fill_slot_data() if self.has_hk else None
-        if hk_data is not None and self._hk_entrance_pairs:
-            hk_data["entrance_pairs"] = dict(self._hk_entrance_pairs)
-            hk_data["options"]["EntranceRandoType"] = self._hk_entrance_rando_type
-            hk_data["options"]["ShuffleEntrancesMode"] = 0
+        if hk_data is not None:
+            hk_data["options"]["RandomizeLevers"] = int(bool(self.options.RandomizeLevers.value))
+            hk_data["options"]["RandomizeBreakableWalls"] = int(bool(self.options.RandomizeBreakableWalls.value))
+            hk_data["options"]["RandomizeGrass"] = int(bool(self.options.RandomizeGrass.value))
+            if self._hk_entrance_pairs:
+                hk_data["entrance_pairs"] = dict(self._hk_entrance_pairs)
+                hk_data["options"]["EntranceRandoType"] = self._hk_entrance_rando_type
+                hk_data["options"]["ShuffleEntrancesMode"] = 0
+        ss_data = SilksongWorld.fill_slot_data(self) if self.has_silksong else None
+        if ss_data is not None:
+            ss_data["lever_randomization"] = bool(self.options.lever_randomization.value)
+            ss_data["breakable_wall_randomization"] = bool(self.options.breakable_wall_randomization.value)
+            ss_data["grass_randomization"] = bool(self.options.grass_randomization.value)
+            if self._extra_ss_entries:
+                ss_data["requirements"].update(export_ss_extra_requirements(self._extra_ss_entries))
         return {
             "world_version": WORLD_VERSION,
             "games": self.options.games.current_key,
@@ -640,7 +687,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
                 spec.slot_data() for spec in self._cross_game_items
             ],
             "hollow_knight": hk_data,
-            "silksong": SilksongWorld.fill_slot_data(self) if self.has_silksong else None,
+            "silksong": ss_data,
         }
 
     def modify_multidata(self, multidata: dict) -> None:

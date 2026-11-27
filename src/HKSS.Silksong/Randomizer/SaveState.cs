@@ -1899,6 +1899,11 @@ namespace SilksongRandomizer
                 return true;
             }
 
+            if (HKSS.Core.ExtraChecksCatalog.TryGetSsByName(canonicalName, out _))
+            {
+                return IsLocationInSeed(canonicalName);
+            }
+
             if (ScroungeRelicTurnInManifest.IsTurnInLocation(
                     canonicalName
                 ) ||

@@ -83,10 +83,13 @@ def _hk_scene_of(name: str, scenes: Iterable[str]) -> str | None:
 
 def hk_scene(name: str, scenes: Iterable[str]) -> str | None:
     """Scene of a Hollow Knight location, event or transition name (with or without its prefix)."""
+    from .extra_checks import hk_extra_scene
     from .hk.ExtractedData import location_to_region_lookup
 
     raw = name[len(HK_PREFIX):] if name.startswith(HK_PREFIX) else name
     scene = location_to_region_lookup.get(raw)
+    if scene is None:
+        scene = hk_extra_scene(raw)
     if scene is None:
         base = raw.removeprefix("Split_").removeprefix("Left_").removeprefix("Right_")
         scene = location_to_region_lookup.get(base)
