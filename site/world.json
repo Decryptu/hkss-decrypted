@@ -1,8 +1,8 @@
 {
   "game": "Hollow Knight x Silksong",
-  "version": "0.1.27",
+  "version": "0.1.28",
   "minimumArchipelago": "0.6.8",
-  "archiveSha256": "41836e891e455290f6ecceb00be22c397137c66fe5bb38c03719e52864699f34",
+  "archiveSha256": "36914476a231f575d329142fa34a9d2f79a09cd417de136a4dbb0cae1675e391",
   "routes": {
     "HK": [
       [
@@ -505,6 +505,12 @@
         "double_steel_soul": {
           "label": "Double Steel Soul",
           "help": "Play both games in Steel Soul mode for one combo run.\n\nA Steel Soul death in either Hallownest or Pharloom marks the combo run defeated across both\ngames (even while the other game is closed). Both games and the launcher surface the defeat,\nand the launcher can reset the run with fresh saves in both games.\n\nOff by default.",
+          "kind": "toggle",
+          "default": false
+        },
+        "start_with_full_maps": {
+          "label": "Start With Full Maps",
+          "help": "Start with every area map unlocked and every room already revealed in both games.\n\nIn Hollow Knight, unlocks the map panel, Quill, all area maps, and reveals every room on the\nmap from the start without needing to buy maps from Cornifer or Iselda.\nIn Silksong, enables both Start With Maps and Start Fully Mapped.\n\nOff by default (when off, Silksong still respects its own map start options).",
           "kind": "toggle",
           "default": false
         }
