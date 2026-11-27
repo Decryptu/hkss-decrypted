@@ -77,7 +77,18 @@
   let failedRun = $state<number | null>(null);
   let showSettings = $state(false);
   type FastEndingsMode = "credits" | "all" | "off";
-  type LauncherSettings = { instant_travel: boolean; fast_endings: FastEndingsMode; memory_mb: number | null };
+  type SharedSettings = {
+    instant_travel: boolean;
+    fast_endings: FastEndingsMode;
+    bulk_relic_turn_in: boolean;
+    auto_quill: boolean;
+    show_map_logic: boolean;
+    show_recent_items: boolean;
+    damage_numbers: boolean;
+    enemy_health_bars: boolean;
+    boss_health_bar: boolean;
+  };
+  type LauncherSettings = SharedSettings & { memory_mb: number | null };
   let launcherSettings = $state<LauncherSettings | null>(null);
   // Both games together hold about 3.5 GB, which leaves too little on smaller PCs.
   const instantTravelMemoryMb = 16 * 1024 - 512;
@@ -234,20 +245,13 @@
     return total > 0 ? hk.play_seconds / total : 0.5;
   };
 
-  async function setInstantTravel(enabled: boolean) {
+  async function updateSettings(patch: Partial<SharedSettings>) {
+    if (!launcherSettings) return;
     error = "";
+    const { memory_mb: _memory, ...current } = launcherSettings;
+    const next: SharedSettings = { ...current, ...patch };
     try {
-      await invoke("set_instant_travel", { enabled });
-    } catch (e) {
-      error = String(e);
-    }
-    launcherSettings = await invoke<LauncherSettings>("launcher_settings").catch(() => launcherSettings);
-  }
-
-  async function setFastEndings(mode: FastEndingsMode) {
-    error = "";
-    try {
-      await invoke("set_fast_endings", { mode });
+      await invoke("save_launcher_settings", { settings: next });
     } catch (e) {
       error = String(e);
     }
@@ -327,7 +331,7 @@
           <div class="settings-section">
             <label class="check">
               <input type="checkbox" checked={launcherSettings.instant_travel} disabled={busy}
-                onchange={(e) => setInstantTravel(e.currentTarget.checked)}>
+                onchange={(e) => updateSettings({ instant_travel: e.currentTarget.checked })}>
               Instant travel
             </label>
             <p>Keep the game you leave paused in memory, so going back to it takes a moment instead of a restart. Both games together use about 3.5 GB; with too little free memory, travel closes the game as usual.</p>
@@ -337,13 +341,52 @@
             <label class="select-field">
               <span>Endings &amp; credits</span>
               <select value={launcherSettings.fast_endings} disabled={busy}
-                onchange={(e) => setFastEndings(e.currentTarget.value as FastEndingsMode)}>
+                onchange={(e) => updateSettings({ fast_endings: e.currentTarget.value as FastEndingsMode })}>
                 <option value="credits">Skip credits</option>
                 <option value="all">Skip endings &amp; credits</option>
                 <option value="off">Off (vanilla)</option>
               </select>
             </label>
-            <p>Auto-skip credits and completion screens after beating a game while keeping goal reporting, saves, and Act 3 transitions intact. Can also be toggled in-game (F6 &rarr; Links &amp; QoL).</p>
+            <p>Auto-skip credits and completion screens after beating a game while keeping goal reporting, saves, and Act 3 transitions intact.</p>
+          </div>
+          <div class="settings-section">
+            <h3>Gameplay &amp; HUD</h3>
+            <p class="settings-hint">Synced two-way with both games (F6 &rarr; Links &amp; QoL).</p>
+            <label class="check">
+              <input type="checkbox" checked={launcherSettings.bulk_relic_turn_in} disabled={busy}
+                onchange={(e) => updateSettings({ bulk_relic_turn_in: e.currentTarget.checked })}>
+              Bulk relic turn-in
+            </label>
+            <label class="check">
+              <input type="checkbox" checked={launcherSettings.auto_quill} disabled={busy}
+                onchange={(e) => updateSettings({ auto_quill: e.currentTarget.checked })}>
+              Auto-quill on owned maps
+            </label>
+            <label class="check">
+              <input type="checkbox" checked={launcherSettings.show_map_logic} disabled={busy}
+                onchange={(e) => updateSettings({ show_map_logic: e.currentTarget.checked })}>
+              Show map logic
+            </label>
+            <label class="check">
+              <input type="checkbox" checked={launcherSettings.show_recent_items} disabled={busy}
+                onchange={(e) => updateSettings({ show_recent_items: e.currentTarget.checked })}>
+              Recent items feed
+            </label>
+            <label class="check">
+              <input type="checkbox" checked={launcherSettings.damage_numbers} disabled={busy}
+                onchange={(e) => updateSettings({ damage_numbers: e.currentTarget.checked })}>
+              Damage numbers
+            </label>
+            <label class="check">
+              <input type="checkbox" checked={launcherSettings.enemy_health_bars} disabled={busy}
+                onchange={(e) => updateSettings({ enemy_health_bars: e.currentTarget.checked })}>
+              Enemy health bars
+            </label>
+            <label class="check">
+              <input type="checkbox" checked={launcherSettings.boss_health_bar} disabled={busy}
+                onchange={(e) => updateSettings({ boss_health_bar: e.currentTarget.checked })}>
+              Boss health bar
+            </label>
           </div>
         {/if}
         <div class="settings-section">

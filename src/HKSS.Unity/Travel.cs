@@ -140,6 +140,7 @@ internal sealed class Travel : MonoBehaviour
     private void Return(GameManager gm, HeroController hero)
     {
         HkssPlugin.Log.LogInfo("Travelling: back from the other game.");
+        PlayerOptions.ReloadShared();
         // The room connection went quiet while paused; a fresh login replays any items found meanwhile.
         ApManager.Instance?.ReconnectAfterPause();
         // A Steel Soul death in the other game ends this one too.
