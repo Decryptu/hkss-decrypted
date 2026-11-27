@@ -1,0 +1,9655 @@
+{
+  "schemaVersion": 1,
+  "HK": {
+    "rooms": [
+      {
+        "id": "Abyss_01",
+        "area": "Royal Waterways",
+        "x": 8.378,
+        "y": -5.195,
+        "w": 0.79,
+        "h": 2.87
+      },
+      {
+        "id": "Abyss_02",
+        "area": "Royal Waterways",
+        "x": 6.549,
+        "y": -6.656,
+        "w": 2.87,
+        "h": 0.69
+      },
+      {
+        "id": "Abyss_03",
+        "area": "Ancient Basin",
+        "x": 6.153,
+        "y": -7.231,
+        "w": 4.55,
+        "h": 0.48
+      },
+      {
+        "id": "Abyss_03_b",
+        "area": "Deepnest",
+        "x": -1.779,
+        "y": -7.216,
+        "w": 6.26,
+        "h": 0.45
+      },
+      {
+        "id": "Abyss_03_c",
+        "area": "Kingdom's Edge",
+        "x": 10.875,
+        "y": -7.21,
+        "w": 4.8,
+        "h": 0.47
+      },
+      {
+        "id": "Abyss_04",
+        "area": "Ancient Basin",
+        "x": 5.402,
+        "y": -8.242,
+        "w": 1.62,
+        "h": 1.68
+      },
+      {
+        "id": "Abyss_05",
+        "area": "Ancient Basin",
+        "x": 7.801,
+        "y": -8.351,
+        "w": 3.31,
+        "h": 1.69
+      },
+      {
+        "id": "Abyss_06_Core",
+        "area": "Ancient Basin",
+        "x": 4.895,
+        "y": -11.477,
+        "w": 1.76,
+        "h": 4.91
+      },
+      {
+        "id": "Abyss_06_Core_b",
+        "area": "Ancient Basin",
+        "x": 4.895,
+        "y": -11.477,
+        "w": 1.76,
+        "h": 4.91
+      },
+      {
+        "id": "Abyss_08",
+        "area": "Ancient Basin",
+        "x": 3.11,
+        "y": -11.988,
+        "w": 1.93,
+        "h": 1.86
+      },
+      {
+        "id": "Abyss_09",
+        "area": "Ancient Basin",
+        "x": 9.805,
+        "y": -13.139,
+        "w": 4.482,
+        "h": 1.83
+      },
+      {
+        "id": "Abyss_10",
+        "area": "Ancient Basin",
+        "x": 13.295,
+        "y": -13.578,
+        "w": 2.52,
+        "h": 0.61
+      },
+      {
+        "id": "Abyss_12",
+        "area": "Ancient Basin",
+        "x": 2.668,
+        "y": -13.808,
+        "w": 2.72,
+        "h": 0.57
+      },
+      {
+        "id": "Abyss_16",
+        "area": "Ancient Basin",
+        "x": 6.674,
+        "y": -13.718,
+        "w": 1.8,
+        "h": 0.41
+      },
+      {
+        "id": "Abyss_17",
+        "area": "Ancient Basin",
+        "x": 2.925,
+        "y": -7.56,
+        "w": 3.34,
+        "h": 1.13
+      },
+      {
+        "id": "Abyss_18",
+        "area": "Ancient Basin",
+        "x": 2.859,
+        "y": -8.903,
+        "w": 3.63,
+        "h": 0.44
+      },
+      {
+        "id": "Abyss_18_b",
+        "area": "Ancient Basin",
+        "x": 2.859,
+        "y": -8.903,
+        "w": 3.63,
+        "h": 0.42
+      },
+      {
+        "id": "Abyss_19",
+        "area": "Ancient Basin",
+        "x": -0.187,
+        "y": -8.64,
+        "w": 2.46,
+        "h": 1.53
+      },
+      {
+        "id": "Abyss_20",
+        "area": "Ancient Basin",
+        "x": -0.143,
+        "y": -9.79,
+        "w": 2.71,
+        "h": 0.77
+      },
+      {
+        "id": "Abyss_21",
+        "area": "Ancient Basin",
+        "x": -2.628,
+        "y": -9.049,
+        "w": 2.42,
+        "h": 0.75
+      },
+      {
+        "id": "Abyss_22",
+        "area": "Ancient Basin",
+        "x": 10.062,
+        "y": -8.617,
+        "w": 1.23,
+        "h": 0.34
+      },
+      {
+        "id": "Cliffs_01",
+        "area": "Howling Cliffs",
+        "x": -11.343,
+        "y": 9.104,
+        "w": 2.39,
+        "h": 3.07
+      },
+      {
+        "id": "Cliffs_01_b",
+        "area": "Howling Cliffs",
+        "x": -10.382,
+        "y": 8.235,
+        "w": 0.44,
+        "h": 0.44
+      },
+      {
+        "id": "Cliffs_02",
+        "area": "Howling Cliffs",
+        "x": -8.095,
+        "y": 9.334,
+        "w": 4.11,
+        "h": 3.41
+      },
+      {
+        "id": "Cliffs_02_b",
+        "area": "Howling Cliffs",
+        "x": -8.095,
+        "y": 9.334,
+        "w": 4.11,
+        "h": 3.41
+      },
+      {
+        "id": "Cliffs_04",
+        "area": "Howling Cliffs",
+        "x": -9.266,
+        "y": 8.754,
+        "w": 1.769,
+        "h": 0.93
+      },
+      {
+        "id": "Cliffs_05",
+        "area": "Howling Cliffs",
+        "x": -7.829,
+        "y": 8.754,
+        "w": 1.12,
+        "h": 0.91
+      },
+      {
+        "id": "Cliffs_06",
+        "area": "Howling Cliffs",
+        "x": -9.398,
+        "y": 8.159,
+        "w": 1.96,
+        "h": 0.37
+      },
+      {
+        "id": "Cliffs_06_b",
+        "area": "Howling Cliffs",
+        "x": -8.837,
+        "y": 8.126,
+        "w": 0.71,
+        "h": 0.22
+      },
+      {
+        "id": "Crossroads_01",
+        "area": "Forgotten Crossroads",
+        "x": -1.113,
+        "y": 6.614,
+        "w": 1.58,
+        "h": 0.75
+      },
+      {
+        "id": "Crossroads_02",
+        "area": "Forgotten Crossroads",
+        "x": 0.347,
+        "y": 6.61,
+        "w": 1.38,
+        "h": 0.5
+      },
+      {
+        "id": "Crossroads_03",
+        "area": "Forgotten Crossroads",
+        "x": 2.024,
+        "y": 4.949,
+        "w": 0.59,
+        "h": 1.467
+      },
+      {
+        "id": "Crossroads_04",
+        "area": "Forgotten Crossroads",
+        "x": 3.729,
+        "y": 3.446,
+        "w": 2.41,
+        "h": 0.66
+      },
+      {
+        "id": "Crossroads_04_b",
+        "area": "Forgotten Crossroads",
+        "x": 3.729,
+        "y": 3.446,
+        "w": 2.41,
+        "h": 0.66
+      },
+      {
+        "id": "Crossroads_05",
+        "area": "Forgotten Crossroads",
+        "x": -1.265,
+        "y": 5.875,
+        "w": 1.25,
+        "h": 0.41
+      },
+      {
+        "id": "Crossroads_06",
+        "area": "Forgotten Crossroads",
+        "x": -1.503,
+        "y": 5.105,
+        "w": 0.85,
+        "h": 0.89
+      },
+      {
+        "id": "Crossroads_07",
+        "area": "Forgotten Crossroads",
+        "x": -2.217,
+        "y": 5.844,
+        "w": 0.68,
+        "h": 1.57
+      },
+      {
+        "id": "Crossroads_08",
+        "area": "Forgotten Crossroads",
+        "x": -1.453,
+        "y": 4.233,
+        "w": 0.96,
+        "h": 0.69
+      },
+      {
+        "id": "Crossroads_09",
+        "area": "Forgotten Crossroads",
+        "x": -3.128,
+        "y": 4.815,
+        "w": 1.22,
+        "h": 0.29
+      },
+      {
+        "id": "Crossroads_10",
+        "area": "Forgotten Crossroads",
+        "x": -0.586,
+        "y": 5.099,
+        "w": 1.19,
+        "h": 0.88
+      },
+      {
+        "id": "Crossroads_11_alt",
+        "area": "Forgotten Crossroads",
+        "x": -3.718,
+        "y": 5.765,
+        "w": 2.352,
+        "h": 0.43
+      },
+      {
+        "id": "Crossroads_12",
+        "area": "Forgotten Crossroads",
+        "x": -3.15,
+        "y": 4.313,
+        "w": 1.17,
+        "h": 0.35
+      },
+      {
+        "id": "Crossroads_13",
+        "area": "Forgotten Crossroads",
+        "x": -0.364,
+        "y": 4.058,
+        "w": 1.25,
+        "h": 0.35
+      },
+      {
+        "id": "Crossroads_14",
+        "area": "Forgotten Crossroads",
+        "x": 2.628,
+        "y": 6.187,
+        "w": 0.7,
+        "h": 1.03
+      },
+      {
+        "id": "Crossroads_15",
+        "area": "Forgotten Crossroads",
+        "x": 2.804,
+        "y": 4.903,
+        "w": 1.09,
+        "h": 0.29
+      },
+      {
+        "id": "Crossroads_16",
+        "area": "Forgotten Crossroads",
+        "x": 1.624,
+        "y": 5.919,
+        "w": 1.38,
+        "h": 0.52
+      },
+      {
+        "id": "Crossroads_18",
+        "area": "Forgotten Crossroads",
+        "x": -2.2,
+        "y": 3.713,
+        "w": 0.66,
+        "h": 0.79
+      },
+      {
+        "id": "Crossroads_18_b",
+        "area": "Forgotten Crossroads",
+        "x": -2.2,
+        "y": 3.713,
+        "w": 0.66,
+        "h": 0.79
+      },
+      {
+        "id": "Crossroads_19",
+        "area": "Forgotten Crossroads",
+        "x": 2.072,
+        "y": 3.862,
+        "w": 0.95,
+        "h": 0.79
+      },
+      {
+        "id": "Crossroads_21",
+        "area": "Forgotten Crossroads",
+        "x": 0.866,
+        "y": 4.885,
+        "w": 1.858,
+        "h": 0.5
+      },
+      {
+        "id": "Crossroads_21_b",
+        "area": "Forgotten Crossroads",
+        "x": 0.866,
+        "y": 4.885,
+        "w": 1.87,
+        "h": 0.43
+      },
+      {
+        "id": "Crossroads_22",
+        "area": "Forgotten Crossroads",
+        "x": 0.746,
+        "y": 5.366,
+        "w": 1.49,
+        "h": 0.53
+      },
+      {
+        "id": "Crossroads_25",
+        "area": "Forgotten Crossroads",
+        "x": -3.131,
+        "y": 5.309,
+        "w": 1.17,
+        "h": 0.4
+      },
+      {
+        "id": "Crossroads_27",
+        "area": "Forgotten Crossroads",
+        "x": 3.547,
+        "y": 4.348,
+        "w": 0.402,
+        "h": 1.151
+      },
+      {
+        "id": "Crossroads_30",
+        "area": "Forgotten Crossroads",
+        "x": -0.644,
+        "y": 4.443,
+        "w": 0.7,
+        "h": 0.37
+      },
+      {
+        "id": "Crossroads_31",
+        "area": "Forgotten Crossroads",
+        "x": 2.831,
+        "y": 4.441,
+        "w": 1.035,
+        "h": 0.33
+      },
+      {
+        "id": "Crossroads_33",
+        "area": "Forgotten Crossroads",
+        "x": -2.227,
+        "y": 4.639,
+        "w": 0.68,
+        "h": 0.86
+      },
+      {
+        "id": "Crossroads_35",
+        "area": "Forgotten Crossroads",
+        "x": -4.335,
+        "y": 3.938,
+        "w": 1.16,
+        "h": 0.9
+      },
+      {
+        "id": "Crossroads_35_b",
+        "area": "Forgotten Crossroads",
+        "x": -4.335,
+        "y": 3.938,
+        "w": 1.16,
+        "h": 0.901
+      },
+      {
+        "id": "Crossroads_36",
+        "area": "Forgotten Crossroads",
+        "x": -3.993,
+        "y": 4.964,
+        "w": 0.56,
+        "h": 0.77
+      },
+      {
+        "id": "Crossroads_37",
+        "area": "Forgotten Crossroads",
+        "x": -0.752,
+        "y": 3.703,
+        "w": 1.06,
+        "h": 0.29
+      },
+      {
+        "id": "Crossroads_38",
+        "area": "Forgotten Crossroads",
+        "x": -3.098,
+        "y": 6.488,
+        "w": 1.111,
+        "h": 0.48
+      },
+      {
+        "id": "Crossroads_39",
+        "area": "Forgotten Crossroads",
+        "x": 1.666,
+        "y": 6.524,
+        "w": 1.3,
+        "h": 0.34
+      },
+      {
+        "id": "Crossroads_40",
+        "area": "Forgotten Crossroads",
+        "x": 0.151,
+        "y": 5.899,
+        "w": 1.58,
+        "h": 0.44
+      },
+      {
+        "id": "Crossroads_42",
+        "area": "Forgotten Crossroads",
+        "x": 0.941,
+        "y": 4.088,
+        "w": 1.36,
+        "h": 0.39
+      },
+      {
+        "id": "Crossroads_43",
+        "area": "Forgotten Crossroads",
+        "x": 0.953,
+        "y": 3.708,
+        "w": 1.33,
+        "h": 0.32
+      },
+      {
+        "id": "Crossroads_45",
+        "area": "Forgotten Crossroads",
+        "x": 3.459,
+        "y": 5.952,
+        "w": 1.02,
+        "h": 0.71
+      },
+      {
+        "id": "Crossroads_46",
+        "area": "Forgotten Crossroads",
+        "x": 4.741,
+        "y": 4.182,
+        "w": 1.99,
+        "h": 0.45
+      },
+      {
+        "id": "Crossroads_46b",
+        "area": "Resting Grounds",
+        "x": 6.584,
+        "y": 4.183,
+        "w": 1.96,
+        "h": 0.58
+      },
+      {
+        "id": "Crossroads_47",
+        "area": "Forgotten Crossroads",
+        "x": 1.465,
+        "y": 4.464,
+        "w": 0.65,
+        "h": 0.31
+      },
+      {
+        "id": "Crossroads_48",
+        "area": "Forgotten Crossroads",
+        "x": 3.329,
+        "y": 6.527,
+        "w": 0.89,
+        "h": 0.38
+      },
+      {
+        "id": "Crossroads_49",
+        "area": "Forgotten Crossroads",
+        "x": 0.033,
+        "y": 2.958,
+        "w": 0.51,
+        "h": 1.72
+      },
+      {
+        "id": "Crossroads_49b",
+        "area": "City of Tears",
+        "x": 0.039,
+        "y": 1.559,
+        "w": 0.51,
+        "h": 1.95
+      },
+      {
+        "id": "Crossroads_50",
+        "area": "Resting Grounds",
+        "x": 7.159,
+        "y": 3.588,
+        "w": 4.47,
+        "h": 0.64
+      },
+      {
+        "id": "Crossroads_52",
+        "area": "Forgotten Crossroads",
+        "x": -1.667,
+        "y": 3.538,
+        "w": 0.43,
+        "h": 0.24
+      },
+      {
+        "id": "Deepnest_01",
+        "area": "Fungal Wastes",
+        "x": -7.861,
+        "y": -1.704,
+        "w": 1.06,
+        "h": 0.75
+      },
+      {
+        "id": "Deepnest_01b",
+        "area": "Deepnest",
+        "x": -7.86,
+        "y": -2.794,
+        "w": 1.03,
+        "h": 1.48
+      },
+      {
+        "id": "Deepnest_02",
+        "area": "Deepnest",
+        "x": -7.113,
+        "y": -2.88,
+        "w": 0.51,
+        "h": 1.14
+      },
+      {
+        "id": "Deepnest_03",
+        "area": "Deepnest",
+        "x": -8.884,
+        "y": -6.252,
+        "w": 1.05,
+        "h": 2.11
+      },
+      {
+        "id": "Deepnest_09",
+        "area": "Deepnest",
+        "x": -17.534,
+        "y": -4.526,
+        "w": 0.84,
+        "h": 0.3
+      },
+      {
+        "id": "Deepnest_10",
+        "area": "Deepnest",
+        "x": -18.733,
+        "y": -5.971,
+        "w": 1.66,
+        "h": 3.31
+      },
+      {
+        "id": "Deepnest_14",
+        "area": "Deepnest",
+        "x": -8.933,
+        "y": -3.955,
+        "w": 1.31,
+        "h": 1.19
+      },
+      {
+        "id": "Deepnest_16",
+        "area": "Deepnest",
+        "x": -6.813,
+        "y": -4.106,
+        "w": 1.84,
+        "h": 1.17
+      },
+      {
+        "id": "Deepnest_17",
+        "area": "Deepnest",
+        "x": -7.994,
+        "y": -4.075,
+        "w": 0.59,
+        "h": 1.105
+      },
+      {
+        "id": "Deepnest_26",
+        "area": "Deepnest",
+        "x": -11.585,
+        "y": -3.686,
+        "w": 4.32,
+        "h": 0.67
+      },
+      {
+        "id": "Deepnest_26b",
+        "area": "Deepnest",
+        "x": -12.708,
+        "y": -3.686,
+        "w": 2.03,
+        "h": 0.64
+      },
+      {
+        "id": "Deepnest_30",
+        "area": "Deepnest",
+        "x": -7.358,
+        "y": -5.97,
+        "w": 2.0,
+        "h": 2.68
+      },
+      {
+        "id": "Deepnest_30_b",
+        "area": "Deepnest",
+        "x": -7.358,
+        "y": -5.97,
+        "w": 2.02,
+        "h": 2.68
+      },
+      {
+        "id": "Deepnest_31",
+        "area": "Deepnest",
+        "x": -10.426,
+        "y": -7.426,
+        "w": 2.1,
+        "h": 1.01
+      },
+      {
+        "id": "Deepnest_32",
+        "area": "Deepnest",
+        "x": -7.863,
+        "y": -7.713,
+        "w": 3.03,
+        "h": 0.44
+      },
+      {
+        "id": "Deepnest_33",
+        "area": "Deepnest",
+        "x": -9.024,
+        "y": -4.873,
+        "w": 1.29,
+        "h": 0.65
+      },
+      {
+        "id": "Deepnest_34",
+        "area": "Deepnest",
+        "x": -10.677,
+        "y": -6.437,
+        "w": 2.54,
+        "h": 0.82
+      },
+      {
+        "id": "Deepnest_35",
+        "area": "Deepnest",
+        "x": -10.16,
+        "y": -5.024,
+        "w": 0.97,
+        "h": 2.01
+      },
+      {
+        "id": "Deepnest_36",
+        "area": "Deepnest",
+        "x": -6.302,
+        "y": -2.814,
+        "w": 1.32,
+        "h": 0.35
+      },
+      {
+        "id": "Deepnest_37",
+        "area": "Deepnest",
+        "x": -5.634,
+        "y": -7.046,
+        "w": 1.45,
+        "h": 0.54
+      },
+      {
+        "id": "Deepnest_38",
+        "area": "Deepnest",
+        "x": -4.584,
+        "y": -6.448,
+        "w": 2.99,
+        "h": 0.67
+      },
+      {
+        "id": "Deepnest_39",
+        "area": "Deepnest",
+        "x": -13.817,
+        "y": -6.136,
+        "w": 3.75,
+        "h": 1.12
+      },
+      {
+        "id": "Deepnest_40",
+        "area": "Deepnest",
+        "x": -11.843,
+        "y": -4.768,
+        "w": 2.41,
+        "h": 0.78
+      },
+      {
+        "id": "Deepnest_41",
+        "area": "Deepnest",
+        "x": -16.799,
+        "y": -6.426,
+        "w": 2.221,
+        "h": 2.12
+      },
+      {
+        "id": "Deepnest_41_b",
+        "area": "Deepnest",
+        "x": -16.799,
+        "y": -6.426,
+        "w": 2.21,
+        "h": 2.12
+      },
+      {
+        "id": "Deepnest_42",
+        "area": "Deepnest",
+        "x": -14.376,
+        "y": -4.42,
+        "w": 0.65,
+        "h": 2.322
+      },
+      {
+        "id": "Deepnest_43",
+        "area": "Queen's Gardens",
+        "x": -14.306,
+        "y": -2.157,
+        "w": 0.78,
+        "h": 2.25
+      },
+      {
+        "id": "Deepnest_43_b",
+        "area": "Queen's Gardens",
+        "x": -14.306,
+        "y": -2.157,
+        "w": 0.78,
+        "h": 2.54
+      },
+      {
+        "id": "Deepnest_44",
+        "area": "Deepnest",
+        "x": -5.004,
+        "y": -7.836,
+        "w": 2.41,
+        "h": 1.04
+      },
+      {
+        "id": "Deepnest_44_b",
+        "area": "Deepnest",
+        "x": -4.724,
+        "y": -7.836,
+        "w": 1.86,
+        "h": 1.04
+      },
+      {
+        "id": "Deepnest_East_01",
+        "area": "Kingdom's Edge",
+        "x": 12.879,
+        "y": -6.172,
+        "w": 1.07,
+        "h": 1.69
+      },
+      {
+        "id": "Deepnest_East_02",
+        "area": "Kingdom's Edge",
+        "x": 13.612,
+        "y": -5.033,
+        "w": 2.24,
+        "h": 0.65
+      },
+      {
+        "id": "Deepnest_East_02_b",
+        "area": "Kingdom's Edge",
+        "x": 13.612,
+        "y": -5.033,
+        "w": 2.24,
+        "h": 0.65
+      },
+      {
+        "id": "Deepnest_East_03",
+        "area": "Kingdom's Edge",
+        "x": 15.334,
+        "y": -3.998,
+        "w": 1.35,
+        "h": 2.5
+      },
+      {
+        "id": "Deepnest_East_04",
+        "area": "Kingdom's Edge",
+        "x": 16.366,
+        "y": -1.664,
+        "w": 0.72,
+        "h": 3.27
+      },
+      {
+        "id": "Deepnest_East_06",
+        "area": "Kingdom's Edge",
+        "x": 18.591,
+        "y": -4.902,
+        "w": 5.47,
+        "h": 0.67
+      },
+      {
+        "id": "Deepnest_East_07",
+        "area": "Kingdom's Edge",
+        "x": 15.291,
+        "y": -1.199,
+        "w": 1.43,
+        "h": 3.11
+      },
+      {
+        "id": "Deepnest_East_08",
+        "area": "Kingdom's Edge",
+        "x": 13.678,
+        "y": 0.287,
+        "w": 1.92,
+        "h": 0.61
+      },
+      {
+        "id": "Deepnest_East_09",
+        "area": "Kingdom's Edge",
+        "x": 13.253,
+        "y": 0.922,
+        "w": 3.35,
+        "h": 0.66
+      },
+      {
+        "id": "Deepnest_East_09_b",
+        "area": "Kingdom's Edge",
+        "x": 13.253,
+        "y": 0.922,
+        "w": 3.35,
+        "h": 0.66
+      },
+      {
+        "id": "Deepnest_East_10",
+        "area": "Kingdom's Edge",
+        "x": 19.064,
+        "y": -4.269,
+        "w": 0.66,
+        "h": 0.44
+      },
+      {
+        "id": "Deepnest_East_11",
+        "area": "Kingdom's Edge",
+        "x": 17.699,
+        "y": -3.583,
+        "w": 2.07,
+        "h": 2.29
+      },
+      {
+        "id": "Deepnest_East_12",
+        "area": "Kingdom's Edge",
+        "x": 19.776,
+        "y": -2.483,
+        "w": 2.101,
+        "h": 0.35
+      },
+      {
+        "id": "Deepnest_East_13",
+        "area": "Kingdom's Edge",
+        "x": 18.178,
+        "y": -2.207,
+        "w": 1.11,
+        "h": 0.6
+      },
+      {
+        "id": "Deepnest_East_14",
+        "area": "Kingdom's Edge",
+        "x": 20.559,
+        "y": -5.691,
+        "w": 2.91,
+        "h": 1.28
+      },
+      {
+        "id": "Deepnest_East_14b",
+        "area": "Kingdom's Edge",
+        "x": 19.758,
+        "y": -5.691,
+        "w": 1.3,
+        "h": 1.28
+      },
+      {
+        "id": "Deepnest_East_15",
+        "area": "Kingdom's Edge",
+        "x": 17.131,
+        "y": -1.243,
+        "w": 1.13,
+        "h": 0.43
+      },
+      {
+        "id": "Deepnest_East_16",
+        "area": "Kingdom's Edge",
+        "x": 21.673,
+        "y": -4.906,
+        "w": 0.81,
+        "h": 0.38
+      },
+      {
+        "id": "Deepnest_East_18",
+        "area": "Kingdom's Edge",
+        "x": 17.765,
+        "y": -4.373,
+        "w": 1.94,
+        "h": 0.719
+      },
+      {
+        "id": "Deepnest_East_Hornet",
+        "area": "Kingdom's Edge",
+        "x": 21.351,
+        "y": -3.213,
+        "w": 1.07,
+        "h": 1.73
+      },
+      {
+        "id": "Deepnest_East_Hornet_b",
+        "area": "Kingdom's Edge",
+        "x": 21.348,
+        "y": -3.213,
+        "w": 1.07,
+        "h": 1.73
+      },
+      {
+        "id": "Fungus1_01",
+        "area": "Greenpath",
+        "x": -6.1,
+        "y": 5.829,
+        "w": 2.44,
+        "h": 0.67
+      },
+      {
+        "id": "Fungus1_01b",
+        "area": "Greenpath",
+        "x": -7.643,
+        "y": 5.955,
+        "w": 0.67,
+        "h": 0.75
+      },
+      {
+        "id": "Fungus1_02",
+        "area": "Greenpath",
+        "x": -8.293,
+        "y": 5.209,
+        "w": 0.67,
+        "h": 1.22
+      },
+      {
+        "id": "Fungus1_03",
+        "area": "Greenpath",
+        "x": -10.413,
+        "y": 5.678,
+        "w": 1.17,
+        "h": 0.55
+      },
+      {
+        "id": "Fungus1_04",
+        "area": "Greenpath",
+        "x": -13.653,
+        "y": 6.135,
+        "w": 1.41,
+        "h": 1.02
+      },
+      {
+        "id": "Fungus1_05",
+        "area": "Greenpath",
+        "x": -10.445,
+        "y": 4.749,
+        "w": 0.51,
+        "h": 1.437
+      },
+      {
+        "id": "Fungus1_06",
+        "area": "Greenpath",
+        "x": -6.808,
+        "y": 4.704,
+        "w": 2.32,
+        "h": 0.51
+      },
+      {
+        "id": "Fungus1_07",
+        "area": "Greenpath",
+        "x": -6.518,
+        "y": 4.035,
+        "w": 1.01,
+        "h": 0.89
+      },
+      {
+        "id": "Fungus1_08",
+        "area": "Greenpath",
+        "x": -5.568,
+        "y": 4.231,
+        "w": 0.93,
+        "h": 0.38
+      },
+      {
+        "id": "Fungus1_09",
+        "area": "Greenpath",
+        "x": -14.686,
+        "y": 3.852,
+        "w": 4.01,
+        "h": 0.55
+      },
+      {
+        "id": "Fungus1_09_b",
+        "area": "Greenpath",
+        "x": -14.686,
+        "y": 3.852,
+        "w": 4.01,
+        "h": 0.55
+      },
+      {
+        "id": "Fungus1_10",
+        "area": "Greenpath",
+        "x": -9.683,
+        "y": 3.819,
+        "w": 2.68,
+        "h": 0.46
+      },
+      {
+        "id": "Fungus1_11",
+        "area": "Greenpath",
+        "x": -7.625,
+        "y": 3.013,
+        "w": 0.93,
+        "h": 1.156
+      },
+      {
+        "id": "Fungus1_12",
+        "area": "Greenpath",
+        "x": -9.465,
+        "y": 2.958,
+        "w": 0.55,
+        "h": 0.84
+      },
+      {
+        "id": "Fungus1_13",
+        "area": "Greenpath",
+        "x": -11.5,
+        "y": 2.733,
+        "w": 3.52,
+        "h": 0.63
+      },
+      {
+        "id": "Fungus1_14",
+        "area": "Greenpath",
+        "x": -9.49,
+        "y": 4.16,
+        "w": 1.4,
+        "h": 0.31
+      },
+      {
+        "id": "Fungus1_14_b",
+        "area": "Greenpath",
+        "x": -9.49,
+        "y": 4.16,
+        "w": 1.4,
+        "h": 0.31
+      },
+      {
+        "id": "Fungus1_15",
+        "area": "Greenpath",
+        "x": -17.206,
+        "y": 3.986,
+        "w": 1.03,
+        "h": 0.88
+      },
+      {
+        "id": "Fungus1_16_alt",
+        "area": "Greenpath",
+        "x": -12.976,
+        "y": 5.812,
+        "w": 0.6,
+        "h": 0.3
+      },
+      {
+        "id": "Fungus1_17",
+        "area": "Greenpath",
+        "x": -9.217,
+        "y": 5.694,
+        "w": 1.23,
+        "h": 0.44
+      },
+      {
+        "id": "Fungus1_19",
+        "area": "Greenpath",
+        "x": -7.675,
+        "y": 3.783,
+        "w": 1.34,
+        "h": 0.42
+      },
+      {
+        "id": "Fungus1_20_v02",
+        "area": "Greenpath",
+        "x": -11.534,
+        "y": 7.02,
+        "w": 2.77,
+        "h": 0.42
+      },
+      {
+        "id": "Fungus1_21",
+        "area": "Greenpath",
+        "x": -12.258,
+        "y": 6.41,
+        "w": 1.38,
+        "h": 0.82
+      },
+      {
+        "id": "Fungus1_22",
+        "area": "Greenpath",
+        "x": -12.391,
+        "y": 5.027,
+        "w": 0.57,
+        "h": 1.97
+      },
+      {
+        "id": "Fungus1_23",
+        "area": "Queen's Gardens",
+        "x": -14.34,
+        "y": 0.909,
+        "w": 2.53,
+        "h": 0.41
+      },
+      {
+        "id": "Fungus1_24",
+        "area": "Queen's Gardens",
+        "x": -10.326,
+        "y": 0.167,
+        "w": 1.44,
+        "h": 0.57
+      },
+      {
+        "id": "Fungus1_25",
+        "area": "Greenpath",
+        "x": -14.928,
+        "y": 5.846,
+        "w": 1.131,
+        "h": 0.25
+      },
+      {
+        "id": "Fungus1_26",
+        "area": "Greenpath",
+        "x": -16.408,
+        "y": 6.041,
+        "w": 2.18,
+        "h": 0.88
+      },
+      {
+        "id": "Fungus1_28",
+        "area": "Howling Cliffs",
+        "x": -9.054,
+        "y": 7.264,
+        "w": 2.23,
+        "h": 1.15
+      },
+      {
+        "id": "Fungus1_28_b",
+        "area": "Howling Cliffs",
+        "x": -9.054,
+        "y": 7.264,
+        "w": 2.23,
+        "h": 1.15
+      },
+      {
+        "id": "Fungus1_29",
+        "area": "Greenpath",
+        "x": -8.64,
+        "y": 3.033,
+        "w": 1.1,
+        "h": 0.43
+      },
+      {
+        "id": "Fungus1_30",
+        "area": "Greenpath",
+        "x": -11.852,
+        "y": 3.832,
+        "w": 1.65,
+        "h": 0.48
+      },
+      {
+        "id": "Fungus1_31",
+        "area": "Greenpath",
+        "x": -11.283,
+        "y": 5.092,
+        "w": 0.59,
+        "h": 2.13
+      },
+      {
+        "id": "Fungus1_32",
+        "area": "Greenpath",
+        "x": -10.898,
+        "y": 6.474,
+        "w": 1.36,
+        "h": 0.71
+      },
+      {
+        "id": "Fungus1_34",
+        "area": "Greenpath",
+        "x": -6.18,
+        "y": 3.258,
+        "w": 1.96,
+        "h": 0.36
+      },
+      {
+        "id": "Fungus1_37",
+        "area": "Greenpath",
+        "x": -6.564,
+        "y": 3.595,
+        "w": 1.23,
+        "h": 0.68
+      },
+      {
+        "id": "Fungus1_Slug",
+        "area": "Greenpath",
+        "x": -17.949,
+        "y": 5.066,
+        "w": 1.42,
+        "h": 1.83
+      },
+      {
+        "id": "Fungus2_01",
+        "area": "Fungal Wastes",
+        "x": -6.333,
+        "y": -0.649,
+        "w": 1.091,
+        "h": 0.91
+      },
+      {
+        "id": "Fungus2_02",
+        "area": "Fungal Wastes",
+        "x": -7.203,
+        "y": -0.995,
+        "w": 0.66,
+        "h": 0.3
+      },
+      {
+        "id": "Fungus2_03",
+        "area": "Fungal Wastes",
+        "x": -4.831,
+        "y": -0.03,
+        "w": 1.94,
+        "h": 1.23
+      },
+      {
+        "id": "Fungus2_04",
+        "area": "Fungal Wastes",
+        "x": -3.602,
+        "y": 0.025,
+        "w": 0.6,
+        "h": 1.24
+      },
+      {
+        "id": "Fungus2_05",
+        "area": "Fungal Wastes",
+        "x": -3.065,
+        "y": 0.905,
+        "w": 1.01,
+        "h": 0.546
+      },
+      {
+        "id": "Fungus2_06",
+        "area": "Fungal Wastes",
+        "x": -2.213,
+        "y": 2.0,
+        "w": 0.687,
+        "h": 2.69
+      },
+      {
+        "id": "Fungus2_07",
+        "area": "Fungal Wastes",
+        "x": -1.313,
+        "y": 0.766,
+        "w": 1.11,
+        "h": 0.49
+      },
+      {
+        "id": "Fungus2_08",
+        "area": "Fungal Wastes",
+        "x": -0.447,
+        "y": 0.379,
+        "w": 0.61,
+        "h": 1.14
+      },
+      {
+        "id": "Fungus2_09",
+        "area": "Fungal Wastes",
+        "x": -1.306,
+        "y": -0.081,
+        "w": 1.11,
+        "h": 0.39
+      },
+      {
+        "id": "Fungus2_10",
+        "area": "Fungal Wastes",
+        "x": -2.456,
+        "y": -0.506,
+        "w": 1.24,
+        "h": 1.25
+      },
+      {
+        "id": "Fungus2_11",
+        "area": "Fungal Wastes",
+        "x": -2.814,
+        "y": -1.697,
+        "w": 0.53,
+        "h": 1.19
+      },
+      {
+        "id": "Fungus2_12",
+        "area": "Fungal Wastes",
+        "x": -1.229,
+        "y": -2.044,
+        "w": 2.66,
+        "h": 0.51
+      },
+      {
+        "id": "Fungus2_13",
+        "area": "Fungal Wastes",
+        "x": -1.026,
+        "y": -3.211,
+        "w": 0.68,
+        "h": 1.83
+      },
+      {
+        "id": "Fungus2_14",
+        "area": "Fungal Wastes",
+        "x": -2.816,
+        "y": -2.93,
+        "w": 2.9,
+        "h": 0.71
+      },
+      {
+        "id": "Fungus2_14_b",
+        "area": "Fungal Wastes",
+        "x": -2.816,
+        "y": -2.93,
+        "w": 2.9,
+        "h": 0.71
+      },
+      {
+        "id": "Fungus2_14_c",
+        "area": "Fungal Wastes",
+        "x": -2.807,
+        "y": -2.93,
+        "w": 2.9,
+        "h": 0.71
+      },
+      {
+        "id": "Fungus2_15",
+        "area": "Fungal Wastes",
+        "x": -3.39,
+        "y": -4.208,
+        "w": 1.19,
+        "h": 1.91
+      },
+      {
+        "id": "Fungus2_17",
+        "area": "Fungal Wastes",
+        "x": -3.402,
+        "y": -2.267,
+        "w": 0.75,
+        "h": 0.66
+      },
+      {
+        "id": "Fungus2_18",
+        "area": "Fungal Wastes",
+        "x": -4.341,
+        "y": -1.144,
+        "w": 2.58,
+        "h": 1.08
+      },
+      {
+        "id": "Fungus2_19",
+        "area": "Fungal Wastes",
+        "x": -5.831,
+        "y": -1.874,
+        "w": 1.025,
+        "h": 0.45
+      },
+      {
+        "id": "Fungus2_20",
+        "area": "Fungal Wastes",
+        "x": -6.857,
+        "y": -1.773,
+        "w": 1.03,
+        "h": 0.55
+      },
+      {
+        "id": "Fungus2_21",
+        "area": "Fungal Wastes",
+        "x": -0.684,
+        "y": -0.555,
+        "w": 2.39,
+        "h": 1.06
+      },
+      {
+        "id": "Fungus2_23",
+        "area": "Fungal Wastes",
+        "x": -1.846,
+        "y": -4.471,
+        "w": 0.96,
+        "h": 1.03
+      },
+      {
+        "id": "Fungus2_25",
+        "area": "Deepnest",
+        "x": -5.203,
+        "y": -4.91,
+        "w": 2.66,
+        "h": 0.55
+      },
+      {
+        "id": "Fungus2_26",
+        "area": "Fungal Wastes",
+        "x": -1.294,
+        "y": 1.686,
+        "w": 1.17,
+        "h": 0.31
+      },
+      {
+        "id": "Fungus2_28",
+        "area": "Fungal Wastes",
+        "x": -2.577,
+        "y": 0.395,
+        "w": 1.5,
+        "h": 0.44
+      },
+      {
+        "id": "Fungus2_29",
+        "area": "Fungal Wastes",
+        "x": -4.407,
+        "y": -2.157,
+        "w": 1.58,
+        "h": 1.12
+      },
+      {
+        "id": "Fungus2_29_b",
+        "area": "Fungal Wastes",
+        "x": -4.407,
+        "y": -2.157,
+        "w": 1.58,
+        "h": 1.12
+      },
+      {
+        "id": "Fungus2_30",
+        "area": "Fungal Wastes",
+        "x": -4.807,
+        "y": -3.692,
+        "w": 0.94,
+        "h": 2.17
+      },
+      {
+        "id": "Fungus2_31",
+        "area": "Fungal Wastes",
+        "x": -2.336,
+        "y": -3.601,
+        "w": 1.1,
+        "h": 0.52
+      },
+      {
+        "id": "Fungus2_32",
+        "area": "Fungal Wastes",
+        "x": 0.358,
+        "y": -0.021,
+        "w": 1.17,
+        "h": 0.33
+      },
+      {
+        "id": "Fungus2_33",
+        "area": "Fungal Wastes",
+        "x": -3.098,
+        "y": 2.194,
+        "w": 1.1,
+        "h": 1.37
+      },
+      {
+        "id": "Fungus2_34",
+        "area": "Fungal Wastes",
+        "x": -7.073,
+        "y": -0.679,
+        "w": 0.4,
+        "h": 0.17
+      },
+      {
+        "id": "Fungus3_01",
+        "area": "Fog Canyon",
+        "x": -7.633,
+        "y": 1.751,
+        "w": 0.63,
+        "h": 1.396
+      },
+      {
+        "id": "Fungus3_02",
+        "area": "Fog Canyon",
+        "x": -7.086,
+        "y": 0.431,
+        "w": 0.495,
+        "h": 1.91
+      },
+      {
+        "id": "Fungus3_03",
+        "area": "Fog Canyon",
+        "x": -8.277,
+        "y": 0.681,
+        "w": 1.89,
+        "h": 0.41
+      },
+      {
+        "id": "Fungus3_04",
+        "area": "Queen's Gardens",
+        "x": -12.272,
+        "y": 0.496,
+        "w": 0.626,
+        "h": 1.53
+      },
+      {
+        "id": "Fungus3_05",
+        "area": "Queen's Gardens",
+        "x": -11.494,
+        "y": -0.308,
+        "w": 1.05,
+        "h": 1.07
+      },
+      {
+        "id": "Fungus3_08",
+        "area": "Queen's Gardens",
+        "x": -12.417,
+        "y": -1.191,
+        "w": 3.01,
+        "h": 0.56
+      },
+      {
+        "id": "Fungus3_10",
+        "area": "Queen's Gardens",
+        "x": -12.957,
+        "y": -0.632,
+        "w": 1.83,
+        "h": 0.7
+      },
+      {
+        "id": "Fungus3_11",
+        "area": "Queen's Gardens",
+        "x": -10.554,
+        "y": -0.801,
+        "w": 0.88,
+        "h": 1.09
+      },
+      {
+        "id": "Fungus3_13",
+        "area": "Queen's Gardens",
+        "x": -12.838,
+        "y": 0.364,
+        "w": 0.5,
+        "h": 1.3
+      },
+      {
+        "id": "Fungus3_21",
+        "area": "Queen's Gardens",
+        "x": -13.236,
+        "y": 1.243,
+        "w": 1.3,
+        "h": 0.43
+      },
+      {
+        "id": "Fungus3_22",
+        "area": "Queen's Gardens",
+        "x": -13.584,
+        "y": 2.456,
+        "w": 0.65,
+        "h": 2.0
+      },
+      {
+        "id": "Fungus3_22_b",
+        "area": "Queen's Gardens",
+        "x": -13.584,
+        "y": 2.456,
+        "w": 0.65,
+        "h": 2.0
+      },
+      {
+        "id": "Fungus3_23",
+        "area": "Queen's Gardens",
+        "x": -14.787,
+        "y": 1.926,
+        "w": 1.76,
+        "h": 0.9
+      },
+      {
+        "id": "Fungus3_23_b",
+        "area": "Queen's Gardens",
+        "x": -14.787,
+        "y": 1.926,
+        "w": 1.76,
+        "h": 0.9
+      },
+      {
+        "id": "Fungus3_24",
+        "area": "Fog Canyon",
+        "x": -8.867,
+        "y": 1.697,
+        "w": 1.84,
+        "h": 0.44
+      },
+      {
+        "id": "Fungus3_25",
+        "area": "Fog Canyon",
+        "x": -6.457,
+        "y": 2.116,
+        "w": 1.737,
+        "h": 0.5
+      },
+      {
+        "id": "Fungus3_25b",
+        "area": "Fog Canyon",
+        "x": -4.897,
+        "y": 2.152,
+        "w": 1.41,
+        "h": 0.39
+      },
+      {
+        "id": "Fungus3_26",
+        "area": "Fog Canyon",
+        "x": -3.922,
+        "y": 2.441,
+        "w": 0.59,
+        "h": 2.17
+      },
+      {
+        "id": "Fungus3_27",
+        "area": "Fog Canyon",
+        "x": -4.864,
+        "y": 1.596,
+        "w": 1.34,
+        "h": 0.42
+      },
+      {
+        "id": "Fungus3_28",
+        "area": "Fog Canyon",
+        "x": -4.757,
+        "y": 2.672,
+        "w": 1.15,
+        "h": 0.64
+      },
+      {
+        "id": "Fungus3_30",
+        "area": "Fog Canyon",
+        "x": -9.342,
+        "y": 2.149,
+        "w": 0.73,
+        "h": 0.47
+      },
+      {
+        "id": "Fungus3_34",
+        "area": "Queen's Gardens",
+        "x": -10.588,
+        "y": 0.691,
+        "w": 2.76,
+        "h": 0.39
+      },
+      {
+        "id": "Fungus3_35",
+        "area": "Fog Canyon",
+        "x": -7.867,
+        "y": -0.359,
+        "w": 1.07,
+        "h": 0.29
+      },
+      {
+        "id": "Fungus3_39",
+        "area": "Queen's Gardens",
+        "x": -9.273,
+        "y": -1.431,
+        "w": 1.76,
+        "h": 1.06
+      },
+      {
+        "id": "Fungus3_40",
+        "area": "Queen's Gardens",
+        "x": -14.795,
+        "y": -0.087,
+        "w": 3.44,
+        "h": 0.623
+      },
+      {
+        "id": "Fungus3_44",
+        "area": "Fog Canyon",
+        "x": -10.667,
+        "y": 1.397,
+        "w": 1.76,
+        "h": 1.04
+      },
+      {
+        "id": "Fungus3_47",
+        "area": "Fog Canyon",
+        "x": -6.185,
+        "y": 1.395,
+        "w": 1.35,
+        "h": 0.54
+      },
+      {
+        "id": "Fungus3_48",
+        "area": "Queen's Gardens",
+        "x": -16.46,
+        "y": 1.34,
+        "w": 1.71,
+        "h": 2.23
+      },
+      {
+        "id": "Fungus3_48_bot",
+        "area": "Queen's Gardens",
+        "x": -16.46,
+        "y": 1.34,
+        "w": 1.71,
+        "h": 2.23
+      },
+      {
+        "id": "Fungus3_48_left",
+        "area": "Queen's Gardens",
+        "x": -17.039,
+        "y": 1.548,
+        "w": 0.57,
+        "h": 1.42
+      },
+      {
+        "id": "Fungus3_48_top",
+        "area": "Queen's Gardens",
+        "x": -16.46,
+        "y": 1.34,
+        "w": 1.71,
+        "h": 2.23
+      },
+      {
+        "id": "Fungus3_49",
+        "area": "Queen's Gardens",
+        "x": -13.534,
+        "y": 0.44,
+        "w": 0.94,
+        "h": 0.31
+      },
+      {
+        "id": "Fungus3_50",
+        "area": "Queen's Gardens",
+        "x": -15.046,
+        "y": -1.145,
+        "w": 0.7,
+        "h": 0.87
+      },
+      {
+        "id": "GG_Lurker",
+        "area": "Kingdom's Edge",
+        "x": 18.14,
+        "y": 0.3,
+        "w": 4.17,
+        "h": 1.78
+      },
+      {
+        "id": "GG_Pipeway",
+        "area": "Royal Waterways",
+        "x": 2.314,
+        "y": -5.245,
+        "w": 2.67,
+        "h": 0.78
+      },
+      {
+        "id": "GG_Waterways",
+        "area": "Royal Waterways",
+        "x": -0.055,
+        "y": -5.695,
+        "w": 3.36,
+        "h": 1.6
+      },
+      {
+        "id": "Hive_01",
+        "area": "Kingdom's Edge",
+        "x": 14.419,
+        "y": -7.356,
+        "w": 2.85,
+        "h": 1.14
+      },
+      {
+        "id": "Hive_01_b",
+        "area": "Kingdom's Edge",
+        "x": 14.419,
+        "y": -7.356,
+        "w": 2.85,
+        "h": 1.14
+      },
+      {
+        "id": "Hive_02",
+        "area": "Kingdom's Edge",
+        "x": 16.443,
+        "y": -7.157,
+        "w": 1.58,
+        "h": 1.28
+      },
+      {
+        "id": "Hive_03",
+        "area": "Kingdom's Edge",
+        "x": 14.359,
+        "y": -6.042,
+        "w": 2.59,
+        "h": 1.41
+      },
+      {
+        "id": "Hive_03_b",
+        "area": "Kingdom's Edge",
+        "x": 13.747,
+        "y": -5.6,
+        "w": 0.43,
+        "h": 0.55
+      },
+      {
+        "id": "Hive_03_c",
+        "area": "Kingdom's Edge",
+        "x": 14.359,
+        "y": -6.381,
+        "w": 2.59,
+        "h": 0.73
+      },
+      {
+        "id": "Hive_04",
+        "area": "Kingdom's Edge",
+        "x": 16.563,
+        "y": -5.843,
+        "w": 1.84,
+        "h": 1.01
+      },
+      {
+        "id": "Hive_04_b",
+        "area": "Kingdom's Edge",
+        "x": 16.576,
+        "y": -5.843,
+        "w": 2.977,
+        "h": 1.01
+      },
+      {
+        "id": "Hive_05",
+        "area": "Kingdom's Edge",
+        "x": 18.203,
+        "y": -6.198,
+        "w": 1.46,
+        "h": 0.84
+      },
+      {
+        "id": "Mines_01",
+        "area": "Crystal Peak",
+        "x": 4.249,
+        "y": 5.873,
+        "w": 0.62,
+        "h": 0.98
+      },
+      {
+        "id": "Mines_02",
+        "area": "Crystal Peak",
+        "x": 5.192,
+        "y": 5.1,
+        "w": 2.55,
+        "h": 0.59
+      },
+      {
+        "id": "Mines_03",
+        "area": "Crystal Peak",
+        "x": 5.88,
+        "y": 6.045,
+        "w": 0.67,
+        "h": 1.28
+      },
+      {
+        "id": "Mines_04",
+        "area": "Crystal Peak",
+        "x": 7.465,
+        "y": 5.624,
+        "w": 0.63,
+        "h": 1.53
+      },
+      {
+        "id": "Mines_05",
+        "area": "Crystal Peak",
+        "x": 5.86,
+        "y": 7.281,
+        "w": 0.65,
+        "h": 1.16
+      },
+      {
+        "id": "Mines_06",
+        "area": "Crystal Peak",
+        "x": 4.32,
+        "y": 7.015,
+        "w": 2.48,
+        "h": 0.64
+      },
+      {
+        "id": "Mines_07",
+        "area": "Crystal Peak",
+        "x": 8.693,
+        "y": 5.837,
+        "w": 1.84,
+        "h": 0.4
+      },
+      {
+        "id": "Mines_10",
+        "area": "Crystal Peak",
+        "x": 1.568,
+        "y": 7.695,
+        "w": 2.93,
+        "h": 0.78
+      },
+      {
+        "id": "Mines_11",
+        "area": "Crystal Peak",
+        "x": 5.856,
+        "y": 8.377,
+        "w": 0.63,
+        "h": 1.023
+      },
+      {
+        "id": "Mines_13",
+        "area": "Crystal Peak",
+        "x": 6.157,
+        "y": 9.266,
+        "w": 1.72,
+        "h": 0.952
+      },
+      {
+        "id": "Mines_16",
+        "area": "Crystal Peak",
+        "x": 0.706,
+        "y": 7.262,
+        "w": 0.68,
+        "h": 0.653
+      },
+      {
+        "id": "Mines_17",
+        "area": "Crystal Peak",
+        "x": 6.681,
+        "y": 6.056,
+        "w": 0.965,
+        "h": 0.4
+      },
+      {
+        "id": "Mines_18",
+        "area": "Crystal Peak",
+        "x": 6.581,
+        "y": 8.313,
+        "w": 0.87,
+        "h": 0.34
+      },
+      {
+        "id": "Mines_19",
+        "area": "Crystal Peak",
+        "x": 6.593,
+        "y": 7.436,
+        "w": 0.81,
+        "h": 0.41
+      },
+      {
+        "id": "Mines_20",
+        "area": "Crystal Peak",
+        "x": 7.557,
+        "y": 7.832,
+        "w": 1.15,
+        "h": 2.99
+      },
+      {
+        "id": "Mines_20_b",
+        "area": "Crystal Peak",
+        "x": 7.557,
+        "y": 8.295,
+        "w": 1.15,
+        "h": 2.09
+      },
+      {
+        "id": "Mines_23",
+        "area": "Crystal Peak",
+        "x": 9.607,
+        "y": 9.419,
+        "w": 2.95,
+        "h": 0.78
+      },
+      {
+        "id": "Mines_24",
+        "area": "Crystal Peak",
+        "x": 11.57,
+        "y": 9.188,
+        "w": 0.98,
+        "h": 0.28
+      },
+      {
+        "id": "Mines_25",
+        "area": "Crystal Peak",
+        "x": 11.702,
+        "y": 10.374,
+        "w": 1.24,
+        "h": 1.91
+      },
+      {
+        "id": "Mines_28",
+        "area": "Crystal Peak",
+        "x": 10.518,
+        "y": 5.368,
+        "w": 1.84,
+        "h": 1.78
+      },
+      {
+        "id": "Mines_28_b",
+        "area": "Crystal Peak",
+        "x": 10.518,
+        "y": 5.368,
+        "w": 1.84,
+        "h": 1.78
+      },
+      {
+        "id": "Mines_29",
+        "area": "Crystal Peak",
+        "x": 6.806,
+        "y": 5.319,
+        "w": 0.7,
+        "h": 0.95
+      },
+      {
+        "id": "Mines_30",
+        "area": "Crystal Peak",
+        "x": 4.253,
+        "y": 7.75,
+        "w": 2.59,
+        "h": 0.55
+      },
+      {
+        "id": "Mines_31",
+        "area": "Crystal Peak",
+        "x": 10.219,
+        "y": 7.438,
+        "w": 4.27,
+        "h": 1.12
+      },
+      {
+        "id": "Mines_32",
+        "area": "Crystal Peak",
+        "x": 6.581,
+        "y": 8.678,
+        "w": 0.81,
+        "h": 0.39
+      },
+      {
+        "id": "Mines_33",
+        "area": "Forgotten Crossroads",
+        "x": 3.09,
+        "y": 5.294,
+        "w": 1.67,
+        "h": 0.35
+      },
+      {
+        "id": "Mines_34",
+        "area": "Crystal Peak",
+        "x": 10.403,
+        "y": 12.159,
+        "w": 3.7,
+        "h": 2.15
+      },
+      {
+        "id": "Mines_36",
+        "area": "Crystal Peak",
+        "x": 2.84,
+        "y": 7.034,
+        "w": 0.48,
+        "h": 0.491
+      },
+      {
+        "id": "Mines_37",
+        "area": "Crystal Peak",
+        "x": 7.562,
+        "y": 6.81,
+        "w": 1.12,
+        "h": 0.861
+      },
+      {
+        "id": "RestingGrounds_02",
+        "area": "Resting Grounds",
+        "x": 8.859,
+        "y": 4.187,
+        "w": 2.62,
+        "h": 0.66
+      },
+      {
+        "id": "RestingGrounds_04",
+        "area": "Resting Grounds",
+        "x": 11.095,
+        "y": 4.188,
+        "w": 1.8,
+        "h": 0.59
+      },
+      {
+        "id": "RestingGrounds_05",
+        "area": "Resting Grounds",
+        "x": 12.435,
+        "y": 4.758,
+        "w": 0.87,
+        "h": 1.8
+      },
+      {
+        "id": "RestingGrounds_06",
+        "area": "Resting Grounds",
+        "x": 10.209,
+        "y": 3.658,
+        "w": 1.64,
+        "h": 0.44
+      },
+      {
+        "id": "RestingGrounds_08",
+        "area": "Resting Grounds",
+        "x": 13.775,
+        "y": 5.828,
+        "w": 2.31,
+        "h": 1.26
+      },
+      {
+        "id": "RestingGrounds_09",
+        "area": "Resting Grounds",
+        "x": 13.171,
+        "y": 4.918,
+        "w": 0.788,
+        "h": 0.32
+      },
+      {
+        "id": "RestingGrounds_10",
+        "area": "Resting Grounds",
+        "x": 12.795,
+        "y": 3.669,
+        "w": 2.91,
+        "h": 0.5
+      },
+      {
+        "id": "RestingGrounds_10_b",
+        "area": "Resting Grounds",
+        "x": 12.795,
+        "y": 3.669,
+        "w": 2.91,
+        "h": 0.5
+      },
+      {
+        "id": "RestingGrounds_10_c",
+        "area": "Resting Grounds",
+        "x": 14.644,
+        "y": 3.633,
+        "w": 1.4,
+        "h": 0.45
+      },
+      {
+        "id": "RestingGrounds_10_d",
+        "area": "Resting Grounds",
+        "x": 13.799,
+        "y": 3.74,
+        "w": 0.36,
+        "h": 0.3
+      },
+      {
+        "id": "RestingGrounds_12",
+        "area": "Resting Grounds",
+        "x": 14.25,
+        "y": 4.18,
+        "w": 1.62,
+        "h": 0.58
+      },
+      {
+        "id": "RestingGrounds_17",
+        "area": "Resting Grounds",
+        "x": 11.522,
+        "y": 4.971,
+        "w": 1.22,
+        "h": 0.39
+      },
+      {
+        "id": "Room_Mask_Maker",
+        "area": "Deepnest",
+        "x": -15.336,
+        "y": -3.495,
+        "w": 1.27,
+        "h": 0.44
+      },
+      {
+        "id": "Ruins1_01",
+        "area": "City of Tears",
+        "x": 1.685,
+        "y": -0.815,
+        "w": 2.4,
+        "h": 0.39
+      },
+      {
+        "id": "Ruins1_02",
+        "area": "City of Tears",
+        "x": 2.714,
+        "y": -1.73,
+        "w": 0.87,
+        "h": 1.49
+      },
+      {
+        "id": "Ruins1_03",
+        "area": "City of Tears",
+        "x": 3.213,
+        "y": -3.106,
+        "w": 2.54,
+        "h": 1.32
+      },
+      {
+        "id": "Ruins1_04",
+        "area": "City of Tears",
+        "x": 0.648,
+        "y": -3.266,
+        "w": 2.62,
+        "h": 1.0
+      },
+      {
+        "id": "Ruins1_05",
+        "area": "City of Tears",
+        "x": 5.048,
+        "y": -2.311,
+        "w": 1.16,
+        "h": 2.95
+      },
+      {
+        "id": "Ruins1_05b",
+        "area": "City of Tears",
+        "x": 5.048,
+        "y": -3.421,
+        "w": 1.14,
+        "h": 0.61
+      },
+      {
+        "id": "Ruins1_05c",
+        "area": "City of Tears",
+        "x": 5.048,
+        "y": -2.311,
+        "w": 1.16,
+        "h": 2.95
+      },
+      {
+        "id": "Ruins1_06",
+        "area": "City of Tears",
+        "x": 3.693,
+        "y": -0.479,
+        "w": 1.63,
+        "h": 0.3
+      },
+      {
+        "id": "Ruins1_09",
+        "area": "City of Tears",
+        "x": 5.998,
+        "y": -1.009,
+        "w": 0.81,
+        "h": 0.35
+      },
+      {
+        "id": "Ruins1_17",
+        "area": "City of Tears",
+        "x": 2.119,
+        "y": -0.024,
+        "w": 1.58,
+        "h": 1.21
+      },
+      {
+        "id": "Ruins1_18",
+        "area": "City of Tears",
+        "x": 6.448,
+        "y": -1.886,
+        "w": 1.64,
+        "h": 0.44
+      },
+      {
+        "id": "Ruins1_18_b",
+        "area": "City of Tears",
+        "x": 6.448,
+        "y": -1.886,
+        "w": 1.64,
+        "h": 0.44
+      },
+      {
+        "id": "Ruins1_23",
+        "area": "City of Tears",
+        "x": 6.002,
+        "y": -0.092,
+        "w": 0.85,
+        "h": 1.51
+      },
+      {
+        "id": "Ruins1_24",
+        "area": "City of Tears",
+        "x": 4.524,
+        "y": 1.053,
+        "w": 1.31,
+        "h": 1.16
+      },
+      {
+        "id": "Ruins1_25",
+        "area": "City of Tears",
+        "x": 6.717,
+        "y": 0.464,
+        "w": 0.58,
+        "h": 1.78
+      },
+      {
+        "id": "Ruins1_27",
+        "area": "City of Tears",
+        "x": 6.437,
+        "y": -3.121,
+        "w": 1.62,
+        "h": 1.36
+      },
+      {
+        "id": "Ruins1_28",
+        "area": "City of Tears",
+        "x": 1.247,
+        "y": 0.838,
+        "w": 1.95,
+        "h": 0.53
+      },
+      {
+        "id": "Ruins1_29",
+        "area": "City of Tears",
+        "x": 2.532,
+        "y": 0.913,
+        "w": 0.7,
+        "h": 0.34
+      },
+      {
+        "id": "Ruins1_30",
+        "area": "City of Tears",
+        "x": 5.802,
+        "y": 1.144,
+        "w": 1.25,
+        "h": 0.82
+      },
+      {
+        "id": "Ruins1_31",
+        "area": "City of Tears",
+        "x": 5.034,
+        "y": -0.271,
+        "w": 1.13,
+        "h": 1.27
+      },
+      {
+        "id": "Ruins1_31_top",
+        "area": "City of Tears",
+        "x": 5.034,
+        "y": -0.271,
+        "w": 1.09,
+        "h": 1.27
+      },
+      {
+        "id": "Ruins1_31_top_2",
+        "area": "City of Tears",
+        "x": 5.034,
+        "y": -0.271,
+        "w": 1.41,
+        "h": 1.27
+      },
+      {
+        "id": "Ruins1_31b",
+        "area": "City of Tears",
+        "x": 4.789,
+        "y": 0.065,
+        "w": 0.72,
+        "h": 0.585
+      },
+      {
+        "id": "Ruins1_32",
+        "area": "City of Tears",
+        "x": 3.445,
+        "y": 0.773,
+        "w": 0.85,
+        "h": 1.92
+      },
+      {
+        "id": "Ruins2_01",
+        "area": "City of Tears",
+        "x": 7.956,
+        "y": -2.782,
+        "w": 1.42,
+        "h": 1.83
+      },
+      {
+        "id": "Ruins2_01_b",
+        "area": "City of Tears",
+        "x": 7.956,
+        "y": -3.278,
+        "w": 1.42,
+        "h": 0.848
+      },
+      {
+        "id": "Ruins2_03",
+        "area": "City of Tears",
+        "x": 7.966,
+        "y": -0.762,
+        "w": 1.4,
+        "h": 2.21
+      },
+      {
+        "id": "Ruins2_03b",
+        "area": "City of Tears",
+        "x": 7.966,
+        "y": -0.762,
+        "w": 1.4,
+        "h": 2.21
+      },
+      {
+        "id": "Ruins2_04",
+        "area": "City of Tears",
+        "x": 9.941,
+        "y": -3.179,
+        "w": 2.55,
+        "h": 1.72
+      },
+      {
+        "id": "Ruins2_05",
+        "area": "City of Tears",
+        "x": 11.987,
+        "y": -2.164,
+        "w": 0.82,
+        "h": 1.43
+      },
+      {
+        "id": "Ruins2_06",
+        "area": "City of Tears",
+        "x": 11.802,
+        "y": -3.359,
+        "w": 1.17,
+        "h": 0.96
+      },
+      {
+        "id": "Ruins2_07",
+        "area": "City of Tears",
+        "x": 13.523,
+        "y": -3.749,
+        "w": 2.27,
+        "h": 0.36
+      },
+      {
+        "id": "Ruins2_07_left",
+        "area": "City of Tears",
+        "x": 13.523,
+        "y": -3.749,
+        "w": 2.281,
+        "h": 0.36
+      },
+      {
+        "id": "Ruins2_07_right",
+        "area": "City of Tears",
+        "x": 13.523,
+        "y": -3.749,
+        "w": 2.281,
+        "h": 0.36
+      },
+      {
+        "id": "Ruins2_08",
+        "area": "City of Tears",
+        "x": 12.785,
+        "y": -2.955,
+        "w": 0.8,
+        "h": 0.79
+      },
+      {
+        "id": "Ruins2_09",
+        "area": "City of Tears",
+        "x": 12.176,
+        "y": -1.24,
+        "w": 1.12,
+        "h": 0.42
+      },
+      {
+        "id": "Ruins2_10",
+        "area": "Resting Grounds",
+        "x": 11.321,
+        "y": 2.923,
+        "w": 0.583,
+        "h": 1.81
+      },
+      {
+        "id": "Ruins2_10b",
+        "area": "City of Tears",
+        "x": 11.313,
+        "y": 0.156,
+        "w": 0.53,
+        "h": 4.15
+      },
+      {
+        "id": "Ruins2_11",
+        "area": "City of Tears",
+        "x": 13.863,
+        "y": -2.281,
+        "w": 1.43,
+        "h": 2.58
+      },
+      {
+        "id": "Ruins2_11_b",
+        "area": "City of Tears",
+        "x": 13.866,
+        "y": -2.285,
+        "w": 1.43,
+        "h": 2.587
+      },
+      {
+        "id": "Ruins2_Watcher_Room",
+        "area": "City of Tears",
+        "x": 8.076,
+        "y": 1.41,
+        "w": 1.42,
+        "h": 2.18
+      },
+      {
+        "id": "Ruins_Bathhouse",
+        "area": "City of Tears",
+        "x": 10.457,
+        "y": -0.289,
+        "w": 1.26,
+        "h": 0.88
+      },
+      {
+        "id": "Ruins_Elevator",
+        "area": "City of Tears",
+        "x": 9.947,
+        "y": -1.604,
+        "w": 0.17,
+        "h": 1.942
+      },
+      {
+        "id": "Town",
+        "area": "Dirtmouth",
+        "x": -1.923,
+        "y": 7.649,
+        "w": 4.08,
+        "h": 2.14
+      },
+      {
+        "id": "Tutorial_01",
+        "area": "Dirtmouth",
+        "x": -5.443,
+        "y": 7.469,
+        "w": 2.96,
+        "h": 1.48
+      },
+      {
+        "id": "Waterways_01",
+        "area": "Royal Waterways",
+        "x": 5.111,
+        "y": -4.171,
+        "w": 2.38,
+        "h": 0.82
+      },
+      {
+        "id": "Waterways_02",
+        "area": "Royal Waterways",
+        "x": 5.526,
+        "y": -5.011,
+        "w": 3.85,
+        "h": 0.85
+      },
+      {
+        "id": "Waterways_02_b",
+        "area": "Royal Waterways",
+        "x": 3.916,
+        "y": -5.054,
+        "w": 0.607,
+        "h": 0.39
+      },
+      {
+        "id": "Waterways_03",
+        "area": "Royal Waterways",
+        "x": 7.082,
+        "y": -3.921,
+        "w": 1.63,
+        "h": 0.29
+      },
+      {
+        "id": "Waterways_04",
+        "area": "Royal Waterways",
+        "x": 2.689,
+        "y": -4.478,
+        "w": 2.55,
+        "h": 0.86
+      },
+      {
+        "id": "Waterways_04_part_b",
+        "area": "Royal Waterways",
+        "x": 3.869,
+        "y": -4.716,
+        "w": 0.197,
+        "h": 0.317
+      },
+      {
+        "id": "Waterways_04b",
+        "area": "Royal Waterways",
+        "x": 0.394,
+        "y": -4.442,
+        "w": 2.07,
+        "h": 0.84
+      },
+      {
+        "id": "Waterways_05",
+        "area": "Royal Waterways",
+        "x": 7.214,
+        "y": -4.464,
+        "w": 1.86,
+        "h": 0.69
+      },
+      {
+        "id": "Waterways_06",
+        "area": "Royal Waterways",
+        "x": 6.959,
+        "y": -5.762,
+        "w": 2.37,
+        "h": 0.73
+      },
+      {
+        "id": "Waterways_07",
+        "area": "Royal Waterways",
+        "x": 9.494,
+        "y": -5.433,
+        "w": 1.87,
+        "h": 1.79
+      },
+      {
+        "id": "Waterways_08",
+        "area": "Royal Waterways",
+        "x": 4.531,
+        "y": -5.816,
+        "w": 1.94,
+        "h": 0.84
+      },
+      {
+        "id": "Waterways_09",
+        "area": "Royal Waterways",
+        "x": -1.076,
+        "y": -4.497,
+        "w": 0.9,
+        "h": 0.55
+      },
+      {
+        "id": "Waterways_12",
+        "area": "Royal Waterways",
+        "x": 2.896,
+        "y": -5.944,
+        "w": 1.84,
+        "h": 0.63
+      },
+      {
+        "id": "Waterways_13",
+        "area": "Royal Waterways",
+        "x": 11.289,
+        "y": -5.483,
+        "w": 1.82,
+        "h": 1.53
+      },
+      {
+        "id": "Waterways_14",
+        "area": "Royal Waterways",
+        "x": 10.871,
+        "y": -4.446,
+        "w": 4.4,
+        "h": 0.94
+      },
+      {
+        "id": "Waterways_15",
+        "area": "Royal Waterways",
+        "x": 7.71,
+        "y": -4.811,
+        "w": 0.65,
+        "h": 0.38
+      }
+    ],
+    "interiorToMapRoom": {
+      "Room_shop": "Town",
+      "Room_mapper": "Town",
+      "Room_Ouiji": "Town",
+      "Room_Sly_Storeroom": "Town",
+      "Room_Town_Stag_Station": "Town",
+      "Room_Bretta": "Town",
+      "Room_Jinn": "Town",
+      "Grimm_Main_Tent": "Town",
+      "Grimm_Divine": "Town",
+      "Room_Charm_Shop": "Crossroads_04",
+      "Room_Mender_House": "Crossroads_04",
+      "Room_ruinhouse": "Crossroads_04",
+      "Crossroads_ShamanTemple": "Crossroads_06",
+      "Room_temple": "Crossroads_02",
+      "Room_Final_Boss_Atrium": "Crossroads_02",
+      "Room_Mansion": "RestingGrounds_05",
+      "Dream_Nailcollection": "RestingGrounds_04",
+      "Room_Colosseum_01": "Deepnest_East_09",
+      "Room_Colosseum_02": "Deepnest_East_09",
+      "Room_Colosseum_Spectate": "Deepnest_East_09",
+      "GG_Lurker": "Deepnest_East_09",
+      "Room_Wyrm": "Deepnest_East_12",
+      "Room_nailsmith": "Ruins1_04",
+      "Room_Queen": "Fungus3_48",
+      "Room_Mask_Maker": "Deepnest_35",
+      "Room_Slug_Shrine": "Fungus1_26",
+      "Room_Fungus_Shaman": "Fungus3_26",
+      "Room_Nailmaster": "Cliffs_02",
+      "Room_Nailmaster_02": "Fungus1_15",
+      "Room_Nailmaster_03": "Deepnest_East_06",
+      "Room_GG_Shortcut": "Waterways_09",
+      "GG_Waterways": "Waterways_09",
+      "GG_Pipeway": "Waterways_08",
+      "Room_spider_small": "Deepnest_10",
+      "Deepnest_Spider_Town": "Deepnest_10",
+      "Ruins_House_01": "Ruins2_04",
+      "Ruins_House_02": "Ruins2_04",
+      "Ruins_House_03": "Ruins2_04",
+      "Ruins_Elevator": "Ruins2_04",
+      "Ruins_Bathhouse": "Ruins2_04",
+      "Ruins2_Watcher_Room": "Ruins2_03",
+      "Fungus3_archive": "Fungus3_47",
+      "Fungus3_archive_02": "Fungus3_47",
+      "Room_Final_Boss_Core": "Crossroads_02",
+      "Dream_01_False_Knight": "Crossroads_10",
+      "Dream_02_Mage_Lord": "Ruins1_24",
+      "Dream_03_Infected_Knight": "Abyss_19",
+      "Dream_04_White_Defender": "Waterways_15",
+      "Dream_Mighty_Zote": "Town",
+      "Room_Colosseum_Bronze": "Deepnest_East_09",
+      "Room_Colosseum_Silver": "Deepnest_East_09",
+      "Room_Colosseum_Gold": "Deepnest_East_09",
+      "Abyss_06_Core": "Abyss_06_Core",
+      "Abyss_15": "Abyss_06_Core",
+      "Abyss_16": "Abyss_06_Core",
+      "Abyss_Lighthouse_room": "Abyss_09",
+      "Cliffs_03": "Cliffs_02",
+      "Deepnest_45_v02": "Deepnest_45_v02",
+      "Deepnest_East_17": "Deepnest_East_07",
+      "Fungus1_35": "Fungus1_35",
+      "Fungus1_36": "Fungus1_36",
+      "Mines_35": "Mines_34",
+      "RestingGrounds_07": "RestingGrounds_05",
+      "Room_Tram": "Crossroads_46",
+      "Room_Tram_RG": "Crossroads_46b",
+      "Room_Mantis_Lord": "Fungus2_15",
+      "Room_nailmaster": "Cliffs_02",
+      "Room_nailmaster_02": "Fungus1_15",
+      "Room_nailmaster_03": "Deepnest_East_06",
+      "Hive_01": "Hive_01",
+      "Hive_02": "Hive_02",
+      "Hive_03": "Hive_03",
+      "Hive_04": "Hive_04",
+      "Hive_05": "Hive_05",
+      "Fungus2_25": "Fungus2_25",
+      "Fungus3_44": "Fungus3_44",
+      "Fungus3_49": "Fungus3_49",
+      "Deepnest_East_14b": "Deepnest_East_14b",
+      "Waterways_13": "Waterways_13",
+      "Ruins1_31b": "Ruins1_31b",
+      "Ruins2_11_b": "Ruins2_11_b"
+    },
+    "whitePalaceAnchor": {
+      "x": 4.732,
+      "y": -16.693
+    },
+    "whitePalace": {
+      "rooms": [
+        {
+          "id": "White_Palace_11",
+          "label": "Palace Entry",
+          "x": -1.45,
+          "y": -3.2,
+          "w": 1.65,
+          "h": 0.72,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_01",
+          "label": "Entrance Hall",
+          "x": 0.35,
+          "y": -3.15,
+          "w": 1.5,
+          "h": 0.85,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_02",
+          "label": "Entrance Wing",
+          "x": 2.05,
+          "y": -3.2,
+          "w": 1.45,
+          "h": 0.62,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_03_hub",
+          "label": "Central Hub",
+          "x": 0.35,
+          "y": -1.75,
+          "w": 1.35,
+          "h": 1.35,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_04",
+          "label": "Left Wing Lower",
+          "x": -1.65,
+          "y": -2.1,
+          "w": 1.75,
+          "h": 0.78,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_14",
+          "label": "Left Wing Upper",
+          "x": -1.8,
+          "y": -1.0,
+          "w": 2.0,
+          "h": 0.82,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_15",
+          "label": "Right Wing Entry",
+          "x": 2.05,
+          "y": -1.95,
+          "w": 1.5,
+          "h": 0.75,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_05",
+          "label": "Right Wing Sawblades",
+          "x": 3.95,
+          "y": -1.85,
+          "w": 1.85,
+          "h": 0.88,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_16",
+          "label": "Right Wing Upper",
+          "x": 4.2,
+          "y": -0.7,
+          "w": 1.55,
+          "h": 0.85,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_06",
+          "label": "Central Atrium",
+          "x": 0.35,
+          "y": -0.15,
+          "w": 1.7,
+          "h": 0.78,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_07",
+          "label": "Upper Ascent",
+          "x": 2.05,
+          "y": 0.35,
+          "w": 1.25,
+          "h": 1.35,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_12",
+          "label": "Upper Corridor",
+          "x": 2.05,
+          "y": 1.85,
+          "w": 1.55,
+          "h": 0.85,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_13",
+          "label": "Throne Tower",
+          "x": 3.5,
+          "y": 2.85,
+          "w": 1.15,
+          "h": 1.35,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_08",
+          "label": "Palace Workshop",
+          "x": 5.05,
+          "y": 2.85,
+          "w": 1.35,
+          "h": 0.9,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_09",
+          "label": "Throne Room",
+          "x": 1.85,
+          "y": 3.2,
+          "w": 1.55,
+          "h": 0.92,
+          "group": "wp"
+        },
+        {
+          "id": "White_Palace_18",
+          "label": "PoP: Entrance",
+          "x": -1.8,
+          "y": 0.35,
+          "w": 1.95,
+          "h": 0.82,
+          "group": "pop"
+        },
+        {
+          "id": "White_Palace_17",
+          "label": "PoP: Lever Room",
+          "x": -2.4,
+          "y": 1.65,
+          "w": 1.8,
+          "h": 0.85,
+          "group": "pop"
+        },
+        {
+          "id": "White_Palace_19",
+          "label": "PoP: Vertical Shaft",
+          "x": -0.75,
+          "y": 1.85,
+          "w": 1.05,
+          "h": 1.45,
+          "group": "pop"
+        },
+        {
+          "id": "White_Palace_20",
+          "label": "PoP: Final Gauntlet",
+          "x": -0.55,
+          "y": 3.25,
+          "w": 2.05,
+          "h": 0.88,
+          "group": "pop"
+        }
+      ],
+      "routes": [
+        [
+          "White_Palace_11",
+          "White_Palace_01"
+        ],
+        [
+          "White_Palace_01",
+          "White_Palace_02"
+        ],
+        [
+          "White_Palace_01",
+          "White_Palace_03_hub"
+        ],
+        [
+          "White_Palace_03_hub",
+          "White_Palace_04"
+        ],
+        [
+          "White_Palace_03_hub",
+          "White_Palace_14"
+        ],
+        [
+          "White_Palace_04",
+          "White_Palace_14"
+        ],
+        [
+          "White_Palace_03_hub",
+          "White_Palace_15"
+        ],
+        [
+          "White_Palace_15",
+          "White_Palace_05"
+        ],
+        [
+          "White_Palace_05",
+          "White_Palace_16"
+        ],
+        [
+          "White_Palace_03_hub",
+          "White_Palace_06"
+        ],
+        [
+          "White_Palace_06",
+          "White_Palace_07"
+        ],
+        [
+          "White_Palace_07",
+          "White_Palace_12"
+        ],
+        [
+          "White_Palace_12",
+          "White_Palace_13"
+        ],
+        [
+          "White_Palace_13",
+          "White_Palace_09"
+        ],
+        [
+          "White_Palace_13",
+          "White_Palace_08"
+        ],
+        [
+          "White_Palace_06",
+          "White_Palace_18"
+        ],
+        [
+          "White_Palace_18",
+          "White_Palace_17"
+        ],
+        [
+          "White_Palace_17",
+          "White_Palace_19"
+        ],
+        [
+          "White_Palace_19",
+          "White_Palace_20"
+        ]
+      ]
+    }
+  },
+  "SS": {
+    "rooms": [
+      {
+        "id": "Abandoned_Town",
+        "area": "The Cradle",
+        "x": 2.682,
+        "y": 16.934,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Abyss_01",
+        "area": "The Abyss",
+        "x": -1.001,
+        "y": -19.638,
+        "w": 0.771,
+        "h": 2.64
+      },
+      {
+        "id": "Abyss_02",
+        "area": "The Abyss",
+        "x": 4.869,
+        "y": -18.327,
+        "w": 3.34,
+        "h": 0.47
+      },
+      {
+        "id": "Abyss_02b",
+        "area": "The Abyss",
+        "x": 1.293,
+        "y": -18.297,
+        "w": 3.82,
+        "h": 0.78
+      },
+      {
+        "id": "Abyss_02b_top",
+        "area": "The Abyss",
+        "x": 1.961,
+        "y": -18.008,
+        "w": 0.83,
+        "h": 0.34
+      },
+      {
+        "id": "Abyss_03",
+        "area": "The Abyss",
+        "x": 7.212,
+        "y": -17.568,
+        "w": 1.35,
+        "h": 1.6
+      },
+      {
+        "id": "Abyss_03_bell_broken",
+        "area": "The Abyss",
+        "x": 7.212,
+        "y": -17.568,
+        "w": 1.35,
+        "h": 1.6
+      },
+      {
+        "id": "Abyss_03_bell_fixed",
+        "area": "The Abyss",
+        "x": 7.428,
+        "y": -17.688,
+        "w": 0.35,
+        "h": 0.46
+      },
+      {
+        "id": "Abyss_03_top",
+        "area": "The Abyss",
+        "x": 7.212,
+        "y": -17.568,
+        "w": 1.35,
+        "h": 1.6
+      },
+      {
+        "id": "Abyss_04",
+        "area": "The Abyss",
+        "x": 0.252,
+        "y": -19.378,
+        "w": 1.74,
+        "h": 1.24
+      },
+      {
+        "id": "Abyss_04_right",
+        "area": "The Abyss",
+        "x": 0.252,
+        "y": -19.378,
+        "w": 1.74,
+        "h": 1.24
+      },
+      {
+        "id": "Abyss_05",
+        "area": "The Abyss",
+        "x": 3.469,
+        "y": -19.772,
+        "w": 2.92,
+        "h": 1.77
+      },
+      {
+        "id": "Abyss_05_top",
+        "area": "The Abyss",
+        "x": 3.469,
+        "y": -19.772,
+        "w": 2.92,
+        "h": 1.77
+      },
+      {
+        "id": "Abyss_06",
+        "area": "The Abyss",
+        "x": -1.932,
+        "y": -20.197,
+        "w": 1.1,
+        "h": 0.96
+      },
+      {
+        "id": "Abyss_07",
+        "area": "The Abyss",
+        "x": 0.466,
+        "y": -20.478,
+        "w": 2.17,
+        "h": 0.38
+      },
+      {
+        "id": "Abyss_08",
+        "area": "The Abyss",
+        "x": 6.108,
+        "y": -19.735,
+        "w": 2.64,
+        "h": 1.72
+      },
+      {
+        "id": "Abyss_09",
+        "area": "The Abyss",
+        "x": 2.416,
+        "y": -8.767,
+        "w": 0.93,
+        "h": 15.93
+      },
+      {
+        "id": "Abyss_09_top",
+        "area": "Deep Docks",
+        "x": 2.416,
+        "y": -22.247,
+        "w": 0.93,
+        "h": 15.93
+      },
+      {
+        "id": "Abyss_09_up_connection",
+        "area": "The Abyss",
+        "x": 2.416,
+        "y": -8.767,
+        "w": 0.93,
+        "h": 15.93
+      },
+      {
+        "id": "Abyss_11",
+        "area": "The Abyss",
+        "x": 1.966,
+        "y": -17.339,
+        "w": 0.74,
+        "h": 1.0
+      },
+      {
+        "id": "Abyss_12",
+        "area": "The Abyss",
+        "x": 1.78,
+        "y": -20.322,
+        "w": 0.46,
+        "h": 0.67
+      },
+      {
+        "id": "Abyss_13",
+        "area": "The Abyss",
+        "x": 4.441,
+        "y": -17.023,
+        "w": 4.22,
+        "h": 0.59
+      },
+      {
+        "id": "Ant_02",
+        "area": "Hunter's March",
+        "x": -0.594,
+        "y": -9.725,
+        "w": 2.18,
+        "h": 0.26
+      },
+      {
+        "id": "Ant_03",
+        "area": "Hunter's March",
+        "x": 0.926,
+        "y": -9.211,
+        "w": 0.864,
+        "h": 1.19
+      },
+      {
+        "id": "Ant_04",
+        "area": "Hunter's March",
+        "x": 4.457,
+        "y": -8.971,
+        "w": 6.2,
+        "h": 0.51
+      },
+      {
+        "id": "Ant_04_left",
+        "area": "Hunter's March",
+        "x": 2.503,
+        "y": -8.971,
+        "w": 2.301,
+        "h": 0.51
+      },
+      {
+        "id": "Ant_04_mid",
+        "area": "Hunter's March",
+        "x": 3.3,
+        "y": -8.971,
+        "w": 3.88,
+        "h": 0.51
+      },
+      {
+        "id": "Ant_05b",
+        "area": "Hunter's March",
+        "x": 6.792,
+        "y": -9.348,
+        "w": 1.52,
+        "h": 0.25
+      },
+      {
+        "id": "Ant_05c",
+        "area": "Hunter's March",
+        "x": 8.708,
+        "y": -8.204,
+        "w": 1.32,
+        "h": 0.64
+      },
+      {
+        "id": "Ant_05c_top_right",
+        "area": "Hunter's March",
+        "x": 8.616,
+        "y": -8.177,
+        "w": 1.52,
+        "h": 0.76
+      },
+      {
+        "id": "Ant_08",
+        "area": "Greymoor",
+        "x": 7.332,
+        "y": -5.405,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Ant_09",
+        "area": "Hunter's March",
+        "x": 10.791,
+        "y": -7.89,
+        "w": 2.847,
+        "h": 0.79
+      },
+      {
+        "id": "Ant_14",
+        "area": "Hunter's March",
+        "x": 7.8,
+        "y": -8.429,
+        "w": 0.5,
+        "h": 2.128
+      },
+      {
+        "id": "Ant_17",
+        "area": "Hunter's March",
+        "x": 7.045,
+        "y": -8.284,
+        "w": 1.02,
+        "h": 0.24
+      },
+      {
+        "id": "Ant_19",
+        "area": "Hunter's March",
+        "x": 10.875,
+        "y": -8.858,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Ant_20",
+        "area": "Hunter's March",
+        "x": 9.665,
+        "y": -9.014,
+        "w": 3.23,
+        "h": 0.86
+      },
+      {
+        "id": "Ant_20_top",
+        "area": "Hunter's March",
+        "x": 9.665,
+        "y": -9.014,
+        "w": 3.23,
+        "h": 0.86
+      },
+      {
+        "id": "Ant_21",
+        "area": "Hunter's March",
+        "x": 6.872,
+        "y": -8.03,
+        "w": 2.13,
+        "h": 1.52
+      },
+      {
+        "id": "Ant_Merchant",
+        "area": "Hunter's March",
+        "x": 6.346,
+        "y": -7.909,
+        "w": 2.41,
+        "h": 0.47
+      },
+      {
+        "id": "Ant_Merchant_left",
+        "area": "Hunter's March",
+        "x": 6.177,
+        "y": -7.867,
+        "w": 2.03,
+        "h": 0.33
+      },
+      {
+        "id": "Ant_Merchant_mid",
+        "area": "Hunter's March",
+        "x": 6.177,
+        "y": -7.867,
+        "w": 2.03,
+        "h": 0.33
+      },
+      {
+        "id": "Ant_Queen",
+        "area": "Far Fields",
+        "x": 18.996,
+        "y": -7.76,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Aqueduct_01",
+        "area": "Putrified Ducts",
+        "x": 13.475,
+        "y": 8.89,
+        "w": 4.27,
+        "h": 0.7
+      },
+      {
+        "id": "Aqueduct_02",
+        "area": "Putrified Ducts",
+        "x": 15.874,
+        "y": 8.25,
+        "w": 0.53,
+        "h": 1.96
+      },
+      {
+        "id": "Aqueduct_02_right",
+        "area": "Putrified Ducts",
+        "x": 15.874,
+        "y": 8.244,
+        "w": 0.53,
+        "h": 1.96
+      },
+      {
+        "id": "Aqueduct_03",
+        "area": "Putrified Ducts",
+        "x": 18.339,
+        "y": 7.53,
+        "w": 4.4,
+        "h": 0.66
+      },
+      {
+        "id": "Aqueduct_04",
+        "area": "Putrified Ducts",
+        "x": 14.194,
+        "y": 7.451,
+        "w": 2.8,
+        "h": 0.85
+      },
+      {
+        "id": "Aqueduct_04_bottom",
+        "area": "Putrified Ducts",
+        "x": 15.059,
+        "y": 7.099,
+        "w": 0.37,
+        "h": 0.3
+      },
+      {
+        "id": "Aqueduct_04_right",
+        "area": "Putrified Ducts",
+        "x": 15.396,
+        "y": 7.365,
+        "w": 0.43,
+        "h": 0.23
+      },
+      {
+        "id": "Aqueduct_05",
+        "area": "Putrified Ducts",
+        "x": 23.097,
+        "y": 7.963,
+        "w": 5.49,
+        "h": 1.65
+      },
+      {
+        "id": "Aqueduct_05_top",
+        "area": "Putrified Ducts",
+        "x": 23.097,
+        "y": 7.963,
+        "w": 5.49,
+        "h": 1.65
+      },
+      {
+        "id": "Aqueduct_06",
+        "area": "Putrified Ducts",
+        "x": 18.344,
+        "y": 8.855,
+        "w": 2.45,
+        "h": 2.0
+      },
+      {
+        "id": "Aqueduct_06_left",
+        "area": "Putrified Ducts",
+        "x": 18.344,
+        "y": 8.815,
+        "w": 2.45,
+        "h": 2.0
+      },
+      {
+        "id": "Aqueduct_06_top",
+        "area": "Putrified Ducts",
+        "x": 17.534,
+        "y": 8.916,
+        "w": 0.76,
+        "h": 1.7
+      },
+      {
+        "id": "Aqueduct_07",
+        "area": "Putrified Ducts",
+        "x": 15.343,
+        "y": 8.17,
+        "w": 0.535,
+        "h": 0.66
+      },
+      {
+        "id": "Aqueduct_07_top",
+        "area": "Putrified Ducts",
+        "x": 15.364,
+        "y": 8.239,
+        "w": 0.514,
+        "h": 0.5
+      },
+      {
+        "id": "Aqueduct_08",
+        "area": "Putrified Ducts",
+        "x": 16.629,
+        "y": 8.04,
+        "w": 0.987,
+        "h": 0.37
+      },
+      {
+        "id": "Arborium_01",
+        "area": "Memorium",
+        "x": 4.919,
+        "y": 9.723,
+        "w": 0.5,
+        "h": 2.583
+      },
+      {
+        "id": "Arborium_01_bot_left",
+        "area": "Memorium",
+        "x": 4.919,
+        "y": 9.569,
+        "w": 0.5,
+        "h": 2.272
+      },
+      {
+        "id": "Arborium_01_top",
+        "area": "Memorium",
+        "x": 4.919,
+        "y": 9.714,
+        "w": 0.5,
+        "h": 2.58
+      },
+      {
+        "id": "Arborium_01_top_2",
+        "area": "Memorium",
+        "x": 4.92,
+        "y": 9.703,
+        "w": 0.5,
+        "h": 2.58
+      },
+      {
+        "id": "Arborium_02",
+        "area": "Memorium",
+        "x": 6.254,
+        "y": 9.184,
+        "w": 2.17,
+        "h": 0.45
+      },
+      {
+        "id": "Arborium_03",
+        "area": "Memorium",
+        "x": 7.589,
+        "y": 9.344,
+        "w": 0.502,
+        "h": 1.88
+      },
+      {
+        "id": "Arborium_03_top",
+        "area": "Memorium",
+        "x": 7.59,
+        "y": 9.404,
+        "w": 0.502,
+        "h": 1.71
+      },
+      {
+        "id": "Arborium_04",
+        "area": "Memorium",
+        "x": 6.255,
+        "y": 8.783,
+        "w": 2.174,
+        "h": 0.56
+      },
+      {
+        "id": "Arborium_05",
+        "area": "Memorium",
+        "x": 6.272,
+        "y": 9.658,
+        "w": 2.134,
+        "h": 0.45
+      },
+      {
+        "id": "Arborium_06",
+        "area": "Memorium",
+        "x": 6.252,
+        "y": 10.105,
+        "w": 2.174,
+        "h": 0.48
+      },
+      {
+        "id": "Arborium_07",
+        "area": "Memorium",
+        "x": 6.589,
+        "y": 10.538,
+        "w": 2.843,
+        "h": 0.35
+      },
+      {
+        "id": "Arborium_07b",
+        "area": "Memorium",
+        "x": 7.352,
+        "y": 10.571,
+        "w": 0.88,
+        "h": 0.26
+      },
+      {
+        "id": "Arborium_08",
+        "area": "Memorium",
+        "x": 6.184,
+        "y": 11.173,
+        "w": 2.03,
+        "h": 0.92
+      },
+      {
+        "id": "Arborium_09",
+        "area": "Memorium",
+        "x": 4.12,
+        "y": 9.329,
+        "w": 1.1,
+        "h": 1.87
+      },
+      {
+        "id": "Arborium_10",
+        "area": "Memorium",
+        "x": 8.102,
+        "y": 9.201,
+        "w": 0.54,
+        "h": 0.34
+      },
+      {
+        "id": "Arborium_11",
+        "area": "Memorium",
+        "x": 9.594,
+        "y": 8.943,
+        "w": 3.51,
+        "h": 0.76
+      },
+      {
+        "id": "Arborium_11_mid",
+        "area": "Memorium",
+        "x": 9.594,
+        "y": 8.943,
+        "w": 3.51,
+        "h": 0.76
+      },
+      {
+        "id": "Arborium_11_right",
+        "area": "Memorium",
+        "x": 9.594,
+        "y": 8.943,
+        "w": 3.51,
+        "h": 0.76
+      },
+      {
+        "id": "Aspid_01",
+        "area": "Mosslands",
+        "x": -13.482,
+        "y": -7.486,
+        "w": 1.24,
+        "h": 4.47
+      },
+      {
+        "id": "Aspid_01_bot",
+        "area": "Mosslands",
+        "x": -13.482,
+        "y": -7.383,
+        "w": 1.24,
+        "h": 5.04
+      },
+      {
+        "id": "Aspid_01_mid",
+        "area": "Mosslands",
+        "x": -13.482,
+        "y": -7.383,
+        "w": 1.24,
+        "h": 5.19
+      },
+      {
+        "id": "Aspid_01_top",
+        "area": "Mosslands",
+        "x": -13.482,
+        "y": -7.383,
+        "w": 1.24,
+        "h": 5.19
+      },
+      {
+        "id": "Bellshrine",
+        "area": "The Marrow",
+        "x": -7.121,
+        "y": -9.143,
+        "w": 0.68,
+        "h": 0.385
+      },
+      {
+        "id": "Bellshrine_02",
+        "area": "Greymoor",
+        "x": 13.717,
+        "y": -4.674,
+        "w": 0.706,
+        "h": 0.414
+      },
+      {
+        "id": "Bellshrine_03",
+        "area": "Shellwood",
+        "x": -10.888,
+        "y": -4.475,
+        "w": 0.671,
+        "h": 0.39
+      },
+      {
+        "id": "Bellshrine_05",
+        "area": "Deep Docks",
+        "x": 6.593,
+        "y": -11.524,
+        "w": 0.676,
+        "h": 0.39
+      },
+      {
+        "id": "Bellshrine_Coral",
+        "area": "Sands of Karak",
+        "x": -9.141,
+        "y": 2.37,
+        "w": 0.63,
+        "h": 0.78
+      },
+      {
+        "id": "Bellshrine_Enclave",
+        "area": "Choral Chambers",
+        "x": 8.656,
+        "y": 7.796,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Belltown",
+        "area": "Bellhart",
+        "x": -1.467,
+        "y": -6.02,
+        "w": 1.879,
+        "h": 1.26
+      },
+      {
+        "id": "Belltown_04",
+        "area": "Bellhart",
+        "x": -1.551,
+        "y": -4.142,
+        "w": 1.58,
+        "h": 1.64
+      },
+      {
+        "id": "Belltown_06",
+        "area": "Bellhart",
+        "x": 0.219,
+        "y": -5.906,
+        "w": 1.503,
+        "h": 1.39
+      },
+      {
+        "id": "Belltown_06_fisher",
+        "area": "Bellhart",
+        "x": 0.219,
+        "y": -5.906,
+        "w": 1.5,
+        "h": 1.37
+      },
+      {
+        "id": "Belltown_06_top",
+        "area": "Bellhart",
+        "x": 0.219,
+        "y": -5.906,
+        "w": 1.5,
+        "h": 1.37
+      },
+      {
+        "id": "Belltown_07",
+        "area": "Bellhart",
+        "x": -2.608,
+        "y": -6.461,
+        "w": 1.121,
+        "h": 0.28
+      },
+      {
+        "id": "Belltown_08",
+        "area": "Greymoor",
+        "x": -1.742,
+        "y": -1.945,
+        "w": 2.09,
+        "h": 1.06
+      },
+      {
+        "id": "Belltown_Room_Fisher",
+        "area": "Bellhart",
+        "x": -0.408,
+        "y": -5.845,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Belltown_Room_Relic",
+        "area": "Bellhart",
+        "x": -1.439,
+        "y": -6.285,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Belltown_Room_Spare",
+        "area": "Bellhart",
+        "x": -1.406,
+        "y": -5.941,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Belltown_Room_pinsmith",
+        "area": "Bellhart",
+        "x": -1.439,
+        "y": -6.285,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Belltown_Room_shellwood",
+        "area": "Shellwood",
+        "x": -2.998,
+        "y": -6.021,
+        "w": 0.95,
+        "h": 0.44
+      },
+      {
+        "id": "Belltown_Shrine",
+        "area": "Bellhart",
+        "x": -1.305,
+        "y": -5.206,
+        "w": 1.55,
+        "h": 0.49
+      },
+      {
+        "id": "Belltown_basement",
+        "area": "Bellhart",
+        "x": -0.982,
+        "y": -6.615,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Belltown_basement_03",
+        "area": "Bellhart",
+        "x": -1.579,
+        "y": -8.179,
+        "w": 2.41,
+        "h": 2.43
+      },
+      {
+        "id": "Belltown_basement_03_2",
+        "area": "Bellhart",
+        "x": -1.136,
+        "y": -8.223,
+        "w": 1.41,
+        "h": 2.44
+      },
+      {
+        "id": "Belltown_basement_03_3",
+        "area": "Bellhart",
+        "x": -1.054,
+        "y": -8.112,
+        "w": 1.35,
+        "h": 2.23
+      },
+      {
+        "id": "Belltown_basement_03_4",
+        "area": "Bellhart",
+        "x": -1.093,
+        "y": -8.169,
+        "w": 1.48,
+        "h": 2.43
+      },
+      {
+        "id": "Bellway_01",
+        "area": "Mosslands",
+        "x": -11.722,
+        "y": -11.302,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Bellway_02",
+        "area": "Deep Docks",
+        "x": 2.043,
+        "y": -11.869,
+        "w": 1.8,
+        "h": 0.93
+      },
+      {
+        "id": "Bellway_02_left",
+        "area": "Deep Docks",
+        "x": 2.043,
+        "y": -11.869,
+        "w": 1.8,
+        "h": 0.93
+      },
+      {
+        "id": "Bellway_03",
+        "area": "Far Fields",
+        "x": 14.161,
+        "y": -10.888,
+        "w": 2.57,
+        "h": 1.03
+      },
+      {
+        "id": "Bellway_03_b",
+        "area": "Far Fields",
+        "x": 14.898,
+        "y": -10.902,
+        "w": 0.92,
+        "h": 0.9
+      },
+      {
+        "id": "Bellway_03_c",
+        "area": "Far Fields",
+        "x": 14.898,
+        "y": -10.902,
+        "w": 1.14,
+        "h": 1.08
+      },
+      {
+        "id": "Bellway_04",
+        "area": "Greymoor",
+        "x": 6.277,
+        "y": -5.762,
+        "w": 1.38,
+        "h": 0.48
+      },
+      {
+        "id": "Bellway_04_bot_left",
+        "area": "Greymoor",
+        "x": 6.277,
+        "y": -5.762,
+        "w": 1.38,
+        "h": 0.48
+      },
+      {
+        "id": "Bellway_08",
+        "area": "Blasted Steps",
+        "x": -15.036,
+        "y": -0.504,
+        "w": 2.576,
+        "h": 0.58
+      },
+      {
+        "id": "Bellway_Aqueduct",
+        "area": "Putrified Ducts",
+        "x": 16.34,
+        "y": 9.18,
+        "w": 1.65,
+        "h": 1.34
+      },
+      {
+        "id": "Bellway_Aqueduct_top",
+        "area": "Putrified Ducts",
+        "x": 16.749,
+        "y": 9.416,
+        "w": 0.81,
+        "h": 0.78
+      },
+      {
+        "id": "Bellway_City",
+        "area": "Choral Chambers",
+        "x": 6.515,
+        "y": 4.13,
+        "w": 1.79,
+        "h": 0.56
+      },
+      {
+        "id": "Bellway_City_b",
+        "area": "Choral Chambers",
+        "x": 6.972,
+        "y": 4.28,
+        "w": 1.01,
+        "h": 0.29
+      },
+      {
+        "id": "Bellway_Peak",
+        "area": "Mount Fay",
+        "x": -20.757,
+        "y": 6.419,
+        "w": 0.54,
+        "h": 0.86
+      },
+      {
+        "id": "Bellway_Peak_02",
+        "area": "Mount Fay",
+        "x": -19.687,
+        "y": 5.898,
+        "w": 1.79,
+        "h": 0.66
+      },
+      {
+        "id": "Bellway_Shadow",
+        "area": "Bilewater",
+        "x": 12.88,
+        "y": -0.125,
+        "w": 1.42,
+        "h": 0.76
+      },
+      {
+        "id": "Bone_01",
+        "area": "The Marrow",
+        "x": -9.701,
+        "y": -10.648,
+        "w": 2.48,
+        "h": 1.59
+      },
+      {
+        "id": "Bone_01b",
+        "area": "Mosslands",
+        "x": -10.523,
+        "y": -10.793,
+        "w": 0.84,
+        "h": 1.8
+      },
+      {
+        "id": "Bone_01c",
+        "area": "The Marrow",
+        "x": -9.042,
+        "y": -10.648,
+        "w": 3.8,
+        "h": 1.59
+      },
+      {
+        "id": "Bone_01c_bot",
+        "area": "The Marrow",
+        "x": -7.803,
+        "y": -11.243,
+        "w": 1.324,
+        "h": 0.4
+      },
+      {
+        "id": "Bone_01c_top",
+        "area": "The Marrow",
+        "x": -7.914,
+        "y": -10.427,
+        "w": 1.37,
+        "h": 0.44
+      },
+      {
+        "id": "Bone_02",
+        "area": "The Marrow",
+        "x": -5.803,
+        "y": -11.123,
+        "w": 2.68,
+        "h": 0.76
+      },
+      {
+        "id": "Bone_03",
+        "area": "The Marrow",
+        "x": -6.466,
+        "y": -9.654,
+        "w": 0.85,
+        "h": 2.18
+      },
+      {
+        "id": "Bone_03_top",
+        "area": "The Marrow",
+        "x": -6.466,
+        "y": -9.654,
+        "w": 0.85,
+        "h": 2.26
+      },
+      {
+        "id": "Bone_04",
+        "area": "The Marrow",
+        "x": -8.796,
+        "y": -9.593,
+        "w": 3.91,
+        "h": 0.52
+      },
+      {
+        "id": "Bone_05",
+        "area": "The Marrow",
+        "x": -9.042,
+        "y": -9.113,
+        "w": 3.4,
+        "h": 0.44
+      },
+      {
+        "id": "Bone_05_right",
+        "area": "The Marrow",
+        "x": -9.067,
+        "y": -9.113,
+        "w": 3.45,
+        "h": 0.44
+      },
+      {
+        "id": "Bone_05b",
+        "area": "Mosslands",
+        "x": -10.137,
+        "y": -9.018,
+        "w": 1.21,
+        "h": 0.41
+      },
+      {
+        "id": "Bone_05b_right",
+        "area": "Mosslands",
+        "x": -10.157,
+        "y": -9.018,
+        "w": 1.27,
+        "h": 0.41
+      },
+      {
+        "id": "Bone_06",
+        "area": "The Marrow",
+        "x": -7.256,
+        "y": -8.135,
+        "w": 1.89,
+        "h": 0.86
+      },
+      {
+        "id": "Bone_06_join",
+        "area": "The Marrow",
+        "x": -8.175,
+        "y": -8.335,
+        "w": 0.091,
+        "h": 0.2
+      },
+      {
+        "id": "Bone_07",
+        "area": "The Marrow",
+        "x": -2.987,
+        "y": -9.16,
+        "w": 1.437,
+        "h": 1.13
+      },
+      {
+        "id": "Bone_07_bot_left",
+        "area": "The Marrow",
+        "x": -2.987,
+        "y": -9.16,
+        "w": 1.43,
+        "h": 1.11
+      },
+      {
+        "id": "Bone_08",
+        "area": "The Marrow",
+        "x": -1.961,
+        "y": -9.91,
+        "w": 0.621,
+        "h": 1.61
+      },
+      {
+        "id": "Bone_09",
+        "area": "The Marrow",
+        "x": -0.844,
+        "y": -11.114,
+        "w": 2.873,
+        "h": 0.82
+      },
+      {
+        "id": "Bone_10",
+        "area": "The Marrow",
+        "x": -5.343,
+        "y": -10.208,
+        "w": 1.74,
+        "h": 1.07
+      },
+      {
+        "id": "Bone_10_act3_bench",
+        "area": "The Marrow",
+        "x": -5.343,
+        "y": -10.208,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Bone_10_left",
+        "area": "The Marrow",
+        "x": -5.343,
+        "y": -10.208,
+        "w": 1.74,
+        "h": 1.07
+      },
+      {
+        "id": "Bone_11",
+        "area": "Mosslands",
+        "x": -11.807,
+        "y": -9.603,
+        "w": 2.13,
+        "h": 0.54
+      },
+      {
+        "id": "Bone_11b",
+        "area": "Mosslands",
+        "x": -11.113,
+        "y": -9.97,
+        "w": 1.04,
+        "h": 0.35
+      },
+      {
+        "id": "Bone_12",
+        "area": "The Marrow",
+        "x": -1.752,
+        "y": -10.252,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Bone_14",
+        "area": "The Marrow",
+        "x": -4.872,
+        "y": -9.29,
+        "w": 2.34,
+        "h": 0.55
+      },
+      {
+        "id": "Bone_15",
+        "area": "The Marrow",
+        "x": -3.577,
+        "y": -10.168,
+        "w": 1.81,
+        "h": 0.51
+      },
+      {
+        "id": "Bone_16",
+        "area": "The Marrow",
+        "x": -3.366,
+        "y": -10.964,
+        "w": 2.194,
+        "h": 1.14
+      },
+      {
+        "id": "Bone_16_right",
+        "area": "The Marrow",
+        "x": -3.366,
+        "y": -10.964,
+        "w": 2.194,
+        "h": 1.16
+      },
+      {
+        "id": "Bone_16_top",
+        "area": "The Marrow",
+        "x": -3.331,
+        "y": -10.691,
+        "w": 2.004,
+        "h": 0.552
+      },
+      {
+        "id": "Bone_17",
+        "area": "The Marrow",
+        "x": -7.086,
+        "y": -10.099,
+        "w": 0.587,
+        "h": 0.25
+      },
+      {
+        "id": "Bone_18",
+        "area": "The Marrow",
+        "x": -5.937,
+        "y": -8.21,
+        "w": 0.75,
+        "h": 0.59
+      },
+      {
+        "id": "Bone_18_top",
+        "area": "The Marrow",
+        "x": -5.937,
+        "y": -8.21,
+        "w": 0.75,
+        "h": 0.59
+      },
+      {
+        "id": "Bone_19",
+        "area": "The Marrow",
+        "x": -3.731,
+        "y": -8.386,
+        "w": 2.462,
+        "h": 0.45
+      },
+      {
+        "id": "Bone_East_01",
+        "area": "Deep Docks",
+        "x": 3.287,
+        "y": -11.174,
+        "w": 0.69,
+        "h": 1.32
+      },
+      {
+        "id": "Bone_East_02",
+        "area": "Far Fields",
+        "x": 8.094,
+        "y": -11.486,
+        "w": 2.49,
+        "h": 0.59
+      },
+      {
+        "id": "Bone_East_02b",
+        "area": "Far Fields",
+        "x": 9.531,
+        "y": -11.477,
+        "w": 5.36,
+        "h": 0.61
+      },
+      {
+        "id": "Bone_East_03",
+        "area": "Deep Docks",
+        "x": 5.49,
+        "y": -10.809,
+        "w": 3.72,
+        "h": 0.63
+      },
+      {
+        "id": "Bone_East_03_right",
+        "area": "Deep Docks",
+        "x": 5.49,
+        "y": -10.809,
+        "w": 3.72,
+        "h": 0.63
+      },
+      {
+        "id": "Bone_East_04",
+        "area": "Deep Docks",
+        "x": 6.821,
+        "y": -10.317,
+        "w": 1.36,
+        "h": 1.69
+      },
+      {
+        "id": "Bone_East_04_bot",
+        "area": "Deep Docks",
+        "x": 6.821,
+        "y": -10.317,
+        "w": 1.36,
+        "h": 1.69
+      },
+      {
+        "id": "Bone_East_04b",
+        "area": "Deep Docks",
+        "x": 6.501,
+        "y": -10.318,
+        "w": 0.68,
+        "h": 1.69
+      },
+      {
+        "id": "Bone_East_04c",
+        "area": "Deep Docks",
+        "x": 8.016,
+        "y": -9.742,
+        "w": 1.03,
+        "h": 0.26
+      },
+      {
+        "id": "Bone_East_05",
+        "area": "Deep Docks",
+        "x": 4.552,
+        "y": -10.153,
+        "w": 3.22,
+        "h": 0.76
+      },
+      {
+        "id": "Bone_East_07",
+        "area": "Far Fields",
+        "x": 12.535,
+        "y": -11.107,
+        "w": 0.68,
+        "h": 3.15
+      },
+      {
+        "id": "Bone_East_07_bot",
+        "area": "Far Fields",
+        "x": 12.544,
+        "y": -11.107,
+        "w": 0.67,
+        "h": 3.15
+      },
+      {
+        "id": "Bone_East_07_top",
+        "area": "Far Fields",
+        "x": 12.544,
+        "y": -11.107,
+        "w": 0.68,
+        "h": 3.15
+      },
+      {
+        "id": "Bone_East_08",
+        "area": "Far Fields",
+        "x": 14.121,
+        "y": -12.302,
+        "w": 2.49,
+        "h": 0.88
+      },
+      {
+        "id": "Bone_East_08_right",
+        "area": "Far Fields",
+        "x": 14.121,
+        "y": -12.302,
+        "w": 2.49,
+        "h": 0.88
+      },
+      {
+        "id": "Bone_East_09",
+        "area": "Far Fields",
+        "x": 16.18,
+        "y": -12.143,
+        "w": 1.63,
+        "h": 1.7
+      },
+      {
+        "id": "Bone_East_09b",
+        "area": "Far Fields",
+        "x": 16.115,
+        "y": -11.197,
+        "w": 1.53,
+        "h": 3.05
+      },
+      {
+        "id": "Bone_East_10",
+        "area": "Far Fields",
+        "x": 13.909,
+        "y": -9.416,
+        "w": 2.074,
+        "h": 0.61
+      },
+      {
+        "id": "Bone_East_10_Church",
+        "area": "Far Fields",
+        "x": 14.48,
+        "y": -9.548,
+        "w": 3.16,
+        "h": 0.39
+      },
+      {
+        "id": "Bone_East_10_Gate",
+        "area": "Far Fields",
+        "x": 13.909,
+        "y": -9.416,
+        "w": 2.054,
+        "h": 0.61
+      },
+      {
+        "id": "Bone_East_10_Room",
+        "area": "Far Fields",
+        "x": 13.977,
+        "y": -9.529,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Bone_East_10_top_right",
+        "area": "Far Fields",
+        "x": 13.922,
+        "y": -9.411,
+        "w": 1.95,
+        "h": 0.61
+      },
+      {
+        "id": "Bone_East_11",
+        "area": "Far Fields",
+        "x": 12.548,
+        "y": -7.147,
+        "w": 0.67,
+        "h": 4.77
+      },
+      {
+        "id": "Bone_East_11_connection",
+        "area": "Far Fields",
+        "x": 12.548,
+        "y": -7.23,
+        "w": 0.67,
+        "h": 4.77
+      },
+      {
+        "id": "Bone_East_11_top",
+        "area": "Far Fields",
+        "x": 12.548,
+        "y": -7.23,
+        "w": 0.67,
+        "h": 4.77
+      },
+      {
+        "id": "Bone_East_12",
+        "area": "Deep Docks",
+        "x": 4.976,
+        "y": -11.52,
+        "w": 2.69,
+        "h": 0.51
+      },
+      {
+        "id": "Bone_East_13",
+        "area": "Deep Docks",
+        "x": 4.574,
+        "y": -13.2,
+        "w": 2.07,
+        "h": 0.51
+      },
+      {
+        "id": "Bone_East_14",
+        "area": "Far Fields",
+        "x": 18.164,
+        "y": -12.308,
+        "w": 2.35,
+        "h": 1.33
+      },
+      {
+        "id": "Bone_East_14_2",
+        "area": "Far Fields",
+        "x": 17.226,
+        "y": -12.787,
+        "w": 0.723,
+        "h": 0.19
+      },
+      {
+        "id": "Bone_East_14b",
+        "area": "Far Fields",
+        "x": 19.56,
+        "y": -12.343,
+        "w": 5.11,
+        "h": 1.22
+      },
+      {
+        "id": "Bone_East_14b_lava_room",
+        "area": "Far Fields",
+        "x": 20.68,
+        "y": -12.343,
+        "w": 2.68,
+        "h": 1.22
+      },
+      {
+        "id": "Bone_East_15",
+        "area": "Far Fields",
+        "x": 8.873,
+        "y": -10.273,
+        "w": 2.77,
+        "h": 1.79
+      },
+      {
+        "id": "Bone_East_15_bot",
+        "area": "Far Fields",
+        "x": 8.886,
+        "y": -10.342,
+        "w": 2.77,
+        "h": 1.7
+      },
+      {
+        "id": "Bone_East_15_left",
+        "area": "Far Fields",
+        "x": 8.886,
+        "y": -10.342,
+        "w": 2.77,
+        "h": 1.7
+      },
+      {
+        "id": "Bone_East_15_top_right",
+        "area": "Far Fields",
+        "x": 8.886,
+        "y": -10.342,
+        "w": 2.77,
+        "h": 1.7
+      },
+      {
+        "id": "Bone_East_16",
+        "area": "Far Fields",
+        "x": 9.842,
+        "y": -10.962,
+        "w": 0.88,
+        "h": 0.42
+      },
+      {
+        "id": "Bone_East_17",
+        "area": "Far Fields",
+        "x": 11.24,
+        "y": -10.317,
+        "w": 1.942,
+        "h": 1.71
+      },
+      {
+        "id": "Bone_East_17_top",
+        "area": "Far Fields",
+        "x": 11.24,
+        "y": -10.317,
+        "w": 1.942,
+        "h": 1.71
+      },
+      {
+        "id": "Bone_East_17b",
+        "area": "Far Fields",
+        "x": 11.193,
+        "y": -10.666,
+        "w": 1.84,
+        "h": 1.01
+      },
+      {
+        "id": "Bone_East_17b_join",
+        "area": "Far Fields",
+        "x": 10.301,
+        "y": -10.982,
+        "w": 0.208,
+        "h": 0.237
+      },
+      {
+        "id": "Bone_East_18",
+        "area": "Far Fields",
+        "x": 16.436,
+        "y": -8.917,
+        "w": 2.82,
+        "h": 1.05
+      },
+      {
+        "id": "Bone_East_18b",
+        "area": "Far Fields",
+        "x": 20.675,
+        "y": -9.542,
+        "w": 5.66,
+        "h": 1.86
+      },
+      {
+        "id": "Bone_East_18b_bot",
+        "area": "Far Fields",
+        "x": 20.552,
+        "y": -9.792,
+        "w": 1.2,
+        "h": 1.51
+      },
+      {
+        "id": "Bone_East_18b_bot_left",
+        "area": "Far Fields",
+        "x": 20.552,
+        "y": -9.792,
+        "w": 1.87,
+        "h": 1.35
+      },
+      {
+        "id": "Bone_East_18b_right",
+        "area": "Far Fields",
+        "x": 22.331,
+        "y": -8.93,
+        "w": 2.56,
+        "h": 0.66
+      },
+      {
+        "id": "Bone_East_18c",
+        "area": "Far Fields",
+        "x": 15.441,
+        "y": -9.27,
+        "w": 1.09,
+        "h": 0.29
+      },
+      {
+        "id": "Bone_East_20",
+        "area": "Far Fields",
+        "x": 14.134,
+        "y": -11.629,
+        "w": 2.47,
+        "h": 0.53
+      },
+      {
+        "id": "Bone_East_21",
+        "area": "Far Fields",
+        "x": 13.229,
+        "y": -11.727,
+        "w": 0.7,
+        "h": 0.45
+      },
+      {
+        "id": "Bone_East_22",
+        "area": "Far Fields",
+        "x": 13.375,
+        "y": -10.417,
+        "w": 1.0,
+        "h": 0.25
+      },
+      {
+        "id": "Bone_East_24",
+        "area": "Far Fields",
+        "x": 15.046,
+        "y": -7.802,
+        "w": 4.34,
+        "h": 1.18
+      },
+      {
+        "id": "Bone_East_25",
+        "area": "Far Fields",
+        "x": 19.345,
+        "y": -7.667,
+        "w": 2.6,
+        "h": 0.39
+      },
+      {
+        "id": "Bone_East_25_right",
+        "area": "Far Fields",
+        "x": 19.345,
+        "y": -7.667,
+        "w": 2.6,
+        "h": 0.39
+      },
+      {
+        "id": "Bone_East_26",
+        "area": "Far Fields",
+        "x": 19.035,
+        "y": -8.277,
+        "w": 3.51,
+        "h": 0.79
+      },
+      {
+        "id": "Bone_East_27",
+        "area": "Far Fields",
+        "x": 17.629,
+        "y": -7.416,
+        "w": 0.84,
+        "h": 1.03
+      },
+      {
+        "id": "Bone_East_27_top",
+        "area": "Far Fields",
+        "x": 17.629,
+        "y": -7.416,
+        "w": 0.84,
+        "h": 1.03
+      },
+      {
+        "id": "Bone_East_LavaChallenge",
+        "area": "Far Fields",
+        "x": 20.122,
+        "y": -12.456,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Bone_East_Umbrella",
+        "area": "Far Fields",
+        "x": 16.154,
+        "y": -12.266,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Bone_East_Weavehome",
+        "area": "Far Fields",
+        "x": 23.601,
+        "y": -13.341,
+        "w": 3.49,
+        "h": 2.02
+      },
+      {
+        "id": "Bone_East_Weavehome_Basement",
+        "area": "Far Fields",
+        "x": 23.756,
+        "y": -13.141,
+        "w": 2.14,
+        "h": 0.68
+      },
+      {
+        "id": "Bone_Steel_Servant",
+        "area": "Mosslands",
+        "x": -20.663,
+        "y": -11.719,
+        "w": 2.29,
+        "h": 0.67
+      },
+      {
+        "id": "Bonegrave",
+        "area": "Mosslands",
+        "x": -19.456,
+        "y": -10.986,
+        "w": 5.75,
+        "h": 1.47
+      },
+      {
+        "id": "Bonegrave_Gate",
+        "area": "Mosslands",
+        "x": -13.761,
+        "y": -10.682,
+        "w": 6.26,
+        "h": 1.56
+      },
+      {
+        "id": "Bonegrave_top",
+        "area": "Mosslands",
+        "x": -17.532,
+        "y": -10.358,
+        "w": 0.24,
+        "h": 0.19
+      },
+      {
+        "id": "Bonetown",
+        "area": "Mosslands",
+        "x": -13.761,
+        "y": -10.682,
+        "w": 5.64,
+        "h": 1.56
+      },
+      {
+        "id": "Bonetown_top_left",
+        "area": "Mosslands",
+        "x": -13.761,
+        "y": -10.682,
+        "w": 5.64,
+        "h": 1.56
+      },
+      {
+        "id": "Bonetown_top_right",
+        "area": "Mosslands",
+        "x": -13.761,
+        "y": -10.682,
+        "w": 5.64,
+        "h": 1.56
+      },
+      {
+        "id": "Chapel_Wanderer",
+        "area": "Mosslands",
+        "x": -18.73,
+        "y": -11.557,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Clover_01",
+        "area": "Verdania",
+        "x": 20.2,
+        "y": -4.982,
+        "w": 3.27,
+        "h": 0.44
+      },
+      {
+        "id": "Clover_01b",
+        "area": "Verdania",
+        "x": 20.2,
+        "y": -4.982,
+        "w": 3.27,
+        "h": 0.4
+      },
+      {
+        "id": "Clover_02c",
+        "area": "Verdania",
+        "x": 23.478,
+        "y": -4.542,
+        "w": 3.29,
+        "h": 1.18
+      },
+      {
+        "id": "Clover_02c_bot_right",
+        "area": "Verdania",
+        "x": 23.478,
+        "y": -4.536,
+        "w": 3.32,
+        "h": 1.17
+      },
+      {
+        "id": "Clover_02c_top",
+        "area": "Verdania",
+        "x": 23.478,
+        "y": -4.542,
+        "w": 3.29,
+        "h": 1.18
+      },
+      {
+        "id": "Clover_03",
+        "area": "Verdania",
+        "x": 25.398,
+        "y": -4.057,
+        "w": 0.55,
+        "h": 3.23
+      },
+      {
+        "id": "Clover_04b",
+        "area": "Verdania",
+        "x": 23.479,
+        "y": -3.028,
+        "w": 3.29,
+        "h": 1.35
+      },
+      {
+        "id": "Clover_04b_top",
+        "area": "Verdania",
+        "x": 23.479,
+        "y": -3.028,
+        "w": 3.29,
+        "h": 1.35
+      },
+      {
+        "id": "Clover_05c",
+        "area": "Verdania",
+        "x": 21.575,
+        "y": -3.648,
+        "w": 0.52,
+        "h": 2.27
+      },
+      {
+        "id": "Clover_06",
+        "area": "Verdania",
+        "x": 21.213,
+        "y": -2.198,
+        "w": 4.36,
+        "h": 0.48
+      },
+      {
+        "id": "Clover_10",
+        "area": "Verdania",
+        "x": 23.737,
+        "y": -2.614,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Clover_10_web",
+        "area": "Verdania",
+        "x": 23.737,
+        "y": -2.614,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Clover_11",
+        "area": "Verdania",
+        "x": 23.008,
+        "y": -3.209,
+        "w": 1.29,
+        "h": 0.52
+      },
+      {
+        "id": "Clover_16",
+        "area": "Verdania",
+        "x": 20.171,
+        "y": -3.208,
+        "w": 2.29,
+        "h": 1.63
+      },
+      {
+        "id": "Clover_16_left",
+        "area": "Verdania",
+        "x": 19.526,
+        "y": -3.1,
+        "w": 0.68,
+        "h": 1.11
+      },
+      {
+        "id": "Clover_16_right",
+        "area": "Verdania",
+        "x": 20.911,
+        "y": -2.88,
+        "w": 0.79,
+        "h": 1.03
+      },
+      {
+        "id": "Clover_18",
+        "area": "Verdania",
+        "x": 27.259,
+        "y": -3.687,
+        "w": 3.18,
+        "h": 1.31
+      },
+      {
+        "id": "Clover_18_right",
+        "area": "Verdania",
+        "x": 27.254,
+        "y": -3.685,
+        "w": 3.18,
+        "h": 1.31
+      },
+      {
+        "id": "Clover_19",
+        "area": "Verdania",
+        "x": 22.613,
+        "y": -2.608,
+        "w": 1.56,
+        "h": 0.37
+      },
+      {
+        "id": "Clover_20",
+        "area": "Verdania",
+        "x": 23.049,
+        "y": -4.751,
+        "w": 2.43,
+        "h": 0.76
+      },
+      {
+        "id": "Clover_21",
+        "area": "Verdania",
+        "x": 19.906,
+        "y": -4.024,
+        "w": 2.82,
+        "h": 0.5
+      },
+      {
+        "id": "Cog_04",
+        "area": "Cogwork Core",
+        "x": 2.715,
+        "y": 6.638,
+        "w": 1.13,
+        "h": 2.66
+      },
+      {
+        "id": "Cog_05",
+        "area": "Cogwork Core",
+        "x": 1.091,
+        "y": 7.004,
+        "w": 2.19,
+        "h": 0.75
+      },
+      {
+        "id": "Cog_05_left",
+        "area": "Cogwork Core",
+        "x": 1.321,
+        "y": 7.004,
+        "w": 1.815,
+        "h": 0.81
+      },
+      {
+        "id": "Cog_06",
+        "area": "Cogwork Core",
+        "x": 4.036,
+        "y": 6.938,
+        "w": 1.516,
+        "h": 0.72
+      },
+      {
+        "id": "Cog_07",
+        "area": "Cogwork Core",
+        "x": 4.035,
+        "y": 5.708,
+        "w": 1.51,
+        "h": 1.2
+      },
+      {
+        "id": "Cog_07b",
+        "area": "Cogwork Core",
+        "x": 4.035,
+        "y": 5.708,
+        "w": 1.52,
+        "h": 1.23
+      },
+      {
+        "id": "Cog_08",
+        "area": "Cogwork Core",
+        "x": 2.719,
+        "y": 9.989,
+        "w": 1.2,
+        "h": 2.62
+      },
+      {
+        "id": "Cog_08_Destroyed",
+        "area": "Cogwork Core",
+        "x": 2.72,
+        "y": 9.971,
+        "w": 1.16,
+        "h": 2.86
+      },
+      {
+        "id": "Cog_08_top",
+        "area": "Cogwork Core",
+        "x": 2.719,
+        "y": 9.989,
+        "w": 1.2,
+        "h": 2.636
+      },
+      {
+        "id": "Cog_09",
+        "area": "Cogwork Core",
+        "x": 2.695,
+        "y": 11.771,
+        "w": 1.09,
+        "h": 1.77
+      },
+      {
+        "id": "Cog_09_Destroyed",
+        "area": "Cogwork Core",
+        "x": 2.695,
+        "y": 11.768,
+        "w": 1.09,
+        "h": 1.77
+      },
+      {
+        "id": "Cog_09_Destroyed_bot_right",
+        "area": "Cogwork Core",
+        "x": 3.111,
+        "y": 11.439,
+        "w": 0.54,
+        "h": 0.41
+      },
+      {
+        "id": "Cog_10",
+        "area": "Cogwork Core",
+        "x": 1.656,
+        "y": 7.278,
+        "w": 0.92,
+        "h": 0.87
+      },
+      {
+        "id": "Cog_10_Destroyed",
+        "area": "Cogwork Core",
+        "x": 3.616,
+        "y": 9.979,
+        "w": 0.47,
+        "h": 3.07
+      },
+      {
+        "id": "Cog_11_Destroyed",
+        "area": "High Halls",
+        "x": 1.256,
+        "y": 9.97,
+        "w": 0.77,
+        "h": 1.61
+      },
+      {
+        "id": "Cog_Dancers",
+        "area": "Cogwork Core",
+        "x": 2.694,
+        "y": 8.296,
+        "w": 1.35,
+        "h": 0.77
+      },
+      {
+        "id": "Cog_Dancers_Destroyed",
+        "area": "Cogwork Core",
+        "x": 2.694,
+        "y": 8.296,
+        "w": 1.35,
+        "h": 0.77
+      },
+      {
+        "id": "Cog_Dancers_Top",
+        "area": "Cogwork Core",
+        "x": 2.694,
+        "y": 8.296,
+        "w": 1.35,
+        "h": 0.77
+      },
+      {
+        "id": "Coral_02",
+        "area": "Blasted Steps",
+        "x": -15.956,
+        "y": -3.271,
+        "w": 4.0,
+        "h": 1.41
+      },
+      {
+        "id": "Coral_03",
+        "area": "Blasted Steps",
+        "x": -13.464,
+        "y": -2.175,
+        "w": 1.0,
+        "h": 3.58
+      },
+      {
+        "id": "Coral_10",
+        "area": "Grand Gate",
+        "x": -8.349,
+        "y": 0.815,
+        "w": 1.938,
+        "h": 0.44
+      },
+      {
+        "id": "Coral_11",
+        "area": "Blasted Steps",
+        "x": -15.466,
+        "y": -2.016,
+        "w": 3.006,
+        "h": 0.5
+      },
+      {
+        "id": "Coral_11b",
+        "area": "Blasted Steps",
+        "x": -17.161,
+        "y": -2.03,
+        "w": 1.602,
+        "h": 0.23
+      },
+      {
+        "id": "Coral_12",
+        "area": "Blasted Steps",
+        "x": -12.239,
+        "y": -2.445,
+        "w": 1.45,
+        "h": 1.22
+      },
+      {
+        "id": "Coral_19",
+        "area": "Blasted Steps",
+        "x": -16.074,
+        "y": -4.377,
+        "w": 6.8,
+        "h": 0.83
+      },
+      {
+        "id": "Coral_19_base",
+        "area": "Mosslands",
+        "x": -13.482,
+        "y": -7.382,
+        "w": 1.24,
+        "h": 5.19
+      },
+      {
+        "id": "Coral_19_left",
+        "area": "Blasted Steps",
+        "x": -16.074,
+        "y": -4.377,
+        "w": 6.8,
+        "h": 0.83
+      },
+      {
+        "id": "Coral_19b",
+        "area": "Blasted Steps",
+        "x": -18.533,
+        "y": -3.58,
+        "w": 1.94,
+        "h": 1.9
+      },
+      {
+        "id": "Coral_23",
+        "area": "Sands of Karak",
+        "x": -18.313,
+        "y": 0.932,
+        "w": 5.33,
+        "h": 1.61
+      },
+      {
+        "id": "Coral_23_secret",
+        "area": "Sands of Karak",
+        "x": -18.313,
+        "y": 0.932,
+        "w": 5.33,
+        "h": 1.61
+      },
+      {
+        "id": "Coral_24",
+        "area": "Sands of Karak",
+        "x": -13.645,
+        "y": 1.991,
+        "w": 3.036,
+        "h": 0.96
+      },
+      {
+        "id": "Coral_25",
+        "area": "Sands of Karak",
+        "x": -20.687,
+        "y": 0.059,
+        "w": 0.83,
+        "h": 1.819
+      },
+      {
+        "id": "Coral_26",
+        "area": "Sands of Karak",
+        "x": -11.888,
+        "y": 2.041,
+        "w": 0.493,
+        "h": 2.42
+      },
+      {
+        "id": "Coral_27",
+        "area": "Sands of Karak",
+        "x": -17.311,
+        "y": 3.591,
+        "w": 3.33,
+        "h": 0.74
+      },
+      {
+        "id": "Coral_28",
+        "area": "Sands of Karak",
+        "x": -19.882,
+        "y": 4.231,
+        "w": 1.83,
+        "h": 1.18
+      },
+      {
+        "id": "Coral_29",
+        "area": "Sands of Karak",
+        "x": -15.408,
+        "y": 4.261,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Coral_32",
+        "area": "Blasted Steps",
+        "x": -11.589,
+        "y": 0.14,
+        "w": 2.75,
+        "h": 1.87
+      },
+      {
+        "id": "Coral_32_arrow",
+        "area": "Blasted Steps",
+        "x": -11.589,
+        "y": 0.14,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Coral_33",
+        "area": "Blasted Steps",
+        "x": -18.084,
+        "y": -1.299,
+        "w": 1.05,
+        "h": 1.37
+      },
+      {
+        "id": "Coral_34",
+        "area": "Blasted Steps",
+        "x": -19.859,
+        "y": -1.504,
+        "w": 3.81,
+        "h": 1.36
+      },
+      {
+        "id": "Coral_34_mid",
+        "area": "Blasted Steps",
+        "x": -19.859,
+        "y": -1.504,
+        "w": 3.81,
+        "h": 1.36
+      },
+      {
+        "id": "Coral_34_top",
+        "area": "Blasted Steps",
+        "x": -19.422,
+        "y": -1.515,
+        "w": 2.94,
+        "h": 1.34
+      },
+      {
+        "id": "Coral_35",
+        "area": "Blasted Steps",
+        "x": -15.405,
+        "y": 0.245,
+        "w": 0.491,
+        "h": 2.48
+      },
+      {
+        "id": "Coral_35_secret",
+        "area": "Blasted Steps",
+        "x": -15.405,
+        "y": 0.245,
+        "w": 0.491,
+        "h": 2.48
+      },
+      {
+        "id": "Coral_35_top_break_base",
+        "area": "Sands of Karak",
+        "x": -15.405,
+        "y": 0.791,
+        "w": 0.49,
+        "h": 3.56
+      },
+      {
+        "id": "Coral_35_top_break_base_bottom",
+        "area": "Blasted Steps",
+        "x": -15.405,
+        "y": 0.795,
+        "w": 0.49,
+        "h": 3.56
+      },
+      {
+        "id": "Coral_35b",
+        "area": "Sands of Karak",
+        "x": -15.405,
+        "y": 2.971,
+        "w": 0.49,
+        "h": 2.95
+      },
+      {
+        "id": "Coral_35b_secret",
+        "area": "Sands of Karak",
+        "x": -15.405,
+        "y": 2.978,
+        "w": 0.49,
+        "h": 2.94
+      },
+      {
+        "id": "Coral_36",
+        "area": "Blasted Steps",
+        "x": -14.576,
+        "y": 0.235,
+        "w": 1.17,
+        "h": 0.94
+      },
+      {
+        "id": "Coral_37",
+        "area": "Blasted Steps",
+        "x": -10.777,
+        "y": -2.431,
+        "w": 1.59,
+        "h": 0.42
+      },
+      {
+        "id": "Coral_37_join",
+        "area": "Blasted Steps",
+        "x": -10.777,
+        "y": -2.431,
+        "w": 1.59,
+        "h": 0.42
+      },
+      {
+        "id": "Coral_37_right",
+        "area": "Blasted Steps",
+        "x": -10.777,
+        "y": -2.431,
+        "w": 1.59,
+        "h": 0.42
+      },
+      {
+        "id": "Coral_38",
+        "area": "Sands of Karak",
+        "x": -10.549,
+        "y": 1.81,
+        "w": 2.19,
+        "h": 1.48
+      },
+      {
+        "id": "Coral_38_bot",
+        "area": "Sands of Karak",
+        "x": -10.549,
+        "y": 1.81,
+        "w": 2.19,
+        "h": 1.48
+      },
+      {
+        "id": "Coral_39",
+        "area": "Sands of Karak",
+        "x": -20.598,
+        "y": 1.757,
+        "w": 2.25,
+        "h": 1.08
+      },
+      {
+        "id": "Coral_40",
+        "area": "Sands of Karak",
+        "x": -16.099,
+        "y": 1.931,
+        "w": 0.9,
+        "h": 0.34
+      },
+      {
+        "id": "Coral_41",
+        "area": "Sands of Karak",
+        "x": -16.894,
+        "y": 2.666,
+        "w": 2.5,
+        "h": 1.13
+      },
+      {
+        "id": "Coral_42",
+        "area": "Blasted Steps",
+        "x": -16.185,
+        "y": 0.22,
+        "w": 1.07,
+        "h": 0.65
+      },
+      {
+        "id": "Coral_42_top",
+        "area": "Blasted Steps",
+        "x": -16.184,
+        "y": 0.178,
+        "w": 1.07,
+        "h": 0.65
+      },
+      {
+        "id": "Coral_43",
+        "area": "Blasted Steps",
+        "x": -16.605,
+        "y": -0.785,
+        "w": 1.91,
+        "h": 0.3
+      },
+      {
+        "id": "Coral_44",
+        "area": "Sands of Karak",
+        "x": -13.646,
+        "y": 3.066,
+        "w": 3.03,
+        "h": 0.89
+      },
+      {
+        "id": "Coral_Judge_Arena",
+        "area": "Blasted Steps",
+        "x": -9.714,
+        "y": 0.565,
+        "w": 1.04,
+        "h": 0.72
+      },
+      {
+        "id": "Coral_Tower_01",
+        "area": "Sands of Karak",
+        "x": -20.006,
+        "y": 3.819,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Cradle_01",
+        "area": "The Cradle",
+        "x": 2.637,
+        "y": 13.524,
+        "w": 1.371,
+        "h": 1.19
+      },
+      {
+        "id": "Cradle_01_Destroyed",
+        "area": "The Cradle",
+        "x": 2.451,
+        "y": 13.699,
+        "w": 1.44,
+        "h": 1.59
+      },
+      {
+        "id": "Cradle_02",
+        "area": "The Cradle",
+        "x": 1.297,
+        "y": 14.074,
+        "w": 1.31,
+        "h": 1.79
+      },
+      {
+        "id": "Cradle_02b",
+        "area": "The Cradle",
+        "x": 0.97,
+        "y": 13.485,
+        "w": 1.04,
+        "h": 1.05
+      },
+      {
+        "id": "Cradle_03",
+        "area": "The Cradle",
+        "x": 2.636,
+        "y": 15.004,
+        "w": 1.37,
+        "h": 2.75
+      },
+      {
+        "id": "Cradle_03_Destroyed",
+        "area": "The Cradle",
+        "x": 2.634,
+        "y": 15.268,
+        "w": 1.37,
+        "h": 3.26
+      },
+      {
+        "id": "Cradle_Destroyed_Challenge_01",
+        "area": "The Cradle",
+        "x": 2.682,
+        "y": 16.502,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Cradle_Destroyed_Challenge_02",
+        "area": "The Cradle",
+        "x": 2.682,
+        "y": 16.644,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Crawl_01",
+        "area": "Wormways",
+        "x": -15.295,
+        "y": -7.808,
+        "w": 2.39,
+        "h": 2.15
+      },
+      {
+        "id": "Crawl_02",
+        "area": "Wormways",
+        "x": -16.751,
+        "y": -8.513,
+        "w": 0.52,
+        "h": 2.52
+      },
+      {
+        "id": "Crawl_02_top",
+        "area": "Wormways",
+        "x": -16.75,
+        "y": -8.188,
+        "w": 0.52,
+        "h": 1.99
+      },
+      {
+        "id": "Crawl_03",
+        "area": "Wormways",
+        "x": -18.55,
+        "y": -8.419,
+        "w": 3.22,
+        "h": 1.29
+      },
+      {
+        "id": "Crawl_03b",
+        "area": "Wormways",
+        "x": -18.151,
+        "y": -9.243,
+        "w": 2.28,
+        "h": 0.36
+      },
+      {
+        "id": "Crawl_04",
+        "area": "Wormways",
+        "x": -15.439,
+        "y": -9.298,
+        "w": 2.68,
+        "h": 0.33
+      },
+      {
+        "id": "Crawl_05",
+        "area": "Wormways",
+        "x": -21.788,
+        "y": -8.736,
+        "w": 3.82,
+        "h": 0.458
+      },
+      {
+        "id": "Crawl_06",
+        "area": "Wormways",
+        "x": -15.847,
+        "y": -8.815,
+        "w": 1.54,
+        "h": 0.54
+      },
+      {
+        "id": "Crawl_07",
+        "area": "Wormways",
+        "x": -17.751,
+        "y": -9.843,
+        "w": 1.38,
+        "h": 0.84
+      },
+      {
+        "id": "Crawl_08",
+        "area": "Wormways",
+        "x": -18.21,
+        "y": -7.575,
+        "w": 1.9,
+        "h": 0.4
+      },
+      {
+        "id": "Crawl_09",
+        "area": "Wormways",
+        "x": -19.366,
+        "y": -9.892,
+        "w": 1.85,
+        "h": 0.9
+      },
+      {
+        "id": "Crawl_10",
+        "area": "Wormways",
+        "x": -20.591,
+        "y": -9.872,
+        "w": 0.82,
+        "h": 0.32
+      },
+      {
+        "id": "Dock_01",
+        "area": "Deep Docks",
+        "x": 2.612,
+        "y": -10.738,
+        "w": 0.66,
+        "h": 1.39
+      },
+      {
+        "id": "Dock_02",
+        "area": "Deep Docks",
+        "x": 6.884,
+        "y": -13.066,
+        "w": 2.05,
+        "h": 1.634
+      },
+      {
+        "id": "Dock_02_bot_left",
+        "area": "Deep Docks",
+        "x": 6.884,
+        "y": -12.963,
+        "w": 2.05,
+        "h": 1.93
+      },
+      {
+        "id": "Dock_02_shortcut",
+        "area": "Deep Docks",
+        "x": 6.077,
+        "y": -13.12,
+        "w": 0.3,
+        "h": 0.62
+      },
+      {
+        "id": "Dock_02_top",
+        "area": "Deep Docks",
+        "x": 6.884,
+        "y": -12.965,
+        "w": 2.05,
+        "h": 1.93
+      },
+      {
+        "id": "Dock_02b",
+        "area": "Deep Docks",
+        "x": 8.658,
+        "y": -12.951,
+        "w": 1.498,
+        "h": 1.952
+      },
+      {
+        "id": "Dock_02b_bot",
+        "area": "Deep Docks",
+        "x": 8.654,
+        "y": -12.928,
+        "w": 1.51,
+        "h": 1.92
+      },
+      {
+        "id": "Dock_02b_gate",
+        "area": "Deep Docks",
+        "x": 8.954,
+        "y": -12.821,
+        "w": 0.61,
+        "h": 0.179
+      },
+      {
+        "id": "Dock_02b_top",
+        "area": "Deep Docks",
+        "x": 8.658,
+        "y": -12.415,
+        "w": 1.5,
+        "h": 0.835
+      },
+      {
+        "id": "Dock_03",
+        "area": "Deep Docks",
+        "x": 10.797,
+        "y": -12.849,
+        "w": 2.79,
+        "h": 1.76
+      },
+      {
+        "id": "Dock_03_top_right",
+        "area": "Deep Docks",
+        "x": 11.574,
+        "y": -12.218,
+        "w": 0.15,
+        "h": 0.26
+      },
+      {
+        "id": "Dock_03b",
+        "area": "Far Fields",
+        "x": 10.829,
+        "y": -12.888,
+        "w": 2.77,
+        "h": 2.03
+      },
+      {
+        "id": "Dock_03b_2",
+        "area": "Far Fields",
+        "x": 11.924,
+        "y": -12.167,
+        "w": 0.48,
+        "h": 0.58
+      },
+      {
+        "id": "Dock_03b_left",
+        "area": "Far Fields",
+        "x": 11.73,
+        "y": -12.225,
+        "w": 0.17,
+        "h": 0.37
+      },
+      {
+        "id": "Dock_03c",
+        "area": "Deep Docks",
+        "x": 10.771,
+        "y": -13.309,
+        "w": 2.74,
+        "h": 1.22
+      },
+      {
+        "id": "Dock_03c_2",
+        "area": "Deep Docks",
+        "x": 11.835,
+        "y": -13.385,
+        "w": 0.8,
+        "h": 1.27
+      },
+      {
+        "id": "Dock_03d",
+        "area": "Deep Docks",
+        "x": 10.285,
+        "y": -13.225,
+        "w": 1.81,
+        "h": 1.17
+      },
+      {
+        "id": "Dock_04",
+        "area": "Deep Docks",
+        "x": 3.269,
+        "y": -13.401,
+        "w": 0.56,
+        "h": 1.89
+      },
+      {
+        "id": "Dock_04_sauna_exit",
+        "area": "Deep Docks",
+        "x": 3.269,
+        "y": -13.406,
+        "w": 0.56,
+        "h": 1.89
+      },
+      {
+        "id": "Dock_05",
+        "area": "Deep Docks",
+        "x": 3.877,
+        "y": -11.221,
+        "w": 0.49,
+        "h": 0.3
+      },
+      {
+        "id": "Dock_06_Church",
+        "area": "Deep Docks",
+        "x": 2.395,
+        "y": -13.976,
+        "w": 1.19,
+        "h": 0.66
+      },
+      {
+        "id": "Dock_06_Church_bottom",
+        "area": "Deep Docks",
+        "x": 2.456,
+        "y": -14.064,
+        "w": 0.71,
+        "h": 0.44
+      },
+      {
+        "id": "Dock_08",
+        "area": "Deep Docks",
+        "x": 1.433,
+        "y": -11.168,
+        "w": 1.7,
+        "h": 0.53
+      },
+      {
+        "id": "Dock_08_2",
+        "area": "Deep Docks",
+        "x": 1.433,
+        "y": -11.168,
+        "w": 1.7,
+        "h": 0.53
+      },
+      {
+        "id": "Dock_09",
+        "area": "Deep Docks",
+        "x": 5.21,
+        "y": -13.808,
+        "w": 1.3,
+        "h": 0.48
+      },
+      {
+        "id": "Dock_10",
+        "area": "Deep Docks",
+        "x": 3.761,
+        "y": -14.095,
+        "w": 0.68,
+        "h": 0.39
+      },
+      {
+        "id": "Dock_11",
+        "area": "Deep Docks",
+        "x": 5.762,
+        "y": -15.229,
+        "w": 2.41,
+        "h": 1.24
+      },
+      {
+        "id": "Dock_12",
+        "area": "Deep Docks",
+        "x": 7.352,
+        "y": -14.778,
+        "w": 0.78,
+        "h": 1.08
+      },
+      {
+        "id": "Dock_12_top",
+        "area": "Deep Docks",
+        "x": 7.348,
+        "y": -14.64,
+        "w": 0.77,
+        "h": 1.0
+      },
+      {
+        "id": "Dock_13",
+        "area": "Deep Docks",
+        "x": 3.851,
+        "y": -14.904,
+        "w": 0.5,
+        "h": 1.23
+      },
+      {
+        "id": "Dock_14",
+        "area": "Deep Docks",
+        "x": 4.807,
+        "y": -14.263,
+        "w": 0.5,
+        "h": 0.37
+      },
+      {
+        "id": "Dock_15",
+        "area": "Deep Docks",
+        "x": 4.33,
+        "y": -14.339,
+        "w": 0.46,
+        "h": 1.38
+      },
+      {
+        "id": "Dock_15_secret",
+        "area": "Deep Docks",
+        "x": 4.33,
+        "y": -14.339,
+        "w": 0.46,
+        "h": 1.38
+      },
+      {
+        "id": "Dock_16",
+        "area": "Deep Docks",
+        "x": 1.239,
+        "y": -11.819,
+        "w": 1.06,
+        "h": 0.68
+      },
+      {
+        "id": "Dust_01",
+        "area": "Sinner's Road",
+        "x": 9.261,
+        "y": -3.317,
+        "w": 2.56,
+        "h": 0.43
+      },
+      {
+        "id": "Dust_02",
+        "area": "Sinner's Road",
+        "x": 10.887,
+        "y": -2.493,
+        "w": 0.693,
+        "h": 2.18
+      },
+      {
+        "id": "Dust_03",
+        "area": "Sinner's Road",
+        "x": 12.433,
+        "y": -3.182,
+        "w": 2.4,
+        "h": 0.62
+      },
+      {
+        "id": "Dust_04",
+        "area": "Sinner's Road",
+        "x": 12.082,
+        "y": -2.208,
+        "w": 1.7,
+        "h": 1.49
+      },
+      {
+        "id": "Dust_05",
+        "area": "Sinner's Road",
+        "x": 11.147,
+        "y": -1.186,
+        "w": 5.77,
+        "h": 0.46
+      },
+      {
+        "id": "Dust_05_2",
+        "area": "Sinner's Road",
+        "x": 8.568,
+        "y": -1.072,
+        "w": 0.59,
+        "h": 0.27
+      },
+      {
+        "id": "Dust_06",
+        "area": "Sinner's Road",
+        "x": 14.339,
+        "y": -1.196,
+        "w": 0.63,
+        "h": 3.0
+      },
+      {
+        "id": "Dust_06_right",
+        "area": "Sinner's Road",
+        "x": 14.339,
+        "y": -1.196,
+        "w": 0.63,
+        "h": 3.0
+      },
+      {
+        "id": "Dust_06_top",
+        "area": "Sinner's Road",
+        "x": 14.339,
+        "y": -1.196,
+        "w": 0.63,
+        "h": 3.0
+      },
+      {
+        "id": "Dust_09",
+        "area": "Bilewater",
+        "x": 9.696,
+        "y": 0.217,
+        "w": 2.85,
+        "h": 0.9
+      },
+      {
+        "id": "Dust_09_into_citadel",
+        "area": "Bilewater",
+        "x": 10.042,
+        "y": 1.796,
+        "w": 0.21,
+        "h": 2.81
+      },
+      {
+        "id": "Dust_09_right",
+        "area": "Bilewater",
+        "x": 9.696,
+        "y": 0.217,
+        "w": 3.1,
+        "h": 0.9
+      },
+      {
+        "id": "Dust_09_top_2",
+        "area": "Bilewater",
+        "x": 9.696,
+        "y": 0.217,
+        "w": 2.85,
+        "h": 0.9
+      },
+      {
+        "id": "Dust_10",
+        "area": "Sinner's Road",
+        "x": 9.26,
+        "y": -2.318,
+        "w": 2.56,
+        "h": 1.29
+      },
+      {
+        "id": "Dust_10b",
+        "area": "Sinner's Road",
+        "x": 9.281,
+        "y": -2.308,
+        "w": 2.12,
+        "h": 1.19
+      },
+      {
+        "id": "Dust_11",
+        "area": "Sinner's Road",
+        "x": 15.765,
+        "y": -2.493,
+        "w": 2.224,
+        "h": 0.66
+      },
+      {
+        "id": "Dust_11_bot",
+        "area": "Sinner's Road",
+        "x": 15.675,
+        "y": -2.703,
+        "w": 0.48,
+        "h": 0.29
+      },
+      {
+        "id": "Dust_11_left",
+        "area": "Sinner's Road",
+        "x": 15.628,
+        "y": -2.577,
+        "w": 1.95,
+        "h": 0.52
+      },
+      {
+        "id": "Dust_11_right",
+        "area": "Sinner's Road",
+        "x": 15.628,
+        "y": -2.577,
+        "w": 1.95,
+        "h": 0.52
+      },
+      {
+        "id": "Dust_12",
+        "area": "Sinner's Road",
+        "x": 14.963,
+        "y": -1.766,
+        "w": 0.62,
+        "h": 0.32
+      },
+      {
+        "id": "Dust_Barb",
+        "area": "Sinner's Road",
+        "x": 13.169,
+        "y": -3.766,
+        "w": 0.78,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Chef",
+        "area": "Sinner's Road",
+        "x": 13.428,
+        "y": -2.214,
+        "w": 1.212,
+        "h": 1.32
+      },
+      {
+        "id": "Dust_Chef_b",
+        "area": "Sinner's Road",
+        "x": 13.519,
+        "y": -1.85,
+        "w": 0.7,
+        "h": 0.47
+      },
+      {
+        "id": "Dust_Maze_01",
+        "area": "Sinner's Road",
+        "x": 7.17,
+        "y": -1.01,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Maze_02",
+        "area": "Sinner's Road",
+        "x": 7.17,
+        "y": -1.01,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Maze_03",
+        "area": "Sinner's Road",
+        "x": 7.17,
+        "y": -1.01,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Maze_04",
+        "area": "Sinner's Road",
+        "x": 7.17,
+        "y": -1.01,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Maze_05",
+        "area": "Sinner's Road",
+        "x": 7.17,
+        "y": -1.01,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Maze_06",
+        "area": "Sinner's Road",
+        "x": 7.17,
+        "y": -1.01,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Maze_07",
+        "area": "Sinner's Road",
+        "x": 7.17,
+        "y": -1.01,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Maze_08",
+        "area": "Sinner's Road",
+        "x": 7.17,
+        "y": -1.01,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Maze_08_completed",
+        "area": "Sinner's Road",
+        "x": 7.567,
+        "y": -0.443,
+        "w": 1.413,
+        "h": 1.47
+      },
+      {
+        "id": "Dust_Maze_09_entrance",
+        "area": "Sinner's Road",
+        "x": 7.79,
+        "y": -1.01,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Maze_Last_Hall",
+        "area": "Sinner's Road",
+        "x": 7.17,
+        "y": -1.01,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Maze_crossing",
+        "area": "Sinner's Road",
+        "x": 7.17,
+        "y": -1.01,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Dust_Shack",
+        "area": "Sinner's Road",
+        "x": 12.576,
+        "y": -1.761,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Enclave_bridge_left",
+        "area": "Choral Chambers",
+        "x": 8.878,
+        "y": 7.589,
+        "w": 1.66,
+        "h": 1.94
+      },
+      {
+        "id": "Greymoor_01",
+        "area": "Greymoor",
+        "x": 12.409,
+        "y": -4.666,
+        "w": 2.19,
+        "h": 0.89
+      },
+      {
+        "id": "Greymoor_01_bot",
+        "area": "Greymoor",
+        "x": 12.548,
+        "y": -7.327,
+        "w": 0.67,
+        "h": 4.77
+      },
+      {
+        "id": "Greymoor_01_top",
+        "area": "Greymoor",
+        "x": 12.41,
+        "y": -4.666,
+        "w": 2.19,
+        "h": 0.91
+      },
+      {
+        "id": "Greymoor_02",
+        "area": "Greymoor",
+        "x": 14.228,
+        "y": -4.183,
+        "w": 1.453,
+        "h": 2.46
+      },
+      {
+        "id": "Greymoor_02_mid",
+        "area": "Greymoor",
+        "x": 14.228,
+        "y": -4.183,
+        "w": 1.453,
+        "h": 2.46
+      },
+      {
+        "id": "Greymoor_02_top",
+        "area": "Greymoor",
+        "x": 14.228,
+        "y": -4.183,
+        "w": 1.453,
+        "h": 2.44
+      },
+      {
+        "id": "Greymoor_02_top_right",
+        "area": "Greymoor",
+        "x": 14.827,
+        "y": -3.121,
+        "w": 0.461,
+        "h": 0.25
+      },
+      {
+        "id": "Greymoor_03",
+        "area": "Greymoor",
+        "x": 7.374,
+        "y": -4.117,
+        "w": 1.92,
+        "h": 2.23
+      },
+      {
+        "id": "Greymoor_03_mid_right",
+        "area": "Greymoor",
+        "x": 7.374,
+        "y": -3.831,
+        "w": 1.92,
+        "h": 2.72
+      },
+      {
+        "id": "Greymoor_03_top",
+        "area": "Greymoor",
+        "x": 7.374,
+        "y": -3.831,
+        "w": 1.92,
+        "h": 2.72
+      },
+      {
+        "id": "Greymoor_04",
+        "area": "Greymoor",
+        "x": 6.074,
+        "y": -3.726,
+        "w": 0.68,
+        "h": 2.75
+      },
+      {
+        "id": "Greymoor_04_mid",
+        "area": "Greymoor",
+        "x": 6.074,
+        "y": -3.726,
+        "w": 0.68,
+        "h": 2.75
+      },
+      {
+        "id": "Greymoor_04_top",
+        "area": "Greymoor",
+        "x": 6.074,
+        "y": -3.726,
+        "w": 0.68,
+        "h": 2.75
+      },
+      {
+        "id": "Greymoor_05",
+        "area": "Greymoor",
+        "x": 4.809,
+        "y": -5.06,
+        "w": 1.854,
+        "h": 1.38
+      },
+      {
+        "id": "Greymoor_06",
+        "area": "Greymoor",
+        "x": 3.547,
+        "y": -4.54,
+        "w": 0.672,
+        "h": 3.6
+      },
+      {
+        "id": "Greymoor_06_mid_top",
+        "area": "Greymoor",
+        "x": 3.547,
+        "y": -4.166,
+        "w": 0.67,
+        "h": 3.61
+      },
+      {
+        "id": "Greymoor_06_top",
+        "area": "Greymoor",
+        "x": 3.547,
+        "y": -4.166,
+        "w": 0.67,
+        "h": 3.61
+      },
+      {
+        "id": "Greymoor_06_top_left",
+        "area": "Greymoor",
+        "x": 3.572,
+        "y": -2.63,
+        "w": 0.62,
+        "h": 0.57
+      },
+      {
+        "id": "Greymoor_07",
+        "area": "Greymoor",
+        "x": 2.585,
+        "y": -5.2,
+        "w": 1.252,
+        "h": 1.66
+      },
+      {
+        "id": "Greymoor_08",
+        "area": "Greymoor",
+        "x": 2.108,
+        "y": -6.351,
+        "w": 2.28,
+        "h": 0.66
+      },
+      {
+        "id": "Greymoor_10",
+        "area": "Greymoor",
+        "x": 4.808,
+        "y": -4.236,
+        "w": 1.854,
+        "h": 0.37
+      },
+      {
+        "id": "Greymoor_11",
+        "area": "Greymoor",
+        "x": 4.809,
+        "y": -3.461,
+        "w": 1.856,
+        "h": 1.18
+      },
+      {
+        "id": "Greymoor_11_top",
+        "area": "Greymoor",
+        "x": 4.809,
+        "y": -3.244,
+        "w": 1.856,
+        "h": 1.628
+      },
+      {
+        "id": "Greymoor_12",
+        "area": "Greymoor",
+        "x": 9.824,
+        "y": -4.408,
+        "w": 2.995,
+        "h": 0.55
+      },
+      {
+        "id": "Greymoor_13",
+        "area": "Greymoor",
+        "x": 9.825,
+        "y": -4.937,
+        "w": 2.986,
+        "h": 0.41
+      },
+      {
+        "id": "Greymoor_15",
+        "area": "Greymoor",
+        "x": 15.654,
+        "y": -4.828,
+        "w": 1.4,
+        "h": 1.41
+      },
+      {
+        "id": "Greymoor_15_mid",
+        "area": "Greymoor",
+        "x": 15.654,
+        "y": -4.826,
+        "w": 1.4,
+        "h": 1.41
+      },
+      {
+        "id": "Greymoor_15_top",
+        "area": "Greymoor",
+        "x": 15.654,
+        "y": -4.829,
+        "w": 1.4,
+        "h": 1.41
+      },
+      {
+        "id": "Greymoor_15b",
+        "area": "Greymoor",
+        "x": 16.858,
+        "y": -4.336,
+        "w": 3.59,
+        "h": 2.31
+      },
+      {
+        "id": "Greymoor_15b_2",
+        "area": "Greymoor",
+        "x": 17.439,
+        "y": -4.334,
+        "w": 2.17,
+        "h": 2.26
+      },
+      {
+        "id": "Greymoor_15b_bot_right",
+        "area": "Greymoor",
+        "x": 16.858,
+        "y": -4.336,
+        "w": 3.59,
+        "h": 2.31
+      },
+      {
+        "id": "Greymoor_16",
+        "area": "Greymoor",
+        "x": 4.632,
+        "y": -6.437,
+        "w": 2.77,
+        "h": 0.95
+      },
+      {
+        "id": "Greymoor_17",
+        "area": "Greymoor",
+        "x": 15.506,
+        "y": -3.468,
+        "w": 1.0,
+        "h": 1.24
+      },
+      {
+        "id": "Greymoor_17_bot",
+        "area": "Greymoor",
+        "x": 15.507,
+        "y": -3.468,
+        "w": 1.0,
+        "h": 1.24
+      },
+      {
+        "id": "Greymoor_20b",
+        "area": "Greymoor",
+        "x": 1.561,
+        "y": -5.24,
+        "w": 0.8,
+        "h": 0.34
+      },
+      {
+        "id": "Greymoor_20c",
+        "area": "Greymoor",
+        "x": 1.418,
+        "y": -5.305,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Greymoor_21",
+        "area": "Greymoor",
+        "x": 10.165,
+        "y": -5.381,
+        "w": 1.2,
+        "h": 0.48
+      },
+      {
+        "id": "Greymoor_22",
+        "area": "Greymoor",
+        "x": 17.594,
+        "y": -2.75,
+        "w": 2.0,
+        "h": 0.91
+      },
+      {
+        "id": "Greymoor_24",
+        "area": "Greymoor",
+        "x": 9.108,
+        "y": -3.892,
+        "w": 1.553,
+        "h": 0.52
+      },
+      {
+        "id": "Halfway_01",
+        "area": "Greymoor",
+        "x": 7.336,
+        "y": -4.967,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Hang_01",
+        "area": "Choral Chambers",
+        "x": -3.79,
+        "y": 8.684,
+        "w": 0.83,
+        "h": 1.94
+      },
+      {
+        "id": "Hang_01_2",
+        "area": "Choral Chambers",
+        "x": -3.79,
+        "y": 8.728,
+        "w": 0.83,
+        "h": 1.94
+      },
+      {
+        "id": "Hang_02",
+        "area": "High Halls",
+        "x": -2.498,
+        "y": 9.602,
+        "w": 1.76,
+        "h": 0.87
+      },
+      {
+        "id": "Hang_03",
+        "area": "High Halls",
+        "x": -1.328,
+        "y": 10.122,
+        "w": 0.582,
+        "h": 1.75
+      },
+      {
+        "id": "Hang_03_top",
+        "area": "High Halls",
+        "x": -1.328,
+        "y": 11.264,
+        "w": 0.582,
+        "h": 2.69
+      },
+      {
+        "id": "Hang_04",
+        "area": "High Halls",
+        "x": -1.008,
+        "y": 8.633,
+        "w": 1.07,
+        "h": 0.395
+      },
+      {
+        "id": "Hang_06",
+        "area": "High Halls",
+        "x": 0.281,
+        "y": 8.65,
+        "w": 1.51,
+        "h": 0.51
+      },
+      {
+        "id": "Hang_06_bank",
+        "area": "High Halls",
+        "x": -0.191,
+        "y": 8.692,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Hang_06b",
+        "area": "High Halls",
+        "x": 1.478,
+        "y": 8.598,
+        "w": 0.89,
+        "h": 0.367
+      },
+      {
+        "id": "Hang_07",
+        "area": "Choral Chambers",
+        "x": 0.806,
+        "y": 8.166,
+        "w": 2.43,
+        "h": 0.47
+      },
+      {
+        "id": "Hang_08",
+        "area": "High Halls",
+        "x": 0.715,
+        "y": 10.785,
+        "w": 0.5,
+        "h": 3.81
+      },
+      {
+        "id": "Hang_08_bot_right",
+        "area": "High Halls",
+        "x": 0.715,
+        "y": 10.618,
+        "w": 0.5,
+        "h": 3.48
+      },
+      {
+        "id": "Hang_09",
+        "area": "High Halls",
+        "x": -0.528,
+        "y": 10.185,
+        "w": 1.99,
+        "h": 0.79
+      },
+      {
+        "id": "Hang_10",
+        "area": "High Halls",
+        "x": -0.324,
+        "y": 9.605,
+        "w": 1.58,
+        "h": 0.65
+      },
+      {
+        "id": "Hang_12",
+        "area": "High Halls",
+        "x": -2.158,
+        "y": 8.679,
+        "w": 1.23,
+        "h": 0.344
+      },
+      {
+        "id": "Hang_13",
+        "area": "High Halls",
+        "x": -0.283,
+        "y": 11.047,
+        "w": 1.51,
+        "h": 1.14
+      },
+      {
+        "id": "Hang_14",
+        "area": "High Halls",
+        "x": 0.254,
+        "y": 9.176,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Hang_15",
+        "area": "High Halls",
+        "x": -2.323,
+        "y": 9.553,
+        "w": 1.41,
+        "h": 0.83
+      },
+      {
+        "id": "Hang_16",
+        "area": "High Halls",
+        "x": -0.387,
+        "y": 9.133,
+        "w": 1.71,
+        "h": 0.49
+      },
+      {
+        "id": "Hang_17b",
+        "area": "High Halls",
+        "x": 1.359,
+        "y": 9.043,
+        "w": 0.79,
+        "h": 0.31
+      },
+      {
+        "id": "Library_01",
+        "area": "Whispering Vaults",
+        "x": 8.133,
+        "y": 6.349,
+        "w": 1.024,
+        "h": 1.86
+      },
+      {
+        "id": "Library_01_bot",
+        "area": "Whispering Vaults",
+        "x": 8.133,
+        "y": 6.349,
+        "w": 1.024,
+        "h": 1.88
+      },
+      {
+        "id": "Library_02",
+        "area": "Whispering Vaults",
+        "x": 6.622,
+        "y": 7.482,
+        "w": 2.0,
+        "h": 0.96
+      },
+      {
+        "id": "Library_02_bottom",
+        "area": "Whispering Vaults",
+        "x": 6.622,
+        "y": 7.482,
+        "w": 2.0,
+        "h": 0.96
+      },
+      {
+        "id": "Library_02_top",
+        "area": "Choral Chambers",
+        "x": 6.65,
+        "y": 7.826,
+        "w": 2.06,
+        "h": 0.27
+      },
+      {
+        "id": "Library_03",
+        "area": "Whispering Vaults",
+        "x": 6.604,
+        "y": 6.259,
+        "w": 2.04,
+        "h": 1.04
+      },
+      {
+        "id": "Library_03_left",
+        "area": "Choral Chambers",
+        "x": 5.888,
+        "y": 6.446,
+        "w": 0.533,
+        "h": 0.59
+      },
+      {
+        "id": "Library_03_right",
+        "area": "Whispering Vaults",
+        "x": 6.604,
+        "y": 6.259,
+        "w": 2.04,
+        "h": 1.04
+      },
+      {
+        "id": "Library_03_top",
+        "area": "Whispering Vaults",
+        "x": 6.604,
+        "y": 6.259,
+        "w": 2.04,
+        "h": 1.04
+      },
+      {
+        "id": "Library_03_tunnel",
+        "area": "Choral Chambers",
+        "x": 6.604,
+        "y": 6.259,
+        "w": 2.04,
+        "h": 1.04
+      },
+      {
+        "id": "Library_04",
+        "area": "Whispering Vaults",
+        "x": 9.215,
+        "y": 5.72,
+        "w": 1.14,
+        "h": 3.76
+      },
+      {
+        "id": "Library_04 _bot",
+        "area": "Whispering Vaults",
+        "x": 9.215,
+        "y": 5.728,
+        "w": 1.14,
+        "h": 3.76
+      },
+      {
+        "id": "Library_04_center",
+        "area": "Whispering Vaults",
+        "x": 9.215,
+        "y": 5.72,
+        "w": 1.14,
+        "h": 3.76
+      },
+      {
+        "id": "Library_04_top",
+        "area": "Whispering Vaults",
+        "x": 9.226,
+        "y": 7.443,
+        "w": 1.1,
+        "h": 0.83
+      },
+      {
+        "id": "Library_04_top_enclave",
+        "area": "Choral Chambers",
+        "x": 9.171,
+        "y": 7.443,
+        "w": 0.77,
+        "h": 0.67
+      },
+      {
+        "id": "Library_04_top_right",
+        "area": "Whispering Vaults",
+        "x": 9.215,
+        "y": 5.628,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Library_05",
+        "area": "Whispering Vaults",
+        "x": 10.165,
+        "y": 5.3,
+        "w": 0.76,
+        "h": 1.32
+      },
+      {
+        "id": "Library_05_2",
+        "area": "Whispering Vaults",
+        "x": 10.164,
+        "y": 4.769,
+        "w": 0.76,
+        "h": 0.26
+      },
+      {
+        "id": "Library_05_3",
+        "area": "Whispering Vaults",
+        "x": 10.145,
+        "y": 5.144,
+        "w": 0.64,
+        "h": 0.759
+      },
+      {
+        "id": "Library_06",
+        "area": "Whispering Vaults",
+        "x": 11.084,
+        "y": 5.254,
+        "w": 1.08,
+        "h": 1.21
+      },
+      {
+        "id": "Library_06_top_right",
+        "area": "Whispering Vaults",
+        "x": 11.516,
+        "y": 5.717,
+        "w": 0.364,
+        "h": 0.3
+      },
+      {
+        "id": "Library_07",
+        "area": "Whispering Vaults",
+        "x": 12.341,
+        "y": 5.402,
+        "w": 1.291,
+        "h": 2.83
+      },
+      {
+        "id": "Library_08",
+        "area": "Whispering Vaults",
+        "x": 10.737,
+        "y": 6.319,
+        "w": 1.91,
+        "h": 0.6
+      },
+      {
+        "id": "Library_08_right",
+        "area": "Whispering Vaults",
+        "x": 11.471,
+        "y": 6.417,
+        "w": 0.45,
+        "h": 0.4
+      },
+      {
+        "id": "Library_09",
+        "area": "Whispering Vaults",
+        "x": 11.052,
+        "y": 7.692,
+        "w": 2.69,
+        "h": 1.76
+      },
+      {
+        "id": "Library_09_mid",
+        "area": "Whispering Vaults",
+        "x": 11.052,
+        "y": 7.692,
+        "w": 2.69,
+        "h": 1.76
+      },
+      {
+        "id": "Library_09_top",
+        "area": "Whispering Vaults",
+        "x": 11.031,
+        "y": 7.724,
+        "w": 2.65,
+        "h": 1.69
+      },
+      {
+        "id": "Library_10",
+        "area": "Whispering Vaults",
+        "x": 10.999,
+        "y": 4.212,
+        "w": 2.43,
+        "h": 0.51
+      },
+      {
+        "id": "Library_10_top",
+        "area": "Whispering Vaults",
+        "x": 11.531,
+        "y": 4.314,
+        "w": 1.15,
+        "h": 0.39
+      },
+      {
+        "id": "Library_11",
+        "area": "Underworks",
+        "x": 7.802,
+        "y": 2.639,
+        "w": 0.69,
+        "h": 4.581
+      },
+      {
+        "id": "Library_11_2",
+        "area": "Underworks",
+        "x": 7.82,
+        "y": 3.078,
+        "w": 0.69,
+        "h": 3.57
+      },
+      {
+        "id": "Library_11_bot",
+        "area": "Underworks",
+        "x": 7.834,
+        "y": 3.085,
+        "w": 0.72,
+        "h": 3.57
+      },
+      {
+        "id": "Library_11_shaft",
+        "area": "Underworks",
+        "x": 7.796,
+        "y": 2.54,
+        "w": 0.78,
+        "h": 4.74
+      },
+      {
+        "id": "Library_11b",
+        "area": "Underworks",
+        "x": 6.51,
+        "y": 0.804,
+        "w": 1.827,
+        "h": 2.5
+      },
+      {
+        "id": "Library_11b_bot",
+        "area": "Underworks",
+        "x": 6.51,
+        "y": 0.804,
+        "w": 1.827,
+        "h": 2.5
+      },
+      {
+        "id": "Library_12",
+        "area": "Underworks",
+        "x": 9.26,
+        "y": 2.218,
+        "w": 2.17,
+        "h": 1.85
+      },
+      {
+        "id": "Library_12_2",
+        "area": "Underworks",
+        "x": 9.609,
+        "y": 2.935,
+        "w": 1.24,
+        "h": 0.26
+      },
+      {
+        "id": "Library_12_3",
+        "area": "Underworks",
+        "x": 8.619,
+        "y": 2.969,
+        "w": 0.91,
+        "h": 0.37
+      },
+      {
+        "id": "Library_12_4",
+        "area": "Underworks",
+        "x": 9.269,
+        "y": 2.336,
+        "w": 2.17,
+        "h": 1.91
+      },
+      {
+        "id": "Library_12_shortcut",
+        "area": "Underworks",
+        "x": 9.269,
+        "y": 2.336,
+        "w": 2.17,
+        "h": 1.91
+      },
+      {
+        "id": "Library_12b",
+        "area": "Underworks",
+        "x": 10.058,
+        "y": 3.145,
+        "w": 3.39,
+        "h": 1.65
+      },
+      {
+        "id": "Library_13",
+        "area": "Whispering Vaults",
+        "x": 6.55,
+        "y": 4.983,
+        "w": 1.85,
+        "h": 0.74
+      },
+      {
+        "id": "Library_13_right",
+        "area": "Whispering Vaults",
+        "x": 6.553,
+        "y": 4.98,
+        "w": 1.85,
+        "h": 0.8
+      },
+      {
+        "id": "Library_13_stage",
+        "area": "Whispering Vaults",
+        "x": 6.547,
+        "y": 4.983,
+        "w": 1.85,
+        "h": 0.74
+      },
+      {
+        "id": "Library_13b",
+        "area": "Whispering Vaults",
+        "x": 8.065,
+        "y": 5.25,
+        "w": 1.196,
+        "h": 0.28
+      },
+      {
+        "id": "Library_14",
+        "area": "Whispering Vaults",
+        "x": 10.235,
+        "y": 6.87,
+        "w": 0.91,
+        "h": 0.52
+      },
+      {
+        "id": "Library_15",
+        "area": "Whispering Vaults",
+        "x": 6.969,
+        "y": 5.515,
+        "w": 1.49,
+        "h": 0.37
+      },
+      {
+        "id": "Library_16",
+        "area": "Whispering Vaults",
+        "x": 8.071,
+        "y": 4.679,
+        "w": 1.15,
+        "h": 0.36
+      },
+      {
+        "id": "Mosstown_01",
+        "area": "Mosslands",
+        "x": -11.983,
+        "y": -9.073,
+        "w": 2.5,
+        "h": 0.54
+      },
+      {
+        "id": "Mosstown_02",
+        "area": "Mosslands",
+        "x": -11.517,
+        "y": -8.746,
+        "w": 2.91,
+        "h": 1.22
+      },
+      {
+        "id": "Mosstown_02_left",
+        "area": "Mosslands",
+        "x": -12.924,
+        "y": -8.7,
+        "w": 0.77,
+        "h": 0.3
+      },
+      {
+        "id": "Mosstown_02c",
+        "area": "Mosslands",
+        "x": -9.632,
+        "y": -8.672,
+        "w": 0.86,
+        "h": 0.25
+      },
+      {
+        "id": "Mosstown_03",
+        "area": "Shellwood",
+        "x": -8.47,
+        "y": -7.674,
+        "w": 0.59,
+        "h": 2.6
+      },
+      {
+        "id": "Mosstown_03_bot",
+        "area": "Shellwood",
+        "x": -8.47,
+        "y": -7.674,
+        "w": 0.59,
+        "h": 2.6
+      },
+      {
+        "id": "Mosstown_03_join_left",
+        "area": "Shellwood",
+        "x": -8.261,
+        "y": -8.335,
+        "w": 0.081,
+        "h": 0.2
+      },
+      {
+        "id": "Mosstown_03_top",
+        "area": "Shellwood",
+        "x": -8.47,
+        "y": -7.674,
+        "w": 0.59,
+        "h": 2.6
+      },
+      {
+        "id": "Organ_01",
+        "area": "Bilewater",
+        "x": 10.073,
+        "y": 0.158,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Peak_01",
+        "area": "Mount Fay",
+        "x": -12.403,
+        "y": 6.146,
+        "w": 1.67,
+        "h": 4.97
+      },
+      {
+        "id": "Peak_01_right_mid",
+        "area": "The Slab",
+        "x": -12.403,
+        "y": 6.237,
+        "w": 1.67,
+        "h": 4.79
+      },
+      {
+        "id": "Peak_01_right_top",
+        "area": "The Slab",
+        "x": -12.403,
+        "y": 6.237,
+        "w": 1.678,
+        "h": 4.79
+      },
+      {
+        "id": "Peak_01_top",
+        "area": "Mount Fay",
+        "x": -12.403,
+        "y": 6.216,
+        "w": 1.67,
+        "h": 4.83
+      },
+      {
+        "id": "Peak_02",
+        "area": "Mount Fay",
+        "x": -14.124,
+        "y": 6.446,
+        "w": 1.79,
+        "h": 3.55
+      },
+      {
+        "id": "Peak_02_mid",
+        "area": "Mount Fay",
+        "x": -14.075,
+        "y": 6.436,
+        "w": 1.79,
+        "h": 3.85
+      },
+      {
+        "id": "Peak_02_top",
+        "area": "Mount Fay",
+        "x": -14.124,
+        "y": 6.276,
+        "w": 1.79,
+        "h": 3.97
+      },
+      {
+        "id": "Peak_04",
+        "area": "Mount Fay",
+        "x": -19.72,
+        "y": 6.49,
+        "w": 5.81,
+        "h": 0.68
+      },
+      {
+        "id": "Peak_04c",
+        "area": "Mount Fay",
+        "x": -21.911,
+        "y": 6.455,
+        "w": 1.77,
+        "h": 0.79
+      },
+      {
+        "id": "Peak_04d",
+        "area": "Mount Fay",
+        "x": -15.887,
+        "y": 6.526,
+        "w": 1.87,
+        "h": 0.29
+      },
+      {
+        "id": "Peak_05",
+        "area": "Mount Fay",
+        "x": -19.821,
+        "y": 8.323,
+        "w": 3.77,
+        "h": 2.95
+      },
+      {
+        "id": "Peak_05_top",
+        "area": "Mount Fay",
+        "x": -19.551,
+        "y": 8.323,
+        "w": 2.99,
+        "h": 2.95
+      },
+      {
+        "id": "Peak_05c",
+        "area": "Mount Fay",
+        "x": -19.089,
+        "y": 7.798,
+        "w": 4.43,
+        "h": 2.07
+      },
+      {
+        "id": "Peak_05c_top",
+        "area": "Mount Fay",
+        "x": -19.089,
+        "y": 7.798,
+        "w": 4.43,
+        "h": 2.07
+      },
+      {
+        "id": "Peak_05d",
+        "area": "Mount Fay",
+        "x": -19.398,
+        "y": 9.76,
+        "w": 6.62,
+        "h": 4.82
+      },
+      {
+        "id": "Peak_05e",
+        "area": "Mount Fay",
+        "x": -15.943,
+        "y": 8.313,
+        "w": 1.88,
+        "h": 1.04
+      },
+      {
+        "id": "Peak_05e_top",
+        "area": "Mount Fay",
+        "x": -15.867,
+        "y": 8.492,
+        "w": 1.727,
+        "h": 0.73
+      },
+      {
+        "id": "Peak_06",
+        "area": "Mount Fay",
+        "x": -14.607,
+        "y": 8.839,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Peak_06b",
+        "area": "Mount Fay",
+        "x": -14.609,
+        "y": 8.602,
+        "w": 0.79,
+        "h": 0.95
+      },
+      {
+        "id": "Peak_07",
+        "area": "Mount Fay",
+        "x": -12.18,
+        "y": 9.972,
+        "w": 2.02,
+        "h": 2.683
+      },
+      {
+        "id": "Peak_07_bench",
+        "area": "Mount Fay",
+        "x": -12.986,
+        "y": 8.813,
+        "w": 0.58,
+        "h": 0.29
+      },
+      {
+        "id": "Peak_07_top",
+        "area": "Mount Fay",
+        "x": -12.18,
+        "y": 9.972,
+        "w": 2.02,
+        "h": 2.683
+      },
+      {
+        "id": "Peak_08",
+        "area": "Mount Fay",
+        "x": -16.542,
+        "y": 11.374,
+        "w": 5.91,
+        "h": 3.17
+      },
+      {
+        "id": "Peak_08b",
+        "area": "Mount Fay",
+        "x": -14.305,
+        "y": 12.458,
+        "w": 5.63,
+        "h": 2.3
+      },
+      {
+        "id": "Peak_10",
+        "area": "Mount Fay",
+        "x": -15.722,
+        "y": 4.717,
+        "w": 1.42,
+        "h": 0.89
+      },
+      {
+        "id": "Peak_12",
+        "area": "Mount Fay",
+        "x": -12.56,
+        "y": 12.467,
+        "w": 0.52,
+        "h": 0.46
+      },
+      {
+        "id": "Peak_Mask_Maker",
+        "area": "Mount Fay",
+        "x": -19.755,
+        "y": 11.94,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Room_CrowCourt",
+        "area": "Greymoor",
+        "x": 17.692,
+        "y": -5.264,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Room_CrowCourt_02",
+        "area": "Greymoor",
+        "x": 17.692,
+        "y": -5.664,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Room_Diving_Bell",
+        "area": "Deep Docks",
+        "x": 7.439,
+        "y": -14.864,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Room_Diving_Bell_Abyss",
+        "area": "The Abyss",
+        "x": 7.425,
+        "y": -17.79,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Room_Diving_Bell_Abyss_Fixed",
+        "area": "The Abyss",
+        "x": 7.425,
+        "y": -17.79,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Room_Forge",
+        "area": "Deep Docks",
+        "x": 4.709,
+        "y": -12.247,
+        "w": 2.322,
+        "h": 1.14
+      },
+      {
+        "id": "Room_Forge_right",
+        "area": "Deep Docks",
+        "x": 4.709,
+        "y": -12.247,
+        "w": 2.322,
+        "h": 1.14
+      },
+      {
+        "id": "Room_Huntress",
+        "area": "Putrified Ducts",
+        "x": 14.069,
+        "y": 7.189,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Room_Pinstress",
+        "area": "Blasted Steps",
+        "x": -19.588,
+        "y": -1.683,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Room_Witch",
+        "area": "Shellwood",
+        "x": -7.181,
+        "y": -5.625,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Shadow_01",
+        "area": "Bilewater",
+        "x": 15.13,
+        "y": 5.457,
+        "w": 1.15,
+        "h": 2.99
+      },
+      {
+        "id": "Shadow_01_top",
+        "area": "Bilewater",
+        "x": 15.13,
+        "y": 5.459,
+        "w": 1.15,
+        "h": 2.99
+      },
+      {
+        "id": "Shadow_02",
+        "area": "Bilewater",
+        "x": 15.124,
+        "y": 1.994,
+        "w": 1.14,
+        "h": 3.44
+      },
+      {
+        "id": "Shadow_03",
+        "area": "Bilewater",
+        "x": 16.964,
+        "y": 0.629,
+        "w": 2.54,
+        "h": 0.71
+      },
+      {
+        "id": "Shadow_04",
+        "area": "Bilewater",
+        "x": 12.029,
+        "y": 0.551,
+        "w": 1.07,
+        "h": 1.53
+      },
+      {
+        "id": "Shadow_04_left",
+        "area": "Bilewater",
+        "x": 11.457,
+        "y": -0.058,
+        "w": 0.44,
+        "h": 0.21
+      },
+      {
+        "id": "Shadow_04b",
+        "area": "Bilewater",
+        "x": 13.045,
+        "y": 0.297,
+        "w": 3.035,
+        "h": 1.58
+      },
+      {
+        "id": "Shadow_05",
+        "area": "Bilewater",
+        "x": 16.446,
+        "y": -0.902,
+        "w": 3.605,
+        "h": 1.03
+      },
+      {
+        "id": "Shadow_08",
+        "area": "Bilewater",
+        "x": 20.426,
+        "y": 4.539,
+        "w": 1.4,
+        "h": 0.93
+      },
+      {
+        "id": "Shadow_08_left",
+        "area": "Bilewater",
+        "x": 20.426,
+        "y": 4.539,
+        "w": 1.4,
+        "h": 0.93
+      },
+      {
+        "id": "Shadow_09",
+        "area": "Bilewater",
+        "x": 19.286,
+        "y": -0.502,
+        "w": 2.595,
+        "h": 2.27
+      },
+      {
+        "id": "Shadow_09_right",
+        "area": "Bilewater",
+        "x": 19.559,
+        "y": -0.121,
+        "w": 2.35,
+        "h": 1.49
+      },
+      {
+        "id": "Shadow_10",
+        "area": "Bilewater",
+        "x": 19.441,
+        "y": 5.519,
+        "w": 3.45,
+        "h": 1.03
+      },
+      {
+        "id": "Shadow_10_right",
+        "area": "Bilewater",
+        "x": 19.441,
+        "y": 5.519,
+        "w": 3.45,
+        "h": 1.03
+      },
+      {
+        "id": "Shadow_10_top",
+        "area": "Bilewater",
+        "x": 19.384,
+        "y": 5.571,
+        "w": 0.96,
+        "h": 0.43
+      },
+      {
+        "id": "Shadow_11",
+        "area": "Bilewater",
+        "x": 16.49,
+        "y": 3.231,
+        "w": 0.642,
+        "h": 1.94
+      },
+      {
+        "id": "Shadow_11_top",
+        "area": "Bilewater",
+        "x": 16.505,
+        "y": 3.649,
+        "w": 0.572,
+        "h": 0.97
+      },
+      {
+        "id": "Shadow_12",
+        "area": "Bilewater",
+        "x": 19.389,
+        "y": 6.42,
+        "w": 3.55,
+        "h": 0.73
+      },
+      {
+        "id": "Shadow_13",
+        "area": "Bilewater",
+        "x": 19.14,
+        "y": 3.31,
+        "w": 4.669,
+        "h": 0.98
+      },
+      {
+        "id": "Shadow_14",
+        "area": "Bilewater",
+        "x": 14.286,
+        "y": 4.075,
+        "w": 0.54,
+        "h": 1.36
+      },
+      {
+        "id": "Shadow_15",
+        "area": "Bilewater",
+        "x": 14.294,
+        "y": 5.377,
+        "w": 0.52,
+        "h": 1.13
+      },
+      {
+        "id": "Shadow_15_bot",
+        "area": "Bilewater",
+        "x": 14.419,
+        "y": 5.252,
+        "w": 0.95,
+        "h": 0.84
+      },
+      {
+        "id": "Shadow_16",
+        "area": "Bilewater",
+        "x": 16.708,
+        "y": 5.138,
+        "w": 2.02,
+        "h": 0.83
+      },
+      {
+        "id": "Shadow_18",
+        "area": "Bilewater",
+        "x": 16.66,
+        "y": 6.414,
+        "w": 1.914,
+        "h": 0.74
+      },
+      {
+        "id": "Shadow_18_top",
+        "area": "Bilewater",
+        "x": 16.66,
+        "y": 6.415,
+        "w": 1.91,
+        "h": 0.74
+      },
+      {
+        "id": "Shadow_19",
+        "area": "Bilewater",
+        "x": 21.878,
+        "y": 5.915,
+        "w": 1.43,
+        "h": 1.64
+      },
+      {
+        "id": "Shadow_20",
+        "area": "Bilewater",
+        "x": 12.219,
+        "y": 1.84,
+        "w": 3.73,
+        "h": 1.05
+      },
+      {
+        "id": "Shadow_20_bot_left",
+        "area": "Bilewater",
+        "x": 11.586,
+        "y": 1.558,
+        "w": 2.37,
+        "h": 0.57
+      },
+      {
+        "id": "Shadow_20_right",
+        "area": "Bilewater",
+        "x": 12.966,
+        "y": 1.852,
+        "w": 2.54,
+        "h": 1.05
+      },
+      {
+        "id": "Shadow_20_top",
+        "area": "Bilewater",
+        "x": 11.489,
+        "y": 1.937,
+        "w": 1.72,
+        "h": 0.61
+      },
+      {
+        "id": "Shadow_21",
+        "area": "Bilewater",
+        "x": 16.549,
+        "y": 1.205,
+        "w": 1.89,
+        "h": 0.45
+      },
+      {
+        "id": "Shadow_22",
+        "area": "Bilewater",
+        "x": 12.886,
+        "y": 3.185,
+        "w": 1.04,
+        "h": 1.62
+      },
+      {
+        "id": "Shadow_23",
+        "area": "Bilewater",
+        "x": 16.179,
+        "y": 1.594,
+        "w": 0.97,
+        "h": 0.36
+      },
+      {
+        "id": "Shadow_24",
+        "area": "Bilewater",
+        "x": 22.771,
+        "y": 6.524,
+        "w": 4.85,
+        "h": 0.52
+      },
+      {
+        "id": "Shadow_25",
+        "area": "Bilewater",
+        "x": 22.846,
+        "y": 5.41,
+        "w": 0.51,
+        "h": 0.63
+      },
+      {
+        "id": "Shadow_26",
+        "area": "Bilewater",
+        "x": 15.969,
+        "y": 3.484,
+        "w": 0.55,
+        "h": 2.02
+      },
+      {
+        "id": "Shadow_27",
+        "area": "Bilewater",
+        "x": 17.958,
+        "y": 4.304,
+        "w": 3.43,
+        "h": 0.48
+      },
+      {
+        "id": "Shadow_27_right",
+        "area": "Bilewater",
+        "x": 17.958,
+        "y": 4.304,
+        "w": 3.55,
+        "h": 0.44
+      },
+      {
+        "id": "Shadow_28",
+        "area": "Bilewater",
+        "x": 17.829,
+        "y": -0.009,
+        "w": 1.32,
+        "h": 0.62
+      },
+      {
+        "id": "Shadow_Bilehaven_Room",
+        "area": "Bilewater",
+        "x": 16.365,
+        "y": 6.315,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Shadow_Weavehome",
+        "area": "Bilewater",
+        "x": 21.935,
+        "y": -1.045,
+        "w": 2.92,
+        "h": 1.12
+      },
+      {
+        "id": "Shadow_Weavehome_right",
+        "area": "Bilewater",
+        "x": 21.925,
+        "y": -0.809,
+        "w": 2.92,
+        "h": 0.65
+      },
+      {
+        "id": "Shellgrave",
+        "area": "Shellwood",
+        "x": -10.116,
+        "y": -5.648,
+        "w": 2.37,
+        "h": 0.71
+      },
+      {
+        "id": "Shellwood_01",
+        "area": "Shellwood",
+        "x": -4.27,
+        "y": -5.875,
+        "w": 2.21,
+        "h": 1.63
+      },
+      {
+        "id": "Shellwood_01b",
+        "area": "Shellwood",
+        "x": -4.97,
+        "y": -4.751,
+        "w": 0.81,
+        "h": 1.78
+      },
+      {
+        "id": "Shellwood_02",
+        "area": "Shellwood",
+        "x": -6.005,
+        "y": -5.791,
+        "w": 1.261,
+        "h": 1.6
+      },
+      {
+        "id": "Shellwood_03",
+        "area": "Shellwood",
+        "x": -8.403,
+        "y": -5.421,
+        "w": 0.68,
+        "h": 2.1
+      },
+      {
+        "id": "Shellwood_04b",
+        "area": "Shellwood",
+        "x": -10.811,
+        "y": -6.238,
+        "w": 4.14,
+        "h": 0.5
+      },
+      {
+        "id": "Shellwood_04c",
+        "area": "Shellwood",
+        "x": -12.097,
+        "y": -5.334,
+        "w": 0.45,
+        "h": 1.34
+      },
+      {
+        "id": "Shellwood_08",
+        "area": "Shellwood",
+        "x": -11.913,
+        "y": -4.489,
+        "w": 1.523,
+        "h": 0.35
+      },
+      {
+        "id": "Shellwood_08c",
+        "area": "Shellwood",
+        "x": -12.577,
+        "y": -6.198,
+        "w": 0.57,
+        "h": 0.37
+      },
+      {
+        "id": "Shellwood_10",
+        "area": "Shellwood",
+        "x": -7.458,
+        "y": -3.891,
+        "w": 1.21,
+        "h": 1.52
+      },
+      {
+        "id": "Shellwood_10_top",
+        "area": "Shellwood",
+        "x": -7.458,
+        "y": -3.891,
+        "w": 1.21,
+        "h": 1.52
+      },
+      {
+        "id": "Shellwood_11",
+        "area": "Shellwood",
+        "x": -8.903,
+        "y": -3.347,
+        "w": 1.68,
+        "h": 1.29
+      },
+      {
+        "id": "Shellwood_11b",
+        "area": "Grand Gate",
+        "x": -11.05,
+        "y": -1.432,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Shellwood_13",
+        "area": "Shellwood",
+        "x": -3.45,
+        "y": -3.598,
+        "w": 2.241,
+        "h": 1.33
+      },
+      {
+        "id": "Shellwood_13b",
+        "area": "Shellwood",
+        "x": -3.31,
+        "y": -3.282,
+        "w": 0.35,
+        "h": 0.61
+      },
+      {
+        "id": "Shellwood_14",
+        "area": "Shellwood",
+        "x": -7.0,
+        "y": -4.886,
+        "w": 2.13,
+        "h": 0.35
+      },
+      {
+        "id": "Shellwood_15",
+        "area": "Shellwood",
+        "x": -3.504,
+        "y": -4.748,
+        "w": 2.33,
+        "h": 0.41
+      },
+      {
+        "id": "Shellwood_16",
+        "area": "Shellwood",
+        "x": -7.356,
+        "y": -6.301,
+        "w": 1.44,
+        "h": 0.32
+      },
+      {
+        "id": "Shellwood_18",
+        "area": "Shellwood",
+        "x": -5.708,
+        "y": -3.571,
+        "w": 2.29,
+        "h": 0.44
+      },
+      {
+        "id": "Shellwood_19",
+        "area": "Shellwood",
+        "x": -9.682,
+        "y": -4.528,
+        "w": 1.88,
+        "h": 0.43
+      },
+      {
+        "id": "Shellwood_20",
+        "area": "Shellwood",
+        "x": -6.115,
+        "y": -4.167,
+        "w": 1.487,
+        "h": 0.67
+      },
+      {
+        "id": "Shellwood_22",
+        "area": "Grand Gate",
+        "x": -9.918,
+        "y": -1.261,
+        "w": 3.01,
+        "h": 0.63
+      },
+      {
+        "id": "Shellwood_22_left",
+        "area": "Grand Gate",
+        "x": -9.909,
+        "y": -1.261,
+        "w": 3.01,
+        "h": 0.63
+      },
+      {
+        "id": "Shellwood_25",
+        "area": "Shellwood",
+        "x": -5.803,
+        "y": -6.978,
+        "w": 4.75,
+        "h": 0.56
+      },
+      {
+        "id": "Shellwood_25_right",
+        "area": "Shellwood",
+        "x": -5.803,
+        "y": -6.978,
+        "w": 4.75,
+        "h": 0.56
+      },
+      {
+        "id": "Shellwood_25b",
+        "area": "Shellwood",
+        "x": -4.673,
+        "y": -7.081,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Shellwood_26",
+        "area": "Shellwood",
+        "x": -5.674,
+        "y": -3.156,
+        "w": 2.36,
+        "h": 2.27
+      },
+      {
+        "id": "Shellwood_26_2",
+        "area": "Shellwood",
+        "x": -6.373,
+        "y": -2.512,
+        "w": 0.76,
+        "h": 0.41
+      },
+      {
+        "id": "Shellwood_Witch",
+        "area": "Shellwood",
+        "x": -7.114,
+        "y": -5.516,
+        "w": 0.96,
+        "h": 0.57
+      },
+      {
+        "id": "Slab_01",
+        "area": "The Slab",
+        "x": -6.061,
+        "y": 6.032,
+        "w": 3.514,
+        "h": 0.74
+      },
+      {
+        "id": "Slab_02",
+        "area": "The Slab",
+        "x": -8.376,
+        "y": 6.092,
+        "w": 2.07,
+        "h": 0.54
+      },
+      {
+        "id": "Slab_03",
+        "area": "The Slab",
+        "x": -9.667,
+        "y": 6.459,
+        "w": 0.543,
+        "h": 4.69
+      },
+      {
+        "id": "Slab_03_basement",
+        "area": "The Slab",
+        "x": -9.66,
+        "y": 5.013,
+        "w": 0.533,
+        "h": 2.29
+      },
+      {
+        "id": "Slab_03_basement_shortcut",
+        "area": "The Slab",
+        "x": -9.66,
+        "y": 5.013,
+        "w": 1.517,
+        "h": 2.81
+      },
+      {
+        "id": "Slab_03_mid",
+        "area": "The Slab",
+        "x": -9.667,
+        "y": 6.563,
+        "w": 0.523,
+        "h": 4.9
+      },
+      {
+        "id": "Slab_03b",
+        "area": "The Slab",
+        "x": -9.66,
+        "y": 5.037,
+        "w": 0.533,
+        "h": 2.29
+      },
+      {
+        "id": "Slab_04",
+        "area": "The Slab",
+        "x": -10.738,
+        "y": 6.146,
+        "w": 1.62,
+        "h": 0.53
+      },
+      {
+        "id": "Slab_05",
+        "area": "The Slab",
+        "x": -10.733,
+        "y": 5.553,
+        "w": 1.63,
+        "h": 0.661
+      },
+      {
+        "id": "Slab_06",
+        "area": "The Slab",
+        "x": -10.766,
+        "y": 4.953,
+        "w": 1.622,
+        "h": 0.561
+      },
+      {
+        "id": "Slab_07",
+        "area": "The Slab",
+        "x": -10.563,
+        "y": 4.328,
+        "w": 1.364,
+        "h": 0.64
+      },
+      {
+        "id": "Slab_08",
+        "area": "The Slab",
+        "x": -9.063,
+        "y": 5.572,
+        "w": 0.69,
+        "h": 0.62
+      },
+      {
+        "id": "Slab_08_top",
+        "area": "The Slab",
+        "x": -9.024,
+        "y": 5.527,
+        "w": 0.59,
+        "h": 0.68
+      },
+      {
+        "id": "Slab_10b",
+        "area": "The Slab",
+        "x": -8.363,
+        "y": 4.426,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Slab_10c",
+        "area": "The Slab",
+        "x": -8.386,
+        "y": 4.812,
+        "w": 0.64,
+        "h": 1.04
+      },
+      {
+        "id": "Slab_12",
+        "area": "The Slab",
+        "x": -8.479,
+        "y": 3.982,
+        "w": 1.83,
+        "h": 0.67
+      },
+      {
+        "id": "Slab_13",
+        "area": "The Slab",
+        "x": -10.75,
+        "y": 6.63,
+        "w": 1.64,
+        "h": 0.43
+      },
+      {
+        "id": "Slab_13_2",
+        "area": "The Slab",
+        "x": -10.758,
+        "y": 6.63,
+        "w": 1.64,
+        "h": 0.46
+      },
+      {
+        "id": "Slab_13_3",
+        "area": "The Slab",
+        "x": -10.748,
+        "y": 6.656,
+        "w": 1.64,
+        "h": 0.49
+      },
+      {
+        "id": "Slab_14",
+        "area": "The Slab",
+        "x": -10.746,
+        "y": 7.147,
+        "w": 1.64,
+        "h": 0.47
+      },
+      {
+        "id": "Slab_14_left",
+        "area": "The Slab",
+        "x": -10.746,
+        "y": 7.147,
+        "w": 1.64,
+        "h": 0.47
+      },
+      {
+        "id": "Slab_15",
+        "area": "The Slab",
+        "x": -10.747,
+        "y": 7.618,
+        "w": 1.64,
+        "h": 0.49
+      },
+      {
+        "id": "Slab_15_left",
+        "area": "The Slab",
+        "x": -10.747,
+        "y": 7.618,
+        "w": 1.64,
+        "h": 0.49
+      },
+      {
+        "id": "Slab_16",
+        "area": "The Slab",
+        "x": -10.752,
+        "y": 8.519,
+        "w": 1.64,
+        "h": 1.31
+      },
+      {
+        "id": "Slab_16_b",
+        "area": "The Slab",
+        "x": -10.748,
+        "y": 8.519,
+        "w": 1.64,
+        "h": 1.31
+      },
+      {
+        "id": "Slab_16_bench",
+        "area": "The Slab",
+        "x": -10.748,
+        "y": 8.519,
+        "w": 1.64,
+        "h": 1.31
+      },
+      {
+        "id": "Slab_16_d",
+        "area": "The Slab",
+        "x": -10.748,
+        "y": 8.529,
+        "w": 1.64,
+        "h": 1.336
+      },
+      {
+        "id": "Slab_16_e",
+        "area": "The Slab",
+        "x": -10.748,
+        "y": 8.519,
+        "w": 1.64,
+        "h": 1.31
+      },
+      {
+        "id": "Slab_16_mid",
+        "area": "The Slab",
+        "x": -10.748,
+        "y": 8.519,
+        "w": 1.64,
+        "h": 1.31
+      },
+      {
+        "id": "Slab_16b",
+        "area": "The Slab",
+        "x": -10.985,
+        "y": 8.302,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Slab_17",
+        "area": "The Slab",
+        "x": -8.787,
+        "y": 8.549,
+        "w": 1.25,
+        "h": 1.23
+      },
+      {
+        "id": "Slab_18",
+        "area": "The Slab",
+        "x": -8.604,
+        "y": 7.97,
+        "w": 1.61,
+        "h": 1.35
+      },
+      {
+        "id": "Slab_19b",
+        "area": "The Slab",
+        "x": -9.026,
+        "y": 4.992,
+        "w": 0.738,
+        "h": 0.58
+      },
+      {
+        "id": "Slab_19b_top",
+        "area": "The Slab",
+        "x": -9.028,
+        "y": 5.148,
+        "w": 0.646,
+        "h": 0.33
+      },
+      {
+        "id": "Slab_20",
+        "area": "The Slab",
+        "x": -8.626,
+        "y": 7.073,
+        "w": 1.56,
+        "h": 0.4
+      },
+      {
+        "id": "Slab_20_right",
+        "area": "The Slab",
+        "x": -8.684,
+        "y": 7.067,
+        "w": 1.61,
+        "h": 0.3
+      },
+      {
+        "id": "Slab_21",
+        "area": "The Slab",
+        "x": -7.582,
+        "y": 7.784,
+        "w": 0.44,
+        "h": 2.8
+      },
+      {
+        "id": "Slab_21_left",
+        "area": "The Slab",
+        "x": -7.582,
+        "y": 7.784,
+        "w": 0.44,
+        "h": 2.78
+      },
+      {
+        "id": "Slab_22",
+        "area": "The Slab",
+        "x": -9.445,
+        "y": 9.593,
+        "w": 4.33,
+        "h": 0.84
+      },
+      {
+        "id": "Slab_23",
+        "area": "The Slab",
+        "x": -8.601,
+        "y": 6.61,
+        "w": 1.61,
+        "h": 0.45
+      },
+      {
+        "id": "Slab_23_bottom",
+        "area": "The Slab",
+        "x": -8.595,
+        "y": 6.583,
+        "w": 1.61,
+        "h": 0.47
+      },
+      {
+        "id": "Slab_23_right",
+        "area": "The Slab",
+        "x": -8.601,
+        "y": 6.61,
+        "w": 1.61,
+        "h": 0.45
+      },
+      {
+        "id": "Slab_Cell",
+        "area": "The Slab",
+        "x": -10.915,
+        "y": 6.661,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Slab_Cell_Creature",
+        "area": "The Slab",
+        "x": -8.901,
+        "y": 6.653,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Song_01",
+        "area": "Choral Chambers",
+        "x": -4.835,
+        "y": 2.825,
+        "w": 2.74,
+        "h": 2.44
+      },
+      {
+        "id": "Song_01_secret",
+        "area": "Choral Chambers",
+        "x": -4.835,
+        "y": 2.825,
+        "w": 2.75,
+        "h": 2.44
+      },
+      {
+        "id": "Song_01b",
+        "area": "Choral Chambers",
+        "x": -4.54,
+        "y": 4.224,
+        "w": 2.32,
+        "h": 0.36
+      },
+      {
+        "id": "Song_01b_left",
+        "area": "Choral Chambers",
+        "x": -4.542,
+        "y": 4.222,
+        "w": 2.32,
+        "h": 0.36
+      },
+      {
+        "id": "Song_01c",
+        "area": "Grand Gate",
+        "x": -5.815,
+        "y": 1.856,
+        "w": 0.93,
+        "h": 0.56
+      },
+      {
+        "id": "Song_02",
+        "area": "Choral Chambers",
+        "x": -1.881,
+        "y": 4.189,
+        "w": 3.006,
+        "h": 0.77
+      },
+      {
+        "id": "Song_03",
+        "area": "Choral Chambers",
+        "x": -4.651,
+        "y": 4.733,
+        "w": 2.53,
+        "h": 0.66
+      },
+      {
+        "id": "Song_03_top",
+        "area": "Choral Chambers",
+        "x": -4.599,
+        "y": 4.733,
+        "w": 2.44,
+        "h": 0.66
+      },
+      {
+        "id": "Song_04",
+        "area": "Choral Chambers",
+        "x": -4.615,
+        "y": 5.653,
+        "w": 2.47,
+        "h": 1.098
+      },
+      {
+        "id": "Song_04_bot",
+        "area": "Choral Chambers",
+        "x": -4.615,
+        "y": 5.632,
+        "w": 2.47,
+        "h": 1.14
+      },
+      {
+        "id": "Song_04_top",
+        "area": "Choral Chambers",
+        "x": -4.615,
+        "y": 5.632,
+        "w": 2.47,
+        "h": 1.14
+      },
+      {
+        "id": "Song_05",
+        "area": "Choral Chambers",
+        "x": 0.028,
+        "y": 5.114,
+        "w": 0.816,
+        "h": 1.94
+      },
+      {
+        "id": "Song_07",
+        "area": "Choral Chambers",
+        "x": -0.958,
+        "y": 4.987,
+        "w": 1.161,
+        "h": 0.32
+      },
+      {
+        "id": "Song_08",
+        "area": "Choral Chambers",
+        "x": -3.717,
+        "y": 7.5,
+        "w": 0.68,
+        "h": 0.27
+      },
+      {
+        "id": "Song_09",
+        "area": "Choral Chambers",
+        "x": -0.014,
+        "y": 7.276,
+        "w": 0.81,
+        "h": 1.38
+      },
+      {
+        "id": "Song_09_2",
+        "area": "Choral Chambers",
+        "x": -0.014,
+        "y": 7.276,
+        "w": 0.87,
+        "h": 1.38
+      },
+      {
+        "id": "Song_09b",
+        "area": "Choral Chambers",
+        "x": 0.866,
+        "y": 5.782,
+        "w": 2.49,
+        "h": 1.61
+      },
+      {
+        "id": "Song_09b_top",
+        "area": "Choral Chambers",
+        "x": 0.866,
+        "y": 5.782,
+        "w": 2.49,
+        "h": 1.61
+      },
+      {
+        "id": "Song_10",
+        "area": "Choral Chambers",
+        "x": -2.387,
+        "y": 5.293,
+        "w": 1.99,
+        "h": 1.1
+      },
+      {
+        "id": "Song_10_bath",
+        "area": "Choral Chambers",
+        "x": -1.858,
+        "y": 5.702,
+        "w": 1.51,
+        "h": 0.84
+      },
+      {
+        "id": "Song_10_bot",
+        "area": "Choral Chambers",
+        "x": -2.392,
+        "y": 5.301,
+        "w": 1.98,
+        "h": 1.1
+      },
+      {
+        "id": "Song_10_right",
+        "area": "Choral Chambers",
+        "x": -1.858,
+        "y": 5.698,
+        "w": 1.51,
+        "h": 0.44
+      },
+      {
+        "id": "Song_10_shortcut",
+        "area": "Choral Chambers",
+        "x": -1.858,
+        "y": 5.698,
+        "w": 1.51,
+        "h": 0.44
+      },
+      {
+        "id": "Song_11",
+        "area": "Choral Chambers",
+        "x": -0.879,
+        "y": 6.69,
+        "w": 1.001,
+        "h": 3.07
+      },
+      {
+        "id": "Song_11_2",
+        "area": "Choral Chambers",
+        "x": -0.737,
+        "y": 7.17,
+        "w": 0.42,
+        "h": 1.52
+      },
+      {
+        "id": "Song_11_3",
+        "area": "Choral Chambers",
+        "x": -0.734,
+        "y": 8.141,
+        "w": 0.67,
+        "h": 0.6
+      },
+      {
+        "id": "Song_11_cap",
+        "area": "Choral Chambers",
+        "x": -0.734,
+        "y": 8.141,
+        "w": 0.77,
+        "h": 0.6
+      },
+      {
+        "id": "Song_11_top",
+        "area": "Choral Chambers",
+        "x": -0.879,
+        "y": 6.697,
+        "w": 1.001,
+        "h": 2.88
+      },
+      {
+        "id": "Song_12",
+        "area": "Choral Chambers",
+        "x": -3.114,
+        "y": 6.67,
+        "w": 0.535,
+        "h": 1.91
+      },
+      {
+        "id": "Song_13",
+        "area": "Choral Chambers",
+        "x": -2.114,
+        "y": 6.08,
+        "w": 1.47,
+        "h": 0.35
+      },
+      {
+        "id": "Song_14",
+        "area": "Choral Chambers",
+        "x": -2.234,
+        "y": 6.651,
+        "w": 1.23,
+        "h": 0.31
+      },
+      {
+        "id": "Song_15",
+        "area": "Choral Chambers",
+        "x": -2.11,
+        "y": 7.435,
+        "w": 1.47,
+        "h": 0.7
+      },
+      {
+        "id": "Song_15_top",
+        "area": "Choral Chambers",
+        "x": -2.114,
+        "y": 7.435,
+        "w": 1.47,
+        "h": 0.7
+      },
+      {
+        "id": "Song_17",
+        "area": "Choral Chambers",
+        "x": -2.379,
+        "y": 7.959,
+        "w": 2.0,
+        "h": 1.71
+      },
+      {
+        "id": "Song_18",
+        "area": "Choral Chambers",
+        "x": 1.286,
+        "y": 5.503,
+        "w": 1.71,
+        "h": 1.12
+      },
+      {
+        "id": "Song_18_2",
+        "area": "Choral Chambers",
+        "x": 1.389,
+        "y": 5.467,
+        "w": 1.1,
+        "h": 0.61
+      },
+      {
+        "id": "Song_18_3",
+        "area": "Choral Chambers",
+        "x": 1.389,
+        "y": 5.467,
+        "w": 1.1,
+        "h": 0.61
+      },
+      {
+        "id": "Song_19_entrance",
+        "area": "Grand Gate",
+        "x": -6.803,
+        "y": 1.475,
+        "w": 1.161,
+        "h": 1.86
+      },
+      {
+        "id": "Song_19_entrance_top",
+        "area": "Grand Gate",
+        "x": -6.803,
+        "y": 1.562,
+        "w": 1.161,
+        "h": 1.7
+      },
+      {
+        "id": "Song_20",
+        "area": "Choral Chambers",
+        "x": 5.207,
+        "y": 5.299,
+        "w": 0.83,
+        "h": 2.78
+      },
+      {
+        "id": "Song_20b",
+        "area": "Choral Chambers",
+        "x": 5.207,
+        "y": 5.936,
+        "w": 0.83,
+        "h": 4.13
+      },
+      {
+        "id": "Song_24",
+        "area": "Choral Chambers",
+        "x": 4.29,
+        "y": 4.129,
+        "w": 1.01,
+        "h": 0.93
+      },
+      {
+        "id": "Song_25",
+        "area": "Choral Chambers",
+        "x": 5.521,
+        "y": 8.198,
+        "w": 4.304,
+        "h": 0.47
+      },
+      {
+        "id": "Song_25_top_left",
+        "area": "Choral Chambers",
+        "x": 3.624,
+        "y": 8.261,
+        "w": 0.44,
+        "h": 0.38
+      },
+      {
+        "id": "Song_26",
+        "area": "Choral Chambers",
+        "x": -3.687,
+        "y": 7.0,
+        "w": 0.62,
+        "h": 0.35
+      },
+      {
+        "id": "Song_27",
+        "area": "Choral Chambers",
+        "x": 2.611,
+        "y": 5.171,
+        "w": 4.46,
+        "h": 0.47
+      },
+      {
+        "id": "Song_28",
+        "area": "Choral Chambers",
+        "x": -3.792,
+        "y": 6.439,
+        "w": 0.83,
+        "h": 0.33
+      },
+      {
+        "id": "Song_29",
+        "area": "Choral Chambers",
+        "x": 4.381,
+        "y": 7.695,
+        "w": 0.83,
+        "h": 0.33
+      },
+      {
+        "id": "Song_Enclave",
+        "area": "Songclave",
+        "x": 8.551,
+        "y": 7.925,
+        "w": 1.96,
+        "h": 0.59
+      },
+      {
+        "id": "Song_Tower_01",
+        "area": "The Cradle",
+        "x": 2.844,
+        "y": 12.329,
+        "w": 2.56,
+        "h": 2.76
+      },
+      {
+        "id": "Song_Tower_Destroyed",
+        "area": "The Cradle",
+        "x": 2.741,
+        "y": 12.325,
+        "w": 1.18,
+        "h": 3.18
+      },
+      {
+        "id": "Song_Tower_Destroyed_Bot",
+        "area": "The Cradle",
+        "x": 2.741,
+        "y": 12.325,
+        "w": 1.18,
+        "h": 3.18
+      },
+      {
+        "id": "Song_Tower_Destroyed_Top",
+        "area": "The Cradle",
+        "x": 2.741,
+        "y": 12.325,
+        "w": 1.18,
+        "h": 3.18
+      },
+      {
+        "id": "Sprintmaster_Cave",
+        "area": "Far Fields",
+        "x": 23.302,
+        "y": -8.993,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Tut_01",
+        "area": "Mosslands",
+        "x": -13.098,
+        "y": -12.531,
+        "w": 1.89,
+        "h": 1.97
+      },
+      {
+        "id": "Tut_01_chest",
+        "area": "Mosslands",
+        "x": -13.512,
+        "y": -12.484,
+        "w": 1.06,
+        "h": 2.04
+      },
+      {
+        "id": "Tut_01_top",
+        "area": "Mosslands",
+        "x": -13.278,
+        "y": -11.511,
+        "w": 0.31,
+        "h": 0.232
+      },
+      {
+        "id": "Tut_01b",
+        "area": "Mosslands",
+        "x": -12.737,
+        "y": -12.696,
+        "w": 2.68,
+        "h": 1.67
+      },
+      {
+        "id": "Tut_02",
+        "area": "Mosslands",
+        "x": -15.202,
+        "y": -13.006,
+        "w": 2.32,
+        "h": 0.95
+      },
+      {
+        "id": "Tut_03",
+        "area": "Mosslands",
+        "x": -15.05,
+        "y": -11.726,
+        "w": 2.02,
+        "h": 0.55
+      },
+      {
+        "id": "Tut_04",
+        "area": "Mosslands",
+        "x": -15.93,
+        "y": -11.646,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Under_01",
+        "area": "Grand Gate",
+        "x": -5.763,
+        "y": -0.029,
+        "w": 0.92,
+        "h": 2.63
+      },
+      {
+        "id": "Under_01_bot",
+        "area": "Grand Gate",
+        "x": -5.763,
+        "y": -0.029,
+        "w": 0.92,
+        "h": 2.63
+      },
+      {
+        "id": "Under_01_left",
+        "area": "Grand Gate",
+        "x": -7.003,
+        "y": -0.81,
+        "w": 2.15,
+        "h": 1.73
+      },
+      {
+        "id": "Under_01_top_right",
+        "area": "Grand Gate",
+        "x": -5.763,
+        "y": -0.029,
+        "w": 0.92,
+        "h": 2.63
+      },
+      {
+        "id": "Under_01b",
+        "area": "Underworks",
+        "x": -4.929,
+        "y": -1.106,
+        "w": 0.75,
+        "h": 0.3
+      },
+      {
+        "id": "Under_02",
+        "area": "Underworks",
+        "x": -4.19,
+        "y": -0.241,
+        "w": 0.73,
+        "h": 3.81
+      },
+      {
+        "id": "Under_02_bot",
+        "area": "Underworks",
+        "x": -4.19,
+        "y": -0.281,
+        "w": 0.73,
+        "h": 3.75
+      },
+      {
+        "id": "Under_02_top",
+        "area": "Underworks",
+        "x": -4.19,
+        "y": -0.241,
+        "w": 0.73,
+        "h": 3.81
+      },
+      {
+        "id": "Under_03",
+        "area": "Underworks",
+        "x": -2.871,
+        "y": -0.197,
+        "w": 1.161,
+        "h": 0.26
+      },
+      {
+        "id": "Under_03_2",
+        "area": "Underworks",
+        "x": -3.0,
+        "y": -0.175,
+        "w": 0.76,
+        "h": 0.23
+      },
+      {
+        "id": "Under_03b",
+        "area": "Underworks",
+        "x": -3.059,
+        "y": 0.364,
+        "w": 1.533,
+        "h": 0.32
+      },
+      {
+        "id": "Under_03c",
+        "area": "Underworks",
+        "x": -2.05,
+        "y": 0.199,
+        "w": 0.49,
+        "h": 1.05
+      },
+      {
+        "id": "Under_03d",
+        "area": "Underworks",
+        "x": -1.249,
+        "y": 0.41,
+        "w": 0.96,
+        "h": 0.49
+      },
+      {
+        "id": "Under_03d_join",
+        "area": "Underworks",
+        "x": -1.249,
+        "y": 0.363,
+        "w": 0.96,
+        "h": 0.55
+      },
+      {
+        "id": "Under_04",
+        "area": "Underworks",
+        "x": -0.843,
+        "y": -0.086,
+        "w": 1.924,
+        "h": 0.5
+      },
+      {
+        "id": "Under_05",
+        "area": "Underworks",
+        "x": 0.397,
+        "y": 0.074,
+        "w": 0.56,
+        "h": 2.46
+      },
+      {
+        "id": "Under_05_2",
+        "area": "Underworks",
+        "x": 0.397,
+        "y": 0.074,
+        "w": 0.56,
+        "h": 2.46
+      },
+      {
+        "id": "Under_06",
+        "area": "Underworks",
+        "x": -1.089,
+        "y": 1.045,
+        "w": 2.415,
+        "h": 0.42
+      },
+      {
+        "id": "Under_07",
+        "area": "Underworks",
+        "x": -3.059,
+        "y": 1.119,
+        "w": 1.535,
+        "h": 0.49
+      },
+      {
+        "id": "Under_07b",
+        "area": "Choral Chambers",
+        "x": -3.069,
+        "y": 2.144,
+        "w": 1.88,
+        "h": 1.8
+      },
+      {
+        "id": "Under_07b_bot",
+        "area": "Choral Chambers",
+        "x": -2.99,
+        "y": 2.765,
+        "w": 1.25,
+        "h": 0.38
+      },
+      {
+        "id": "Under_07c",
+        "area": "Underworks",
+        "x": -3.135,
+        "y": 1.743,
+        "w": 1.38,
+        "h": 1.68
+      },
+      {
+        "id": "Under_08",
+        "area": "Underworks",
+        "x": -1.308,
+        "y": 1.521,
+        "w": 2.33,
+        "h": 1.02
+      },
+      {
+        "id": "Under_08_b",
+        "area": "Underworks",
+        "x": -0.922,
+        "y": 1.654,
+        "w": 1.27,
+        "h": 0.77
+      },
+      {
+        "id": "Under_10",
+        "area": "Underworks",
+        "x": 1.332,
+        "y": -0.065,
+        "w": 1.31,
+        "h": 0.32
+      },
+      {
+        "id": "Under_11",
+        "area": "Underworks",
+        "x": 1.333,
+        "y": 1.035,
+        "w": 1.317,
+        "h": 0.32
+      },
+      {
+        "id": "Under_12",
+        "area": "Underworks",
+        "x": 1.006,
+        "y": 0.57,
+        "w": 0.66,
+        "h": 0.41
+      },
+      {
+        "id": "Under_13",
+        "area": "Underworks",
+        "x": 2.402,
+        "y": 0.41,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Under_13_bot",
+        "area": "Underworks",
+        "x": 2.402,
+        "y": 0.41,
+        "w": 0.85,
+        "h": 2.11
+      },
+      {
+        "id": "Under_13_left",
+        "area": "Underworks",
+        "x": 2.402,
+        "y": 0.41,
+        "w": 0.83,
+        "h": 2.11
+      },
+      {
+        "id": "Under_13_right",
+        "area": "Underworks",
+        "x": 2.402,
+        "y": 0.41,
+        "w": 0.85,
+        "h": 2.11
+      },
+      {
+        "id": "Under_13_right_mid",
+        "area": "Underworks",
+        "x": 2.402,
+        "y": 0.41,
+        "w": 0.83,
+        "h": 2.11
+      },
+      {
+        "id": "Under_14",
+        "area": "Underworks",
+        "x": -3.071,
+        "y": -2.016,
+        "w": 1.51,
+        "h": 0.32
+      },
+      {
+        "id": "Under_14_right",
+        "area": "Underworks",
+        "x": -2.415,
+        "y": -1.958,
+        "w": 0.9,
+        "h": 0.38
+      },
+      {
+        "id": "Under_16",
+        "area": "Underworks",
+        "x": -5.162,
+        "y": 0.15,
+        "w": 1.22,
+        "h": 1.03
+      },
+      {
+        "id": "Under_16_b",
+        "area": "Underworks",
+        "x": -5.182,
+        "y": 0.144,
+        "w": 1.26,
+        "h": 1.03
+      },
+      {
+        "id": "Under_17",
+        "area": "Underworks",
+        "x": 4.213,
+        "y": 1.384,
+        "w": 2.79,
+        "h": 0.84
+      },
+      {
+        "id": "Under_17_2",
+        "area": "Underworks",
+        "x": 4.8,
+        "y": 1.085,
+        "w": 0.66,
+        "h": 0.243
+      },
+      {
+        "id": "Under_17_top",
+        "area": "Underworks",
+        "x": 4.213,
+        "y": 1.384,
+        "w": 2.79,
+        "h": 0.84
+      },
+      {
+        "id": "Under_18",
+        "area": "Underworks",
+        "x": 4.146,
+        "y": 0.549,
+        "w": 2.66,
+        "h": 0.83
+      },
+      {
+        "id": "Under_18_2",
+        "area": "Underworks",
+        "x": 4.155,
+        "y": 0.549,
+        "w": 2.11,
+        "h": 0.83
+      },
+      {
+        "id": "Under_19",
+        "area": "Underworks",
+        "x": 4.247,
+        "y": -0.47,
+        "w": 2.86,
+        "h": 0.37
+      },
+      {
+        "id": "Under_19b",
+        "area": "Underworks",
+        "x": 3.921,
+        "y": -0.061,
+        "w": 2.15,
+        "h": 0.43
+      },
+      {
+        "id": "Under_19c",
+        "area": "Underworks",
+        "x": 5.301,
+        "y": 0.269,
+        "w": 0.61,
+        "h": 1.11
+      },
+      {
+        "id": "Under_20",
+        "area": "Underworks",
+        "x": 3.198,
+        "y": 1.613,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Under_21",
+        "area": "Underworks",
+        "x": 1.343,
+        "y": -0.444,
+        "w": 1.29,
+        "h": 0.4
+      },
+      {
+        "id": "Under_22",
+        "area": "Underworks",
+        "x": 1.199,
+        "y": 0.71,
+        "w": 1.58,
+        "h": 0.41
+      },
+      {
+        "id": "Under_23",
+        "area": "Underworks",
+        "x": -1.186,
+        "y": -0.716,
+        "w": 2.61,
+        "h": 0.56
+      },
+      {
+        "id": "Under_27",
+        "area": "Grand Gate",
+        "x": -7.335,
+        "y": -1.441,
+        "w": 2.16,
+        "h": 1.57
+      },
+      {
+        "id": "Under_27_bot",
+        "area": "Grand Gate",
+        "x": -7.335,
+        "y": -1.441,
+        "w": 2.16,
+        "h": 1.57
+      },
+      {
+        "id": "Ward_01",
+        "area": "Whiteward",
+        "x": 1.037,
+        "y": 3.525,
+        "w": 1.21,
+        "h": 1.86
+      },
+      {
+        "id": "Ward_01_2",
+        "area": "Whiteward",
+        "x": 0.748,
+        "y": 3.479,
+        "w": 0.64,
+        "h": 0.19
+      },
+      {
+        "id": "Ward_01_3",
+        "area": "Whiteward",
+        "x": 1.352,
+        "y": 3.39,
+        "w": 0.71,
+        "h": 1.06
+      },
+      {
+        "id": "Ward_01_mid_right",
+        "area": "Whiteward",
+        "x": 1.622,
+        "y": 3.495,
+        "w": 0.17,
+        "h": 0.19
+      },
+      {
+        "id": "Ward_01_top_right",
+        "area": "Whiteward",
+        "x": 1.549,
+        "y": 3.791,
+        "w": 0.3,
+        "h": 0.57
+      },
+      {
+        "id": "Ward_02",
+        "area": "Whiteward",
+        "x": -0.822,
+        "y": 2.69,
+        "w": 2.51,
+        "h": 1.37
+      },
+      {
+        "id": "Ward_02_2",
+        "area": "Whiteward",
+        "x": -0.842,
+        "y": 2.5,
+        "w": 1.27,
+        "h": 0.97
+      },
+      {
+        "id": "Ward_02_3",
+        "area": "Whiteward",
+        "x": -0.842,
+        "y": 2.5,
+        "w": 1.27,
+        "h": 0.929
+      },
+      {
+        "id": "Ward_02b",
+        "area": "Whiteward",
+        "x": -0.822,
+        "y": 3.669,
+        "w": 2.51,
+        "h": 0.59
+      },
+      {
+        "id": "Ward_03",
+        "area": "Whiteward",
+        "x": 3.685,
+        "y": 3.126,
+        "w": 3.96,
+        "h": 0.85
+      },
+      {
+        "id": "Ward_03_2",
+        "area": "Whiteward",
+        "x": 5.24,
+        "y": 3.055,
+        "w": 0.83,
+        "h": 0.71
+      },
+      {
+        "id": "Ward_03_top",
+        "area": "Whiteward",
+        "x": 4.617,
+        "y": 3.42,
+        "w": 0.5,
+        "h": 0.15
+      },
+      {
+        "id": "Ward_04",
+        "area": "Whiteward",
+        "x": 2.056,
+        "y": 3.636,
+        "w": 0.7,
+        "h": 0.51
+      },
+      {
+        "id": "Ward_05",
+        "area": "Whiteward",
+        "x": 2.868,
+        "y": 4.011,
+        "w": 2.34,
+        "h": 0.39
+      },
+      {
+        "id": "Ward_05_right",
+        "area": "Whiteward",
+        "x": 3.505,
+        "y": 3.971,
+        "w": 0.81,
+        "h": 0.31
+      },
+      {
+        "id": "Ward_06",
+        "area": "Whiteward",
+        "x": 4.706,
+        "y": 2.253,
+        "w": 1.38,
+        "h": 0.899
+      },
+      {
+        "id": "Ward_07",
+        "area": "Whiteward",
+        "x": 4.608,
+        "y": 3.663,
+        "w": 2.22,
+        "h": 0.34
+      },
+      {
+        "id": "Ward_09",
+        "area": "Whiteward",
+        "x": 3.709,
+        "y": 3.182,
+        "w": 0.85,
+        "h": 0.55
+      },
+      {
+        "id": "Weave_02",
+        "area": "Weavenest",
+        "x": -9.697,
+        "y": -13.627,
+        "w": 0.66,
+        "h": 3.56
+      },
+      {
+        "id": "Weave_03",
+        "area": "Weavenest",
+        "x": -13.369,
+        "y": -13.797,
+        "w": 4.63,
+        "h": 0.56
+      },
+      {
+        "id": "Weave_03_left",
+        "area": "Weavenest",
+        "x": -13.369,
+        "y": -13.797,
+        "w": 4.63,
+        "h": 0.56
+      },
+      {
+        "id": "Weave_03_mid",
+        "area": "Weavenest",
+        "x": -13.369,
+        "y": -13.797,
+        "w": 4.63,
+        "h": 0.56
+      },
+      {
+        "id": "Weave_04",
+        "area": "Weavenest",
+        "x": -10.936,
+        "y": -13.102,
+        "w": 1.82,
+        "h": 2.43
+      },
+      {
+        "id": "Weave_05b",
+        "area": "Weavenest",
+        "x": -7.567,
+        "y": -12.943,
+        "w": 3.8,
+        "h": 0.75
+      },
+      {
+        "id": "Weave_07",
+        "area": "Weavenest",
+        "x": -10.581,
+        "y": -14.557,
+        "w": 1.11,
+        "h": 2.24
+      },
+      {
+        "id": "Weave_07_left",
+        "area": "Weavenest",
+        "x": -10.874,
+        "y": -13.687,
+        "w": 0.36,
+        "h": 0.26
+      },
+      {
+        "id": "Weave_08",
+        "area": "Weavenest",
+        "x": -8.205,
+        "y": -12.836,
+        "w": 1.21,
+        "h": 1.08
+      },
+      {
+        "id": "Weave_08_bot_right",
+        "area": "Weavenest",
+        "x": -8.206,
+        "y": -12.838,
+        "w": 1.21,
+        "h": 1.08
+      },
+      {
+        "id": "Weave_10",
+        "area": "Weavenest",
+        "x": -9.057,
+        "y": -13.771,
+        "w": 1.63,
+        "h": 0.77
+      },
+      {
+        "id": "Weave_11",
+        "area": "Weavenest",
+        "x": -11.037,
+        "y": -13.217,
+        "w": 2.02,
+        "h": 0.48
+      },
+      {
+        "id": "Weave_11_top",
+        "area": "Weavenest",
+        "x": -10.52,
+        "y": -13.121,
+        "w": 0.16,
+        "h": 0.26
+      },
+      {
+        "id": "Weave_12",
+        "area": "Weavenest",
+        "x": -8.857,
+        "y": -12.431,
+        "w": 1.02,
+        "h": 0.37
+      },
+      {
+        "id": "Weave_13",
+        "area": "Weavenest",
+        "x": -8.837,
+        "y": -12.713,
+        "w": 1.06,
+        "h": 0.19
+      },
+      {
+        "id": "Weave_14",
+        "area": "Weavenest",
+        "x": -10.605,
+        "y": -12.815,
+        "w": 1.37,
+        "h": 0.36
+      },
+      {
+        "id": "Wisp_02",
+        "area": "Greymoor",
+        "x": 1.282,
+        "y": -2.344,
+        "w": 3.96,
+        "h": 0.68
+      },
+      {
+        "id": "Wisp_03",
+        "area": "Greymoor",
+        "x": 1.542,
+        "y": -4.057,
+        "w": 3.34,
+        "h": 0.89
+      },
+      {
+        "id": "Wisp_03_2",
+        "area": "Greymoor",
+        "x": 2.06,
+        "y": -4.059,
+        "w": 2.31,
+        "h": 1.066
+      },
+      {
+        "id": "Wisp_04",
+        "area": "Greymoor",
+        "x": 3.847,
+        "y": -2.559,
+        "w": 1.195,
+        "h": 0.43
+      },
+      {
+        "id": "Wisp_05",
+        "area": "Greymoor",
+        "x": 1.561,
+        "y": -1.526,
+        "w": 0.87,
+        "h": 1.116
+      },
+      {
+        "id": "Wisp_06",
+        "area": "Greymoor",
+        "x": 0.977,
+        "y": -3.432,
+        "w": 0.7,
+        "h": 0.39
+      },
+      {
+        "id": "Wisp_06_secret",
+        "area": "Greymoor",
+        "x": 0.878,
+        "y": -3.438,
+        "w": 0.58,
+        "h": 0.55
+      },
+      {
+        "id": "Wisp_07",
+        "area": "Greymoor",
+        "x": 5.776,
+        "y": -1.904,
+        "w": 4.63,
+        "h": 0.62
+      },
+      {
+        "id": "Wisp_08",
+        "area": "Greymoor",
+        "x": 4.668,
+        "y": -1.699,
+        "w": 0.46,
+        "h": 1.99
+      },
+      {
+        "id": "Wisp_09",
+        "area": "Greymoor",
+        "x": 0.308,
+        "y": -1.295,
+        "w": 1.8,
+        "h": 0.63
+      }
+    ]
+  }
+}

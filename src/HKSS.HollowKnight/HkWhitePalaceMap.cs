@@ -5,9 +5,10 @@ using UnityEngine;
 namespace HKSS.HollowKnight;
 
 /// <summary>
-/// Procedural schematic room map for White Palace and Path of Pain on Hollow Knight's World Map.
+/// Illustrated proportional room map for White Palace and Path of Pain on Hollow Knight's World Map.
 /// Placed cleanly below Ancient Basin so White Palace &amp; Path of Pain checks appear on their exact
 /// rooms instead of stacking on Palace Grounds, with live compass tracking when inside White Palace.
+/// Room proportions and layout mirror data/map_geometry.json.
 /// </summary>
 internal static class HkWhitePalaceMap
 {
@@ -15,46 +16,54 @@ internal static class HkWhitePalaceMap
     {
         public readonly string SceneName;
         public readonly string Label;
-        public readonly int GridX;
-        public readonly int GridY;
+        public readonly float X;
+        public readonly float Y;
+        public readonly float Width;
+        public readonly float Height;
         public readonly bool IsPathOfPain;
 
-        public RoomSpec(string sceneName, string label, int gridX, int gridY, bool isPathOfPain = false)
+        public RoomSpec(string sceneName, string label, float x, float y, float width, float height, bool isPathOfPain = false)
         {
             SceneName = sceneName;
             Label = label;
-            GridX = gridX;
-            GridY = gridY;
+            X = x;
+            Y = y;
+            Width = width;
+            Height = height;
             IsPathOfPain = isPathOfPain;
         }
     }
 
-    private const float RoomWidth = 1.05f;
-    private const float StepX = 1.35f;
-    private const float StepY = 0.92f;
-    private const float LineThickness = 0.055f;
+    // Scale from data/map_geometry.json White Palace units into HK GameMap units below Ancient Basin.
+    private const float MapScale = 0.78f;
+    private const float LineThickness = 0.065f;
+    private const int PixelsPerUnit = 64;
 
     internal static readonly RoomSpec[] Rooms =
     {
-        new("White_Palace_11", "Palace Entry", 1, 4),
-        new("White_Palace_01", "Entrance Hall", 2, 4),
-        new("White_Palace_02", "Entrance Wing", 3, 4),
-        new("White_Palace_03_hub", "Central Hub", 2, 3),
-        new("White_Palace_04", "Left Wing Lower", 0, 4),
-        new("White_Palace_14", "Left Wing Upper", 0, 3),
-        new("White_Palace_15", "Right Wing Entry", 3, 3),
-        new("White_Palace_05", "Right Wing Sawblades", 4, 3),
-        new("White_Palace_16", "Right Wing Upper", 5, 3),
-        new("White_Palace_06", "Central Atrium", 2, 2),
-        new("White_Palace_07", "Upper Ascent", 3, 2),
-        new("White_Palace_12", "Upper Corridor", 3, 1),
-        new("White_Palace_13", "Throne Tower", 4, 0),
-        new("White_Palace_08", "Palace Workshop", 5, 0),
-        new("White_Palace_09", "Throne Room", 3, 0),
-        new("White_Palace_18", "PoP: Entrance", 0, 2, isPathOfPain: true),
-        new("White_Palace_17", "PoP: Lever Room", 0, 1, isPathOfPain: true),
-        new("White_Palace_19", "PoP: Vertical Shaft", 1, 1, isPathOfPain: true),
-        new("White_Palace_20", "PoP: Final Gauntlet", 1, 0, isPathOfPain: true),
+        // Entry & lower wing
+        new("White_Palace_11", "Palace Entry", -1.45f, -3.20f, 1.65f, 0.72f),
+        new("White_Palace_01", "Entrance Hall", 0.35f, -3.15f, 1.50f, 0.85f),
+        new("White_Palace_02", "Entrance Wing", 2.05f, -3.20f, 1.45f, 0.62f),
+        // Central hub & left/right wings
+        new("White_Palace_03_hub", "Central Hub", 0.35f, -1.75f, 1.35f, 1.35f),
+        new("White_Palace_04", "Left Wing Lower", -1.65f, -2.10f, 1.75f, 0.78f),
+        new("White_Palace_14", "Left Wing Upper", -1.80f, -1.00f, 2.00f, 0.82f),
+        new("White_Palace_15", "Right Wing Entry", 2.05f, -1.95f, 1.50f, 0.75f),
+        new("White_Palace_05", "Right Wing Sawblades", 3.95f, -1.85f, 1.85f, 0.88f),
+        new("White_Palace_16", "Right Wing Upper", 4.20f, -0.70f, 1.55f, 0.85f),
+        // Central atrium & upper spire
+        new("White_Palace_06", "Central Atrium", 0.35f, -0.15f, 1.70f, 0.78f),
+        new("White_Palace_07", "Upper Ascent", 2.05f, 0.35f, 1.25f, 1.35f),
+        new("White_Palace_12", "Upper Corridor", 2.05f, 1.85f, 1.55f, 0.85f),
+        new("White_Palace_13", "Throne Tower", 3.50f, 2.85f, 1.15f, 1.35f),
+        new("White_Palace_08", "Palace Workshop", 5.05f, 2.85f, 1.35f, 0.90f),
+        new("White_Palace_09", "Throne Room", 1.85f, 3.20f, 1.55f, 0.92f),
+        // Path of Pain (branches left from Central Atrium)
+        new("White_Palace_18", "PoP: Entrance", -1.80f, 0.35f, 1.95f, 0.82f, isPathOfPain: true),
+        new("White_Palace_17", "PoP: Lever Room", -2.40f, 1.65f, 1.80f, 0.85f, isPathOfPain: true),
+        new("White_Palace_19", "PoP: Vertical Shaft", -0.75f, 1.85f, 1.05f, 1.45f, isPathOfPain: true),
+        new("White_Palace_20", "PoP: Final Gauntlet", -0.55f, 3.25f, 2.05f, 0.88f, isPathOfPain: true),
     };
 
     private static readonly (string From, string To)[] Routes =
@@ -82,9 +91,8 @@ internal static class HkWhitePalaceMap
 
     private static readonly Dictionary<string, RoomSpec> SpecByScene = BuildSpecLookup();
     private static readonly Dictionary<string, Transform> RoomTransforms = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, Sprite> RoomSprites = new(StringComparer.OrdinalIgnoreCase);
 
-    private static Sprite? _wpRoomSprite;
-    private static Sprite? _popRoomSprite;
     private static Sprite? _lineSprite;
 
     internal static GameObject? AreaObject { get; private set; }
@@ -134,19 +142,17 @@ internal static class HkWhitePalaceMap
         var localPositions = new Dictionary<string, Vector3>(StringComparer.OrdinalIgnoreCase);
         foreach (RoomSpec room in Rooms)
         {
-            float lx = (room.GridX - 2.5f) * StepX;
-            float ly = (2.0f - room.GridY) * StepY;
-            var pos = new Vector3(lx, ly, 0f);
+            var pos = new Vector3((room.X - 1.15f) * MapScale, room.Y * MapScale, 0f);
             localPositions[room.SceneName] = pos;
 
             var roomGo = new GameObject(room.SceneName);
             roomGo.layer = areaGo.layer;
             roomGo.transform.SetParent(areaGo.transform, worldPositionStays: false);
             roomGo.transform.localPosition = pos;
-            roomGo.transform.localScale = new Vector3(RoomWidth, RoomWidth, 1f);
+            roomGo.transform.localScale = Vector3.one;
 
             var sr = roomGo.AddComponent<SpriteRenderer>();
-            sr.sprite = room.IsPathOfPain ? _popRoomSprite : _wpRoomSprite;
+            sr.sprite = RoomSprites[room.SceneName];
             sr.color = Color.white;
             sr.sortingLayerID = sortingLayerId;
             sr.sortingOrder = baseSortingOrder + 2;
@@ -155,7 +161,7 @@ internal static class HkWhitePalaceMap
             roomLookup[room.SceneName] = (areaGo, roomGo.transform, string.Empty);
         }
 
-        // Draw connecting lines between adjacent rooms behind the room rectangles.
+        // Draw connecting doorway passages between adjacent rooms behind the room silhouettes.
         foreach (var (fromScene, toScene) in Routes)
         {
             if (!localPositions.TryGetValue(fromScene, out Vector3 a) ||
@@ -177,8 +183,8 @@ internal static class HkWhitePalaceMap
             var lineSr = lineGo.AddComponent<SpriteRenderer>();
             lineSr.sprite = _lineSprite;
             lineSr.color = isPopEdge
-                ? new Color(0.84f, 0.72f, 0.46f, 0.75f)
-                : new Color(0.45f, 0.62f, 0.85f, 0.70f);
+                ? new Color(0.88f, 0.75f, 0.48f, 0.72f)
+                : new Color(0.64f, 0.76f, 0.90f, 0.68f);
             lineSr.sortingLayerID = sortingLayerId;
             lineSr.sortingOrder = baseSortingOrder + 1;
         }
@@ -218,7 +224,7 @@ internal static class HkWhitePalaceMap
     {
         GameObject? basin = map.areaAncientBasin;
         if (basin == null)
-            return new Vector3(2.0f, -15.5f, 0f);
+            return new Vector3(2.0f, -16.0f, 0f);
 
         Vector3 basinOrigin = basin.transform.localPosition;
         float minX = float.MaxValue;
@@ -245,27 +251,35 @@ internal static class HkWhitePalaceMap
         }
 
         if (!foundAny)
-            return new Vector3(basinOrigin.x, basinOrigin.y - 4.5f, 0f);
+            return new Vector3(basinOrigin.x, basinOrigin.y - 4.8f, 0f);
 
         float centerX = (minX + maxX) * 0.5f;
-        // Top of White Palace sits at +2.15f above anchor, so anchor at minY - 3.6f leaves ~1.45f gap.
-        return new Vector3(centerX, minY - 3.6f, 0f);
+        // Top of White Palace sits at ~(3.7 * MapScale = 2.89f) above anchor; leave a clean ~1.4f gap below Ancient Basin.
+        return new Vector3(centerX, minY - 4.3f, 0f);
     }
 
     private static void EnsureSprites()
     {
-        if (_wpRoomSprite == null)
+        foreach (RoomSpec room in Rooms)
         {
-            _wpRoomSprite = CreateBoxSprite(
-                fill: new Color(0.10f, 0.12f, 0.18f, 0.90f),
-                border: new Color(0.52f, 0.72f, 0.95f, 0.95f));
-        }
+            if (RoomSprites.ContainsKey(room.SceneName)) continue;
+            Color fill = room.IsPathOfPain
+                ? new Color(0.24f, 0.20f, 0.14f, 0.93f)
+                : new Color(0.18f, 0.21f, 0.27f, 0.92f);
+            Color innerBorder = room.IsPathOfPain
+                ? new Color(0.90f, 0.78f, 0.50f, 0.28f)
+                : new Color(0.78f, 0.85f, 0.95f, 0.24f);
+            Color outerBorder = room.IsPathOfPain
+                ? new Color(0.92f, 0.79f, 0.52f, 0.96f)
+                : new Color(0.81f, 0.86f, 0.94f, 0.95f);
 
-        if (_popRoomSprite == null)
-        {
-            _popRoomSprite = CreateBoxSprite(
-                fill: new Color(0.15f, 0.13f, 0.11f, 0.92f),
-                border: new Color(0.86f, 0.74f, 0.48f, 0.95f));
+            RoomSprites[room.SceneName] = CreateIllustratedRoomSprite(
+                room.Width * MapScale,
+                room.Height * MapScale,
+                fill,
+                innerBorder,
+                outerBorder,
+                room.SceneName.GetHashCode());
         }
 
         if (_lineSprite == null)
@@ -281,28 +295,60 @@ internal static class HkWhitePalaceMap
         }
     }
 
-    private static Sprite CreateBoxSprite(Color fill, Color border)
+    private static Sprite CreateIllustratedRoomSprite(
+        float worldW, float worldH, Color fill, Color innerBorder, Color outerBorder, int seed)
     {
-        const int w = 48;
-        const int h = 28;
-        const int b = 2;
+        int w = Mathf.Clamp(Mathf.RoundToInt(worldW * PixelsPerUnit), 28, 192);
+        int h = Mathf.Clamp(Mathf.RoundToInt(worldH * PixelsPerUnit), 22, 160);
+        int chamfer = Mathf.Clamp(Mathf.Min(w, h) / 7, 3, 8);
+        const int borderW = 2;
+
         var tex = new Texture2D(w, h, TextureFormat.RGBA32, mipChain: false)
         {
             filterMode = FilterMode.Bilinear,
             wrapMode = TextureWrapMode.Clamp,
         };
         var pixels = new Color[w * h];
+        Color clear = new(0f, 0f, 0f, 0f);
+
         for (int y = 0; y < h; y++)
         {
+            float v = (float)y / (h - 1);
             for (int x = 0; x < w; x++)
             {
-                bool isBorder = x < b || x >= w - b || y < b || y >= h - b;
-                pixels[y * w + x] = isBorder ? border : fill;
+                // Subtle deterministic hand-inked edge wobble (+/- 0.75 px).
+                float wobble = Mathf.Sin((x * 0.21f) + (y * 0.17f) + (seed & 0xFF)) * 0.65f;
+                float dx = Mathf.Min(x, w - 1 - x);
+                float dy = Mathf.Min(y, h - 1 - y);
+                float cornerDist = (dx + dy) - chamfer;
+                float edgeDist = Mathf.Min(Mathf.Min(dx, dy), cornerDist * 0.78f) + wobble;
+
+                if (edgeDist < 0f)
+                {
+                    pixels[y * w + x] = clear;
+                    continue;
+                }
+
+                if (edgeDist < borderW)
+                {
+                    float aa = Mathf.Clamp01(edgeDist);
+                    pixels[y * w + x] = new Color(outerBorder.r, outerBorder.g, outerBorder.b, outerBorder.a * aa);
+                    continue;
+                }
+
+                // Subtle vertical parchment shading + delicate architectural inner frame line.
+                float shade = 0.92f + 0.14f * v;
+                Color c = new(fill.r * shade, fill.g * shade, fill.b * shade, fill.a);
+                if (edgeDist >= borderW + 3f && edgeDist < borderW + 4.2f)
+                {
+                    c = Color.Lerp(c, innerBorder, innerBorder.a);
+                }
+                pixels[y * w + x] = c;
             }
         }
+
         tex.SetPixels(pixels);
         tex.Apply(updateMipmaps: false, makeNoLongerReadable: true);
-        // 48x28 at 48 PPU yields a 1.0 x 0.583 unit sprite; uniform scale by RoomWidth keeps border thickness even.
-        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), w);
+        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), PixelsPerUnit);
     }
 }

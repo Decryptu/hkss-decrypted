@@ -5,80 +5,12 @@ const filters = document.querySelector("#map-filters");
 const atlas = document.querySelector("#atlas");
 const results = document.querySelector("#map-results");
 const count = document.querySelector("#map-count");
+const SVG_NS = "http://www.w3.org/2000/svg";
 
-// Approximate west/east and elevation, independent of the room dimensions.
-const layouts = {
-  HK: {
-    "Howling Cliffs": [0, 0], Dirtmouth: [2, 0], "Crystal Peak": [4, 0],
-    Greenpath: [0, 1], "Forgotten Crossroads": [2, 1], "Resting Grounds": [4, 1],
-    "Queen's Gardens": [0, 2], "Fog Canyon": [1, 2], "City of Tears": [4, 2],
-    Deepnest: [0, 3], "Fungal Wastes": [2, 3], "Royal Waterways": [4, 3], "Kingdom's Edge": [5, 3],
-    "White Palace": [2, 4], "Ancient Basin": [4, 4],
-  },
-  SS: {
-    "Mount Fay": [0, 0], "The Slab": [1, 0], "The Cradle": [4, 0], "High Halls": [5, 0],
-    "Sands of Karak": [0, 1], "Cogwork Core": [3, 1], Songclave: [4, 1], Memorium: [5, 1],
-    "Blasted Steps": [0, 2], "Grand Gate": [2, 2], "Choral Chambers": [3, 2],
-    "Whispering Vaults": [4, 2], "Putrified Ducts": [5, 2],
-    Shellwood: [0, 3], Bellhart: [1, 3], Underworks: [2, 3], Whiteward: [3, 3], Bilewater: [5, 3],
-    Wormways: [0, 4], Greymoor: [2, 4], "Sinner's Road": [4, 4], Verdania: [5, 4],
-    Mosslands: [0, 5], "The Marrow": [2, 5], "Hunter's March": [3, 5], "Far Fields": [4, 5],
-    Weavenest: [0, 6], "Deep Docks": [3, 6], "The Abyss": [4, 6], Unmapped: [5, 6],
-  },
-};
-const columns = 6;
-const cellWidth = 140;
-const cellHeight = 76;
-
-const submaps = {
-  "HK|White Palace": {
-    game: "HK",
-    title: "White Palace & Path of Pain",
-    note: "Room-by-room schematic. Path of Pain branches left from Central Atrium.",
-    columns: 6,
-    rooms: {
-      White_Palace_11: { label: "Palace Entry", pos: [1, 4] },
-      White_Palace_01: { label: "Entrance Hall", pos: [2, 4] },
-      White_Palace_02: { label: "Entrance Wing", pos: [3, 4] },
-      White_Palace_03_hub: { label: "Central Hub", pos: [2, 3] },
-      White_Palace_04: { label: "Left Wing Lower", pos: [0, 4] },
-      White_Palace_14: { label: "Left Wing Upper", pos: [0, 3] },
-      White_Palace_15: { label: "Right Wing Entry", pos: [3, 3] },
-      White_Palace_05: { label: "Right Wing Sawblades", pos: [4, 3] },
-      White_Palace_16: { label: "Right Wing Upper", pos: [5, 3] },
-      White_Palace_06: { label: "Central Atrium", pos: [2, 2] },
-      White_Palace_07: { label: "Upper Ascent", pos: [3, 2] },
-      White_Palace_12: { label: "Upper Corridor", pos: [3, 1] },
-      White_Palace_13: { label: "Throne Tower", pos: [4, 0] },
-      White_Palace_08: { label: "Palace Workshop", pos: [5, 0] },
-      White_Palace_09: { label: "Throne Room", pos: [3, 0] },
-      White_Palace_18: { label: "PoP: Entrance", pos: [0, 2], group: "pop" },
-      White_Palace_17: { label: "PoP: Lever Room", pos: [0, 1], group: "pop" },
-      White_Palace_19: { label: "PoP: Vertical Shaft", pos: [1, 1], group: "pop" },
-      White_Palace_20: { label: "PoP: Final Gauntlet", pos: [1, 0], group: "pop" },
-    },
-    routes: [
-      ["White_Palace_11", "White_Palace_01"],
-      ["White_Palace_01", "White_Palace_02"],
-      ["White_Palace_01", "White_Palace_03_hub"],
-      ["White_Palace_03_hub", "White_Palace_04"],
-      ["White_Palace_03_hub", "White_Palace_14"],
-      ["White_Palace_04", "White_Palace_14"],
-      ["White_Palace_03_hub", "White_Palace_15"],
-      ["White_Palace_15", "White_Palace_05"],
-      ["White_Palace_05", "White_Palace_16"],
-      ["White_Palace_03_hub", "White_Palace_06"],
-      ["White_Palace_06", "White_Palace_07"],
-      ["White_Palace_07", "White_Palace_12"],
-      ["White_Palace_12", "White_Palace_13"],
-      ["White_Palace_13", "White_Palace_09"],
-      ["White_Palace_13", "White_Palace_08"],
-      ["White_Palace_06", "White_Palace_18"],
-      ["White_Palace_18", "White_Palace_17"],
-      ["White_Palace_17", "White_Palace_19"],
-      ["White_Palace_19", "White_Palace_20"],
-    ],
-  },
+const MAP_IMAGES = {
+  HK: "./assets/maps/hk.png",
+  SS: "./assets/maps/ss.png",
+  HK_WP: "./assets/maps/hk_white_palace.png",
 };
 
 const storage = {
@@ -102,7 +34,6 @@ const ROOM_KEY = "hkss-map-room";
 const SPOILER_KEY = "hkss-map-spoiler";
 const marksKey = spoiler => `hkss-map-marks:${spoiler.seed}:${spoiler.players[spoiler.player].name}`;
 
-// What the page knows about the run being tracked.
 const tracking = {
   room: null,
   spoiler: null,
@@ -122,6 +53,17 @@ const tracking = {
   },
 };
 
+// Persist pan/zoom state per map key across re-renders.
+const viewStates = new Map();
+
+function svgEl(tag, attrs = {}) {
+  const node = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v !== undefined && v !== null) node.setAttribute(k, String(v));
+  }
+  return node;
+}
+
 function sort(values) {
   return [...new Set(values)].sort((a, b) => a.localeCompare(b));
 }
@@ -137,85 +79,247 @@ function areaKey(check, area) {
   return `${check.game}|${area}`;
 }
 
-function renderSubmap(areaId, spec, matches, activeRoom, recent) {
-  const roomStats = new Map();
-  for (const roomId of Object.keys(spec.rooms)) {
-    roomStats.set(roomId, { total: 0, found: 0, lit: false });
+function checkMapRoom(check) {
+  return check.mapRoom ?? check.room ?? null;
+}
+
+function attachPanZoom(viewport, svg, mapKey, baseW, baseH) {
+  let state = viewStates.get(mapKey);
+  if (!state) {
+    state = { x: 0, y: 0, w: baseW, h: baseH };
+    viewStates.set(mapKey, state);
   }
-  for (const check of matches) {
-    if (check.game !== spec.game || !check.room || !roomStats.has(check.room)) continue;
-    const stats = roomStats.get(check.room);
-    stats.total++;
-    if (tracking.found(check.id)) stats.found++;
-    if (recent.has(check.id)) stats.lit = true;
+
+  function apply() {
+    state.w = Math.min(baseW, Math.max(baseW / 6, state.w));
+    state.h = state.w * (baseH / baseW);
+    state.x = Math.max(0, Math.min(baseW - state.w, state.x));
+    state.y = Math.max(0, Math.min(baseH - state.h, state.y));
+    svg.setAttribute("viewBox", `${state.x.toFixed(1)} ${state.y.toFixed(1)} ${state.w.toFixed(1)} ${state.h.toFixed(1)}`);
   }
-  const section = element("section", undefined, {
-    class: `kingdom atlas-kingdom atlas-submap ${spec.game.toLowerCase()}`,
+  apply();
+
+  function zoomBy(factor, clientX, clientY) {
+    const rect = svg.getBoundingClientRect();
+    const rx = rect.width ? (clientX - rect.left) / rect.width : 0.5;
+    const ry = rect.height ? (clientY - rect.top) / rect.height : 0.5;
+    const oldW = state.w;
+    const oldH = state.h;
+    const newW = Math.min(baseW, Math.max(baseW / 6, oldW * factor));
+    const newH = newW * (baseH / baseW);
+    state.x += (oldW - newW) * rx;
+    state.y += (oldH - newH) * ry;
+    state.w = newW;
+    state.h = newH;
+    apply();
+  }
+
+  viewport.addEventListener("wheel", event => {
+    event.preventDefault();
+    zoomBy(event.deltaY > 0 ? 1.2 : 1 / 1.2, event.clientX, event.clientY);
+  }, { passive: false });
+
+  let drag = null;
+  viewport.addEventListener("pointerdown", event => {
+    if (event.button !== 0 || event.target.closest(".atlas-pin")) return;
+    drag = { id: event.pointerId, sx: event.clientX, sy: event.clientY, ox: state.x, oy: state.y, moved: false };
+    viewport.setPointerCapture(event.pointerId);
+    viewport.classList.add("dragging");
   });
-  const heading = element("h3", spec.title);
+  viewport.addEventListener("pointermove", event => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const dx = event.clientX - drag.sx;
+    const dy = event.clientY - drag.sy;
+    if (Math.hypot(dx, dy) > 4) drag.moved = true;
+    const rect = svg.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    state.x = drag.ox - dx * (state.w / rect.width);
+    state.y = drag.oy - dy * (state.h / rect.height);
+    apply();
+  });
+  const endDrag = event => {
+    if (!drag || event.pointerId !== drag.id) return;
+    drag = null;
+    viewport.classList.remove("dragging");
+  };
+  viewport.addEventListener("pointerup", endDrag);
+  viewport.addEventListener("pointercancel", endDrag);
+
+  return {
+    zoomIn() {
+      const rect = svg.getBoundingClientRect();
+      zoomBy(1 / 1.35, rect.left + rect.width / 2, rect.top + rect.height / 2);
+    },
+    zoomOut() {
+      const rect = svg.getBoundingClientRect();
+      zoomBy(1.35, rect.left + rect.width / 2, rect.top + rect.height / 2);
+    },
+    reset() {
+      state.x = 0;
+      state.y = 0;
+      state.w = baseW;
+      state.h = baseH;
+      apply();
+    },
+  };
+}
+
+function buildInteractiveMap({ mapKey, gameClass, imageUrl, width, height, pins, activeArea, activeRoom, ariaLabel }) {
+  const stage = element("div", undefined, { class: "atlas-stage" });
+  const viewport = element("div", undefined, { class: "atlas-viewport", role: "region", "aria-label": ariaLabel });
+  const svg = svgEl("svg", {
+    class: "atlas-svg",
+    viewBox: `0 0 ${width} ${height}`,
+    preserveAspectRatio: "xMidYMid meet",
+  });
+  svg.append(svgEl("image", { href: imageUrl, x: 0, y: 0, width, height }));
+
+  const pinLayer = svgEl("g", { class: "atlas-pins" });
+  const tooltip = element("div", undefined, { class: "atlas-tooltip", hidden: true });
+
+  for (const pin of pins) {
+    const g = svgEl("g", {
+      class: "atlas-pin",
+      transform: `translate(${pin.x.toFixed(1)}, ${pin.y.toFixed(1)})`,
+      tabindex: "0",
+      role: "button",
+      "aria-label": `${pin.title}: ${pin.summary}`,
+    });
+    if (pin.roomId) g.dataset.room = pin.roomId;
+    if (pin.areaKey) g.dataset.area = pin.areaKey;
+    if (pin.isPop) g.classList.add("pop");
+    const isSelected = (activeRoom && pin.roomId === activeRoom) ||
+      (!activeRoom && activeArea && pin.areaKey === activeArea && !pin.roomId);
+    const isDimmed = Boolean(activeArea && pin.areaKey && pin.areaKey !== activeArea);
+    if (isSelected) g.classList.add("selected");
+    if (isDimmed) g.classList.add("dimmed");
+    if (pin.lit) g.classList.add("lit");
+    if (tracking.active) {
+      if (pin.found === pin.total) g.classList.add("cleared");
+      else if (pin.found > 0) g.classList.add("partial");
+    }
+
+    const r = pin.total >= 10 ? 11.5 : pin.total >= 4 ? 9.5 : 8;
+    if (isSelected) {
+      g.append(svgEl("circle", { class: "pin-ring", r: r + 4.5 }));
+    }
+    if (pin.isDiamond) {
+      const d = r + 1;
+      g.append(svgEl("polygon", { class: "pin-body", points: `0,${-d} ${d},0 0,${d} ${-d},0` }));
+    } else {
+      g.append(svgEl("circle", { class: "pin-body", r }));
+    }
+    if (pin.total > 1) {
+      const label = svgEl("text", {});
+      label.textContent = tracking.active ? `${pin.total - pin.found}` : `${pin.total}`;
+      g.append(label);
+    }
+
+    const showTip = event => {
+      tooltip.replaceChildren(
+        element("strong", pin.title),
+        element("small", pin.summary),
+        ...(pin.preview ? [element("small", pin.preview)] : []),
+      );
+      tooltip.hidden = false;
+      const rect = stage.getBoundingClientRect();
+      const px = (event.clientX ?? rect.left + rect.width / 2) - rect.left + 14;
+      const py = (event.clientY ?? rect.top + rect.height / 2) - rect.top + 14;
+      tooltip.style.left = `${Math.min(rect.width - 260, Math.max(8, px))}px`;
+      tooltip.style.top = `${Math.min(rect.height - 90, Math.max(8, py))}px`;
+    };
+    g.addEventListener("pointerenter", showTip);
+    g.addEventListener("pointermove", showTip);
+    g.addEventListener("pointerleave", () => { tooltip.hidden = true; });
+    g.addEventListener("focus", showTip);
+    g.addEventListener("blur", () => { tooltip.hidden = true; });
+    g.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        g.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      }
+    });
+    pinLayer.append(g);
+  }
+  svg.append(pinLayer);
+  viewport.append(svg);
+
+  const controls = attachPanZoom(viewport, svg, mapKey, width, height);
+  const toolbar = element("div", undefined, { class: "atlas-toolbar" });
+  const zoomIn = element("button", "+", { type: "button", "aria-label": "Zoom in", title: "Zoom in" });
+  const zoomOut = element("button", "−", { type: "button", "aria-label": "Zoom out", title: "Zoom out" });
+  const reset = element("button", "Reset", { type: "button", title: "Reset view" });
+  zoomIn.addEventListener("click", controls.zoomIn);
+  zoomOut.addEventListener("click", controls.zoomOut);
+  reset.addEventListener("click", controls.reset);
+  toolbar.append(zoomIn, zoomOut, reset);
+
+  stage.append(viewport, toolbar, tooltip);
+  return stage;
+}
+
+function summarizeChecks(checks, recent) {
+  let found = 0;
+  let lit = false;
+  for (const check of checks) {
+    if (tracking.found(check.id)) found++;
+    if (recent.has(check.id)) lit = true;
+  }
+  const total = checks.length;
+  const summary = tracking.active ? `${found} / ${total} found` : `${total} ${total === 1 ? "check" : "checks"}`;
+  const names = checks.slice(0, 3).map(c => c.name);
+  const preview = names.join(" · ") + (checks.length > 3 ? ` (+${checks.length - 3} more)` : "");
+  return { total, found, lit, summary, preview };
+}
+
+function renderWhitePalaceSubmap(wpMeta, matches, activeRoom, recent) {
+  const section = element("section", undefined, { class: "kingdom atlas-kingdom atlas-submap hk" });
+  const heading = element("h3", "White Palace & Path of Pain");
+  const wpRoomIds = new Set(Object.keys(wpMeta.rooms));
+  const own = matches.filter(check => check.game === "HK" && check.room && wpRoomIds.has(check.room));
   if (tracking.active) {
-    const own = matches.filter(check => check.game === spec.game && check.room && roomStats.has(check.room));
     const found = own.filter(check => tracking.found(check.id)).length;
     heading.append(element("small", ` ${found} / ${own.length} found`, { class: "kingdom-progress" }));
   }
-  const note = element("p", spec.note, { class: "atlas-submap-note" });
-  const scroll = element("div", undefined, {
-    class: "atlas-scroll", "data-game": `submap:${areaId}`, role: "region",
-    "aria-label": `${spec.title} room map`, tabindex: "0",
-  });
-  const tiles = element("div", undefined, { class: "atlas-areas" });
-  const rows = Math.max(...Object.values(spec.rooms).map(r => r.pos[1])) + 1;
-  tiles.style.width = `${spec.columns * cellWidth}px`;
-  tiles.style.height = `${rows * cellHeight}px`;
-  for (const [source, target] of spec.routes) {
-    const from = spec.rooms[source];
-    const to = spec.rooms[target];
-    if (!from || !to) continue;
-    const [x1, y1] = from.pos;
-    const [x2, y2] = to.pos;
-    const dx = (x2 - x1) * cellWidth;
-    const dy = (y2 - y1) * cellHeight;
-    const line = element("span", undefined, { class: "atlas-route", "aria-hidden": "true" });
-    line.style.left = `${(x1 + .5) * cellWidth}px`;
-    line.style.top = `${(y1 + .5) * cellHeight}px`;
-    line.style.width = `${Math.hypot(dx, dy)}px`;
-    line.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
-    tiles.append(line);
+  const note = element("p", "Room-by-room illustrated floorplan. Click a room pin to filter checks.", { class: "atlas-submap-note" });
+
+  const byRoom = new Map();
+  for (const check of own) {
+    if (!byRoom.has(check.room)) byRoom.set(check.room, []);
+    byRoom.get(check.room).push(check);
   }
-  for (const [roomId, room] of Object.entries(spec.rooms)) {
-    const { total, found, lit } = roomStats.get(roomId);
-    const button = element("button", undefined, {
-      type: "button", "data-room": roomId, "aria-pressed": String(activeRoom === roomId),
+  const pins = [];
+  for (const [roomId, roomChecks] of byRoom.entries()) {
+    const info = wpMeta.rooms[roomId];
+    const stats = summarizeChecks(roomChecks, recent);
+    pins.push({
+      roomId,
+      areaKey: "HK|White Palace",
+      x: info.x,
+      y: info.y - 8,
+      title: info.label,
+      isPop: info.group === "pop",
+      isDiamond: true,
+      ...stats,
     });
-    const [x, y] = room.pos;
-    button.style.left = `${(x + .5) * cellWidth}px`;
-    button.style.top = `${(y + .5) * cellHeight}px`;
-    button.style.width = `${cellWidth - 10}px`;
-    button.style.height = `${cellHeight - 12}px`;
-    const summary = total
-      ? (tracking.active ? `${found} / ${total} found` : `${total} ${total === 1 ? "check" : "checks"}`)
-      : "Passage";
-    button.append(element("span", room.label), element("small", summary));
-    if (room.group === "pop") button.classList.add("submap-pop");
-    if (!total) {
-      button.classList.add("submap-passage");
-      button.disabled = true;
-    } else if (tracking.active) {
-      button.style.setProperty("--found", `${(found / total) * 100}%`);
-      button.classList.add("tracked");
-      if (found === total) button.classList.add("cleared");
-      if (lit) button.classList.add("lit");
-    }
-    tiles.append(button);
   }
-  scroll.append(tiles);
-  section.append(heading, note, scroll);
+  const { width, height } = wpMeta.projection;
+  const stage = buildInteractiveMap({
+    mapKey: "HK_WP",
+    gameClass: "hk",
+    imageUrl: MAP_IMAGES.HK_WP,
+    width,
+    height,
+    pins,
+    activeArea: "HK|White Palace",
+    activeRoom,
+    ariaLabel: "White Palace and Path of Pain illustrated map",
+  });
+  section.append(heading, note, stage);
   return section;
 }
 
-function renderAtlas(matches, available, activeArea, activeRoom, routes, recent) {
-  const previousScroll = new Map([...atlas.querySelectorAll(".atlas-scroll")]
-    .map(node => [node.dataset.game, node.scrollLeft]));
+function renderAtlas(mapsMeta, matches, available, activeArea, activeRoom, recent) {
   const areas = new Map();
   for (const check of available) {
     for (const area of check.areas) areas.set(areaKey(check, area), { total: 0, found: 0, lit: false });
@@ -228,62 +332,85 @@ function renderAtlas(matches, available, activeArea, activeRoom, routes, recent)
       if (recent.has(check.id)) stats.lit = true;
     }
   }
+
   const kingdoms = Object.entries(games).flatMap(([game, label]) => {
     const keys = sort([...areas.keys()].filter(key => key.startsWith(`${game}|`)));
     if (!keys.length) return [];
+    const meta = mapsMeta[game];
     const section = element("section", undefined, { class: `kingdom atlas-kingdom ${game.toLowerCase()}` });
     const heading = element("h3", label);
+    const ownMatches = matches.filter(check => check.game === game);
     if (tracking.active) {
-      // Count each check once, even when it belongs to two areas.
-      const own = matches.filter(check => check.game === game);
-      const total = own.length;
-      const found = own.filter(check => tracking.found(check.id)).length;
-      heading.append(element("small", ` ${found} / ${total} found`, { class: "kingdom-progress" }));
+      const found = ownMatches.filter(check => tracking.found(check.id)).length;
+      heading.append(element("small", ` ${found} / ${ownMatches.length} found`, { class: "kingdom-progress" }));
     }
-    const scroll = element("div", undefined, {
-      class: "atlas-scroll", "data-game": game, role: "region",
-      "aria-label": `${label} map`, tabindex: "0",
+
+    // Group matching checks by exact room (falling back to area centroid for global/unmapped checks).
+    const byPin = new Map();
+    for (const check of ownMatches) {
+      const room = checkMapRoom(check);
+      const roomInfo = room ? meta.rooms[room] : null;
+      if (roomInfo) {
+        const pinKey = `room:${room}`;
+        if (!byPin.has(pinKey)) {
+          byPin.set(pinKey, {
+            roomId: room,
+            areaKey: areaKey(check, roomInfo.area),
+            x: roomInfo.x,
+            y: roomInfo.y,
+            title: `${roomInfo.area} · ${room}`,
+            isPop: room.startsWith("White_Palace_1") && ["17", "18", "19", "20"].some(s => room.endsWith(s)),
+            checks: [],
+          });
+        }
+        byPin.get(pinKey).checks.push(check);
+      } else {
+        const primaryArea = check.areas[0] ?? "Unmapped";
+        const pt = meta.areas[primaryArea] ?? [meta.projection.width - 140, 110];
+        const pinKey = `area:${primaryArea}`;
+        if (!byPin.has(pinKey)) {
+          byPin.set(pinKey, {
+            roomId: "",
+            areaKey: areaKey(check, primaryArea),
+            x: pt[0],
+            y: pt[1] + 20,
+            title: `${primaryArea} (area checks)`,
+            isDiamond: true,
+            checks: [],
+          });
+        }
+        byPin.get(pinKey).checks.push(check);
+      }
+    }
+
+    const pins = [...byPin.values()].map(group => ({
+      ...group,
+      ...summarizeChecks(group.checks, recent),
+    }));
+
+    const { width, height } = meta.projection;
+    const stage = buildInteractiveMap({
+      mapKey: game,
+      gameClass: game.toLowerCase(),
+      imageUrl: MAP_IMAGES[game],
+      width,
+      height,
+      pins,
+      activeArea,
+      activeRoom,
+      ariaLabel: `${label} illustrated map`,
     });
-    const tiles = element("div", undefined, { class: "atlas-areas" });
-    const positions = new Map();
-    let rows = Math.max(...Object.values(layouts[game]).map(([, y]) => y)) + 1;
-    let next = rows * columns;
-    for (const key of keys) {
-      const name = key.split("|")[1];
-      const position = layouts[game][name];
-      positions.set(name, position ?? [next % columns, Math.floor(next / columns)]);
-      if (!position) next++;
-    }
-    rows = Math.ceil(next / columns);
-    tiles.style.width = `${columns * cellWidth}px`;
-    tiles.style.height = `${rows * cellHeight}px`;
-    for (const [source, target] of routes[game]) {
-      if (!positions.has(source) || !positions.has(target)) continue;
-      const [x1, y1] = positions.get(source);
-      const [x2, y2] = positions.get(target);
-      const dx = (x2 - x1) * cellWidth;
-      const dy = (y2 - y1) * cellHeight;
-      const line = element("span", undefined, { class: "atlas-route", "aria-hidden": "true" });
-      line.style.left = `${(x1 + .5) * cellWidth}px`;
-      line.style.top = `${(y1 + .5) * cellHeight}px`;
-      line.style.width = `${Math.hypot(dx, dy)}px`;
-      line.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
-      tiles.append(line);
-    }
+
+    const chips = element("div", undefined, { class: "atlas-chips", role: "group", "aria-label": `${label} areas` });
     for (const key of keys) {
       const area = key.split("|")[1];
       const { total, found, lit } = areas.get(key);
       const button = element("button", undefined, {
         type: "button", "data-area": key, "aria-pressed": String(activeArea === key),
       });
-      const [x, y] = positions.get(area);
-      button.style.left = `${(x + .5) * cellWidth}px`;
-      button.style.top = `${(y + .5) * cellHeight}px`;
-      button.style.width = `${cellWidth - 10}px`;
-      button.style.height = `${cellHeight - 12}px`;
-      const summary = tracking.active ? `${found} / ${total} found` : `${total} ${total === 1 ? "check" : "checks"}`;
+      const summary = tracking.active ? `${found}/${total}` : `${total}`;
       button.append(element("span", area), element("small", summary));
-      if (submaps[key]) button.classList.add("has-submap");
+      if (key === "HK|White Palace") button.classList.add("has-submap");
       if (tracking.active && total) {
         button.style.setProperty("--found", `${(found / total) * 100}%`);
         button.classList.add("tracked");
@@ -291,20 +418,17 @@ function renderAtlas(matches, available, activeArea, activeRoom, routes, recent)
         if (lit) button.classList.add("lit");
       }
       if (!total) button.disabled = true;
-      tiles.append(button);
+      chips.append(button);
     }
-    scroll.append(tiles);
-    section.append(heading, scroll);
+
+    section.append(heading, stage, chips);
     const result = [section];
-    if (activeArea && activeArea.startsWith(`${game}|`) && submaps[activeArea]) {
-      result.push(renderSubmap(activeArea, submaps[activeArea], matches, activeRoom, recent));
+    if (activeArea === "HK|White Palace" && game === "HK" && mapsMeta.HK_WP) {
+      result.push(renderWhitePalaceSubmap(mapsMeta.HK_WP, matches, activeRoom, recent));
     }
     return result;
   });
   atlas.replaceChildren(...kingdoms);
-  for (const scroll of atlas.querySelectorAll(".atlas-scroll")) {
-    scroll.scrollLeft = previousScroll.get(scroll.dataset.game) ?? 0;
-  }
 }
 
 function renderResults(checks, limit, recent, reveal) {
@@ -335,7 +459,13 @@ function renderResults(checks, limit, recent, reveal) {
   document.querySelector("#map-more").hidden = checks.length <= limit;
 }
 
-loadWorld().then(world => {
+async function loadMapsMeta() {
+  const response = await fetch("./assets/maps/maps_meta.json");
+  if (!response.ok) throw new Error(`Could not load map metadata (${response.status}).`);
+  return response.json();
+}
+
+Promise.all([loadWorld(), loadMapsMeta()]).then(([world, mapsMeta]) => {
   const { game, area, type, query, status } = filters.elements;
   const pageSize = 50;
   let limit = pageSize;
@@ -376,17 +506,18 @@ loadWorld().then(world => {
       (!term || [check.name, check.key, check.room, check.id, ...check.areas,
         ...(tracking.found(check.id) || reveal ? [tracking.item(check.id)] : [])]
         .some(value => String(value ?? "").toLowerCase().includes(term))));
-    const activeSubmap = submaps[area.value];
-    if (!activeSubmap || !activeSubmap.rooms[activeRoom]) activeRoom = "";
+
     filtered = matching.filter(check =>
       (!area.value || check.areas.some(name => areaKey(check, name) === area.value)) &&
-      (!activeRoom || check.room === activeRoom) &&
+      (!activeRoom || checkMapRoom(check) === activeRoom || check.room === activeRoom) &&
       (!status.value || tracking.found(check.id) === (status.value === "found")));
-    renderAtlas(matching, available, area.value, activeRoom, world.routes, recent);
+
+    renderAtlas(mapsMeta, matching, available, area.value, activeRoom, recent);
+    const wpLabel = mapsMeta.HK_WP?.rooms?.[activeRoom]?.label;
     resultsTitle.textContent = area.value
-      ? (activeRoom && activeSubmap ? `${area.value.split("|")[1]} · ${activeSubmap.rooms[activeRoom].label}` : area.value.split("|")[1])
-      : "All checks";
-    back.hidden = !atlas.querySelector('[aria-pressed="true"]:enabled');
+      ? (activeRoom ? `${area.value.split("|")[1]} · ${wpLabel ?? activeRoom}` : area.value.split("|")[1])
+      : (activeRoom ? `Room ${wpLabel ?? activeRoom}` : "All checks");
+    back.hidden = !area.value && !activeRoom;
     count.textContent = filtered.length
       ? `${filtered.length.toLocaleString()} matching ${filtered.length === 1 ? "check" : "checks"}`
       : "No checks match these filters.";
@@ -406,12 +537,11 @@ loadWorld().then(world => {
     render();
   }
 
-  // Room
+  // Room tracking
   const room = new RoomTracker(world, {
     onChange(state) {
       tracking.room = state;
       if (state.recent.length) {
-        // Light the new checks once; later renders show them as plain found checks.
         recent = new Set([...recent, ...state.recent]);
         clearTimeout(litTimer);
         litTimer = setTimeout(() => { recent = new Set(); }, 4000);
@@ -459,7 +589,6 @@ loadWorld().then(world => {
     const { player } = spoilerForm.elements;
     for (const node of spoilerForm.querySelectorAll("[data-spoiler-only]")) node.hidden = !spoiler;
     spoilerForm.querySelector("[data-spoiler-player]").hidden = !spoiler || spoiler.players.length < 2;
-    // A spoiler action replaces an old room error; a live room keeps its status.
     if (!tracking.room && !roomForm.elements.address.disabled) statusMessages.room = "";
     if (spoiler) {
       player.replaceChildren(...spoiler.players.map((entry, index) =>
@@ -541,42 +670,46 @@ loadWorld().then(world => {
   });
 
   // Filters and atlas
-  filters.addEventListener("change", update);
+  filters.addEventListener("change", () => {
+    activeRoom = "";
+    update();
+  });
   filters.addEventListener("submit", event => event.preventDefault());
   query.addEventListener("input", update);
   atlas.addEventListener("click", event => {
-    const roomTile = event.target.closest("button[data-room]");
-    if (roomTile) {
-      activeRoom = activeRoom === roomTile.dataset.room ? "" : roomTile.dataset.room;
+    const pin = event.target.closest(".atlas-pin");
+    if (pin) {
+      const pinRoom = pin.dataset.room ?? "";
+      const pinArea = pin.dataset.area ?? "";
+      if (pinRoom) {
+        const same = activeRoom === pinRoom;
+        activeRoom = same ? "" : pinRoom;
+        if (!same && pinArea) area.value = pinArea;
+      } else if (pinArea) {
+        area.value = area.value === pinArea ? "" : pinArea;
+        activeRoom = "";
+      }
       update();
-      if (activeRoom) {
+      if (activeRoom || area.value) {
         resultsTitle.focus({ preventScroll: true });
         resultsTitle.scrollIntoView({ block: "start" });
-      } else {
-        [...atlas.querySelectorAll("button[data-room]")].find(button => button.dataset.room === roomTile.dataset.room)?.focus();
       }
       return;
     }
-    const tile = event.target.closest("button[data-area]");
-    if (!tile) return;
-    area.value = area.value === tile.dataset.area ? "" : tile.dataset.area;
+    const chip = event.target.closest("button[data-area]");
+    if (!chip) return;
+    area.value = area.value === chip.dataset.area ? "" : chip.dataset.area;
     activeRoom = "";
     update();
-    if (area.value) {
-      if (submaps[area.value]) {
-        atlas.querySelector(".atlas-submap")?.scrollIntoView({ block: "nearest" });
-      } else {
-        resultsTitle.focus({ preventScroll: true });
-        resultsTitle.scrollIntoView({ block: "start" });
-      }
-    } else {
-      [...atlas.querySelectorAll("button")].find(button => button.dataset.area === tile.dataset.area)?.focus();
+    if (area.value === "HK|White Palace") {
+      atlas.querySelector(".atlas-submap")?.scrollIntoView({ block: "nearest" });
+    } else if (area.value) {
+      resultsTitle.focus({ preventScroll: true });
+      resultsTitle.scrollIntoView({ block: "start" });
     }
   });
   back.addEventListener("click", () => {
-    const tile = atlas.querySelector('[aria-pressed="true"]:enabled');
-    tile.focus({ preventScroll: true });
-    tile.scrollIntoView({ block: "center", inline: "nearest" });
+    atlas.scrollIntoView({ block: "start" });
   });
   more.addEventListener("click", () => {
     const firstNew = limit;

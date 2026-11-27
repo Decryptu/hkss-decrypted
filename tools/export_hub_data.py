@@ -7,6 +7,7 @@ import hashlib
 import inspect
 import json
 import logging
+import re
 import sys
 import types
 from collections import defaultdict
@@ -14,6 +15,9 @@ from pathlib import Path
 from zipfile import ZipFile
 
 from test_apworld import DEFAULT_AP_DIR, DEFAULT_APWORLD, REPO_ROOT
+
+SS_MARKER_MANIFEST = REPO_ROOT / "src/HKSS.Silksong/Randomizer/CheckMapMarkerManifest.cs"
+MAP_GEOMETRY = REPO_ROOT / "data/map_geometry.json"
 
 
 DEFAULT_ROOMS = (
@@ -183,13 +187,44 @@ def export(archive: Path, ap_dir: Path, rooms_path: Path) -> dict:
         for room in ss_rooms for transition in room.transitions
         if transition.target.room_id and transition.is_compilable
     )
+    geom = json.loads(MAP_GEOMETRY.read_text(encoding="utf-8")) if MAP_GEOMETRY.exists() else {}
+    ss_mapped_rooms = {r["id"] for r in geom.get("SS", {}).get("rooms", [])}
+    hk_mapped_rooms = {r["id"] for r in geom.get("HK", {}).get("rooms", [])} | {
+        r["id"] for r in geom.get("HK", {}).get("whitePalace", {}).get("rooms", [])
+    }
+    hk_interior = {k.lower(): v for k, v in geom.get("HK", {}).get("interiorToMapRoom", {}).items()}
+    hk_mapped_ci = {r.lower(): r for r in hk_mapped_rooms}
+    ss_mapped_ci = {r.lower(): r for r in ss_mapped_rooms}
+
+    ss_slug_to_scene: dict[str, str] = {}
+    with ZipFile(archive) as package:
+        if "hkss/silksong/map_logic.json" in package.namelist():
+            map_logic = json.loads(package.read("hkss/silksong/map_logic.json"))
+            for row in map_logic.get("room_geometry", {}).get("rooms", []):
+                slug = row.get("id")
+                scene = (row.get("in_game_id") or "").strip()
+                if slug and scene:
+                    ss_slug_to_scene[slug] = scene
+
+    ss_manifest_rooms: dict[str, str] = {}
+    if SS_MARKER_MANIFEST.exists():
+        manifest_text = SS_MARKER_MANIFEST.read_text(encoding="utf-8")
+        for match in re.finditer(r'new MapCheckPosition\("([^"]+)",\s*"([^"]+)"', manifest_text):
+            ss_manifest_rooms.setdefault(match.group(1), match.group(2))
+
     ss_check_areas = defaultdict(set)
+    ss_check_rooms: dict[str, str] = {}
     for room in ss_rooms:
         area = _room_area(room.id)
-        if area:
-            for check in room.checks:
-                if check.canonical_location:
+        scene = ss_slug_to_scene.get(room.id, room.id)
+        for check in room.checks:
+            if check.canonical_location:
+                if area:
                     ss_check_areas[check.canonical_location].add(area)
+                if check.canonical_location not in ss_check_rooms or (
+                    scene in ss_mapped_rooms and ss_check_rooms[check.canonical_location] not in ss_mapped_rooms
+                ):
+                    ss_check_rooms[check.canonical_location] = scene
     hk_types = defaultdict(set)
     for option in hollow_knight_randomize_options.values():
         for name in option.locations:
@@ -202,6 +237,18 @@ def export(archive: Path, ap_dir: Path, rooms_path: Path) -> dict:
         }
         for row in CATALOGUE
     }
+    first_kill_rooms: dict[str, str] = {}
+    for row in CATALOGUE:
+        loc = f"First Kill: {row['name']}"
+        for route in row["routes"]:
+            for node in route["nodes"]:
+                slug = node.partition("#")[0]
+                scene = ss_slug_to_scene.get(slug, slug)
+                if scene in ss_mapped_rooms:
+                    first_kill_rooms[loc] = scene
+                    break
+            if loc in first_kill_rooms:
+                break
     ss_areas = {
         name.removeprefix("SS "): get_vog_hint_areas(name.removeprefix("SS "))
         for name in HKSSWorld.location_name_to_id if name.startswith("SS ")
@@ -211,9 +258,19 @@ def export(archive: Path, ap_dir: Path, rooms_path: Path) -> dict:
     checks = []
     for name, code in sorted(HKSSWorld.location_name_to_id.items()):
         game, raw = name.split(" ", 1)
+        map_room = None
         if game == "HK":
             base = raw.removeprefix("Split_").removeprefix("Left_").removeprefix("Right_")
             room = location_to_region_lookup.get(raw) or location_to_region_lookup.get(base)
+            if room:
+                if room in hk_mapped_rooms:
+                    map_room = room
+                else:
+                    parent = hk_interior.get(room.lower())
+                    if parent and parent.lower() in hk_mapped_ci:
+                        map_room = hk_mapped_ci[parent.lower()]
+                    elif room.lower() in hk_mapped_ci:
+                        map_room = hk_mapped_ci[room.lower()]
             areas = [hk_area(room) or "Unmapped"]
             check_types = hk_types.get(raw) or hk_types.get(base) or {"Other"}
             shop, _, number = raw.rpartition("_")
@@ -229,12 +286,22 @@ def export(archive: Path, ap_dir: Path, rooms_path: Path) -> dict:
                 metadata.category if metadata else
                 "First Kill" if raw.startswith("First Kill: ") else "Other"
             }
-            room = None
+            room = ss_manifest_rooms.get(raw) or ss_check_rooms.get(raw) or first_kill_rooms.get(raw)
+            if room:
+                if room in ss_mapped_rooms:
+                    map_room = room
+                elif room.lower() in ss_mapped_ci:
+                    map_room = ss_mapped_ci[room.lower()]
             label = raw
-        checks.append({
+        entry = {
             "id": code, "key": name, "game": game, "name": label,
-            "areas": sorted(areas), "types": sorted(check_types), **({"room": room} if room else {}),
-        })
+            "areas": sorted(areas), "types": sorted(check_types),
+        }
+        if room:
+            entry["room"] = room
+        if map_room and map_room != room:
+            entry["mapRoom"] = map_room
+        checks.append(entry)
 
     groups = []
     for name, options in hub_option_groups(ap.get_option_groups(HKSSWorld)):

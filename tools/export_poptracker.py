@@ -19,6 +19,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from export_hub_data import load_world
 from poptracker_logic import hk_data, seal_data, ss_data, to_lua
+from render_maps import GEOMETRY_PATH, render_overview, render_white_palace
 from test_apworld import DEFAULT_AP_DIR, DEFAULT_APWORLD, REPO_ROOT
 
 CATALOG = REPO_ROOT / "site/world.json"
@@ -28,75 +29,9 @@ DEFAULT_ZIP = REPO_ROOT / "dist/hkss-poptracker.zip"
 GAMES = {"HK": "Hallownest", "SS": "Pharloom"}
 COLOURS = {"HK": (88, 150, 220), "SS": (200, 70, 70)}
 
-# Approximate west/east and elevation, as on the hub's map page (site/map.js).
-LAYOUTS = {
-    "HK": {
-        "Howling Cliffs": (0, 0), "Dirtmouth": (2, 0), "Crystal Peak": (4, 0),
-        "Greenpath": (0, 1), "Forgotten Crossroads": (2, 1), "Resting Grounds": (4, 1),
-        "Queen's Gardens": (0, 2), "Fog Canyon": (1, 2), "City of Tears": (4, 2),
-        "Deepnest": (0, 3), "Fungal Wastes": (2, 3), "Royal Waterways": (4, 3), "Kingdom's Edge": (5, 3),
-        "White Palace": (2, 4), "Ancient Basin": (4, 4),
-    },
-    "SS": {
-        "Mount Fay": (0, 0), "The Slab": (1, 0), "The Cradle": (4, 0), "High Halls": (5, 0),
-        "Sands of Karak": (0, 1), "Cogwork Core": (3, 1), "Songclave": (4, 1), "Memorium": (5, 1),
-        "Blasted Steps": (0, 2), "Grand Gate": (2, 2), "Choral Chambers": (3, 2),
-        "Whispering Vaults": (4, 2), "Putrified Ducts": (5, 2),
-        "Shellwood": (0, 3), "Bellhart": (1, 3), "Underworks": (2, 3), "Whiteward": (3, 3), "Bilewater": (5, 3),
-        "Wormways": (0, 4), "Greymoor": (2, 4), "Sinner's Road": (4, 4), "Verdania": (5, 4),
-        "Mosslands": (0, 5), "The Marrow": (2, 5), "Hunter's March": (3, 5), "Far Fields": (4, 5),
-        "Weavenest": (0, 6), "Deep Docks": (3, 6), "The Abyss": (4, 6), "Unmapped": (5, 6),
-    },
-}
-CELL_W, CELL_H, MARGIN = 230, 110, 40
 CHUNK = 12  # checks per pin, so a pin's popup fits on screen
-PIN, PIN_STEP, PINS_PER_ROW = 16, 19, 10
-
+PIN, PIN_STEP = 14, 17
 WHITE_PALACE_MAP = "White Palace"
-WHITE_PALACE_POP_COLOUR = (216, 185, 122)
-WHITE_PALACE_PASSAGE_COLOUR = (78, 84, 102)
-WHITE_PALACE_ROOMS = {
-    "White_Palace_11": ("Palace Entry", (1, 4), False),
-    "White_Palace_01": ("Entrance Hall", (2, 4), False),
-    "White_Palace_02": ("Entrance Wing", (3, 4), False),
-    "White_Palace_03_hub": ("Central Hub", (2, 3), False),
-    "White_Palace_04": ("Left Wing Lower", (0, 4), False),
-    "White_Palace_14": ("Left Wing Upper", (0, 3), False),
-    "White_Palace_15": ("Right Wing Entry", (3, 3), False),
-    "White_Palace_05": ("Right Wing Sawblades", (4, 3), False),
-    "White_Palace_16": ("Right Wing Upper", (5, 3), False),
-    "White_Palace_06": ("Central Atrium", (2, 2), False),
-    "White_Palace_07": ("Upper Ascent", (3, 2), False),
-    "White_Palace_12": ("Upper Corridor", (3, 1), False),
-    "White_Palace_13": ("Throne Tower", (4, 0), False),
-    "White_Palace_08": ("Palace Workshop", (5, 0), False),
-    "White_Palace_09": ("Throne Room", (3, 0), False),
-    "White_Palace_18": ("PoP: Entrance", (0, 2), True),
-    "White_Palace_17": ("PoP: Lever Room", (0, 1), True),
-    "White_Palace_19": ("PoP: Vertical Shaft", (1, 1), True),
-    "White_Palace_20": ("PoP: Final Gauntlet", (1, 0), True),
-}
-WHITE_PALACE_ROUTES = [
-    ("White_Palace_11", "White_Palace_01"),
-    ("White_Palace_01", "White_Palace_02"),
-    ("White_Palace_01", "White_Palace_03_hub"),
-    ("White_Palace_03_hub", "White_Palace_04"),
-    ("White_Palace_03_hub", "White_Palace_14"),
-    ("White_Palace_04", "White_Palace_14"),
-    ("White_Palace_03_hub", "White_Palace_15"),
-    ("White_Palace_15", "White_Palace_05"),
-    ("White_Palace_05", "White_Palace_16"),
-    ("White_Palace_03_hub", "White_Palace_06"),
-    ("White_Palace_06", "White_Palace_07"),
-    ("White_Palace_07", "White_Palace_12"),
-    ("White_Palace_12", "White_Palace_13"),
-    ("White_Palace_13", "White_Palace_09"),
-    ("White_Palace_13", "White_Palace_08"),
-    ("White_Palace_06", "White_Palace_18"),
-    ("White_Palace_18", "White_Palace_17"),
-    ("White_Palace_17", "White_Palace_19"),
-    ("White_Palace_19", "White_Palace_20"),
-]
 
 # Tracked items: (Archipelago item name without the game prefix, label, maximum count).
 # A maximum of 1 is a toggle; anything else counts up as copies arrive.
@@ -185,59 +120,10 @@ def badge(path: Path, game: str, label: str) -> None:
     image.save(path)
 
 
-def overview_map(path: Path, game: str, positions: dict[str, tuple[int, int]], routes) -> None:
-    columns = max(x for x, _ in positions.values()) + 1
-    rows = max(y for _, y in positions.values()) + 1
-    image = Image.new("RGB", (columns * CELL_W + 2 * MARGIN, rows * CELL_H + 2 * MARGIN), (12, 12, 18))
-    draw = ImageDraw.Draw(image)
-
-    def centre(area):
-        x, y = positions[area]
-        return MARGIN + x * CELL_W + CELL_W // 2, MARGIN + y * CELL_H + CELL_H // 2
-
-    for source, target in routes:
-        if source in positions and target in positions:
-            draw.line((centre(source), centre(target)), fill=(70, 70, 86), width=3)
-    label_font = font(15)
-    for area in positions:
-        cx, cy = centre(area)
-        draw.rounded_rectangle((cx - 105, cy - 30, cx + 105, cy + 30), radius=10,
-                               fill=(26, 26, 36), outline=COLOURS[game], width=2)
-        draw.text((cx, cy + 20), area, fill=(225, 220, 210), font=label_font, anchor="mm")
-    image.save(path)
-
-
-def white_palace_map(path: Path, active_rooms: set[str]) -> None:
-    columns = max(pos[0] for _, pos, _ in WHITE_PALACE_ROOMS.values()) + 1
-    rows = max(pos[1] for _, pos, _ in WHITE_PALACE_ROOMS.values()) + 1
-    image = Image.new("RGB", (columns * CELL_W + 2 * MARGIN, rows * CELL_H + 2 * MARGIN), (12, 12, 18))
-    draw = ImageDraw.Draw(image)
-
-    def centre(room_id):
-        _, (x, y), _ = WHITE_PALACE_ROOMS[room_id]
-        return MARGIN + x * CELL_W + CELL_W // 2, MARGIN + y * CELL_H + CELL_H // 2
-
-    for source, target in WHITE_PALACE_ROUTES:
-        if source in WHITE_PALACE_ROOMS and target in WHITE_PALACE_ROOMS:
-            is_pop = WHITE_PALACE_ROOMS[source][2] and WHITE_PALACE_ROOMS[target][2]
-            draw.line((centre(source), centre(target)),
-                      fill=(120, 105, 76) if is_pop else (70, 70, 86), width=3)
-    label_font = font(14)
-    for room_id, (label, _, is_pop) in WHITE_PALACE_ROOMS.items():
-        cx, cy = centre(room_id)
-        has_checks = room_id in active_rooms
-        outline = WHITE_PALACE_POP_COLOUR if is_pop else (COLOURS["HK"] if has_checks else WHITE_PALACE_PASSAGE_COLOUR)
-        fill = (30, 28, 34) if is_pop else ((26, 26, 36) if has_checks else (20, 20, 28))
-        text_colour = (235, 224, 196) if is_pop else ((225, 220, 210) if has_checks else (145, 148, 162))
-        draw.rounded_rectangle((cx - 105, cy - 30, cx + 105, cy + 30), radius=10,
-                               fill=fill, outline=outline, width=2)
-        draw.text((cx, cy + (18 if has_checks else 0)), label, fill=text_colour, font=label_font, anchor="mm")
-    image.save(path)
-
-
 def build(archive: Path, ap_dir: Path, out: Path) -> dict:
     world = load_world(archive, ap_dir)
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
+    geom = json.loads(GEOMETRY_PATH.read_text(encoding="utf-8"))
     version = catalog["version"]
 
     if out.exists():
@@ -272,39 +158,54 @@ def build(archive: Path, ap_dir: Path, out: Path) -> dict:
                   "min_quantity": 0, "initial_quantity": 0, "img": f"images/items/{grids['HK'][0]}.png"})
     (out / "items/items.json").write_text(json.dumps(items, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    # Maps and locations: pins of up to CHUNK checks per area, one section per check.
+    # Maps and locations: illustrated cartography with room-accurate pins (up to CHUNK checks per pin).
     maps, locations, location_mapping, location_names = [], [], {}, {}
-    for game, layout in LAYOUTS.items():
+    for game, map_name in GAMES.items():
         checks = [check for check in catalog["checks"] if check["game"] == game]
-        positions = dict(layout)
-        extra = sorted({check["areas"][0] for check in checks if check["areas"]} - positions.keys())
-        rows = max(y for _, y in positions.values()) + 1
-        for index, area in enumerate(extra):
-            positions[area] = (index % 6, rows + index // 6)
-        map_name = GAMES[game]
-        overview_map(out / f"images/maps/{game.lower()}.png", game, positions,
-                     [tuple(route) for route in catalog["routes"][game]])
+        meta = render_overview(game, geom, out / f"images/maps/{game.lower()}.png")
         maps.append({"name": map_name, "location_size": PIN, "location_border_thickness": 2,
                      "img": f"images/maps/{game.lower()}.png"})
 
-        by_area: dict[str, list[dict]] = {}
+        room_meta = meta["rooms"]
+        area_meta = meta["areas"]
+        proj = meta["projection"]
+
+        # Group checks by their exact mapped room when available; otherwise by primary area.
+        by_group: dict[tuple[str, str], list[dict]] = {}
         for check in checks:
-            by_area.setdefault(check["areas"][0] if check["areas"] else "Unmapped", []).append(check)
+            mroom = check.get("mapRoom") or check.get("room")
+            if mroom and mroom in room_meta:
+                by_group.setdefault(("room", mroom), []).append(check)
+            else:
+                area = check["areas"][0] if check["areas"] else "Unmapped"
+                by_group.setdefault(("area", area), []).append(check)
+
         children = []
-        for area in sorted(by_area, key=lambda a: positions.get(a, (99, 99))[::-1]):
-            if area not in positions:
-                positions[area] = (5, rows + len(extra))
-            x, y = positions[area]
-            ordered = sorted(by_area[area], key=lambda c: c["name"].lower())
-            names = [c["name"] for c in ordered]
-            if len(names) != len(set(names)):
-                raise SystemExit(f"Duplicate check names in {area}")
+        used_names: set[str] = set()
+        for (kind, key), group_checks in sorted(by_group.items()):
+            ordered = sorted(group_checks, key=lambda c: c["name"].lower())
+            if kind == "room":
+                info = room_meta[key]
+                cx, cy = round(info["x"]), round(info["y"])
+                base_title = f"{info['area']} · {key}"
+            else:
+                pt = area_meta.get(key) or [proj["width"] - 140, 110]
+                cx, cy = round(pt[0]), round(pt[1] + 18)
+                base_title = f"{key} (Area)"
+
             chunks = [ordered[i:i + CHUNK] for i in range(0, len(ordered), CHUNK)]
-            cx, cy = MARGIN + x * CELL_W + CELL_W // 2, MARGIN + y * CELL_H + CELL_H // 2
+            per_row = min(4, len(chunks))
             for index, chunk in enumerate(chunks):
-                location_name = f"{map_name}: {area}" + (f" ({index + 1}/{len(chunks)})" if len(chunks) > 1 else "")
-                row, column = divmod(index, PINS_PER_ROW)
-                in_row = min(PINS_PER_ROW, len(chunks) - row * PINS_PER_ROW)
+                location_name = base_title + (f" ({index + 1}/{len(chunks)})" if len(chunks) > 1 else "")
+                while location_name in used_names:
+                    location_name += "_"
+                used_names.add(location_name)
+
+                row, col = divmod(index, per_row)
+                in_row = min(per_row, len(chunks) - row * per_row)
+                px = max(24, min(proj["width"] - 24, cx + round((col - (in_row - 1) / 2) * PIN_STEP)))
+                py = max(24, min(proj["height"] - 24, cy + round((row - (len(chunks) - 1) / (2 * per_row)) * PIN_STEP)))
+
                 sections = []
                 for check in chunk:
                     sections.append({"name": check["name"], "item_count": 1,
@@ -314,26 +215,25 @@ def build(archive: Path, ap_dir: Path, out: Path) -> dict:
                 children.append({
                     "name": location_name,
                     "sections": sections,
-                    "map_locations": [{"map": map_name,
-                                       "x": cx + round((column - (in_row - 1) / 2) * PIN_STEP),
-                                       "y": cy - 16 + row * PIN_STEP}],
+                    "map_locations": [{"map": map_name, "x": px, "y": py}],
                 })
         locations.append({"name": map_name, "children": children})
 
-    # White Palace & Path of Pain room-by-room sub-map.
+    # White Palace & Path of Pain room-by-room illustrated sub-map.
+    wp_meta = render_white_palace(geom, out / "images/maps/hk_white_palace.png")
+    wp_rooms = wp_meta["rooms"]
     wp_by_room: dict[str, list[dict]] = {}
     for check in catalog["checks"]:
-        if check["game"] == "HK" and check.get("room") in WHITE_PALACE_ROOMS:
+        if check["game"] == "HK" and check.get("room") in wp_rooms:
             wp_by_room.setdefault(check["room"], []).append(check)
-    white_palace_map(out / "images/maps/hk_white_palace.png", set(wp_by_room))
-    maps.append({"name": WHITE_PALACE_MAP, "location_size": PIN, "location_border_thickness": 2,
+    maps.append({"name": WHITE_PALACE_MAP, "location_size": PIN + 2, "location_border_thickness": 2,
                  "img": "images/maps/hk_white_palace.png"})
     wp_children = []
-    for room_id in sorted(wp_by_room, key=lambda r: WHITE_PALACE_ROOMS[r][1][::-1]):
-        label, (x, y), _ = WHITE_PALACE_ROOMS[room_id]
+    for room_id in sorted(wp_by_room):
+        info = wp_rooms[room_id]
         ordered = sorted(wp_by_room[room_id], key=lambda c: c["name"].lower())
-        location_name = f"{WHITE_PALACE_MAP}: {label}"
-        cx, cy = MARGIN + x * CELL_W + CELL_W // 2, MARGIN + y * CELL_H + CELL_H // 2
+        location_name = f"{WHITE_PALACE_MAP}: {info['label']}"
+        cx, cy = round(info["x"]), round(info["y"] - 10)
         sections = []
         for check in ordered:
             sections.append({"name": check["name"], "item_count": 1,
@@ -342,7 +242,7 @@ def build(archive: Path, ap_dir: Path, out: Path) -> dict:
         wp_children.append({
             "name": location_name,
             "sections": sections,
-            "map_locations": [{"map": WHITE_PALACE_MAP, "x": cx, "y": cy - 12}],
+            "map_locations": [{"map": WHITE_PALACE_MAP, "x": cx, "y": cy}],
         })
     locations.append({"name": WHITE_PALACE_MAP, "children": wp_children})
 

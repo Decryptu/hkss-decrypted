@@ -134,6 +134,8 @@ Open <http://localhost:8766/>. Pushing to `main` deploys `site/` through `.githu
 Refresh the hub catalog when shipping a world update. Use the exact `.apworld` for that release. The exporter reads the packaged world with the installed Archipelago libraries and uses the Hollow Knight reference checkout for map area labels.
 
 ```powershell
+python tools/extract_map_geometry.py            # refresh data/map_geometry.json from local Steam installs
+python tools/render_maps.py                     # render illustrated maps into site/assets/maps/
 python tools/export_hub_data.py --apworld dist/hkss.apworld
 python tools/export_hub_data.py --apworld dist/hkss.apworld --check
 ```

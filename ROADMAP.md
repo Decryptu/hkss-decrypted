@@ -15,7 +15,6 @@ In priority order. Check the licence of any mod before porting its code.
 1. **More check types.** New world options for levers, breakable walls and grass in both games, with logic in the `.apworld`, both in-game check maps and the PopTracker pack. Later candidates: ropes, benches as items, extra doors and keys, Godhome bosses.
 2. **Chaos and challenge traps.** A world option that applies timed challenge modifiers (darkness, double enemies, a broken nail, attacking in one direction only), either on a timer or as received trap items.
 3. **Practice panel.** Save states, teleport, no-clip and invincibility, based on what DebugMod offers. It is off by default in a multiworld, and the run stats record that it was used.
-4. **Map overhaul.** Replace the schematic rectangle-and-line maps in the player hub, PopTracker pack, and unmapped in-game sub-areas with proper illustrated map artwork and room-accurate pin layouts, including areas without vanilla maps such as White Palace and Path of Pain.
 
 ## Decisions
 
