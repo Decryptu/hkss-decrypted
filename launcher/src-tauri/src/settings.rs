@@ -5,11 +5,36 @@ use std::{fs, io, path::Path};
 
 const FILE: &str = "launcher.json";
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FastEndingsMode {
+    /// Auto-skip credits and completion screens; ending cinematics stay watchable with 1-press skip.
+    #[default]
+    Credits,
+    /// Auto-skip ending cinematics, credits, and completion screens back to gameplay.
+    All,
+    /// Vanilla ending and credits playback.
+    Off,
+}
+
+impl FastEndingsMode {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Credits => "credits",
+            Self::All => "all",
+            Self::Off => "off",
+        }
+    }
+}
+
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct Settings {
     /// Keep the game the player leaves paused in memory, so travelling back to it is instant.
     #[serde(default)]
     pub instant_travel: bool,
+    /// How both games handle post-boss ending cinematics, credits, and completion screens.
+    #[serde(default)]
+    pub fast_endings: FastEndingsMode,
 }
 
 /// Missing or unreadable files give the defaults: settings never block a run.
@@ -34,10 +59,20 @@ mod tests {
     #[test]
     fn round_trips_and_defaults_to_off() {
         let temp = tempfile::tempdir().unwrap();
-        assert!(!load(temp.path()).instant_travel);
-        save(temp.path(), &Settings { instant_travel: true }).unwrap();
-        assert!(load(temp.path()).instant_travel);
+        let initial = load(temp.path());
+        assert!(!initial.instant_travel);
+        assert_eq!(initial.fast_endings, FastEndingsMode::Credits);
+        save(
+            temp.path(),
+            &Settings { instant_travel: true, fast_endings: FastEndingsMode::All },
+        )
+        .unwrap();
+        let loaded = load(temp.path());
+        assert!(loaded.instant_travel);
+        assert_eq!(loaded.fast_endings, FastEndingsMode::All);
         fs::write(temp.path().join(FILE), "{").unwrap();
-        assert!(!load(temp.path()).instant_travel);
+        let fallback = load(temp.path());
+        assert!(!fallback.instant_travel);
+        assert_eq!(fallback.fast_endings, FastEndingsMode::Credits);
     }
 }

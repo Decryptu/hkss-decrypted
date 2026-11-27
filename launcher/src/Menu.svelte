@@ -76,7 +76,8 @@
   let activeRun = $state<number | null>(null);
   let failedRun = $state<number | null>(null);
   let showSettings = $state(false);
-  type LauncherSettings = { instant_travel: boolean; memory_mb: number | null };
+  type FastEndingsMode = "credits" | "all" | "off";
+  type LauncherSettings = { instant_travel: boolean; fast_endings: FastEndingsMode; memory_mb: number | null };
   let launcherSettings = $state<LauncherSettings | null>(null);
   // Both games together hold about 3.5 GB, which leaves too little on smaller PCs.
   const instantTravelMemoryMb = 16 * 1024 - 512;
@@ -243,6 +244,16 @@
     launcherSettings = await invoke<LauncherSettings>("launcher_settings").catch(() => launcherSettings);
   }
 
+  async function setFastEndings(mode: FastEndingsMode) {
+    error = "";
+    try {
+      await invoke("set_fast_endings", { mode });
+    } catch (e) {
+      error = String(e);
+    }
+    launcherSettings = await invoke<LauncherSettings>("launcher_settings").catch(() => launcherSettings);
+  }
+
   async function refresh() {
     try {
       const first = !status;
@@ -321,6 +332,18 @@
             </label>
             <p>Keep the game you leave paused in memory, so going back to it takes a moment instead of a restart. Both games together use about 3.5 GB; with too little free memory, travel closes the game as usual.</p>
             {#if lowMemory}<p class="update-check-note">This PC has {Math.round((launcherSettings.memory_mb ?? 0) / 1024)} GB of memory. 16 GB or more is recommended.</p>{/if}
+          </div>
+          <div class="settings-section">
+            <label class="select-field">
+              <span>Endings &amp; credits</span>
+              <select value={launcherSettings.fast_endings} disabled={busy}
+                onchange={(e) => setFastEndings(e.currentTarget.value as FastEndingsMode)}>
+                <option value="credits">Skip credits</option>
+                <option value="all">Skip endings &amp; credits</option>
+                <option value="off">Off (vanilla)</option>
+              </select>
+            </label>
+            <p>Auto-skip credits and completion screens after beating a game while keeping goal reporting, saves, and Act 3 transitions intact. Can also be toggled in-game (F6 &rarr; Links &amp; QoL).</p>
           </div>
         {/if}
         <div class="settings-section">

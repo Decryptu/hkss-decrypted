@@ -88,6 +88,9 @@ body { overflow: clip; }
 .settings-panel h2 { margin: 0; font: 400 1rem var(--display); color: var(--soul); }
 .settings-panel p { margin: .5rem 0 .75rem; }
 .settings-panel label.check { display: flex; gap: .5rem; align-items: center; margin-top: .6rem; color: #fff; }
+.settings-panel label.select-field { display: grid; gap: .35rem; margin-top: .4rem; color: #fff; font-size: .95rem; }
+.settings-panel select { font: inherit; color: #fff; background: #151520; border: 1px solid #ffffff33; border-radius: 3px; padding: .3rem .45rem; }
+.settings-panel select:focus-visible { outline: 1px solid var(--soul); }
 .settings-panel .actions { justify-content: flex-start; }
 .settings-panel .actions button:hover:enabled { color: #f0928a; border-color: #f0928a; }
 .panel .actions button.danger:hover { border-color: #f0928a; color: #f0928a; }

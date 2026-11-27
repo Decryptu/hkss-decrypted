@@ -44,6 +44,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
 #endif
             SaveIsolation.Install(_harmony);
             FastBoot.Install(_harmony);
+            FastEndings.Install(_harmony);
             TownGate.Install(_harmony);
             ThinSlice.Install(_harmony);
             OverlayCursor.Install(_harmony);
@@ -65,6 +66,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
         // The game boots behind the launcher's travel screen, without focus.
         Application.runInBackground = true;
         gameObject.AddComponent<AutoLoad>();
+        gameObject.AddComponent<FastEndings>();
         gameObject.AddComponent<Travel>();
         gameObject.AddComponent<TownGate>();
         gameObject.AddComponent<TownWarp>();
