@@ -215,28 +215,36 @@ internal static class SkinTextures
         }
     }
 
-#if DEBUG
-    /// <summary>Development only: writes an RGBA image as a PNG.</summary>
-    internal static void DevWritePng(string path, Color32[] pixels, int width, int height)
+    internal static void WritePng(string path, Color32[] pixels, int width, int height)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         var tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
-        tex.SetPixels32(pixels);
-        File.WriteAllBytes(path, tex.EncodeToPNG());
-        Object.Destroy(tex);
+        try
+        {
+            tex.SetPixels32(pixels);
+            File.WriteAllBytes(path, tex.EncodeToPNG());
+        }
+        finally
+        {
+            Object.Destroy(tex);
+        }
     }
 
-    /// <summary>Development only: the game's texture with its colours inverted.</summary>
-    internal static void DevWriteInverted(string path, Texture source)
+    /// <summary>Writes the game's own texture, recoloured pixel by pixel, as a PNG.</summary>
+    internal static void WriteRecoloured(string path, Texture source, Func<Color32, Color32> recolour)
     {
         Color32[] pixels = ReadBack(source, out int width, out int height);
         for (int i = 0; i < pixels.Length; i++)
         {
-            Color32 c = pixels[i];
-            pixels[i] = new Color32((byte)(255 - c.r), (byte)(255 - c.g), (byte)(255 - c.b), c.a);
+            if (pixels[i].a != 0) pixels[i] = recolour(pixels[i]);
         }
-        DevWritePng(path, pixels, width, height);
+        WritePng(path, pixels, width, height);
     }
+
+#if DEBUG
+    /// <summary>Development only: the game's texture with its colours inverted.</summary>
+    internal static void DevWriteInverted(string path, Texture source) =>
+        WriteRecoloured(path, source, c => new Color32((byte)(255 - c.r), (byte)(255 - c.g), (byte)(255 - c.b), c.a));
 
     /// <summary>
     /// Development only: a test image whose quarters are red (top left), green (top right), blue
@@ -257,7 +265,7 @@ internal static class SkinTextures
                     : (left ? new Color32(40, 80, 230, 255) : new Color32(240, 220, 40, 255));
             }
         }
-        DevWritePng(path, pixels, width, height);
+        WritePng(path, pixels, width, height);
     }
 #endif
 

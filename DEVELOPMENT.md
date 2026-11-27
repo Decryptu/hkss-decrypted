@@ -70,6 +70,8 @@ The Archipelago panel opens with F6 by default. Under **Links & QoL**, both game
 
 The **Skins** tab picks the skin for the game that is open. Skins are shared by every run and live next to the runs, in `%LOCALAPPDATA%\HKSS\skins\hollow_knight\` and `skins\silksong\`, one folder per skin. **Open skins folder** opens the right one and **Rescan** reloads the list.
 
+On each game's first start, HKSS writes an example skin made from the player's own game files, so the folder shows the expected layout: **Crimson Knight** (the Knight's sheets recoloured red) and **Soul Hornet** (Hornet's sheets recoloured blue, as a Stitchwork pack with a `pack.json`). Each has a `README.txt` that explains where files go. `skins\examples.txt` records which games already made theirs, so a deleted example does not come back. No game art is shipped.
+
 - Hollow Knight reads [Custom Knight](https://github.com/PrashantMohta/HollowKnight.CustomKnight) skin folders (`Knight.png`, `Sprint.png`, `Hud.png`, `Charms/` and the rest): the Knight, spells, charm effects and companions, the shade, the HUD, geo and charm icons. Custom Knight's preloaded sheets (`Cloak`, `Shriek`, `Wings` and similar), per-object swaps and inventory icons other than charms are not applied.
 - Silksong reads [Patchwork](https://github.com/Ashiepaws/silksong-patchwork) and Stitchwork packs: any folder holding a `Patchwork/` or `Stitchwork/` folder (a Thunderstore archive extracted as is works), or `Sprites/` and `Spritesheets/` directly. Single tk2d sprites, whole tk2d sheets, single T2D sprites and whole T2D sheets are applied, which covers Hornet, her effects and the HUD. Sounds, videos, text, recolours, anchors and conditional sets are not.
 

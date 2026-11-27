@@ -98,6 +98,66 @@ internal sealed class SsSkins : ISkinApplier
         if (Time.unscaledTime >= _nextScan) ScanT2D();
     }
 
+    private const string ExampleName = "Soul Hornet";
+
+    private const string ExampleReadme =
+        "Soul Hornet: an example pack, made from your own Silksong files the first time HKSS started.\r\n"
+        + "\r\n"
+        + "Silksong skins are Patchwork or Stitchwork packs: one folder per pack, holding a Stitchwork (or Patchwork) folder.\r\n"
+        + "  Stitchwork\\Spritesheets\\Knight\\atlas0.png      a whole sheet of Hornet's animations (the game calls her Knight)\r\n"
+        + "  Stitchwork\\Sprites\\Knight\\atlas2\\idle0000.png  one frame, which can sit on top of a sheet\r\n"
+        + "  Stitchwork\\Sprites\\T2D\\<Atlas>\\<Sprite>.png    one HUD or effect sprite\r\n"
+        + "  Stitchwork\\pack.json                           the name shown in the Skins tab\r\n"
+        + "A pack downloaded from Thunderstore can be extracted here as it is.\r\n"
+        + "\r\n"
+        + "To add a pack, put its folder next to this one, then pick it in the F6 Skins tab (Rescan if the game is open).\r\n"
+        + "Delete this folder if you do not want the example; it will not come back.\r\n";
+
+    // Hornet's own sheets with her red turned Hollow Knight blue: every collection her animations use.
+    public System.Collections.IEnumerator WriteExample(string gameFolder)
+    {
+        string folder = System.IO.Path.Combine(gameFolder, ExampleName);
+        if (System.IO.Directory.Exists(folder)) yield break;
+        string temp = folder + ".tmp";
+        if (System.IO.Directory.Exists(temp)) System.IO.Directory.Delete(temp, recursive: true);
+        string root = System.IO.Path.Combine(temp, "Stitchwork");
+
+        var collections = new List<tk2dSpriteCollectionData>();
+        tk2dSpriteAnimation? library = HeroController.instance.GetComponent<tk2dSpriteAnimator>()?.Library;
+        foreach (tk2dSpriteAnimationClip clip in library?.clips ?? Array.Empty<tk2dSpriteAnimationClip>())
+        {
+            foreach (tk2dSpriteAnimationFrame frame in clip?.frames ?? Array.Empty<tk2dSpriteAnimationFrame>())
+            {
+                if (frame?.spriteCollection != null && !collections.Contains(frame.spriteCollection))
+                    collections.Add(frame.spriteCollection);
+            }
+        }
+
+        var written = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (tk2dSpriteCollectionData collection in collections)
+        {
+            foreach (Material material in collection.materials)
+            {
+                if (material == null || SkinTextures.Original(material) is not Texture texture) continue;
+                string file = System.IO.Path.Combine(root, "Spritesheets", collection.name, material.name.Split(' ')[0] + ".png");
+                if (!written.Add(file)) continue;
+                SkinTextures.WriteRecoloured(file, texture, c => new Color32(c.b, c.g, c.r, c.a));
+                yield return null;
+            }
+        }
+        if (written.Count == 0)
+        {
+            System.IO.Directory.Delete(temp, recursive: true);
+            throw new InvalidOperationException("Hornet's sprite sheets were not found.");
+        }
+        System.IO.File.WriteAllText(System.IO.Path.Combine(root, "pack.json"),
+            "{\n  \"name\": \"Soul Hornet\",\n  \"author\": \"HKSS Decrypted\",\n"
+            + "  \"description\": \"Hornet in Hollow Knight blue, made from your own game files.\"\n}\n");
+        System.IO.File.WriteAllText(System.IO.Path.Combine(temp, "README.txt"), ExampleReadme);
+        System.IO.Directory.Move(temp, folder);
+        HkssPlugin.Log.LogInfo($"[Skins] Soul Hornet: {written.Count} sheet(s) from {collections.Count} collection(s).");
+    }
+
 #if DEBUG
     // Hornet's atlases inverted as whole sheets, her idle frames as quartered sprite images (to check
     // which way up they are drawn), and a few HUD sprites as quartered T2D images.

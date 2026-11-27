@@ -21,6 +21,12 @@ internal interface ISkinApplier
     /// <summary>Runs after animations each frame, for sprites the game changes by itself.</summary>
     void LateUpdate();
 
+    /// <summary>
+    /// Writes this game's example skin, made from the player's own game files, into
+    /// <paramref name="gameFolder"/>. It runs over several frames so the game does not stall.
+    /// </summary>
+    System.Collections.IEnumerator WriteExample(string gameFolder);
+
 #if DEBUG
     /// <summary>Development only: writes a test skin made from the game's own art into the folder.</summary>
     void DevWriteTestSkin(string folder);
@@ -93,12 +99,67 @@ internal sealed class Skins : MonoBehaviour
     {
         PollBench();
         if (!_applier.Ready) return;
+        EnsureExample();
 #if DEBUG
         DevTestSkin();
 #endif
         string wanted = SkinLibrary.Find(_skins, Wanted)?.Id ?? SkinLibrary.Vanilla;
         if (wanted == _applied) return;
         Apply(wanted);
+    }
+
+    // The example skins are made once per HKSS folder, on each game's first start. A player who
+    // deletes one does not get it back.
+    private const string ExamplesMarker = "examples.txt";
+    private bool _exampleChecked;
+
+    private void EnsureExample()
+    {
+        if (_exampleChecked) return;
+        _exampleChecked = true;
+        string marker = Path.Combine(_root, ExamplesMarker);
+        string key = HkssPlugin.ThisGame.Key();
+        try
+        {
+            if (File.Exists(marker) && Array.IndexOf(File.ReadAllLines(marker), key) >= 0) return;
+        }
+        catch (Exception e)
+        {
+            HkssPlugin.Log.LogWarning($"[Skins] Could not read {marker}: {e.Message}");
+            return;
+        }
+        StartCoroutine(WriteExample(marker, key));
+    }
+
+    private System.Collections.IEnumerator WriteExample(string marker, string key)
+    {
+        var timer = Stopwatch.StartNew();
+        System.Collections.IEnumerator steps = _applier.WriteExample(Folder);
+        while (true)
+        {
+            bool more;
+            try
+            {
+                more = steps.MoveNext();
+            }
+            catch (Exception e)
+            {
+                HkssPlugin.Log.LogWarning($"[Skins] Could not write the example skin: {e}");
+                yield break;
+            }
+            if (!more) break;
+            yield return steps.Current;
+        }
+        try
+        {
+            File.AppendAllLines(marker, new[] { key });
+        }
+        catch (Exception e)
+        {
+            HkssPlugin.Log.LogWarning($"[Skins] Could not update {marker}: {e.Message}");
+        }
+        HkssPlugin.Log.LogInfo($"[Skins] Example skin written in {timer.ElapsedMilliseconds} ms.");
+        Rescan();
     }
 
     private void LateUpdate()

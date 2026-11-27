@@ -107,6 +107,53 @@ internal sealed class HkSkins : ISkinApplier
     {
     }
 
+    private const string ExampleName = "Crimson Knight";
+
+    private const string ExampleReadme =
+        "Crimson Knight: an example skin, made from your own Hollow Knight files the first time HKSS started.\r\n"
+        + "\r\n"
+        + "Hollow Knight skins use the Custom Knight layout: one folder per skin, holding PNG sheets with fixed names.\r\n"
+        + "  Knight.png   the Knight's main sheet\r\n"
+        + "  Sprint.png   dashing and sprinting\r\n"
+        + "  Unn.png      the Shape of Unn\r\n"
+        + "Custom Knight skins also have Hud.png, Shade.png, Wraiths.png, Charms\\Charm_1.png and more.\r\n"
+        + "Leave out any file you do not change: the game's own art is used for it.\r\n"
+        + "\r\n"
+        + "To add a skin, put its folder next to this one, then pick it in the F6 Skins tab (Rescan if the game is open).\r\n"
+        + "Delete this folder if you do not want the example; it will not come back.\r\n";
+
+    // The Knight's own sheets with the black turned Silksong red.
+    public System.Collections.IEnumerator WriteExample(string gameFolder)
+    {
+        string folder = Path.Combine(gameFolder, ExampleName);
+        if (Directory.Exists(folder)) yield break;
+        string temp = folder + ".tmp";
+        if (Directory.Exists(temp)) Directory.Delete(temp, recursive: true);
+        Directory.CreateDirectory(temp);
+        foreach (string sheet in new[] { "Knight", "Sprint", "Unn" })
+        {
+            var entry = Array.Find(Sheets, s => s.Sheet == sheet);
+            Material? material = entry.Find?.Invoke().FirstOrDefault(m => m != null);
+            Texture? texture = material != null ? SkinTextures.Original(material) : null;
+            if (texture == null) continue;
+            SkinTextures.WriteRecoloured(Path.Combine(temp, sheet + ".png"), texture, Crimson);
+            yield return null;
+        }
+        File.WriteAllText(Path.Combine(temp, "README.txt"), ExampleReadme);
+        Directory.Move(temp, folder);
+    }
+
+    private static Color32 Crimson(Color32 c)
+    {
+        float light = (0.299f * c.r + 0.587f * c.g + 0.114f * c.b) / 255f;
+        float dark = (1f - light) * 0.7f;
+        return new Color32(
+            (byte)(255f * (light + dark * 0.62f)),
+            (byte)(255f * (light + dark * 0.06f)),
+            (byte)(255f * (light + dark * 0.08f)),
+            c.a);
+    }
+
 #if DEBUG
     // Inverted Knight, Sprint and HUD sheets, and quartered test images for the soul orb and a charm.
     public void DevWriteTestSkin(string folder)
