@@ -1,8 +1,8 @@
 {
   "game": "Hollow Knight x Silksong",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "minimumArchipelago": "0.6.8",
-  "archiveSha256": "059874e69c93eefefa35e89ee04e5a946ae38129427e2069c73769c4edaf1473",
+  "archiveSha256": "b7b87f3d1f7ee87064772fad05e6e85659a9feff07189375d9c949906c8f5c29",
   "routes": {
     "HK": [
       [
