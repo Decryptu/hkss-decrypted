@@ -104,6 +104,7 @@ public sealed class HkSlotOptions
     public bool RandomizeLevers { get; set; }
     public bool RandomizeBreakableWalls { get; set; }
     public bool RandomizeGrass { get; set; }
+    public bool StartWithFullMaps { get; set; }
     public bool Slopeballs { get; set; }
     public bool RemoveSpellUpgrades { get; set; }
     public bool RandomizeElevatorPass { get; set; }

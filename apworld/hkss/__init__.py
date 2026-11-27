@@ -261,6 +261,10 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             opts.RandomizeGrass.value = int(on)
             opts.grass_randomization.value = int(on)
 
+        if opts.start_with_full_maps.value:
+            opts.start_with_maps.value = 1
+            opts.start_fully_mapped.value = 1
+
         ent = opts.shuffle_entrances.value
         if ent == ShuffleEntrances.option_off:
             opts.entrance_randomization.value = EntranceRandomization.option_off
@@ -663,6 +667,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             hk_data["options"]["RandomizeLevers"] = int(bool(self.options.RandomizeLevers.value))
             hk_data["options"]["RandomizeBreakableWalls"] = int(bool(self.options.RandomizeBreakableWalls.value))
             hk_data["options"]["RandomizeGrass"] = int(bool(self.options.RandomizeGrass.value))
+            hk_data["options"]["StartWithFullMaps"] = int(bool(self.options.start_with_full_maps.value))
             if self._hk_entrance_pairs:
                 hk_data["entrance_pairs"] = dict(self._hk_entrance_pairs)
                 hk_data["options"]["EntranceRandoType"] = self._hk_entrance_rando_type
@@ -680,6 +685,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             "combo_goal": self.options.combo_goal.current_key,
             "death_link": bool(self.options.death_link.value),
             "double_steel_soul": bool(self.options.double_steel_soul.value),
+            "start_with_full_maps": bool(self.options.start_with_full_maps.value),
             "cross_game_seals": [
                 seal.slot_data(self.item_name_to_id[seal.key]) for seal in self._seals
             ],

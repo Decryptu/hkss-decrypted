@@ -169,6 +169,9 @@ internal sealed class HkRandomizer
         if (_slotData.Options.Slopeballs)
             ItemChangerMod.Modules.Add<ToggleableFireballUpgrade>();
 
+        if (_slotData.Options.StartWithFullMaps)
+            ItemChangerMod.Modules.Add<HkFullMapsModule>();
+
         if (_slotData.Options.EntranceRandoType != EntranceRandoType.None)
         {
             var targets = _slotData.EntrancePairs != null

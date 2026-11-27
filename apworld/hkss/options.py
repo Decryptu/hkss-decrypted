@@ -283,6 +283,20 @@ class DoubleSteelSoul(Toggle):
     default = False
 
 
+class StartWithFullMaps(Toggle):
+    """Start with every area map unlocked and every room already revealed in both games.
+
+    In Hollow Knight, unlocks the map panel, Quill, all area maps, and reveals every room on the
+    map from the start without needing to buy maps from Cornifer or Iselda.
+    In Silksong, enables both Start With Maps and Start Fully Mapped.
+
+    Off by default (when off, Silksong still respects its own map start options).
+    """
+
+    display_name = "Start With Full Maps"
+    default = False
+
+
 _COMMON_FIELD_NAMES = {f.name for f in fields(PerGameCommonOptions)}
 
 _shared_fields = [
@@ -301,6 +315,7 @@ _shared_fields = [
     ("cross_game_seals", CrossGameSeals),
     ("cross_game_items", CrossGameItems),
     ("double_steel_soul", DoubleSteelSoul),
+    ("start_with_full_maps", StartWithFullMaps),
 ]
 
 _hk_extra_fields = [
@@ -356,6 +371,7 @@ def _build_option_groups() -> list[OptionGroup]:
                 CrossGameSeals,
                 CrossGameItems,
                 DoubleSteelSoul,
+                StartWithFullMaps,
             ],
         ),
         OptionGroup(

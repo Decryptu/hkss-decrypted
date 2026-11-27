@@ -288,9 +288,21 @@ def _run_cases(
                         raise AssertionError("Cross-game items must be off by default")
                     if sd.get("double_steel_soul") is not False:
                         raise AssertionError("Double Steel Soul must be off by default")
+                    if sd.get("start_with_full_maps") is not False:
+                        raise AssertionError("Start With Full Maps must be off by default")
+                    if sd["hollow_knight"]["options"].get("StartWithFullMaps") != 0:
+                        raise AssertionError("HK StartWithFullMaps must be 0 by default")
                 if label == "solo_both_cross_game_items":
                     if sd.get("double_steel_soul") is not True:
                         raise AssertionError("Double Steel Soul must be True when enabled")
+                    if sd.get("start_with_full_maps") is not True:
+                        raise AssertionError("Start With Full Maps must be True when enabled")
+                    if sd["hollow_knight"]["options"].get("StartWithFullMaps") != 1:
+                        raise AssertionError("HK StartWithFullMaps must be 1 when enabled")
+                    if sd["silksong"].get("start_with_maps") is not True:
+                        raise AssertionError("Silksong start_with_maps must be True when start_with_full_maps is enabled")
+                    if sd["silksong"].get("start_fully_mapped") is not True:
+                        raise AssertionError("Silksong start_fully_mapped must be True when start_with_full_maps is enabled")
                     from BaseClasses import CollectionState
 
                     shared_names = {entry["name"] for entry in sd["cross_game_items"]}
@@ -462,6 +474,7 @@ def _run_cases(
             "  games: both\n"
             "  cross_game_items: true\n"
             "  double_steel_soul: true\n"
+            "  start_with_full_maps: true\n"
             "  cross_game_seals: 2\n"
             "  shuffle_entrances: within_areas\n"
         )
