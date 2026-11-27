@@ -16,6 +16,8 @@
     <Reference Include="UnityEngine.CoreModule" HintPath="$(GameManaged)\UnityEngine.CoreModule.dll" Private="false" />
     <Reference Include="UnityEngine.AnimationModule" HintPath="$(GameManaged)\UnityEngine.AnimationModule.dll" Private="false" />
     <Reference Include="UnityEngine.AudioModule" HintPath="$(GameManaged)\UnityEngine.AudioModule.dll" Private="false" />
+    <Reference Include="TeamCherry.TK2D" HintPath="$(GameManaged)\TeamCherry.TK2D.dll" Private="false" />
+    <Reference Include="UnityEngine.ImageConversionModule" HintPath="$(GameManaged)\UnityEngine.ImageConversionModule.dll" Private="false" />
     <Reference Include="UnityEngine.IMGUIModule" HintPath="$(GameManaged)\UnityEngine.IMGUIModule.dll" Private="false" />
     <Reference Include="UnityEngine.ParticleSystemModule" HintPath="$(GameManaged)\UnityEngine.ParticleSystemModule.dll" Private="false" />
     <Reference Include="UnityEngine.Physics2DModule" HintPath="$(GameManaged)\UnityEngine.Physics2DModule.dll" Private="false" />

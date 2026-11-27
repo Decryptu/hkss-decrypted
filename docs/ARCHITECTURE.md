@@ -157,6 +157,6 @@ The pages share a catalog exported from the shipped `.apworld`. The setup and do
 ### Licensing
 
 - Project code: MIT.
-- Ported from Archipelago.HollowKnight, Archipelago (`worlds/hk`) and Silksong Decrypted: MIT, credited in [NOTICE.md](../NOTICE.md) and in file headers.
+- Ported from Archipelago.HollowKnight, Archipelago (`worlds/hk`), Silksong Decrypted, Custom Knight and Patchwork: MIT, credited in [NOTICE.md](../NOTICE.md) and in file headers.
 - Ported from ItemChanger, RandomizerMod, RandomizerCore, MenuChanger and Benchwarp: LGPL-2.1. That code stays in its own assembly (`HKSS.HollowKnight.ItemChanger` and siblings) with its license file and full source in this repository, so the MIT plugins only link to it.
 - Game files, decompiled code and extracted assets are never committed.

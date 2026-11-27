@@ -10,5 +10,7 @@ Code is ported, file by file, from these projects. Each ported file names its so
 | [Archipelago](https://github.com/ArchipelagoMW/Archipelago) (`worlds/hk`) | MIT | Hollow Knight world data and rules |
 | [Silksong Decrypted](https://github.com/Decryptu/silksong-decrypted), from BatAtVideoGames' [Silksong Archipelago Randomizer](https://github.com/Batatvideogames/silksong-archipelago-randomizer) | MIT | Silksong plugin and world |
 | [ItemChanger](https://github.com/homothetyhk/HollowKnight.ItemChanger), [RandomizerMod](https://github.com/homothetyhk/RandomizerMod), [RandomizerCore](https://github.com/homothetyhk/RandomizerCore), [MenuChanger](https://github.com/homothetyhk/HollowKnight.MenuChanger), [Benchwarp](https://github.com/homothetyhk/HollowKnight.BenchwarpMod) | LGPL-2.1 | Hollow Knight item placement and menus, kept in separate LGPL assemblies |
+| [Custom Knight](https://github.com/PrashantMohta/HollowKnight.CustomKnight) | MIT | Hollow Knight skins |
+| [Patchwork](https://github.com/Ashiepaws/silksong-patchwork) | MIT | Silksong skin packs |
 | [BepInEx](https://github.com/BepInEx/BepInEx) | LGPL-2.1 | Mod loader, distributed unmodified |
 | [Archipelago.MultiClient.Net](https://github.com/ArchipelagoMW/Archipelago.MultiClient.Net) | MIT | Archipelago networking |

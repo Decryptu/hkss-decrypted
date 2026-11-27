@@ -19,6 +19,8 @@ First playtest release: follow the [setup checklist](https://decryptu.github.io/
 - **One mod for both games** on BepInEx 5: Hollow Knight's randomizer and [Silksong Decrypted](https://github.com/Decryptu/silksong-decrypted) ported to the current Steam builds.
 - **One Archipelago game**, `Hollow Knight x Silksong`: one YAML and one slot covering both games, with single-game modes.
 - **HKSS Launcher**: runs modded copies of both games (your Steam installs stay vanilla), keeps each run's saves apart, travels between games behind a loading screen, and exports bug reports.
+- **Skins**: Custom Knight skins for the Knight and Patchwork or Stitchwork packs for Hornet, chosen in the `F6` **Skins** tab, with an option for a random skin at each bench.
+
 ## Credits & license
 
 Built on the work of the Hollow Knight randomizer and Archipelago communities and on Silksong Decrypted. See [NOTICE.md](NOTICE.md).

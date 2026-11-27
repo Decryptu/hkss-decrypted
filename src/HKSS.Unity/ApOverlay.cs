@@ -14,6 +14,7 @@ internal sealed partial class ApOverlay : MonoBehaviour
         Connection,
         Benchwarp,
         LinksAndQol,
+        Skins,
         RunStats,
 #if HOLLOW_KNIGHT
         Inventory,
@@ -26,6 +27,13 @@ internal sealed partial class ApOverlay : MonoBehaviour
 
     /// <summary>Opens the panel on the Run Stats tab (used when the combo goal is completed).</summary>
     internal static void ShowRunStats() => _showRunStatsRequested = true;
+
+#if DEBUG
+    private static bool _showSkinsRequested;
+
+    /// <summary>Development only: opens the panel on the Skins tab.</summary>
+    internal static void ShowSkins() => _showSkinsRequested = true;
+#endif
 
     private bool _panelOpen;
     private OverlayTab _activeTab = OverlayTab.Connection;
@@ -65,6 +73,15 @@ internal sealed partial class ApOverlay : MonoBehaviour
             _requestedTab = OverlayTab.RunStats;
             SetPanelOpen(true);
         }
+
+#if DEBUG
+        if (_showSkinsRequested)
+        {
+            _showSkinsRequested = false;
+            _requestedTab = OverlayTab.Skins;
+            SetPanelOpen(true);
+        }
+#endif
 
         if (_panelOpen)
         {
@@ -254,16 +271,16 @@ internal sealed partial class ApOverlay : MonoBehaviour
         GUILayout.Label($"Hollow Knight x Silksong — {ItemRouter.WorldName(HkssPlugin.ThisGame)}", _titleStyle);
         GUILayout.Space(4f);
 
-        GUILayout.BeginHorizontal();
-        if (DrawTabButton("Connection", _activeTab == OverlayTab.Connection)) _requestedTab = OverlayTab.Connection;
-        if (DrawTabButton("Benchwarp", _activeTab == OverlayTab.Benchwarp)) _requestedTab = OverlayTab.Benchwarp;
-        if (DrawTabButton("Links & QoL", _activeTab == OverlayTab.LinksAndQol)) _requestedTab = OverlayTab.LinksAndQol;
-        if (DrawTabButton("Stats", _activeTab == OverlayTab.RunStats)) _requestedTab = OverlayTab.RunStats;
-#if HOLLOW_KNIGHT
-        if (DrawTabButton("Inventory", _activeTab == OverlayTab.Inventory)) _requestedTab = OverlayTab.Inventory;
-        if (DrawTabButton("Hints", _activeTab == OverlayTab.Hints)) _requestedTab = OverlayTab.Hints;
-#endif
-        GUILayout.EndHorizontal();
+        // Four tabs to a row, so every tab stays inside the panel.
+        for (int i = 0; i < Tabs.Length; i += TabsPerRow)
+        {
+            GUILayout.BeginHorizontal();
+            for (int j = i; j < Math.Min(i + TabsPerRow, Tabs.Length); j++)
+            {
+                if (DrawTabButton(Tabs[j].Label, _activeTab == Tabs[j].Tab)) _requestedTab = Tabs[j].Tab;
+            }
+            GUILayout.EndHorizontal();
+        }
 
         GUILayout.Space(8f);
 
@@ -277,6 +294,9 @@ internal sealed partial class ApOverlay : MonoBehaviour
                 break;
             case OverlayTab.LinksAndQol:
                 DrawLinksAndQolTab();
+                break;
+            case OverlayTab.Skins:
+                Skins.Instance?.DrawTab(_sectionStyle!, _labelStyle!, AccentColor());
                 break;
             case OverlayTab.RunStats:
                 DrawRunStatsTab();
@@ -293,6 +313,21 @@ internal sealed partial class ApOverlay : MonoBehaviour
 
         GUILayout.EndArea();
     }
+
+    private const int TabsPerRow = 4;
+
+    private static readonly (string Label, OverlayTab Tab)[] Tabs =
+    {
+        ("Connection", OverlayTab.Connection),
+        ("Benchwarp", OverlayTab.Benchwarp),
+        ("Links & QoL", OverlayTab.LinksAndQol),
+        ("Skins", OverlayTab.Skins),
+        ("Stats", OverlayTab.RunStats),
+#if HOLLOW_KNIGHT
+        ("Inventory", OverlayTab.Inventory),
+        ("Hints", OverlayTab.Hints),
+#endif
+    };
 
     private static bool DrawTabButton(string label, bool active)
     {

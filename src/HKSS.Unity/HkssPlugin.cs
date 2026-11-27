@@ -73,6 +73,7 @@ public sealed class HkssPlugin : BaseUnityPlugin
         gameObject.AddComponent<RunStatsTracker>();
         gameObject.AddComponent<DoubleSteelSoul>();
         gameObject.AddComponent<CombatDisplay>();
+        gameObject.AddComponent<Skins>();
 #if HOLLOW_KNIGHT
         gameObject.AddComponent<HKSS.HollowKnight.HkClientHost>();
 #elif SILKSONG

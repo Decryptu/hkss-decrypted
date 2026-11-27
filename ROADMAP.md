@@ -12,10 +12,9 @@ Every feature should work the same way in both games, with matching controls and
 
 In priority order. Check the licence of any mod before porting its code.
 
-1. **Skins.** A **Skins** tab in `F6` for the Knight and Hornet that reads existing community skin packs: Custom Knight's folder layout in Hollow Knight, Patchwork/Stitchwork in Silksong. It covers sprites, effects and the HUD. Options: a skin for each world, or a random skin at each bench.
-2. **More check types.** New world options for levers, breakable walls and grass in both games, with logic in the `.apworld`, both in-game check maps and the PopTracker pack. Later candidates: ropes, benches as items, extra doors and keys, Godhome bosses.
-3. **Chaos and challenge traps.** A world option that applies timed challenge modifiers (darkness, double enemies, a broken nail, attacking in one direction only), either on a timer or as received trap items.
-4. **Practice panel.** Save states, teleport, no-clip and invincibility, based on what DebugMod offers. It is off by default in a multiworld, and the run stats record that it was used.
+1. **More check types.** New world options for levers, breakable walls and grass in both games, with logic in the `.apworld`, both in-game check maps and the PopTracker pack. Later candidates: ropes, benches as items, extra doors and keys, Godhome bosses.
+2. **Chaos and challenge traps.** A world option that applies timed challenge modifiers (darkness, double enemies, a broken nail, attacking in one direction only), either on a timer or as received trap items.
+3. **Practice panel.** Save states, teleport, no-clip and invincibility, based on what DebugMod offers. It is off by default in a multiworld, and the run stats record that it was used.
 
 ## Decisions
 

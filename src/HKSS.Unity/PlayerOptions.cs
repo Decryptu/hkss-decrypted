@@ -42,6 +42,9 @@ internal static class PlayerOptions
     internal static ConfigEntry<bool> DamageNumbers { get; private set; } = null!;
     internal static ConfigEntry<bool> EnemyHealthBars { get; private set; } = null!;
     internal static ConfigEntry<bool> BossHealthBar { get; private set; } = null!;
+    /// <summary>This game's skin: a folder name under <c>skins/&lt;game&gt;</c>, empty for the game's own look.</summary>
+    internal static ConfigEntry<string> Skin { get; private set; } = null!;
+    internal static ConfigEntry<bool> RandomSkinAtBench { get; private set; } = null!;
     internal static Shortcut? Capturing { get; set; }
     private static int _capturedFrame = -1;
 
@@ -55,6 +58,8 @@ internal static class PlayerOptions
         DamageNumbers = config.Bind("Combat", "Damage numbers", false);
         EnemyHealthBars = config.Bind("Combat", "Enemy health bars", false);
         BossHealthBar = config.Bind("Combat", "Boss health bar", false);
+        Skin = config.Bind("Skins", HkssPlugin.ThisGame == HKSS.Core.GameId.HollowKnight ? "Hollow Knight skin" : "Silksong skin", string.Empty);
+        RandomSkinAtBench = config.Bind("Skins", "Random skin at each bench", false);
         Bindings.Add(Shortcut.TownWarp, config.Bind("Hotkeys", "Town Warp", Key.F4));
         Bindings.Add(Shortcut.ApPanel, config.Bind("Hotkeys", "Archipelago Panel", Key.F6));
         Bindings.Add(Shortcut.Benchwarp, config.Bind("Hotkeys", "Benchwarp Panel", Key.F7));

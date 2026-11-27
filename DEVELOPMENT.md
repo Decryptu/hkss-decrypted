@@ -57,6 +57,7 @@ npm run release   # after tools/build-payload.ps1 -Configuration Release: NSIS i
 | `HKSS_DEV_AUTOTRAVEL` | Debug plugins only: travels this many seconds after the game is ready, once the player has control. F8 travels at once. |
 | `HKSS_DEV_START_IN_TOWN` | Debug plugins only: `hk`, `ss`, or `both` warps a fresh run from the tutorial scene straight to that game's town gate behind the travel screen. |
 | `HKSS_DEV_COMBAT_TEST` | Debug plugins only: `1` turns on the combat display, brings the three nearest enemies next to the player and hits them a few times. Combine it with `HKSS_DEV_SCREENSHOT_DIR` to check numbers and bars. |
+| `HKSS_DEV_SKIN_TEST` | Debug plugins only: `1` writes a test skin made from the game's own art into the skins folder and wears it, then takes it off and puts it back on. Sheets are inverted and single sprites get a four-colour test image (red at the top left), so a screenshot shows whether they are drawn the right way round. `panel` also opens the **Skins** tab. |
 | `HKSS_DEV_SCREENSHOT_DIR` | Debug plugins only: saves `<game>.png` into this folder shortly after the game becomes ready. |
 | `HKSS_AP_HOST` | Overrides the Archipelago server host (accepts `host` or `host:port`) from `ap.json`. Press `F6` in game to open the connection panel. |
 | `HKSS_AP_PORT` | Overrides the Archipelago server port from `ap.json`. |
@@ -66,6 +67,13 @@ npm run release   # after tools/build-payload.ps1 -Configuration Release: NSIS i
 Run logs are in `runs/slot-<n>/logs/`: `launcher.log` has timings and memory, `<game>-player.log` is Unity's log. BepInEx logs to `games/<game>/BepInEx/LogOutput.log`.
 
 The Archipelago panel opens with F6 by default. Under **Links & QoL**, both games share the same run-local settings in `player-options.cfg`. Auto-quill fills visited rooms where you own the area map. The check pin filter can use the game's setting, show unchecked or checked pins, or filter unchecked pins by reachability. The DeathLink shade/cocoon setting applies to incoming deaths and defaults to the room setting. Bench recovery is opt-in and can return you to a discovered bench when input is stuck during otherwise safe gameplay. The Combat section turns on damage numbers, health bars over enemies you hit and a boss health bar at the bottom of the screen. Enemies count as bosses when they have a lot of health; in Hollow Knight, any enemy whose health Godhome rescales also counts. To rebind a shortcut, select it and press the new key. Escape cancels.
+
+The **Skins** tab picks the skin for the game that is open. Skins are shared by every run and live next to the runs, in `%LOCALAPPDATA%\HKSS\skins\hollow_knight\` and `skins\silksong\`, one folder per skin. **Open skins folder** opens the right one and **Rescan** reloads the list.
+
+- Hollow Knight reads [Custom Knight](https://github.com/PrashantMohta/HollowKnight.CustomKnight) skin folders (`Knight.png`, `Sprint.png`, `Hud.png`, `Charms/` and the rest): the Knight, spells, charm effects and companions, the shade, the HUD, geo and charm icons. Custom Knight's preloaded sheets (`Cloak`, `Shriek`, `Wings` and similar), per-object swaps and inventory icons other than charms are not applied.
+- Silksong reads [Patchwork](https://github.com/Ashiepaws/silksong-patchwork) and Stitchwork packs: any folder holding a `Patchwork/` or `Stitchwork/` folder (a Thunderstore archive extracted as is works), or `Sprites/` and `Spritesheets/` directly. Single tk2d sprites, whole tk2d sheets, single T2D sprites and whole T2D sheets are applied, which covers Hornet, her effects and the HUD. Sounds, videos, text, recolours, anchors and conditional sets are not.
+
+Each game remembers its own skin in `player-options.cfg`. **Random skin at each bench** picks a different installed skin for the open game whenever the player sits on a bench.
 
 To delete a test home, first remove each junction in `games/<game>/` with `cmd /c rmdir <link>`. A recursive delete that follows junctions would delete the Steam install.
 

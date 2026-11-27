@@ -10,14 +10,12 @@
   <Import Project="..\Plugin.targets" />
   <ItemGroup>
     <Reference Include="TeamCherry.SharedUtils" HintPath="$(GameManaged)\TeamCherry.SharedUtils.dll" Private="false" />
-    <Reference Include="TeamCherry.TK2D" HintPath="$(GameManaged)\TeamCherry.TK2D.dll" Private="false" />
     <Reference Include="TeamCherry.NestedFadeGroup" HintPath="$(GameManaged)\TeamCherry.NestedFadeGroup.dll" Private="false" />
     <Reference Include="TeamCherry.Localization" HintPath="$(GameManaged)\TeamCherry.Localization.dll" Private="false" />
     <Reference Include="Unity.Addressables" HintPath="$(GameManaged)\Unity.Addressables.dll" Private="false" />
     <Reference Include="Unity.ResourceManager" HintPath="$(GameManaged)\Unity.ResourceManager.dll" Private="false" />
     <Reference Include="UnityEngine.AssetBundleModule" HintPath="$(GameManaged)\UnityEngine.AssetBundleModule.dll" Private="false" />
     <Reference Include="UnityEngine.DirectorModule" HintPath="$(GameManaged)\UnityEngine.DirectorModule.dll" Private="false" />
-    <Reference Include="UnityEngine.ImageConversionModule" HintPath="$(GameManaged)\UnityEngine.ImageConversionModule.dll" Private="false" />
     <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(GameManaged)\UnityEngine.InputLegacyModule.dll" Private="false" />
     <Reference Include="UnityEngine.InputModule" HintPath="$(GameManaged)\UnityEngine.InputModule.dll" Private="false" />
   </ItemGroup>
