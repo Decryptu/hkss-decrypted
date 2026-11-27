@@ -194,8 +194,9 @@ class PackRunner:
                 for section in group.get("sections", []):
                     valid_paths.add(f"@{game_node['name']}/{group['name']}/{section['name']}")
         for loc_id, entry in self.g.LOCATION_MAPPING.items():
-            path = entry[1]
-            assert path in valid_paths, f"LOCATION_MAPPING[{loc_id}] references unknown path {path}"
+            for idx in range(1, len(entry) + 1):
+                path = entry[idx]
+                assert path in valid_paths, f"LOCATION_MAPPING[{loc_id}][{idx}] references unknown path {path}"
 
         g = self.g
         present_ids = [self.location_ids[name] for name in locations if name in self.location_ids]

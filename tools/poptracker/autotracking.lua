@@ -18,9 +18,11 @@ end
 
 local function reset_locations()
     for _, entry in pairs(LOCATION_MAPPING) do
-        local object = Tracker:FindObjectForCode(entry[1])
-        if object then
-            object.AvailableChestCount = object.ChestCount
+        for _, target in ipairs(entry) do
+            local object = Tracker:FindObjectForCode(target)
+            if object then
+                object.AvailableChestCount = object.ChestCount
+            end
         end
     end
 end
@@ -39,9 +41,11 @@ local function clear_absent_locations()
     end
     for id, entry in pairs(LOCATION_MAPPING) do
         if not present[id] then
-            local object = Tracker:FindObjectForCode(entry[1])
-            if object then
-                object.AvailableChestCount = 0
+            for _, target in ipairs(entry) do
+                local object = Tracker:FindObjectForCode(target)
+                if object then
+                    object.AvailableChestCount = 0
+                end
             end
         end
     end
@@ -100,9 +104,11 @@ function onLocation(location_id, location_name)
     if not entry then
         return
     end
-    local object = Tracker:FindObjectForCode(entry[1])
-    if object and object.AvailableChestCount > 0 then
-        object.AvailableChestCount = object.AvailableChestCount - 1
+    for _, target in ipairs(entry) do
+        local object = Tracker:FindObjectForCode(target)
+        if object and object.AvailableChestCount > 0 then
+            object.AvailableChestCount = object.AvailableChestCount - 1
+        end
     end
 end
 

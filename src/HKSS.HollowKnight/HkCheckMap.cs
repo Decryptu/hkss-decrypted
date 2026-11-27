@@ -118,26 +118,6 @@ internal static class HkCheckMap
         ["Ruins2_Watcher_Room"] = "Ruins2_03",
         ["Fungus3_archive"] = "Fungus3_47",
         ["Fungus3_archive_02"] = "Fungus3_47",
-        // White Palace rooms anchor to Palace Grounds
-        ["White_Palace_01"] = "Abyss_05",
-        ["White_Palace_02"] = "Abyss_05",
-        ["White_Palace_03_hub"] = "Abyss_05",
-        ["White_Palace_04"] = "Abyss_05",
-        ["White_Palace_05"] = "Abyss_05",
-        ["White_Palace_06"] = "Abyss_05",
-        ["White_Palace_07"] = "Abyss_05",
-        ["White_Palace_08"] = "Abyss_05",
-        ["White_Palace_09"] = "Abyss_05",
-        ["White_Palace_11"] = "Abyss_05",
-        ["White_Palace_12"] = "Abyss_05",
-        ["White_Palace_13"] = "Abyss_05",
-        ["White_Palace_14"] = "Abyss_05",
-        ["White_Palace_15"] = "Abyss_05",
-        ["White_Palace_16"] = "Abyss_05",
-        ["White_Palace_17"] = "Abyss_05",
-        ["White_Palace_18"] = "Abyss_05",
-        ["White_Palace_19"] = "Abyss_05",
-        ["White_Palace_20"] = "Abyss_05",
     };
 
     private static ConfigEntry<HkMapVisibilityMode>? _cfgVisibility;
@@ -365,6 +345,8 @@ internal static class HkCheckMap
                 }
             }
         }
+
+        HkWhitePalaceMap.BuildAndRegister(map, RoomLookup);
     }
 
     private static void ClearPins()
@@ -381,6 +363,31 @@ internal static class HkCheckMap
     {
         if (_pinRoot != null)
             _pinRoot.SetActive(visible);
+        UpdateWhitePalaceMapVisibility(visible);
+    }
+
+    private static void UpdateWhitePalaceMapVisibility(bool pinsVisible)
+    {
+        if (!pinsVisible)
+        {
+            HkWhitePalaceMap.SetVisible(false);
+            return;
+        }
+
+        bool inWhitePalace = HkWhitePalaceMap.IsWhitePalaceScene(GameManager.instance?.sceneName);
+        bool hasWhitePalacePins = false;
+        foreach (HkMapPinRecord pin in PinsByKey.Values)
+        {
+            if (pin.PinObject != null && pin.PinObject.activeSelf && HkWhitePalaceMap.IsWhitePalaceScene(pin.MapRoom))
+            {
+                hasWhitePalacePins = true;
+                break;
+            }
+        }
+
+        bool show = (_isWorldMapOpen && (hasWhitePalacePins || inWhitePalace))
+            || (_isQuickMapOpen && inWhitePalace);
+        HkWhitePalaceMap.SetVisible(show);
     }
 
     private static void RefreshPins(GameMap map)
@@ -552,9 +559,10 @@ internal static class HkCheckMap
         List<HkCheckEntry> entries)
     {
         var result = new List<(string, string, HkPinCategory, List<HkCheckEntry>)>();
+        string? wpLabel = HkWhitePalaceMap.GetRoomLabel(mapRoom);
         if (!UseCategoryIcons)
         {
-            result.Add(($"{mapRoom}|ALL", mapRoom.Replace('_', ' '), HkPinCategory.Generic, entries));
+            result.Add(($"{mapRoom}|ALL", wpLabel ?? mapRoom.Replace('_', ' '), HkPinCategory.Generic, entries));
             return result;
         }
 
@@ -569,9 +577,10 @@ internal static class HkCheckMap
         {
             var list = g.ToList();
             HkPinCategory cat = list[0].Category;
-            string title = cat == HkPinCategory.Shop
+            string categoryTitle = cat == HkPinCategory.Shop
                 ? list[0].PlacementName.Replace('_', ' ')
                 : HkCheckMapIcons.GetCategoryLabel(cat);
+            string title = wpLabel != null ? $"{wpLabel} - {categoryTitle}" : categoryTitle;
             result.Add(($"{mapRoom}|{g.Key}", title, cat, list));
         }
 
@@ -905,6 +914,12 @@ internal static class HkCheckMap
             }
 
             RefreshPins(__instance);
+
+            if (HkWhitePalaceMap.AreaObject != null && HkWhitePalaceMap.AreaObject.activeSelf)
+            {
+                __instance.panMaxY = Math.Max(__instance.panMaxY, 21.5f);
+                HkWhitePalaceMap.PositionCompassIfInside(__instance);
+            }
         }
 
         [HarmonyPatch(nameof(GameMap.CloseQuickMap))]
@@ -926,6 +941,11 @@ internal static class HkCheckMap
             {
                 _isQuickMapOpen = true;
                 RefreshPins(__instance);
+            }
+
+            if (IsAnyMapOpen)
+            {
+                HkWhitePalaceMap.PositionCompassIfInside(__instance);
             }
         }
     }

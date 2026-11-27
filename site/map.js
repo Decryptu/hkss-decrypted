@@ -30,6 +30,57 @@ const columns = 6;
 const cellWidth = 140;
 const cellHeight = 76;
 
+const submaps = {
+  "HK|White Palace": {
+    game: "HK",
+    title: "White Palace & Path of Pain",
+    note: "Room-by-room schematic. Path of Pain branches left from Central Atrium.",
+    columns: 6,
+    rooms: {
+      White_Palace_11: { label: "Palace Entry", pos: [1, 4] },
+      White_Palace_01: { label: "Entrance Hall", pos: [2, 4] },
+      White_Palace_02: { label: "Entrance Wing", pos: [3, 4] },
+      White_Palace_03_hub: { label: "Central Hub", pos: [2, 3] },
+      White_Palace_04: { label: "Left Wing Lower", pos: [0, 4] },
+      White_Palace_14: { label: "Left Wing Upper", pos: [0, 3] },
+      White_Palace_15: { label: "Right Wing Entry", pos: [3, 3] },
+      White_Palace_05: { label: "Right Wing Sawblades", pos: [4, 3] },
+      White_Palace_16: { label: "Right Wing Upper", pos: [5, 3] },
+      White_Palace_06: { label: "Central Atrium", pos: [2, 2] },
+      White_Palace_07: { label: "Upper Ascent", pos: [3, 2] },
+      White_Palace_12: { label: "Upper Corridor", pos: [3, 1] },
+      White_Palace_13: { label: "Throne Tower", pos: [4, 0] },
+      White_Palace_08: { label: "Palace Workshop", pos: [5, 0] },
+      White_Palace_09: { label: "Throne Room", pos: [3, 0] },
+      White_Palace_18: { label: "PoP: Entrance", pos: [0, 2], group: "pop" },
+      White_Palace_17: { label: "PoP: Lever Room", pos: [0, 1], group: "pop" },
+      White_Palace_19: { label: "PoP: Vertical Shaft", pos: [1, 1], group: "pop" },
+      White_Palace_20: { label: "PoP: Final Gauntlet", pos: [1, 0], group: "pop" },
+    },
+    routes: [
+      ["White_Palace_11", "White_Palace_01"],
+      ["White_Palace_01", "White_Palace_02"],
+      ["White_Palace_01", "White_Palace_03_hub"],
+      ["White_Palace_03_hub", "White_Palace_04"],
+      ["White_Palace_03_hub", "White_Palace_14"],
+      ["White_Palace_04", "White_Palace_14"],
+      ["White_Palace_03_hub", "White_Palace_15"],
+      ["White_Palace_15", "White_Palace_05"],
+      ["White_Palace_05", "White_Palace_16"],
+      ["White_Palace_03_hub", "White_Palace_06"],
+      ["White_Palace_06", "White_Palace_07"],
+      ["White_Palace_07", "White_Palace_12"],
+      ["White_Palace_12", "White_Palace_13"],
+      ["White_Palace_13", "White_Palace_09"],
+      ["White_Palace_13", "White_Palace_08"],
+      ["White_Palace_06", "White_Palace_18"],
+      ["White_Palace_18", "White_Palace_17"],
+      ["White_Palace_17", "White_Palace_19"],
+      ["White_Palace_19", "White_Palace_20"],
+    ],
+  },
+};
+
 const storage = {
   get(key) {
     try {
@@ -86,7 +137,83 @@ function areaKey(check, area) {
   return `${check.game}|${area}`;
 }
 
-function renderAtlas(matches, available, activeArea, routes, recent) {
+function renderSubmap(areaId, spec, matches, activeRoom, recent) {
+  const roomStats = new Map();
+  for (const roomId of Object.keys(spec.rooms)) {
+    roomStats.set(roomId, { total: 0, found: 0, lit: false });
+  }
+  for (const check of matches) {
+    if (check.game !== spec.game || !check.room || !roomStats.has(check.room)) continue;
+    const stats = roomStats.get(check.room);
+    stats.total++;
+    if (tracking.found(check.id)) stats.found++;
+    if (recent.has(check.id)) stats.lit = true;
+  }
+  const section = element("section", undefined, {
+    class: `kingdom atlas-kingdom atlas-submap ${spec.game.toLowerCase()}`,
+  });
+  const heading = element("h3", spec.title);
+  if (tracking.active) {
+    const own = matches.filter(check => check.game === spec.game && check.room && roomStats.has(check.room));
+    const found = own.filter(check => tracking.found(check.id)).length;
+    heading.append(element("small", ` ${found} / ${own.length} found`, { class: "kingdom-progress" }));
+  }
+  const note = element("p", spec.note, { class: "atlas-submap-note" });
+  const scroll = element("div", undefined, {
+    class: "atlas-scroll", "data-game": `submap:${areaId}`, role: "region",
+    "aria-label": `${spec.title} room map`, tabindex: "0",
+  });
+  const tiles = element("div", undefined, { class: "atlas-areas" });
+  const rows = Math.max(...Object.values(spec.rooms).map(r => r.pos[1])) + 1;
+  tiles.style.width = `${spec.columns * cellWidth}px`;
+  tiles.style.height = `${rows * cellHeight}px`;
+  for (const [source, target] of spec.routes) {
+    const from = spec.rooms[source];
+    const to = spec.rooms[target];
+    if (!from || !to) continue;
+    const [x1, y1] = from.pos;
+    const [x2, y2] = to.pos;
+    const dx = (x2 - x1) * cellWidth;
+    const dy = (y2 - y1) * cellHeight;
+    const line = element("span", undefined, { class: "atlas-route", "aria-hidden": "true" });
+    line.style.left = `${(x1 + .5) * cellWidth}px`;
+    line.style.top = `${(y1 + .5) * cellHeight}px`;
+    line.style.width = `${Math.hypot(dx, dy)}px`;
+    line.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+    tiles.append(line);
+  }
+  for (const [roomId, room] of Object.entries(spec.rooms)) {
+    const { total, found, lit } = roomStats.get(roomId);
+    const button = element("button", undefined, {
+      type: "button", "data-room": roomId, "aria-pressed": String(activeRoom === roomId),
+    });
+    const [x, y] = room.pos;
+    button.style.left = `${(x + .5) * cellWidth}px`;
+    button.style.top = `${(y + .5) * cellHeight}px`;
+    button.style.width = `${cellWidth - 10}px`;
+    button.style.height = `${cellHeight - 12}px`;
+    const summary = total
+      ? (tracking.active ? `${found} / ${total} found` : `${total} ${total === 1 ? "check" : "checks"}`)
+      : "Passage";
+    button.append(element("span", room.label), element("small", summary));
+    if (room.group === "pop") button.classList.add("submap-pop");
+    if (!total) {
+      button.classList.add("submap-passage");
+      button.disabled = true;
+    } else if (tracking.active) {
+      button.style.setProperty("--found", `${(found / total) * 100}%`);
+      button.classList.add("tracked");
+      if (found === total) button.classList.add("cleared");
+      if (lit) button.classList.add("lit");
+    }
+    tiles.append(button);
+  }
+  scroll.append(tiles);
+  section.append(heading, note, scroll);
+  return section;
+}
+
+function renderAtlas(matches, available, activeArea, activeRoom, routes, recent) {
   const previousScroll = new Map([...atlas.querySelectorAll(".atlas-scroll")]
     .map(node => [node.dataset.game, node.scrollLeft]));
   const areas = new Map();
@@ -156,6 +283,7 @@ function renderAtlas(matches, available, activeArea, routes, recent) {
       button.style.height = `${cellHeight - 12}px`;
       const summary = tracking.active ? `${found} / ${total} found` : `${total} ${total === 1 ? "check" : "checks"}`;
       button.append(element("span", area), element("small", summary));
+      if (submaps[key]) button.classList.add("has-submap");
       if (tracking.active && total) {
         button.style.setProperty("--found", `${(found / total) * 100}%`);
         button.classList.add("tracked");
@@ -167,7 +295,11 @@ function renderAtlas(matches, available, activeArea, routes, recent) {
     }
     scroll.append(tiles);
     section.append(heading, scroll);
-    return [section];
+    const result = [section];
+    if (activeArea && activeArea.startsWith(`${game}|`) && submaps[activeArea]) {
+      result.push(renderSubmap(activeArea, submaps[activeArea], matches, activeRoom, recent));
+    }
+    return result;
   });
   atlas.replaceChildren(...kingdoms);
   for (const scroll of atlas.querySelectorAll(".atlas-scroll")) {
@@ -208,6 +340,7 @@ loadWorld().then(world => {
   const pageSize = 50;
   let limit = pageSize;
   let filtered = [];
+  let activeRoom = "";
   let recent = new Set();
   let litTimer;
   const more = document.querySelector("#map-more");
@@ -243,11 +376,16 @@ loadWorld().then(world => {
       (!term || [check.name, check.key, check.room, check.id, ...check.areas,
         ...(tracking.found(check.id) || reveal ? [tracking.item(check.id)] : [])]
         .some(value => String(value ?? "").toLowerCase().includes(term))));
+    const activeSubmap = submaps[area.value];
+    if (!activeSubmap || !activeSubmap.rooms[activeRoom]) activeRoom = "";
     filtered = matching.filter(check =>
       (!area.value || check.areas.some(name => areaKey(check, name) === area.value)) &&
+      (!activeRoom || check.room === activeRoom) &&
       (!status.value || tracking.found(check.id) === (status.value === "found")));
-    renderAtlas(matching, available, area.value, world.routes, recent);
-    resultsTitle.textContent = area.value ? area.value.split("|")[1] : "All checks";
+    renderAtlas(matching, available, area.value, activeRoom, world.routes, recent);
+    resultsTitle.textContent = area.value
+      ? (activeRoom && activeSubmap ? `${area.value.split("|")[1]} · ${activeSubmap.rooms[activeRoom].label}` : area.value.split("|")[1])
+      : "All checks";
     back.hidden = !atlas.querySelector('[aria-pressed="true"]:enabled');
     count.textContent = filtered.length
       ? `${filtered.length.toLocaleString()} matching ${filtered.length === 1 ? "check" : "checks"}`
@@ -407,13 +545,30 @@ loadWorld().then(world => {
   filters.addEventListener("submit", event => event.preventDefault());
   query.addEventListener("input", update);
   atlas.addEventListener("click", event => {
+    const roomTile = event.target.closest("button[data-room]");
+    if (roomTile) {
+      activeRoom = activeRoom === roomTile.dataset.room ? "" : roomTile.dataset.room;
+      update();
+      if (activeRoom) {
+        resultsTitle.focus({ preventScroll: true });
+        resultsTitle.scrollIntoView({ block: "start" });
+      } else {
+        [...atlas.querySelectorAll("button[data-room]")].find(button => button.dataset.room === roomTile.dataset.room)?.focus();
+      }
+      return;
+    }
     const tile = event.target.closest("button[data-area]");
     if (!tile) return;
     area.value = area.value === tile.dataset.area ? "" : tile.dataset.area;
+    activeRoom = "";
     update();
     if (area.value) {
-      resultsTitle.focus({ preventScroll: true });
-      resultsTitle.scrollIntoView({ block: "start" });
+      if (submaps[area.value]) {
+        atlas.querySelector(".atlas-submap")?.scrollIntoView({ block: "nearest" });
+      } else {
+        resultsTitle.focus({ preventScroll: true });
+        resultsTitle.scrollIntoView({ block: "start" });
+      }
     } else {
       [...atlas.querySelectorAll("button")].find(button => button.dataset.area === tile.dataset.area)?.focus();
     }

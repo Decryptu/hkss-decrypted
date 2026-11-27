@@ -52,6 +52,52 @@ CELL_W, CELL_H, MARGIN = 230, 110, 40
 CHUNK = 12  # checks per pin, so a pin's popup fits on screen
 PIN, PIN_STEP, PINS_PER_ROW = 16, 19, 10
 
+WHITE_PALACE_MAP = "White Palace"
+WHITE_PALACE_POP_COLOUR = (216, 185, 122)
+WHITE_PALACE_PASSAGE_COLOUR = (78, 84, 102)
+WHITE_PALACE_ROOMS = {
+    "White_Palace_11": ("Palace Entry", (1, 4), False),
+    "White_Palace_01": ("Entrance Hall", (2, 4), False),
+    "White_Palace_02": ("Entrance Wing", (3, 4), False),
+    "White_Palace_03_hub": ("Central Hub", (2, 3), False),
+    "White_Palace_04": ("Left Wing Lower", (0, 4), False),
+    "White_Palace_14": ("Left Wing Upper", (0, 3), False),
+    "White_Palace_15": ("Right Wing Entry", (3, 3), False),
+    "White_Palace_05": ("Right Wing Sawblades", (4, 3), False),
+    "White_Palace_16": ("Right Wing Upper", (5, 3), False),
+    "White_Palace_06": ("Central Atrium", (2, 2), False),
+    "White_Palace_07": ("Upper Ascent", (3, 2), False),
+    "White_Palace_12": ("Upper Corridor", (3, 1), False),
+    "White_Palace_13": ("Throne Tower", (4, 0), False),
+    "White_Palace_08": ("Palace Workshop", (5, 0), False),
+    "White_Palace_09": ("Throne Room", (3, 0), False),
+    "White_Palace_18": ("PoP: Entrance", (0, 2), True),
+    "White_Palace_17": ("PoP: Lever Room", (0, 1), True),
+    "White_Palace_19": ("PoP: Vertical Shaft", (1, 1), True),
+    "White_Palace_20": ("PoP: Final Gauntlet", (1, 0), True),
+}
+WHITE_PALACE_ROUTES = [
+    ("White_Palace_11", "White_Palace_01"),
+    ("White_Palace_01", "White_Palace_02"),
+    ("White_Palace_01", "White_Palace_03_hub"),
+    ("White_Palace_03_hub", "White_Palace_04"),
+    ("White_Palace_03_hub", "White_Palace_14"),
+    ("White_Palace_04", "White_Palace_14"),
+    ("White_Palace_03_hub", "White_Palace_15"),
+    ("White_Palace_15", "White_Palace_05"),
+    ("White_Palace_05", "White_Palace_16"),
+    ("White_Palace_03_hub", "White_Palace_06"),
+    ("White_Palace_06", "White_Palace_07"),
+    ("White_Palace_07", "White_Palace_12"),
+    ("White_Palace_12", "White_Palace_13"),
+    ("White_Palace_13", "White_Palace_09"),
+    ("White_Palace_13", "White_Palace_08"),
+    ("White_Palace_06", "White_Palace_18"),
+    ("White_Palace_18", "White_Palace_17"),
+    ("White_Palace_17", "White_Palace_19"),
+    ("White_Palace_19", "White_Palace_20"),
+]
+
 # Tracked items: (Archipelago item name without the game prefix, label, maximum count).
 # A maximum of 1 is a toggle; anything else counts up as copies arrive.
 TRACKED = {
@@ -161,6 +207,34 @@ def overview_map(path: Path, game: str, positions: dict[str, tuple[int, int]], r
     image.save(path)
 
 
+def white_palace_map(path: Path, active_rooms: set[str]) -> None:
+    columns = max(pos[0] for _, pos, _ in WHITE_PALACE_ROOMS.values()) + 1
+    rows = max(pos[1] for _, pos, _ in WHITE_PALACE_ROOMS.values()) + 1
+    image = Image.new("RGB", (columns * CELL_W + 2 * MARGIN, rows * CELL_H + 2 * MARGIN), (12, 12, 18))
+    draw = ImageDraw.Draw(image)
+
+    def centre(room_id):
+        _, (x, y), _ = WHITE_PALACE_ROOMS[room_id]
+        return MARGIN + x * CELL_W + CELL_W // 2, MARGIN + y * CELL_H + CELL_H // 2
+
+    for source, target in WHITE_PALACE_ROUTES:
+        if source in WHITE_PALACE_ROOMS and target in WHITE_PALACE_ROOMS:
+            is_pop = WHITE_PALACE_ROOMS[source][2] and WHITE_PALACE_ROOMS[target][2]
+            draw.line((centre(source), centre(target)),
+                      fill=(120, 105, 76) if is_pop else (70, 70, 86), width=3)
+    label_font = font(14)
+    for room_id, (label, _, is_pop) in WHITE_PALACE_ROOMS.items():
+        cx, cy = centre(room_id)
+        has_checks = room_id in active_rooms
+        outline = WHITE_PALACE_POP_COLOUR if is_pop else (COLOURS["HK"] if has_checks else WHITE_PALACE_PASSAGE_COLOUR)
+        fill = (30, 28, 34) if is_pop else ((26, 26, 36) if has_checks else (20, 20, 28))
+        text_colour = (235, 224, 196) if is_pop else ((225, 220, 210) if has_checks else (145, 148, 162))
+        draw.rounded_rectangle((cx - 105, cy - 30, cx + 105, cy + 30), radius=10,
+                               fill=fill, outline=outline, width=2)
+        draw.text((cx, cy + (18 if has_checks else 0)), label, fill=text_colour, font=label_font, anchor="mm")
+    image.save(path)
+
+
 def build(archive: Path, ap_dir: Path, out: Path) -> dict:
     world = load_world(archive, ap_dir)
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
@@ -236,7 +310,7 @@ def build(archive: Path, ap_dir: Path, out: Path) -> dict:
                     sections.append({"name": check["name"], "item_count": 1,
                                      "access_rules": [f"$hkss_reach|{check['id']}"]})
                     location_names[check["id"]] = check["key"]
-                    location_mapping[check["id"]] = f"@{map_name}/{location_name}/{check['name']}"
+                    location_mapping.setdefault(check["id"], []).append(f"@{map_name}/{location_name}/{check['name']}")
                 children.append({
                     "name": location_name,
                     "sections": sections,
@@ -245,6 +319,33 @@ def build(archive: Path, ap_dir: Path, out: Path) -> dict:
                                        "y": cy - 16 + row * PIN_STEP}],
                 })
         locations.append({"name": map_name, "children": children})
+
+    # White Palace & Path of Pain room-by-room sub-map.
+    wp_by_room: dict[str, list[dict]] = {}
+    for check in catalog["checks"]:
+        if check["game"] == "HK" and check.get("room") in WHITE_PALACE_ROOMS:
+            wp_by_room.setdefault(check["room"], []).append(check)
+    white_palace_map(out / "images/maps/hk_white_palace.png", set(wp_by_room))
+    maps.append({"name": WHITE_PALACE_MAP, "location_size": PIN, "location_border_thickness": 2,
+                 "img": "images/maps/hk_white_palace.png"})
+    wp_children = []
+    for room_id in sorted(wp_by_room, key=lambda r: WHITE_PALACE_ROOMS[r][1][::-1]):
+        label, (x, y), _ = WHITE_PALACE_ROOMS[room_id]
+        ordered = sorted(wp_by_room[room_id], key=lambda c: c["name"].lower())
+        location_name = f"{WHITE_PALACE_MAP}: {label}"
+        cx, cy = MARGIN + x * CELL_W + CELL_W // 2, MARGIN + y * CELL_H + CELL_H // 2
+        sections = []
+        for check in ordered:
+            sections.append({"name": check["name"], "item_count": 1,
+                             "access_rules": [f"$hkss_reach|{check['id']}"]})
+            location_mapping.setdefault(check["id"], []).append(f"@{WHITE_PALACE_MAP}/{location_name}/{check['name']}")
+        wp_children.append({
+            "name": location_name,
+            "sections": sections,
+            "map_locations": [{"map": WHITE_PALACE_MAP, "x": cx, "y": cy - 12}],
+        })
+    locations.append({"name": WHITE_PALACE_MAP, "children": wp_children})
+
     (out / "maps/maps.json").write_text(json.dumps(maps, indent=2) + "\n", encoding="utf-8")
     (out / "locations/locations.json").write_text(
         json.dumps(locations, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -262,8 +363,9 @@ def build(archive: Path, ap_dir: Path, out: Path) -> dict:
                     {"type": "array", "orientation": "vertical", "content": [grid("HK"), grid("SS")]},
                 ]},
                 {"type": "tabbed", "tabs": [
-                    {"title": GAMES[game], "content": {"type": "map", "maps": [GAMES[game]]}}
-                    for game in GAMES
+                    {"title": GAMES["HK"], "content": {"type": "map", "maps": [GAMES["HK"]]}},
+                    {"title": WHITE_PALACE_MAP, "content": {"type": "map", "maps": [WHITE_PALACE_MAP]}},
+                    {"title": GAMES["SS"], "content": {"type": "map", "maps": [GAMES["SS"]]}},
                 ]},
             ]}},
         "tracker_broadcast": {"type": "array", "orientation": "vertical", "content": [grid("HK"), grid("SS")]},
@@ -306,7 +408,7 @@ def build(archive: Path, ap_dir: Path, out: Path) -> dict:
         "ITEM_NAMES = " + to_lua({item_id: name for name, item_id in world.item_name_to_id.items()}),
         "CROSS_GAME_ITEMS = " + to_lua(shared_items),
         "GRID_ITEMS = " + to_lua(grid_names),
-        "LOCATION_MAPPING = " + to_lua({key: [value] for key, value in location_mapping.items()}),
+        "LOCATION_MAPPING = " + to_lua(location_mapping),
         "LOCATION_NAMES = " + to_lua(location_names),
     )) + "\n"
     (out / "scripts/data_names.lua").write_text(names_lua, encoding="utf-8")
@@ -334,8 +436,9 @@ A [PopTracker](https://github.com/black-sliver/PopTracker) pack for the Hollow K
 Archipelago world. Generated by `tools/export_poptracker.py`; do not edit by hand.
 
 - Item grids for Hallownest and Pharloom progression, filled automatically from Archipelago.
-- One overview map per game with pins of up to 12 checks per area; checked locations, and
-  checks that are not in your slot, are cleared automatically.
+- One overview map per game with pins of up to 12 checks per area, plus a room-by-room
+  White Palace & Path of Pain sub-map tab; checked locations, and checks that are not in your
+  slot, are cleared automatically.
 - Logic for both games: a check is green when the items you have received can reach it, and red
   when they cannot. It follows your slot's options (skips, split abilities, entrance
   randomization, ...) from the slot data, so connect to see your seed's logic. Without a
