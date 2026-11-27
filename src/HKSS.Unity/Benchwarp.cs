@@ -67,6 +67,12 @@ internal sealed class Benchwarp : MonoBehaviour
 
     private void Update()
     {
+        if (DoubleSteelSoul.IsOverlayVisible)
+        {
+            if (_panelOpen) SetPanelOpen(false);
+            return;
+        }
+
         PollCurrentBench();
 
         Keyboard? kb = Keyboard.current;

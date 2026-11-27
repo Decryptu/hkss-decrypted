@@ -52,6 +52,8 @@ internal static class SealGuard
                 _slotData = slotData;
                 _seals = CrossGameSeals.Parse(slotData);
                 KnownKeys.Clear();
+                MissingKeys.Clear();
+                _missingKeysCheckedAt = -100f;
             }
             return _seals;
         }
@@ -62,17 +64,22 @@ internal static class SealGuard
         if (KnownKeys.Contains(keyId)) return true;
         try
         {
-            if (HkssPlugin.State.GetSealKeys().Contains(keyId))
-            {
-                KnownKeys.Add(keyId);
-                return true;
-            }
+            foreach (long savedId in HkssPlugin.State.GetSealKeys())
+                KnownKeys.Add(savedId);
+            if (KnownKeys.Contains(keyId)) return true;
+
             var received = ApManager.Instance?.Client?.Session?.Items?.AllItemsReceived;
-            if (received != null && received.Any(item => item.ItemId == keyId))
+            if (received != null)
             {
-                KnownKeys.Add(keyId);
-                HkssPlugin.State.RecordSealKeys(new[] { keyId });
-                return true;
+                for (int i = 0; i < received.Count; i++)
+                {
+                    if (received[i].ItemId == keyId)
+                    {
+                        KnownKeys.Add(keyId);
+                        HkssPlugin.State.RecordSealKeys(new[] { keyId });
+                        return true;
+                    }
+                }
             }
         }
         catch (Exception e)

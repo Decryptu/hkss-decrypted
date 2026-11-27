@@ -272,12 +272,15 @@ public sealed class RunStateTests : IDisposable
 
         Assert.True(hkStore.MarkSteelSoulDefeated(GameId.HollowKnight, "Deepnest_01"));
         Assert.False(ssStore.MarkSteelSoulDefeated(GameId.Silksong, "Bone_01"));
+        Assert.False(hkStore.SetDoubleSteelSoul(false));
+        Assert.True(hkStore.IsDoubleSteelSoul());
 
         RunSummary sum = ssStore.LoadSummary();
         Assert.True(sum.DoubleSteelSoul);
         Assert.True(sum.SteelSoulDefeated);
         Assert.Equal("hollow_knight", sum.SteelSoulDefeatedGame);
         Assert.Equal("Deepnest_01", sum.SteelSoulDefeatedScene);
+        Assert.Equal("Fallen, but not forgotten", sum.Epithet);
 
         hkStore.EnsureSeedBinding("seed-A|Slot");
         Assert.True(hkStore.IsSteelSoulDefeated());

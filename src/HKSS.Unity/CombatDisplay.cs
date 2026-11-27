@@ -74,6 +74,26 @@ internal sealed class CombatDisplay : MonoBehaviour
     private static readonly List<HealthManager> RemoveScratch = new();
     private static string _scene = string.Empty;
 
+#if HOLLOW_KNIGHT
+    private static readonly System.Reflection.FieldInfo? HpScaleField =
+        AccessTools.Field(typeof(HealthManager), "hpScale");
+    private static readonly System.Reflection.FieldInfo? HpScaleLevel1Field =
+        HpScaleField != null ? AccessTools.Field(HpScaleField.FieldType, "level1") : null;
+    private static readonly System.Reflection.FieldInfo? HpScaleLevel2Field =
+        HpScaleField != null ? AccessTools.Field(HpScaleField.FieldType, "level2") : null;
+    private static readonly System.Reflection.FieldInfo? HpScaleLevel3Field =
+        HpScaleField != null ? AccessTools.Field(HpScaleField.FieldType, "level3") : null;
+    private static readonly System.Reflection.FieldInfo? PlayerDataNameField =
+        AccessTools.Field(typeof(EnemyDeathEffects), "playerDataName");
+#elif SILKSONG
+    private static readonly System.Reflection.FieldInfo? InitHpField =
+        AccessTools.Field(typeof(HealthManager), "initHp");
+    private static readonly System.Reflection.FieldInfo? BigEnemyDeathField =
+        AccessTools.Field(typeof(HealthManager), "bigEnemyDeath");
+    private static readonly System.Reflection.FieldInfo? JournalRecordField =
+        AccessTools.Field(typeof(EnemyDeathEffects), "journalRecord");
+#endif
+
     private Texture2D? _white;
     private GUIStyle? _numberStyle;
     private GUIStyle? _bossNameStyle;
@@ -172,7 +192,10 @@ internal sealed class CombatDisplay : MonoBehaviour
             tracked.LastHitAt = now;
 
             if (!PlayerOptions.DamageNumbers.Value) return;
-            Vector3 where = TopOf(source, source.GetComponent<Collider2D>());
+            Collider2D? sourceCollider = ReferenceEquals(source, target)
+                ? tracked.Collider
+                : source.GetComponent<Collider2D>();
+            Vector3 where = TopOf(source, sourceCollider);
             for (int i = Popups.Count - 1; i >= 0; i--)
             {
                 Popup p = Popups[i];
@@ -211,7 +234,8 @@ internal sealed class CombatDisplay : MonoBehaviour
             tracked = new Tracked { Hm = hm, Collider = hm.GetComponent<Collider2D>() };
             int maxHp = Math.Max(hpBefore, 1);
 #if SILKSONG
-            maxHp = Math.Max(maxHp, Traverse.Create(hm).Field("initHp").GetValue<int>());
+            if (InitHpField != null && InitHpField.GetValue(hm) is int initHp)
+                maxHp = Math.Max(maxHp, initHp);
 #endif
             tracked.MaxHp = maxHp;
             tracked.IsBoss = IsBoss(hm, maxHp);
@@ -233,11 +257,14 @@ internal sealed class CombatDisplay : MonoBehaviour
         if (maxHp >= BossHpThreshold) return true;
 #if HOLLOW_KNIGHT
         // Every boss that Godhome rescales has scaled hit points set, so this catches the light ones too.
-        Traverse scale = Traverse.Create(hm).Field("hpScale");
-        return scale.Field("level1").GetValue<int>() > 0 || scale.Field("level2").GetValue<int>() > 0
-            || scale.Field("level3").GetValue<int>() > 0;
+        object? scale = HpScaleField?.GetValue(hm);
+        if (scale == null) return false;
+        return (HpScaleLevel1Field?.GetValue(scale) is int l1 && l1 > 0)
+            || (HpScaleLevel2Field?.GetValue(scale) is int l2 && l2 > 0)
+            || (HpScaleLevel3Field?.GetValue(scale) is int l3 && l3 > 0);
 #elif SILKSONG
-        return maxHp >= LargeBossHpThreshold && Traverse.Create(hm).Field("bigEnemyDeath").GetValue<bool>();
+        return maxHp >= LargeBossHpThreshold
+            && BigEnemyDeathField?.GetValue(hm) is bool big && big;
 #endif
     }
 
@@ -247,7 +274,7 @@ internal sealed class CombatDisplay : MonoBehaviour
         {
             EnemyDeathEffects? effects = hm.GetComponent<EnemyDeathEffects>();
 #if HOLLOW_KNIGHT
-            string? journal = effects == null ? null : Traverse.Create(effects).Field("playerDataName").GetValue<string>();
+            string? journal = effects == null ? null : PlayerDataNameField?.GetValue(effects) as string;
             if (!string.IsNullOrEmpty(journal))
             {
                 string key = "NAME_" + UpperSnake(journal!);
@@ -255,7 +282,7 @@ internal sealed class CombatDisplay : MonoBehaviour
                     return TeamCherry.Localization.Language.Get(key, "Journal");
             }
 #elif SILKSONG
-            object? record = effects == null ? null : Traverse.Create(effects).Field("journalRecord").GetValue();
+            object? record = effects == null ? null : JournalRecordField?.GetValue(effects);
             if (record is EnemyJournalRecord journal && journal != null)
             {
                 string name = journal.DisplayName.ToString();
@@ -313,6 +340,8 @@ internal sealed class CombatDisplay : MonoBehaviour
 
     private void Update()
     {
+        if (!AnyEnabled && TrackedEnemies.Count == 0 && Popups.Count == 0) return;
+
         string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
         if (scene != _scene)
         {

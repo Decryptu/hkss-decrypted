@@ -167,6 +167,11 @@ internal sealed class AutoLoad : MonoBehaviour
 #endif
 
         _reloadAfterEnding = false;
+        if (DoubleSteelSoul.IsDefeated)
+        {
+            DoubleSteelSoul.ShowDefeatOverlay();
+            return;
+        }
         _reloadingAfterEnding = true;
         Platform.Current.IsSaveSlotInUse(RunContext.SaveSlot, used =>
         {

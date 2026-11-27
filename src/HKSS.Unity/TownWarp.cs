@@ -24,7 +24,7 @@ internal sealed class TownWarp : MonoBehaviour
 
     private void Update()
     {
-        if (ApOverlay.IsPanelOpen || Benchwarp.IsPanelOpen) return;
+        if (DoubleSteelSoul.IsOverlayVisible || ApOverlay.IsPanelOpen || Benchwarp.IsPanelOpen) return;
         if (PlayerOptions.Pressed(Shortcut.TownWarp))
         {
             TryWarpToTown();

@@ -40,14 +40,20 @@ namespace SilksongRandomizer
         internal static bool ValidatePlayerData(SaveState state, PlayerData playerData, out string error)
         {
             error = string.Empty;
-            if (playerData == null || (playerData.permadeathMode != PermadeathModes.Off) !=
-                (state.gameMode == SteelSoul))
+            bool doubleSteelSoul = HKSS.Unity.DoubleSteelSoul.IsEnabled;
+            bool expectSteelSoul = state.gameMode == SteelSoul || doubleSteelSoul;
+            bool saveIsSteelSoul = playerData != null && playerData.permadeathMode != PermadeathModes.Off;
+            if (playerData == null || (saveIsSteelSoul != expectSteelSoul && !(doubleSteelSoul && !saveIsSteelSoul)))
             {
                 error = "This save's game mode does not match its Archipelago settings.";
                 return false;
             }
             if (playerData.permadeathMode == PermadeathModes.Dead)
             {
+                if (doubleSteelSoul)
+                {
+                    HKSS.Unity.DoubleSteelSoul.RecordLoadedDeadSave(playerData.respawnScene);
+                }
                 error = "This Steel Soul save has ended.";
                 return false;
             }

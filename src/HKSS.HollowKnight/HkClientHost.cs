@@ -532,8 +532,8 @@ internal sealed class HkClientHost : MonoBehaviour
             string tmp = _icSavePath + ".tmp";
             string json = JsonConvert.SerializeObject(save, IcJsonSettings);
             File.WriteAllText(tmp, json);
-            if (File.Exists(_icSavePath)) File.Delete(_icSavePath);
-            File.Move(tmp, _icSavePath);
+            if (File.Exists(_icSavePath)) File.Replace(tmp, _icSavePath, null);
+            else File.Move(tmp, _icSavePath);
             if (!string.IsNullOrEmpty(_loadedSeedKey))
                 TryWriteSeedMarker(_loadedSeedKey);
             HkssPlugin.Log.LogDebug($"[HK] Saved ItemChanger state to {_icSavePath}");

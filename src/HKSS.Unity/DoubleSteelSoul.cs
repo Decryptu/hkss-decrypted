@@ -14,11 +14,15 @@ namespace HKSS.Unity;
 /// </summary>
 internal sealed class DoubleSteelSoul : MonoBehaviour
 {
+    private const float PermaDeathCutsceneTimeoutSeconds = 20f;
+
     private static bool _enabled;
     private static bool _defeated;
     private static string _defeatedGame = string.Empty;
     private static string _defeatedScene = string.Empty;
     private static bool _overlayVisible;
+    private static bool _waitingForPermaDeathCutscene;
+    private static float _defeatedLiveAt = -1f;
 
     private GUIStyle? _scrimStyle;
     private GUIStyle? _cardStyle;
@@ -35,6 +39,8 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
 
     internal static bool IsDefeated => _defeated;
 
+    internal static bool IsOverlayVisible => _overlayVisible;
+
     internal static string DefeatedWorldName => FormatWorldName(_defeatedGame);
 
     internal static string DefeatedScene => _defeatedScene;
@@ -47,6 +53,16 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
         _defeated = state.SteelSoulDefeated;
         _defeatedGame = state.SteelSoulDefeatedGame ?? string.Empty;
         _defeatedScene = state.SteelSoulDefeatedScene ?? string.Empty;
+        if (!_defeated)
+        {
+            _waitingForPermaDeathCutscene = false;
+            _defeatedLiveAt = -1f;
+            if (_overlayVisible)
+            {
+                _overlayVisible = false;
+                OverlayCursor.SetOpen(OverlayCursor.Panel.SteelSoul, false);
+            }
+        }
     }
 
     internal static void Install(Harmony harmony)
@@ -70,7 +86,7 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
         if (enabled)
         {
             _enabled = true;
-            HkssPlugin.State.SetDoubleSteelSoul(true);
+            HkssPlugin.State?.SetDoubleSteelSoul(true);
             EnsureActivePlayerDataPermadeath();
         }
     }
@@ -79,9 +95,24 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
     {
         RefreshFromDisk();
         if (!_defeated) return;
+        _waitingForPermaDeathCutscene = false;
+        EnsureActivePlayerDataPermadeath();
+        ApOverlay.ClosePanel();
+        Benchwarp.Instance?.SetPanelOpen(false);
+        GameManager? gm = GameManager._instance;
+        if (gm != null && gm.IsGameplayScene())
+        {
+            HeroController.instance?.RelinquishControl();
+        }
         if (_overlayVisible) return;
         _overlayVisible = true;
         OverlayCursor.SetOpen(OverlayCursor.Panel.SteelSoul, true);
+    }
+
+    internal static void RecordLoadedDeadSave(string? sceneName)
+    {
+        if (!IsEnabled) return;
+        RecordDefeat(sceneName, waitForPermaDeathCutscene: false);
     }
 
     internal static string FormatWorldName(string gameKey) => gameKey switch
@@ -99,13 +130,14 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
 
         if (IsPermaDead(pd))
         {
-            RecordDefeat(__instance.sceneName);
+            RecordDefeat(__instance.sceneName, waitForPermaDeathCutscene: true);
         }
     }
 
-    private static void RecordDefeat(string? sceneName)
+    private static void RecordDefeat(string? sceneName, bool waitForPermaDeathCutscene)
     {
-        if (!IsEnabled && !IsPermaDead(PlayerData.instance)) return;
+        if (!IsEnabled) return;
+        if (HkssPlugin.State == null) return;
 
         string scene = sceneName ?? string.Empty;
         bool newlyDefeated = HkssPlugin.State.MarkSteelSoulDefeated(HkssPlugin.ThisGame, scene);
@@ -114,6 +146,11 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
 
         if (newlyDefeated)
         {
+            if (waitForPermaDeathCutscene)
+            {
+                _waitingForPermaDeathCutscene = true;
+                _defeatedLiveAt = Time.unscaledTime;
+            }
             string world = ItemRouter.WorldName(HkssPlugin.ThisGame);
             string where = string.IsNullOrWhiteSpace(scene) ? world : $"{world} ({scene})";
             HkssPlugin.Log.LogWarning($"[DoubleSteelSoul] Steel Soul run defeated in {where}.");
@@ -184,7 +221,7 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
         string sceneName = to.name ?? string.Empty;
         if (string.Equals(sceneName, "PermaDeath", StringComparison.Ordinal))
         {
-            RecordDefeat(from.name);
+            RecordDefeat(from.name, waitForPermaDeathCutscene: true);
             return;
         }
 
@@ -197,8 +234,12 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
         GameManager? gm = GameManager._instance;
         if (gm != null && gm.IsGameplayScene())
         {
+            if (!_defeated && IsEnabled && IsPermaDead(PlayerData.instance))
+            {
+                RecordDefeat(sceneName, waitForPermaDeathCutscene: false);
+            }
             EnsureActivePlayerDataPermadeath();
-            if (IsDefeated)
+            if (IsDefeated && !_waitingForPermaDeathCutscene)
             {
                 ShowDefeatOverlay();
             }
@@ -207,12 +248,12 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
 
     private void Update()
     {
-        if (!_defeated && _enabled)
+        if (!_defeated && IsEnabled)
         {
             PlayerData? pd = PlayerData.instance;
             if (pd != null && IsPermaDead(pd))
             {
-                RecordDefeat(GameManager._instance?.sceneName);
+                RecordDefeat(GameManager._instance?.sceneName, waitForPermaDeathCutscene: true);
             }
         }
 
@@ -220,8 +261,18 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
         {
             GameManager? gm = GameManager._instance;
             string scene = gm?.sceneName ?? string.Empty;
-            // Let the game's own PermaDeath cutscene play before surfacing our overlay on Menu_Title.
-            if (!string.Equals(scene, "PermaDeath", StringComparison.Ordinal) && AutoLoad.IsReady)
+            if (string.Equals(scene, "PermaDeath", StringComparison.Ordinal))
+            {
+                return;
+            }
+            if (_waitingForPermaDeathCutscene)
+            {
+                bool onMenu = string.Equals(scene, "Menu_Title", StringComparison.Ordinal);
+                bool timedOut = _defeatedLiveAt >= 0f && Time.unscaledTime - _defeatedLiveAt >= PermaDeathCutsceneTimeoutSeconds;
+                if (!onMenu && !timedOut) return;
+                _waitingForPermaDeathCutscene = false;
+            }
+            if (AutoLoad.IsReady)
             {
                 ShowDefeatOverlay();
             }

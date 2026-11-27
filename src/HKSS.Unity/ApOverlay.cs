@@ -58,10 +58,22 @@ internal sealed partial class ApOverlay : MonoBehaviour
     private Texture2D? _darkBg;
     private Texture2D? _toastBg;
 
+    private string _cachedBadgeText = string.Empty;
+    private bool _cachedBadgeDefeated;
+    private ApConnectionState _cachedBadgeState = (ApConnectionState)(-1);
+    private string _cachedBadgeSlot = string.Empty;
+    private string _cachedBadgeKey = string.Empty;
+
     private void Awake() => _instance = this;
 
     private void Update()
     {
+        if (DoubleSteelSoul.IsOverlayVisible)
+        {
+            if (_panelOpen) SetPanelOpen(false);
+            return;
+        }
+
         string captureError = PlayerOptions.CaptureKey();
         if (captureError.Length > 0) _hotkeyFeedback = captureError;
         if (PlayerOptions.Capturing == null) _hotkeyFeedback = string.Empty;
@@ -191,6 +203,7 @@ internal sealed partial class ApOverlay : MonoBehaviour
 
     private void OnGUI()
     {
+        if (DoubleSteelSoul.IsOverlayVisible) return;
         ApManager? ap = ApManager.Instance;
         if (ap == null) return;
 
@@ -206,18 +219,32 @@ internal sealed partial class ApOverlay : MonoBehaviour
 
     private void DrawStatusBadge(ApManager ap)
     {
+        bool defeated = DoubleSteelSoul.IsDefeated;
         ApConnectionState state = ap.Client.State;
-        string text = DoubleSteelSoul.IsDefeated
-            ? $"STEEL SOUL DEFEATED [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]"
-            : state switch
-            {
-                ApConnectionState.Connected => $"AP: {ap.Client.ConnectedSlot} [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
-                ApConnectionState.Connecting => $"AP: Connecting... [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
-                ApConnectionState.Failed => $"AP: Error [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
-                _ => $"AP: Offline [{PlayerOptions.GetLabel(Shortcut.ApPanel)}]",
-            };
+        string slot = ap.Client.ConnectedSlot;
+        string keyLabel = PlayerOptions.GetLabel(Shortcut.ApPanel);
+        if (_cachedBadgeText.Length == 0
+            || _cachedBadgeDefeated != defeated
+            || _cachedBadgeState != state
+            || !string.Equals(_cachedBadgeSlot, slot, StringComparison.Ordinal)
+            || !string.Equals(_cachedBadgeKey, keyLabel, StringComparison.Ordinal))
+        {
+            _cachedBadgeDefeated = defeated;
+            _cachedBadgeState = state;
+            _cachedBadgeSlot = slot;
+            _cachedBadgeKey = keyLabel;
+            _cachedBadgeText = defeated
+                ? $"STEEL SOUL DEFEATED [{keyLabel}]"
+                : state switch
+                {
+                    ApConnectionState.Connected => $"AP: {slot} [{keyLabel}]",
+                    ApConnectionState.Connecting => $"AP: Connecting... [{keyLabel}]",
+                    ApConnectionState.Failed => $"AP: Error [{keyLabel}]",
+                    _ => $"AP: Offline [{keyLabel}]",
+                };
+        }
 
-        Color color = DoubleSteelSoul.IsDefeated
+        Color color = defeated
             ? new Color(1.0f, 0.35f, 0.35f, 0.98f)
             : state switch
             {
@@ -232,7 +259,7 @@ internal sealed partial class ApOverlay : MonoBehaviour
         float w = 220f;
         float h = 28f;
         var rect = new Rect(Screen.width - w - 14f, 14f, w, h);
-        if (GUI.Button(rect, text, _badgeStyle))
+        if (GUI.Button(rect, _cachedBadgeText, _badgeStyle))
         {
             SetPanelOpen(!_panelOpen);
         }

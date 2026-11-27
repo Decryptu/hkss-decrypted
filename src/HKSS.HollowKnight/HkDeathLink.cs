@@ -333,6 +333,11 @@ public sealed class HkDeathLinkModule : ItemChanger.Modules.Module
         }
 
         if (_status != DeathLinkStatus.Pending) return;
+        if (DoubleSteelSoul.IsDefeated)
+        {
+            _status = DeathLinkStatus.None;
+            return;
+        }
         HeroController? hc = HeroController.instance;
         PlayerData? pd = PlayerData.instance;
         if (hc == null || pd == null) return;

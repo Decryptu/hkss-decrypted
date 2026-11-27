@@ -574,25 +574,33 @@ public static class HkLogicEvaluator
         // Like the world: a waypoint's rule awards the waypoint itself, but a transition's rule awards
         // only the transition it leads to. A transition is reached by arriving through its partner,
         // so a sealed partner keeps it unreached.
-        var fired = new HashSet<string>(StringComparer.Ordinal);
+        var pending = new List<KeyValuePair<string, HkLogicExpr>>(graph.NodeRules.Count);
+        foreach (var kv in graph.NodeRules)
+        {
+            if (sealedScenes.Count > 0 && HkLogicState.IsNodeSealed(kv.Key, sealedScenes)) continue;
+            pending.Add(kv);
+        }
+
         bool changed = true;
         int guard = 0;
         while (changed && guard++ < 64)
         {
             changed = false;
-            foreach (var kv in graph.NodeRules)
+            for (int i = pending.Count - 1; i >= 0; i--)
             {
-                if (fired.Contains(kv.Key)) continue;
-                if (HkLogicState.IsNodeSealed(kv.Key, sealedScenes)) continue;
+                var kv = pending[i];
                 if (kv.Value.Evaluate(state))
                 {
-                    fired.Add(kv.Key);
+                    int last = pending.Count - 1;
+                    pending[i] = pending[last];
+                    pending.RemoveAt(last);
                     changed = true;
                     if (!connectors.TryGetValue(kv.Key, out string? target))
                     {
                         reached.Add(kv.Key);
                     }
-                    else if (!string.IsNullOrEmpty(target) && !HkLogicState.IsNodeSealed(target!, sealedScenes))
+                    else if (!string.IsNullOrEmpty(target)
+                        && (sealedScenes.Count == 0 || !HkLogicState.IsNodeSealed(target!, sealedScenes)))
                     {
                         reached.Add(target!);
                     }

@@ -146,9 +146,12 @@ internal sealed class Travel : MonoBehaviour
         DoubleSteelSoul.ShowDefeatOverlay();
         AudioListener.volume = 1f;
         gm.cameraCtrl.FadeSceneIn();
-        hero.RegainControl();
+        if (!DoubleSteelSoul.IsDefeated)
+        {
+            hero.RegainControl();
+        }
         _travelling = false;
-        HkssPlugin.Signals.Send(Signal.Ready, detail: "resumed");
+        HkssPlugin.Signals.Send(Signal.Ready, detail: DoubleSteelSoul.IsDefeated ? "steel-soul-defeated" : "resumed");
     }
 
 #if DEBUG

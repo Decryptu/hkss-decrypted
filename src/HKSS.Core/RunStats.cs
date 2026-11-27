@@ -220,8 +220,27 @@ public sealed class RunSummary
     /// <summary>Share of combined play time spent in Hollow Knight, 0 to 1 (0.5 with no play time).</summary>
     public double HollowKnightShare => TotalPlaySeconds > 0 ? HollowKnight.PlaySeconds / TotalPlaySeconds : 0.5;
 
+    private static readonly GameId[] BothGames = { GameId.HollowKnight, GameId.Silksong };
+
     /// <summary>The area with the most deaths across both games, if any death was placed.</summary>
-    public AreaRecord? DeadliestArea => Top(s => s.DeathsByArea?.ToDictionary(kv => kv.Key, kv => (double)kv.Value));
+    public AreaRecord? DeadliestArea
+    {
+        get
+        {
+            AreaRecord? best = null;
+            foreach (GameId game in BothGames)
+            {
+                Dictionary<string, int>? map = Get(game).DeathsByArea;
+                if (map == null) continue;
+                foreach (var kv in map)
+                {
+                    if (kv.Value <= 0 || IsIgnoredArea(kv.Key)) continue;
+                    if (best == null || kv.Value > best.Value.Value) best = new AreaRecord(game, kv.Key, kv.Value);
+                }
+            }
+            return best;
+        }
+    }
 
     /// <summary>The area with the most play time across both games.</summary>
     public AreaRecord? FavouriteArea => Top(s => s.SecondsByArea);
@@ -229,7 +248,7 @@ public sealed class RunSummary
     private AreaRecord? Top(Func<GameStats, Dictionary<string, double>?> pick)
     {
         AreaRecord? best = null;
-        foreach (GameId game in new[] { GameId.HollowKnight, GameId.Silksong })
+        foreach (GameId game in BothGames)
         {
             Dictionary<string, double>? map = pick(Get(game));
             if (map == null) continue;
@@ -300,8 +319,8 @@ public sealed class RunSummary
     {
         get
         {
-            if (!Played(HollowKnight) && !Played(Silksong)) return "A journey yet to begin";
             if (SteelSoulDefeated) return "Fallen, but not forgotten";
+            if (!Played(HollowKnight) && !Played(Silksong)) return "A journey yet to begin";
             if (HkGoalCompleted && SsGoalCompleted && TotalDeaths == 0) return "The Unbroken";
             if (TotalDeaths >= 100) return "The Undying Shade";
             if (Travels >= 20) return "Wanderer Between Worlds";

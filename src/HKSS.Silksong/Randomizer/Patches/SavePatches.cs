@@ -495,7 +495,8 @@ namespace SilksongRandomizer.Patches
             __state = Archipelago.Instance != null && Archipelago.Instance.Connected;
             if (__state)
             {
-                __0 = Archipelago.Instance.GameMode == SteelSoulSettings.SteelSoul;
+                __0 = Archipelago.Instance.GameMode == SteelSoulSettings.SteelSoul
+                    || HKSS.Unity.DoubleSteelSoul.IsEnabled;
             }
             return true;
         }

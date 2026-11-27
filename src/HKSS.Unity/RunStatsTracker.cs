@@ -41,6 +41,8 @@ internal sealed class RunStatsTracker : MonoBehaviour
     private Vector3 _lastPos;
     private bool _hasLastPos;
     private float _lastPlayTime = -1f;
+    private GlobalEnums.MapZone _lastMapZone = (GlobalEnums.MapZone)(-1);
+    private string _lastMapZoneName = string.Empty;
 
     internal static void Install(Harmony harmony)
     {
@@ -191,9 +193,14 @@ internal sealed class RunStatsTracker : MonoBehaviour
             float dt = playTime - _lastPlayTime;
             if (dt > 0f && dt < 1f)
             {
-                string area = pd.mapZone.ToString();
-                _pending.AreaSeconds.TryGetValue(area, out double t);
-                _pending.AreaSeconds[area] = t + dt;
+                GlobalEnums.MapZone zone = pd.mapZone;
+                if (zone != _lastMapZone)
+                {
+                    _lastMapZone = zone;
+                    _lastMapZoneName = zone.ToString();
+                }
+                _pending.AreaSeconds.TryGetValue(_lastMapZoneName, out double t);
+                _pending.AreaSeconds[_lastMapZoneName] = t + dt;
             }
         }
         _lastPlayTime = playTime;

@@ -181,17 +181,33 @@ public sealed class RunStateStore
         _path = Path.Combine(run.RunDir, StateFileName);
     }
 
+    private const int IoRetryAttempts = 5;
+    private const int IoRetryDelayMs = 20;
+
     public RunState Load()
     {
-        try
+        for (int attempt = 0; attempt < IoRetryAttempts; attempt++)
         {
-            if (!File.Exists(_path)) return new RunState();
-            return JsonConvert.DeserializeObject<RunState>(File.ReadAllText(_path)) ?? new RunState();
+            try
+            {
+                if (!File.Exists(_path)) return new RunState();
+                return JsonConvert.DeserializeObject<RunState>(File.ReadAllText(_path)) ?? new RunState();
+            }
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
+            {
+                if (attempt + 1 < IoRetryAttempts)
+                {
+                    System.Threading.Thread.Sleep(IoRetryDelayMs);
+                    continue;
+                }
+                return new RunState();
+            }
+            catch (JsonException)
+            {
+                return new RunState();
+            }
         }
-        catch (Exception e) when (e is IOException || e is JsonException || e is UnauthorizedAccessException)
-        {
-            return new RunState();
-        }
+        return new RunState();
     }
 
     public void Save(RunState state)
@@ -202,9 +218,25 @@ public sealed class RunStateStore
         if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
         string json = JsonConvert.SerializeObject(state, Formatting.Indented);
         string temp = _path + ".new";
-        File.WriteAllText(temp, json);
-        if (File.Exists(_path)) File.Replace(temp, _path, null);
-        else File.Move(temp, _path);
+        for (int attempt = 0; attempt < IoRetryAttempts; attempt++)
+        {
+            try
+            {
+                File.WriteAllText(temp, json);
+                if (File.Exists(_path)) File.Replace(temp, _path, null);
+                else File.Move(temp, _path);
+                return;
+            }
+            catch (Exception e) when ((e is IOException || e is UnauthorizedAccessException) && attempt + 1 < IoRetryAttempts)
+            {
+                System.Threading.Thread.Sleep(IoRetryDelayMs);
+            }
+            catch
+            {
+                try { if (File.Exists(temp)) File.Delete(temp); } catch { }
+                throw;
+            }
+        }
     }
 
     /// <summary>Marks Bone Bottom's gate as open if it was not already open. Returns true if changed.</summary>
@@ -285,6 +317,7 @@ public sealed class RunStateStore
     public bool SetDoubleSteelSoul(bool enabled)
     {
         RunState state = Load();
+        if (!enabled && state.SteelSoulDefeated) return false;
         if (state.DoubleSteelSoul == enabled) return false;
         state.DoubleSteelSoul = enabled;
         Save(state);

@@ -121,6 +121,7 @@ pub fn load_goals(dir: &Path) -> RunGoals {
 }
 
 /// Persists the `double_steel_soul` flag in `state.json`, preserving all other fields.
+/// Refuses to disable the flag once the run has already been defeated in Steel Soul.
 pub fn set_double_steel_soul(dir: &Path, enabled: bool) -> io::Result<()> {
     fs::create_dir_all(dir)?;
     let path = dir.join("state.json");
@@ -129,10 +130,33 @@ pub fn set_double_steel_soul(dir: &Path, enabled: bool) -> io::Result<()> {
         .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok())
         .and_then(|val| val.as_object().cloned())
         .unwrap_or_default();
+    if !enabled
+        && map
+            .get("steel_soul_defeated")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false)
+    {
+        return Err(io::Error::other("Cannot disable Double Steel Soul on a defeated run; reset the run instead."));
+    }
     map.insert("double_steel_soul".into(), serde_json::Value::Bool(enabled));
     let temp = dir.join("state.json.new");
     fs::write(&temp, serde_json::to_vec_pretty(&serde_json::Value::Object(map))?)?;
-    fs::rename(temp, path)
+    for attempt in 0..5 {
+        match fs::rename(&temp, &path) {
+            Ok(()) => return Ok(()),
+            Err(e)
+                if (e.kind() == io::ErrorKind::PermissionDenied || e.raw_os_error() == Some(32))
+                    && attempt < 4 =>
+            {
+                std::thread::sleep(std::time::Duration::from_millis(20));
+            }
+            Err(e) => {
+                let _ = fs::remove_file(&temp);
+                return Err(e);
+            }
+        }
+    }
+    Ok(())
 }
 
 pub fn home() -> PathBuf {
@@ -246,5 +270,7 @@ mod tests {
         assert!(defeated.steel_soul_defeated);
         assert_eq!(defeated.steel_soul_defeated_game, "silksong");
         assert_eq!(defeated.steel_soul_defeated_scene, "Bone_01");
+        assert!(set_double_steel_soul(temp.path(), false).is_err());
+        assert!(load_goals(temp.path()).double_steel_soul);
     }
 }

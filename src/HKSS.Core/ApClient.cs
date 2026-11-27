@@ -87,8 +87,10 @@ public sealed class ApClient : IDisposable
     private bool _comboGoalSent;
     private Hint[]? _roomHints;
 
+    private volatile ApConnectionState _state = ApConnectionState.Disconnected;
+
     public GameId ThisGame => _thisGame;
-    public ApConnectionState State { get; private set; } = ApConnectionState.Disconnected;
+    public ApConnectionState State { get => _state; private set => _state = value; }
     public string StatusDetail { get; private set; } = "Not connected";
     public string ConnectedSlot { get; private set; } = string.Empty;
     public int Team { get; private set; }
@@ -477,6 +479,10 @@ public sealed class ApClient : IDisposable
             }
             catch (Exception e)
             {
+                lock (_gate)
+                {
+                    if (generation != _generation) return;
+                }
                 _events.Enqueue(new ApEvent(ApEventKind.Error, $"Failed to report goal: {e.Message}"));
             }
         });
