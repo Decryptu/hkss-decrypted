@@ -269,14 +269,17 @@ fn export_diagnostics(slot: u8) -> Result<String, String> {
 #[derive(Serialize)]
 struct LauncherSettings {
     instant_travel: bool,
+    fast_endings: settings::FastEndingsMode,
     /// Installed memory, so the menu can say whether instant travel suits this PC.
     memory_mb: Option<u64>,
 }
 
 #[tauri::command]
 fn launcher_settings() -> LauncherSettings {
+    let loaded = settings::load(&runs::home());
     LauncherSettings {
-        instant_travel: settings::load(&runs::home()).instant_travel,
+        instant_travel: loaded.instant_travel,
+        fast_endings: loaded.fast_endings,
         memory_mb: process::system_memory_mb().map(|(total, _)| total),
     }
 }
@@ -287,6 +290,15 @@ fn set_instant_travel(enabled: bool) -> Result<(), String> {
     let home = runs::home();
     let mut current = settings::load(&home);
     current.instant_travel = enabled;
+    settings::save(&home, &current).map_err(|e| format!("The setting could not be saved: {e}"))
+}
+
+#[tauri::command]
+fn set_fast_endings(mode: settings::FastEndingsMode) -> Result<(), String> {
+    idle()?;
+    let home = runs::home();
+    let mut current = settings::load(&home);
+    current.fast_endings = mode;
     settings::save(&home, &current).map_err(|e| format!("The setting could not be saved: {e}"))
 }
 
@@ -380,6 +392,7 @@ fn main() {
             set_double_steel_soul,
             launcher_settings,
             set_instant_travel,
+            set_fast_endings,
             remove_game_folders,
             export_diagnostics,
             check_update,

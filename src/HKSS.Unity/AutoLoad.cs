@@ -47,7 +47,7 @@ internal sealed class AutoLoad : MonoBehaviour
         if (_step != Step.Done) return;
 
         string name = to.name ?? string.Empty;
-        if (IsEndingOrCreditsScene(name))
+        if (FastEndingsPolicy.IsReloadAfterEndingScene(name))
         {
             _reloadAfterEnding = true;
             return;
@@ -58,16 +58,6 @@ internal sealed class AutoLoad : MonoBehaviour
         {
             _reloadAfterEnding = false;
         }
-    }
-
-    private static bool IsEndingOrCreditsScene(string sceneName)
-    {
-        if (string.IsNullOrEmpty(sceneName)) return false;
-        return sceneName.StartsWith("Cinematic_Ending_", StringComparison.Ordinal)
-            || string.Equals(sceneName, "End_Credits", StringComparison.Ordinal)
-            || string.Equals(sceneName, "End_Credits_Scroll", StringComparison.Ordinal)
-            || string.Equals(sceneName, "End_Game_Completion", StringComparison.Ordinal)
-            || string.Equals(sceneName, "GG_End_Sequence", StringComparison.Ordinal);
     }
 
     private void Update()

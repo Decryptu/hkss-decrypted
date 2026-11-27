@@ -100,7 +100,9 @@ fn play_run(slot: u8, payload: &Path, screen: &dyn Screen) -> io::Result<()> {
     let mut run = existing.unwrap_or(runs::Run { current: Game::HollowKnight });
     let mut log = Log::open(&dir)?;
     let mut place = None;
-    let instant = settings::load(&runs::home()).instant_travel;
+    let loaded_settings = settings::load(&runs::home());
+    let instant = loaded_settings.instant_travel;
+    let fast_endings = loaded_settings.fast_endings;
     end_left_behind();
     // Dropping this when the run ends, however it ends, closes any game still paused.
     let mut parked: Vec<Parked> = Vec::new();
@@ -108,7 +110,7 @@ fn play_run(slot: u8, payload: &Path, screen: &dyn Screen) -> io::Result<()> {
         let resume = parked.iter().position(|p| p.game == run.current).map(|i| parked.remove(i));
         // Waking a paused game needs no new memory, so parking this one is always affordable then.
         let other_paused = !parked.is_empty();
-        let travel = TravelMode { instant, resume, other_paused };
+        let travel = TravelMode { instant, fast_endings, resume, other_paused };
         match play_game(run.current, &dir, payload, screen, &mut place, &mut log, &mut needs_initial_save, &run, travel)? {
             Outcome::Closed => return Ok(()),
             Outcome::Travel(to, left) => {
@@ -123,6 +125,8 @@ fn play_run(slot: u8, payload: &Path, screen: &dyn Screen) -> io::Result<()> {
 struct TravelMode {
     /// Keep the game the player leaves paused instead of closing it.
     instant: bool,
+    /// Ending/credits skip preference forwarded to both games.
+    fast_endings: settings::FastEndingsMode,
     /// This game, paused when the player left it.
     resume: Option<Parked>,
     /// The other game is paused, so travelling wakes it instead of starting it.
@@ -150,7 +154,7 @@ fn play_game(
     });
     let (mut child, session, started) = match resumed {
         Some(resumed) => resumed,
-        None => start(game, dir, payload, screen, &mirror_dir, log, needs_initial_save, run)?,
+        None => start(game, dir, payload, screen, &mirror_dir, log, needs_initial_save, run, travel.fast_endings)?,
     };
 
     let mut visible = false;
@@ -234,6 +238,7 @@ fn start(
     log: &mut Log,
     needs_initial_save: &mut bool,
     run: &runs::Run,
+    fast_endings: settings::FastEndingsMode,
 ) -> io::Result<(Child, String, Instant)> {
     let install = steam::find(game).ok_or_else(|| io::Error::other(format!("{} is not installed in Steam.", game.name())))?;
     if process::is_running(game.exe()) {
@@ -259,6 +264,7 @@ fn start(
         .env_remove("DOORSTOP_ENABLED")
         .env("HKSS_RUN_DIR", dir)
         .env("HKSS_SESSION", &session)
+        .env("HKSS_FAST_ENDINGS", fast_endings.as_str())
         .arg("-logFile")
         .arg(dir.join("logs").join(format!("{}-player.log", game.key())))
         .spawn()?;
