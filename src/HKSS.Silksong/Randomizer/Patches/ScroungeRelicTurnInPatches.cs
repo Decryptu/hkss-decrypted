@@ -206,6 +206,14 @@ namespace SilksongRandomizer.Patches
             }
         }
 
-        internal static bool BulkScroungeTurnIn = true;
+        internal static bool BulkScroungeTurnIn
+        {
+            get => HKSS.Unity.PlayerOptions.BulkRelicTurnIn?.Value ?? true;
+            set
+            {
+                if (HKSS.Unity.PlayerOptions.BulkRelicTurnIn != null)
+                    HKSS.Unity.PlayerOptions.BulkRelicTurnIn.Value = value;
+            }
+        }
     }
 }

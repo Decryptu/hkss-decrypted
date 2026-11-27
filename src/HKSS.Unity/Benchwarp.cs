@@ -37,6 +37,7 @@ internal sealed class Benchwarp : MonoBehaviour
     private Texture2D? _bgTex;
 
     internal BenchStore Store => _store;
+    internal bool IsWarping => _warping;
 
     private void Awake()
     {
@@ -79,7 +80,7 @@ internal sealed class Benchwarp : MonoBehaviour
             {
                 TryWarpToLastBench();
             }
-            else if (_panelOpen && PlayerOptions.Capturing == null && kb.escapeKey.wasPressedThisFrame)
+            else if (_panelOpen && PlayerOptions.Capturing == null && !PlayerOptions.CapturedThisFrame && kb.escapeKey.wasPressedThisFrame)
             {
                 SetPanelOpen(false);
             }
@@ -208,6 +209,7 @@ internal sealed class Benchwarp : MonoBehaviour
         }
 
         SetPanelOpen(false);
+        ApOverlay.ClosePanel();
         _warping = true;
         StartCoroutine(WarpToBenchRoutine(bench));
         return true;
@@ -286,9 +288,7 @@ internal sealed class Benchwarp : MonoBehaviour
     {
         if (_bgTex == null)
         {
-            _bgTex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-            _bgTex.SetPixel(0, 0, new Color(0.06f, 0.07f, 0.11f, 0.92f));
-            _bgTex.Apply();
+            _bgTex = UiTheme.MakeSolidTexture(new Color(0.06f, 0.07f, 0.11f, 0.92f));
         }
 
         _panelStyle ??= new GUIStyle(GUI.skin.box)
@@ -301,7 +301,7 @@ internal sealed class Benchwarp : MonoBehaviour
         {
             fontSize = 15,
             fontStyle = FontStyle.Bold,
-            normal = { textColor = AccentColor() },
+            normal = { textColor = UiTheme.AccentColor() },
         };
 
         _areaStyle ??= new GUIStyle(GUI.skin.label)
@@ -354,6 +354,7 @@ internal sealed class Benchwarp : MonoBehaviour
         if (GUILayout.Button($"Town Gate [{PlayerOptions.GetLabel(Shortcut.TownWarp)}]", GUILayout.Height(28f)))
         {
             SetPanelOpen(false);
+            ApOverlay.ClosePanel();
             TownWarp.Instance?.TryWarpToTown();
         }
         GUILayout.EndHorizontal();
@@ -398,14 +399,5 @@ internal sealed class Benchwarp : MonoBehaviour
             GUILayout.Space(4f);
         }
         GUILayout.EndScrollView();
-    }
-
-    private static Color AccentColor()
-    {
-#if HOLLOW_KNIGHT
-        return new Color(0.55f, 0.80f, 1.0f, 1f);
-#elif SILKSONG
-        return new Color(1.0f, 0.45f, 0.42f, 1f);
-#endif
     }
 }

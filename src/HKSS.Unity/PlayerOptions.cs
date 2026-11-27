@@ -36,6 +36,9 @@ internal static class PlayerOptions
 {
     private static readonly Dictionary<Shortcut, ConfigEntry<Key>> Bindings = new();
     internal static ConfigEntry<bool> AutoQuill { get; private set; } = null!;
+    internal static ConfigEntry<bool> ShowMapLogic { get; private set; } = null!;
+    internal static ConfigEntry<bool> ShowRecentItems { get; private set; } = null!;
+    internal static ConfigEntry<bool> BulkRelicTurnIn { get; private set; } = null!;
     internal static ConfigEntry<bool> BenchRecovery { get; private set; } = null!;
     internal static ConfigEntry<DeathRecovery> DeathLink { get; private set; } = null!;
     internal static ConfigEntry<CheckPinFilter> MapFilter { get; private set; } = null!;
@@ -46,13 +49,17 @@ internal static class PlayerOptions
     internal static ConfigEntry<string> Skin { get; private set; } = null!;
     internal static ConfigEntry<bool> RandomSkinAtBench { get; private set; } = null!;
     internal static Shortcut? Capturing { get; set; }
+    internal static bool CapturedThisFrame => _capturedFrame == UnityEngine.Time.frameCount;
     private static int _capturedFrame = -1;
 
     internal static void Load(string runDir)
     {
         var config = new ConfigFile(Path.Combine(runDir, "player-options.cfg"), false);
         AutoQuill = config.Bind("Map", "Auto quill", false);
+        ShowMapLogic = config.Bind("Map", "Show map logic", true);
         MapFilter = config.Bind("Map", "Check pin filter", CheckPinFilter.GameDefault);
+        ShowRecentItems = config.Bind("HUD", "Show recent items", false);
+        BulkRelicTurnIn = config.Bind("QoL", "Bulk relic turn-in", true);
         DeathLink = config.Bind("DeathLink", "Shade or cocoon", DeathRecovery.RoomDefault);
         BenchRecovery = config.Bind("Recovery", "Allow bench recovery", false);
         DamageNumbers = config.Bind("Combat", "Damage numbers", false);

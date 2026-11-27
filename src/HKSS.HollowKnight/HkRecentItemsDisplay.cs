@@ -27,7 +27,6 @@ internal sealed class HkRecentItemsDisplay : MonoBehaviour
     }
 
     private readonly List<RecentEntry> _entries = new();
-    private bool _visible = true;
 
     private GUIStyle? _panelStyle;
     private GUIStyle? _headerStyle;
@@ -49,11 +48,12 @@ internal sealed class HkRecentItemsDisplay : MonoBehaviour
 
     private void Update()
     {
-        if (PlayerOptions.Pressed(Shortcut.RecentItems))
+        if (!ApOverlay.IsPanelOpen && !Benchwarp.IsPanelOpen && PlayerOptions.Pressed(Shortcut.RecentItems))
         {
-            _visible = !_visible;
+            bool next = !PlayerOptions.ShowRecentItems.Value;
+            PlayerOptions.ShowRecentItems.Value = next;
             ApManager.Instance?.PushToast(
-                $"Recent Items feed {(_visible ? "shown" : "hidden")} [{PlayerOptions.GetLabel(Shortcut.RecentItems)}]",
+                $"Recent Items feed {(next ? "shown" : "hidden")} [{PlayerOptions.GetLabel(Shortcut.RecentItems)}]",
                 ToastKind.Info);
         }
     }
@@ -99,9 +99,7 @@ internal sealed class HkRecentItemsDisplay : MonoBehaviour
     {
         if (_bgTexture == null)
         {
-            _bgTexture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-            _bgTexture.SetPixel(0, 0, new Color(0.05f, 0.06f, 0.10f, 0.78f));
-            _bgTexture.Apply();
+            _bgTexture = UiTheme.MakeSolidTexture(new Color(0.05f, 0.06f, 0.10f, 0.78f));
         }
 
         _panelStyle ??= new GUIStyle(GUI.skin.box)
@@ -129,7 +127,7 @@ internal sealed class HkRecentItemsDisplay : MonoBehaviour
 
     private void OnGUI()
     {
-        if (!_visible || _entries.Count == 0 || ApOverlay.IsPanelOpen) return;
+        if (!PlayerOptions.ShowRecentItems.Value || _entries.Count == 0 || ApOverlay.IsPanelOpen) return;
 
         GameManager? gm = GameManager.UnsafeInstance;
         if (gm == null || !gm.IsGameplayScene() || gm.IsInSceneTransition || gm.isPaused

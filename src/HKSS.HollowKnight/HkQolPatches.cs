@@ -62,8 +62,12 @@ internal static class HkQolPatches
 
     internal static bool BulkSellRelicsAndEggs
     {
-        get => _bulkSellCfg?.Value ?? true;
-        set { if (_bulkSellCfg != null) _bulkSellCfg.Value = value; }
+        get => PlayerOptions.BulkRelicTurnIn?.Value ?? _bulkSellCfg?.Value ?? true;
+        set
+        {
+            if (PlayerOptions.BulkRelicTurnIn != null) PlayerOptions.BulkRelicTurnIn.Value = value;
+            if (_bulkSellCfg != null) _bulkSellCfg.Value = value;
+        }
     }
 
     internal static float EnemyGeoMultiplier

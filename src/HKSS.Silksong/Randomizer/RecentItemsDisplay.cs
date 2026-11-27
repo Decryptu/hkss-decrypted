@@ -38,7 +38,8 @@ namespace SilksongRandomizer
             bool visible = RandomizerPlugin.Instance?.RecentItemsDisplayEnabled == true &&
                 manager != null && manager.IsGameplayScene() &&
                 !manager.IsInSceneTransition && !manager.isPaused && PlayerData.instance != null &&
-                !PlayerData.instance.isInventoryOpen && !RandomizerPlugin.IsConnectionGuiOpen;
+                !PlayerData.instance.isInventoryOpen && !RandomizerPlugin.IsConnectionGuiOpen &&
+                !HKSS.Unity.ApOverlay.IsPanelOpen;
             if (instance != null) instance.gameObject.SetActive(visible);
             if (!visible) return;
             Initialize();

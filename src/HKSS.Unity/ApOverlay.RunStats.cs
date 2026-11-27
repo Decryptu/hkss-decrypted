@@ -10,26 +10,30 @@ namespace HKSS.Unity;
 /// </summary>
 internal sealed partial class ApOverlay
 {
-    private static readonly Color HkColor = new(0.55f, 0.75f, 1f, 1f);
-    private static readonly Color SsColor = new(1f, 0.45f, 0.40f, 1f);
-    private static readonly Color GoldColor = new(0.95f, 0.85f, 0.45f, 1f);
-
     private RunSummary? _runSummary;
     private float _nextRunSummaryRefresh;
     private Vector2 _statsScroll;
     private Texture2D? _hkBarTex, _ssBarTex, _goldBarTex, _emptyBarTex;
     private GUIStyle? _epithetStyle, _hkHeadStyle, _ssHeadStyle, _featTitleStyle, _smallStyle;
 
+    private void DestroyRunStatsTextures()
+    {
+        if (_hkBarTex != null) Destroy(_hkBarTex);
+        if (_ssBarTex != null) Destroy(_ssBarTex);
+        if (_goldBarTex != null) Destroy(_goldBarTex);
+        if (_emptyBarTex != null) Destroy(_emptyBarTex);
+    }
+
     private void EnsureRunStatsStyles()
     {
-        _hkBarTex ??= MakeSolidTexture(HkColor);
-        _ssBarTex ??= MakeSolidTexture(SsColor);
-        _goldBarTex ??= MakeSolidTexture(GoldColor);
-        _emptyBarTex ??= MakeSolidTexture(new Color(1f, 1f, 1f, 0.12f));
-        _epithetStyle ??= new GUIStyle(_labelStyle) { fontStyle = FontStyle.Italic, fontSize = 14, alignment = TextAnchor.MiddleCenter, normal = { textColor = GoldColor } };
-        _hkHeadStyle ??= new GUIStyle(_sectionStyle) { alignment = TextAnchor.MiddleRight, normal = { textColor = HkColor } };
-        _ssHeadStyle ??= new GUIStyle(_sectionStyle) { alignment = TextAnchor.MiddleRight, normal = { textColor = SsColor } };
-        _featTitleStyle ??= new GUIStyle(_labelStyle) { fontStyle = FontStyle.Bold, wordWrap = false, normal = { textColor = GoldColor } };
+        _hkBarTex ??= UiTheme.MakeSolidTexture(UiTheme.HkColor);
+        _ssBarTex ??= UiTheme.MakeSolidTexture(UiTheme.SsColor);
+        _goldBarTex ??= UiTheme.MakeSolidTexture(UiTheme.GoldColor);
+        _emptyBarTex ??= UiTheme.MakeSolidTexture(new Color(1f, 1f, 1f, 0.12f));
+        _epithetStyle ??= new GUIStyle(_labelStyle) { fontStyle = FontStyle.Italic, fontSize = 14, alignment = TextAnchor.MiddleCenter, normal = { textColor = UiTheme.GoldColor } };
+        _hkHeadStyle ??= new GUIStyle(_sectionStyle) { alignment = TextAnchor.MiddleRight, normal = { textColor = UiTheme.HkColor } };
+        _ssHeadStyle ??= new GUIStyle(_sectionStyle) { alignment = TextAnchor.MiddleRight, normal = { textColor = UiTheme.SsColor } };
+        _featTitleStyle ??= new GUIStyle(_labelStyle) { fontStyle = FontStyle.Bold, wordWrap = false, normal = { textColor = UiTheme.GoldColor } };
         _smallStyle ??= new GUIStyle(_labelStyle) { fontSize = 11, normal = { textColor = new Color(0.7f, 0.73f, 0.8f, 1f) } };
     }
 
@@ -47,7 +51,10 @@ internal sealed partial class ApOverlay
 
         _statsScroll = GUILayout.BeginScrollView(_statsScroll);
 
-        bool done = s.HkGoalCompleted && s.SsGoalCompleted;
+        ApClient? client = ApManager.Instance?.Client;
+        bool done = client != null && client.IsConnected
+            ? GoalTracker.IsComboGoalSatisfied(client.GamesMode, client.ComboGoal, s.HkGoalCompleted, s.SsGoalCompleted)
+            : s.HkGoalCompleted && s.SsGoalCompleted;
         string heading = s.SteelSoulDefeated
             ? $"Steel Soul defeated in {DoubleSteelSoul.FormatWorldName(s.SteelSoulDefeatedGame)}"
             : done

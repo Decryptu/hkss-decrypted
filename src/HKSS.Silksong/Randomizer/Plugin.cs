@@ -329,10 +329,11 @@ namespace SilksongRandomizer
                 ? 14
                 : Mathf.Clamp(mapMarkerTooltipFontSize.Value, 10, 32);
 
-        internal bool RecentItemsDisplayEnabled => recentItemsDisplayEnabled?.Value == true;
+        internal bool RecentItemsDisplayEnabled =>
+            HKSS.Unity.PlayerOptions.ShowRecentItems?.Value ?? (recentItemsDisplayEnabled?.Value == true);
 
         internal bool ShowMapMarkerLogic =>
-            showMapMarkerLogic == null || showMapMarkerLogic.Value;
+            HKSS.Unity.PlayerOptions.ShowMapLogic?.Value ?? (showMapMarkerLogic == null || showMapMarkerLogic.Value);
 
         internal string MapMarkerFilter =>
             HKSS.Unity.PlayerOptions.MapFilter.Value is HKSS.Unity.CheckPinFilter.GameDefault
@@ -881,24 +882,30 @@ namespace SilksongRandomizer
             RecentItemsDisplay.Update();
             ShopPatches.ProcessQueuedHintRefreshes();
 
-            if (HKSS.Unity.PlayerOptions.Pressed(HKSS.Unity.Shortcut.MapLogic))
+            if (!HKSS.Unity.ApOverlay.IsPanelOpen && !HKSS.Unity.Benchwarp.IsPanelOpen)
             {
-                if (showMapMarkerLogic.Value)
+                if (HKSS.Unity.PlayerOptions.Pressed(HKSS.Unity.Shortcut.MapLogic))
                 {
-                    showMapMarkerLogic.Value = false;
+                    bool next = !ShowMapMarkerLogic;
+                    HKSS.Unity.PlayerOptions.ShowMapLogic.Value = next;
+                    showMapMarkerLogic.Value = next;
                     Config.Save();
+                    CheckMapMarkerManager.RequestCurrentMarkerStateRefresh();
+                    HKSS.Unity.ApManager.Instance?.PushToast(
+                        $"Map Logic: {(next ? "ON" : "OFF")} [{HKSS.Unity.PlayerOptions.GetLabel(HKSS.Unity.Shortcut.MapLogic)}]",
+                        HKSS.Unity.ToastKind.Info);
                 }
-                else
-                {
-                    showMapMarkerLogic.Value = true;
-                    Config.Save();
-                }
-            }
 
-            if (HKSS.Unity.PlayerOptions.Pressed(HKSS.Unity.Shortcut.RecentItems))
-            {
-                recentItemsDisplayEnabled.Value = !recentItemsDisplayEnabled.Value;
-                Config.Save();
+                if (HKSS.Unity.PlayerOptions.Pressed(HKSS.Unity.Shortcut.RecentItems))
+                {
+                    bool next = !RecentItemsDisplayEnabled;
+                    HKSS.Unity.PlayerOptions.ShowRecentItems.Value = next;
+                    recentItemsDisplayEnabled.Value = next;
+                    Config.Save();
+                    HKSS.Unity.ApManager.Instance?.PushToast(
+                        $"Recent Items feed {(next ? "shown" : "hidden")} [{HKSS.Unity.PlayerOptions.GetLabel(HKSS.Unity.Shortcut.RecentItems)}]",
+                        HKSS.Unity.ToastKind.Info);
+                }
             }
         }
 

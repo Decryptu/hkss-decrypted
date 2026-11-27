@@ -37,6 +37,7 @@ internal sealed class TownWarp : MonoBehaviour
 
         if (!TravelGuard.CanLeave(out string reason))
         {
+            ApManager.Instance?.PushToast($"Town warp refused: {reason}", ToastKind.Error);
             HkssPlugin.Log.LogInfo($"Town warp refused: {reason}.");
             return false;
         }
@@ -44,6 +45,7 @@ internal sealed class TownWarp : MonoBehaviour
 #if SILKSONG
         if (!HkssPlugin.State.Load().BonetownGateOpen && !OpeningMayMissBoneBottom())
         {
+            ApManager.Instance?.PushToast("Reach Bone Bottom first to open its gate.", ToastKind.Error);
             HkssPlugin.Log.LogInfo("Town warp refused: reach Bone Bottom first to open its gate.");
             return false;
         }

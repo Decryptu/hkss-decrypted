@@ -24,7 +24,9 @@ internal static class TravelGuard
             return false;
         }
 
-        if (recoverInputLock && (Travel.Instance?.IsTravelling == true || TownWarp.Instance?.IsWarping == true))
+        if (Travel.Instance?.IsTravelling == true
+            || TownWarp.Instance?.IsWarping == true
+            || Benchwarp.Instance?.IsWarping == true)
         {
             reason = "travel already in progress";
             return false;

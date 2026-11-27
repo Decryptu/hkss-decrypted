@@ -53,7 +53,7 @@ internal sealed class HkCheckMapOverlay : MonoBehaviour
     private void Update()
     {
         Keyboard? kb = Keyboard.current;
-        if (kb != null && !ApOverlay.IsPanelOpen)
+        if (kb != null && !ApOverlay.IsPanelOpen && !Benchwarp.IsPanelOpen)
         {
             if (PlayerOptions.Pressed(Shortcut.MapLogic))
             {
@@ -132,15 +132,15 @@ internal sealed class HkCheckMapOverlay : MonoBehaviour
     {
         if (_bgTex == null)
         {
-            _bgTex = MakeSolidTexture(new Color(0.05f, 0.06f, 0.10f, 0.88f));
+            _bgTex = UiTheme.MakeSolidTexture(new Color(0.05f, 0.06f, 0.10f, 0.88f));
         }
         if (_btnTex == null)
         {
-            _btnTex = MakeSolidTexture(new Color(0.12f, 0.15f, 0.22f, 0.92f));
+            _btnTex = UiTheme.MakeSolidTexture(new Color(0.12f, 0.15f, 0.22f, 0.92f));
         }
         if (_btnHoverTex == null)
         {
-            _btnHoverTex = MakeSolidTexture(new Color(0.20f, 0.26f, 0.38f, 0.96f));
+            _btnHoverTex = UiTheme.MakeSolidTexture(new Color(0.20f, 0.26f, 0.38f, 0.96f));
         }
 
         _panelStyle ??= new GUIStyle(GUI.skin.box)
@@ -172,14 +172,6 @@ internal sealed class HkCheckMapOverlay : MonoBehaviour
             hover = { background = _btnHoverTex, textColor = Color.white },
             active = { background = _btnHoverTex, textColor = new Color(0.75f, 0.92f, 1f, 1f) },
         };
-    }
-
-    private static Texture2D MakeSolidTexture(Color c)
-    {
-        var tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-        tex.SetPixel(0, 0, c);
-        tex.Apply();
-        return tex;
     }
 
     private void OnGUI()

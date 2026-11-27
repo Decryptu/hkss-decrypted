@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using Archipelago.MultiClient.Net;
 using HKSS.Core;
-using HKSS.HollowKnight;
 using UnityEngine;
 
 namespace HKSS.Unity;
@@ -67,7 +66,7 @@ internal sealed partial class ApOverlay
             return;
         }
 
-        _hints = HkHintTracker.GetRoomHints(session)?
+        _hints = client.RoomHints?
             .Where(hint => hint.ReceivingPlayer == client.Slot || hint.FindingPlayer == client.Slot)
             .Select(hint =>
             {
@@ -145,7 +144,7 @@ internal sealed partial class ApOverlay
         if (!DrawProgressConnectionStatus(client)) return;
         if (_hints == null)
         {
-            GUILayout.Label("Waiting for room hints. Enter the run to load hints.", _labelStyle);
+            GUILayout.Label("Loading room hints...", _labelStyle);
             return;
         }
 

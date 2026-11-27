@@ -16,14 +16,16 @@ internal sealed partial class ApOverlay : MonoBehaviour
         LinksAndQol,
         Skins,
         RunStats,
-#if HOLLOW_KNIGHT
         Inventory,
         Hints,
-#endif
     }
 
     internal static bool IsPanelOpen { get; private set; }
+    private static ApOverlay? _instance;
     private static bool _showRunStatsRequested;
+
+    /// <summary>Closes the Archipelago panel if it is currently open.</summary>
+    internal static void ClosePanel() => _instance?.SetPanelOpen(false);
 
     /// <summary>Opens the panel on the Run Stats tab (used when the combo goal is completed).</summary>
     internal static void ShowRunStats() => _showRunStatsRequested = true;
@@ -56,6 +58,8 @@ internal sealed partial class ApOverlay : MonoBehaviour
     private Texture2D? _darkBg;
     private Texture2D? _toastBg;
 
+    private void Awake() => _instance = this;
+
     private void Update()
     {
         string captureError = PlayerOptions.CaptureKey();
@@ -65,6 +69,11 @@ internal sealed partial class ApOverlay : MonoBehaviour
         if (PlayerOptions.Pressed(Shortcut.ApPanel))
         {
             SetPanelOpen(!_panelOpen);
+        }
+        else if (_panelOpen && PlayerOptions.Capturing == null && !PlayerOptions.CapturedThisFrame
+            && UnityEngine.InputSystem.Keyboard.current is { } kb && kb.escapeKey.wasPressedThisFrame)
+        {
+            SetPanelOpen(false);
         }
 
         if (_showRunStatsRequested)
@@ -85,14 +94,13 @@ internal sealed partial class ApOverlay : MonoBehaviour
 
         if (_panelOpen)
         {
-            if (_activeTab != _requestedTab) PlayerOptions.Capturing = null;
-#if HOLLOW_KNIGHT
-            if (_activeTab != _requestedTab) _nextProgressRefresh = 0;
-#endif
+            if (_activeTab != _requestedTab)
+            {
+                PlayerOptions.Capturing = null;
+                _nextProgressRefresh = 0;
+            }
             _activeTab = _requestedTab;
-#if HOLLOW_KNIGHT
             UpdateProgress();
-#endif
         }
     }
 
@@ -120,16 +128,18 @@ internal sealed partial class ApOverlay : MonoBehaviour
     private void OnDestroy()
     {
         SetPanelOpen(false);
+        if (_instance == this) _instance = null;
         if (_darkBg != null) Destroy(_darkBg);
         if (_toastBg != null) Destroy(_toastBg);
+        DestroyRunStatsTextures();
     }
 
     private void EnsureStyles()
     {
         if (_darkBg == null)
         {
-            _darkBg = MakeSolidTexture(new Color(0.06f, 0.07f, 0.11f, 0.92f));
-            _toastBg = MakeSolidTexture(new Color(0.05f, 0.06f, 0.09f, 0.84f));
+            _darkBg = UiTheme.MakeSolidTexture(new Color(0.06f, 0.07f, 0.11f, 0.92f));
+            _toastBg = UiTheme.MakeSolidTexture(new Color(0.05f, 0.06f, 0.09f, 0.84f));
         }
 
         _badgeStyle ??= new GUIStyle(GUI.skin.box)
@@ -301,14 +311,12 @@ internal sealed partial class ApOverlay : MonoBehaviour
             case OverlayTab.RunStats:
                 DrawRunStatsTab();
                 break;
-#if HOLLOW_KNIGHT
             case OverlayTab.Inventory:
                 DrawInventoryTab(ap.Client);
                 break;
             case OverlayTab.Hints:
                 DrawHintsTab(ap.Client);
                 break;
-#endif
         }
 
         GUILayout.EndArea();
@@ -323,10 +331,8 @@ internal sealed partial class ApOverlay : MonoBehaviour
         ("Links & QoL", OverlayTab.LinksAndQol),
         ("Skins", OverlayTab.Skins),
         ("Stats", OverlayTab.RunStats),
-#if HOLLOW_KNIGHT
         ("Inventory", OverlayTab.Inventory),
         ("Hints", OverlayTab.Hints),
-#endif
     };
 
     private static bool DrawTabButton(string label, bool active)
@@ -484,10 +490,6 @@ internal sealed partial class ApOverlay : MonoBehaviour
         if (skipBossIntros != HKSS.HollowKnight.HkQolPatches.SkipBossIntros)
             HKSS.HollowKnight.HkQolPatches.SkipBossIntros = skipBossIntros;
 
-        bool bulkSell = GUILayout.Toggle(HKSS.HollowKnight.HkQolPatches.BulkSellRelicsAndEggs, "Bulk sell relics (Lemm) & eggs (Jinn)");
-        if (bulkSell != HKSS.HollowKnight.HkQolPatches.BulkSellRelicsAndEggs)
-            HKSS.HollowKnight.HkQolPatches.BulkSellRelicsAndEggs = bulkSell;
-
         GUILayout.Space(4f);
         GUILayout.Label($"Enemy Geo Multiplier: {HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier:0.#}x", _labelStyle);
         GUILayout.BeginHorizontal();
@@ -495,7 +497,7 @@ internal sealed partial class ApOverlay : MonoBehaviour
         {
             bool selected = Mathf.Approximately(HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier, mult);
             Color prev = GUI.backgroundColor;
-            if (selected) GUI.backgroundColor = AccentColor();
+            if (selected) GUI.backgroundColor = UiTheme.AccentColor();
             if (GUILayout.Button($"{mult:0.#}x", GUILayout.Height(24f)))
             {
                 HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier = mult;
@@ -505,17 +507,33 @@ internal sealed partial class ApOverlay : MonoBehaviour
         GUILayout.EndHorizontal();
 #elif SILKSONG
         GUILayout.Label("Quality of Life", _sectionStyle);
-        SilksongRandomizer.Patches.ScroungeRelicTurnInPatches.BulkScroungeTurnIn =
-            GUILayout.Toggle(
-                SilksongRandomizer.Patches.ScroungeRelicTurnInPatches.BulkScroungeTurnIn,
-                "Instant bulk relic turn-in (Scrounge & Cardinius)");
         GUILayout.Label("Silksong link & currency options are configured in your Archipelago YAML / save settings.", _labelStyle);
 #endif
 
+        PlayerOptions.BulkRelicTurnIn.Value = GUILayout.Toggle(
+            PlayerOptions.BulkRelicTurnIn.Value,
+            "Bulk relic turn-in (Lemm, Jinn, Scrounge & Cardinius)");
+
         GUILayout.Space(8f);
-        GUILayout.Label("Map", _sectionStyle);
+        GUILayout.Label("Map & HUD", _sectionStyle);
         PlayerOptions.AutoQuill.Value = GUILayout.Toggle(PlayerOptions.AutoQuill.Value,
             "Auto-quill for visited rooms with an owned map");
+        bool showRecent = GUILayout.Toggle(PlayerOptions.ShowRecentItems.Value,
+            $"Show recent items feed [{PlayerOptions.GetLabel(Shortcut.RecentItems)}]");
+        if (showRecent != PlayerOptions.ShowRecentItems.Value)
+            PlayerOptions.ShowRecentItems.Value = showRecent;
+        bool showLogic = GUILayout.Toggle(PlayerOptions.ShowMapLogic.Value,
+            $"Show map logic [{PlayerOptions.GetLabel(Shortcut.MapLogic)}]");
+        if (showLogic != PlayerOptions.ShowMapLogic.Value)
+        {
+            PlayerOptions.ShowMapLogic.Value = showLogic;
+#if HOLLOW_KNIGHT
+            HKSS.HollowKnight.HkCheckMap.MarkDirty();
+            HKSS.HollowKnight.HkCheckMap.RefreshIfOpen();
+#elif SILKSONG
+            SilksongRandomizer.Patches.CheckMapMarkerManager.RequestCurrentMarkerStateRefresh();
+#endif
+        }
         var filter = PlayerOptions.MapFilter.Value;
         if (GUILayout.Button($"Check pins · {filter switch
         {
@@ -577,34 +595,14 @@ internal sealed partial class ApOverlay : MonoBehaviour
         GUILayout.EndScrollView();
     }
 
-    private static Color AccentColor()
-    {
-#if HOLLOW_KNIGHT
-        return new Color(0.55f, 0.80f, 1.0f, 1f);
-#elif SILKSONG
-        return new Color(1.0f, 0.45f, 0.42f, 1f);
-#endif
-    }
+    private static Color AccentColor() => UiTheme.AccentColor();
 
     private static Color ToastColor(ToastKind kind) => kind switch
     {
-        ToastKind.LocalItem => AccentColor(),
-        ToastKind.CrossGameItem =>
-#if HOLLOW_KNIGHT
-            new Color(1.0f, 0.48f, 0.44f, 1f),
-#elif SILKSONG
-            new Color(0.55f, 0.82f, 1.0f, 1f),
-#endif
+        ToastKind.LocalItem => UiTheme.AccentColor(),
+        ToastKind.CrossGameItem => UiTheme.CrossGameAccentColor(),
         ToastKind.CheckSent => new Color(0.65f, 0.95f, 0.72f, 1f),
         ToastKind.Error => new Color(1.0f, 0.42f, 0.42f, 1f),
         _ => new Color(0.92f, 0.94f, 0.98f, 1f),
     };
-
-    private static Texture2D MakeSolidTexture(Color color)
-    {
-        var tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-        tex.SetPixel(0, 0, color);
-        tex.Apply();
-        return tex;
-    }
 }

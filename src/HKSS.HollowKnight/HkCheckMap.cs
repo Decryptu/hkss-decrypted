@@ -202,10 +202,11 @@ internal static class HkCheckMap
 
     internal static bool ShowLogic
     {
-        get => _cfgShowLogic?.Value ?? _showLogic;
+        get => PlayerOptions.ShowMapLogic?.Value ?? _showLogic;
         set
         {
             _showLogic = value;
+            if (PlayerOptions.ShowMapLogic != null) PlayerOptions.ShowMapLogic.Value = value;
             if (_cfgShowLogic != null) _cfgShowLogic.Value = value;
             MarkDirty();
             RefreshIfOpen();

@@ -30,17 +30,10 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
     private Texture2D? _cardTex;
     private Texture2D? _btnTex;
 
-    internal static bool IsEnabled
-    {
-        get
-        {
-            if (_enabled || _defeated) return true;
-            if (ApManager.Instance?.Client?.DoubleSteelSoul == true) return true;
-            return HkssPlugin.State?.IsDoubleSteelSoul() == true;
-        }
-    }
+    internal static bool IsEnabled =>
+        _enabled || _defeated || ApManager.Instance?.Client?.DoubleSteelSoul == true;
 
-    internal static bool IsDefeated => _defeated || HkssPlugin.State?.IsSteelSoulDefeated() == true;
+    internal static bool IsDefeated => _defeated;
 
     internal static string DefeatedWorldName => FormatWorldName(_defeatedGame);
 
@@ -239,9 +232,9 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
     {
         if (_scrimTex == null)
         {
-            _scrimTex = MakeSolid(new Color(0.03f, 0.02f, 0.04f, 0.90f));
-            _cardTex = MakeSolid(new Color(0.08f, 0.06f, 0.09f, 0.98f));
-            _btnTex = MakeSolid(new Color(0.32f, 0.11f, 0.13f, 0.95f));
+            _scrimTex = UiTheme.MakeSolidTexture(new Color(0.03f, 0.02f, 0.04f, 0.90f));
+            _cardTex = UiTheme.MakeSolidTexture(new Color(0.08f, 0.06f, 0.09f, 0.98f));
+            _btnTex = UiTheme.MakeSolidTexture(new Color(0.32f, 0.11f, 0.13f, 0.95f));
         }
 
         _scrimStyle ??= new GUIStyle { normal = { background = _scrimTex } };
@@ -317,13 +310,5 @@ internal sealed class DoubleSteelSoul : MonoBehaviour
         GUILayout.EndHorizontal();
 
         GUILayout.EndArea();
-    }
-
-    private static Texture2D MakeSolid(Color color)
-    {
-        var tex = new Texture2D(1, 1);
-        tex.SetPixel(0, 0, color);
-        tex.Apply();
-        return tex;
     }
 }

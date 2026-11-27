@@ -85,6 +85,7 @@ public sealed class ApClient : IDisposable
     private bool _initialSyncDone;
     private int _queuedItemCount;
     private bool _comboGoalSent;
+    private Hint[]? _roomHints;
 
     public GameId ThisGame => _thisGame;
     public ApConnectionState State { get; private set; } = ApConnectionState.Disconnected;
@@ -101,6 +102,7 @@ public sealed class ApClient : IDisposable
     public string? WorldVersion { get; private set; }
     public Dictionary<string, object>? SlotData { get; private set; }
     public ArchipelagoSession? Session { get { lock (_gate) return _session; } }
+    public IReadOnlyList<Hint>? RoomHints { get { lock (_gate) return _roomHints; } }
     public bool IsConnected => State == ApConnectionState.Connected && _session != null;
 
     public ApClient(GameId thisGame)
@@ -207,6 +209,8 @@ public sealed class ApClient : IDisposable
                 DrainSessionItemsLocked(session, isLive: false);
                 _initialSyncDone = true;
             }
+
+            StartHintTracking(session, gen);
         }
         catch (Exception e)
         {
@@ -262,6 +266,26 @@ public sealed class ApClient : IDisposable
             _events.Enqueue(new ApEvent(ApEventKind.LogMessage, text));
     }
 
+    private void StartHintTracking(ArchipelagoSession session, int gen)
+    {
+        try
+        {
+            session.DataStorage.TrackHints(hints =>
+            {
+                if (hints == null) return;
+                lock (_gate)
+                {
+                    if (gen != _generation || !ReferenceEquals(_session, session)) return;
+                    _roomHints = hints.ToArray();
+                }
+            }, retrieveCurrentlyUnlockedHints: true);
+        }
+        catch
+        {
+            // Hint tracking is optional; failures do not affect gameplay.
+        }
+    }
+
     private void OnSocketClosed(int gen, string reason)
     {
         bool notify = false;
@@ -273,6 +297,7 @@ public sealed class ApClient : IDisposable
                 State = ApConnectionState.Disconnected;
                 StatusDetail = string.IsNullOrWhiteSpace(reason) ? "Disconnected" : $"Disconnected: {reason}";
                 _session = null;
+                _roomHints = null;
                 notify = true;
             }
         }
@@ -493,6 +518,7 @@ public sealed class ApClient : IDisposable
     {
         ArchipelagoSession? old = _session;
         _session = null;
+        _roomHints = null;
         if (old != null) SafeClose(old);
     }
 
