@@ -24,6 +24,7 @@ internal static class InputFixes
         AccessTools.Property(typeof(InputManager), nameof(InputManager.ActiveDevice));
 
     private static readonly HashSet<NativeInputDevice> SuppressedDevices = new();
+    private static readonly HashSet<InputDevice> LoggedDevices = new();
     private static InputHandler? _lastMappedHandler;
     private static InputDevice? _lastMappedDevice;
     private static GamepadType _lastMappedGamepadType = GamepadType.NONE;
@@ -106,76 +107,126 @@ internal static class InputFixes
         RefreshDuplicateDevicePassivity();
     }
 
-    private static void RefreshDuplicateDevicePassivity()
+    private static InputDevice? RefreshDuplicateDevicePassivity()
     {
         var devices = InputManager.Devices;
         if (devices == null || devices.Count == 0)
         {
             SuppressedDevices.Clear();
-            return;
+            LoggedDevices.Clear();
+            return null;
         }
 
-        var xinputDevices = new List<InputDeviceFilter.NativeDeviceDescriptor>();
-        NativeInputDevice? firstXInput = null;
+        var primaryDevices = new List<InputDeviceFilter.NativeDeviceDescriptor>();
+        InputDevice? firstPrimary = null;
 
         for (int i = 0; i < devices.Count; i++)
         {
-            if (devices[i] is NativeInputDevice native && native.Info.driverType == InputDeviceDriverType.XInput)
+            InputDevice device = devices[i];
+            if (device is NativeInputDevice native)
             {
-                firstXInput ??= native;
-                xinputDevices.Add(Describe(native));
+                if (IsPrimaryDriver(native.Info.driverType))
+                {
+                    firstPrimary ??= native;
+                    primaryDevices.Add(Describe(native));
+                }
+            }
+            else if (device is XInputDevice || device is NewUnityInputDevice)
+            {
+                firstPrimary ??= device;
+                primaryDevices.Add(new InputDeviceFilter.NativeDeviceDescriptor(
+                    isPrimaryDriver: true,
+                    isLegacyDriver: false,
+                    matchedOnlyByLastResort: false,
+                    vendorId: 0,
+                    productId: 0,
+                    location: null,
+                    serialNumber: null));
             }
         }
 
         for (int i = 0; i < devices.Count; i++)
         {
-            if (devices[i] is not NativeInputDevice native) continue;
+            InputDevice device = devices[i];
+            if (device is not NativeInputDevice native)
+            {
+                if (LoggedDevices.Add(device))
+                {
+                    HkssPlugin.Log?.LogInfo(
+                        $"[Input] Attached controller '{device.Name}' ({device.GetType().Name}, style={device.DeviceStyle}, passive={device.Passive}).");
+                }
+                continue;
+            }
 
-            bool shouldSuppress = InputDeviceFilter.ShouldSuppressAsXInputDuplicate(Describe(native), xinputDevices);
+            InputDeviceFilter.NativeDeviceDescriptor descriptor = Describe(native);
+            bool shouldSuppress = InputDeviceFilter.ShouldSuppressAsPrimaryDuplicate(descriptor, primaryDevices);
             if (shouldSuppress)
             {
                 if (SuppressedDevices.Add(native))
                 {
                     native.Passive = true;
                     HkssPlugin.Log?.LogInfo(
-                        $"[Input] Suppressed duplicate controller '{native.Name}' ({native.Info.driverType}, VID=0x{native.Info.vendorID:X4}, PID=0x{native.Info.productID:X4}) while XInput controller '{firstXInput?.Name}' is attached.");
+                        $"[Input] Suppressed duplicate controller '{native.Name}' ({native.Info.driverType}, profile={native.ProfileName}, VID=0x{native.Info.vendorID:X4}, PID=0x{native.Info.productID:X4}, lastResort={descriptor.MatchedOnlyByLastResort}) while primary controller '{firstPrimary?.Name}' is attached.");
                 }
                 else if (!native.Passive)
                 {
                     native.Passive = true;
                 }
 
-                if (InputManager.ActiveDevice == native && firstXInput != null)
+                if (InputManager.ActiveDevice == native && firstPrimary != null)
                 {
-                    ActiveDeviceSetter?.SetValue(null, firstXInput);
+                    ActiveDeviceSetter?.SetValue(null, firstPrimary);
+                }
+
+                if (InputHandler.Instance != null && InputHandler.Instance.gameController == native && firstPrimary != null)
+                {
+                    InputHandler.Instance.gameController = firstPrimary;
                 }
             }
             else if (SuppressedDevices.Remove(native))
             {
                 native.Passive = false;
-                HkssPlugin.Log?.LogInfo($"[Input] Restored controller '{native.Name}' (no XInput controller attached).");
+                HkssPlugin.Log?.LogInfo($"[Input] Restored controller '{native.Name}' (no primary controller attached).");
+            }
+
+            if (LoggedDevices.Add(native))
+            {
+                HkssPlugin.Log?.LogInfo(
+                    $"[Input] Attached controller '{native.Name}' (NativeInputDevice, driver={native.Info.driverType}, profile={native.ProfileName}, style={native.DeviceStyle}, VID=0x{native.Info.vendorID:X4}, PID=0x{native.Info.productID:X4}, lastResort={descriptor.MatchedOnlyByLastResort}, passive={native.Passive}).");
             }
         }
 
         SuppressedDevices.RemoveWhere(d => !d.IsAttached);
+        LoggedDevices.RemoveWhere(d => !d.IsAttached);
+        return firstPrimary;
     }
+
+    private static bool IsPrimaryDriver(InputDeviceDriverType driverType) =>
+        driverType == InputDeviceDriverType.XInput
+        || driverType == InputDeviceDriverType.SDLController
+        || driverType == InputDeviceDriverType.AppleGameController;
+
+    private static bool IsLegacyDriver(InputDeviceDriverType driverType) =>
+        driverType == InputDeviceDriverType.DirectInput
+        || driverType == InputDeviceDriverType.HID
+        || driverType == InputDeviceDriverType.RawInput
+        || driverType == InputDeviceDriverType.SDLJoystick;
 
     private static InputDeviceFilter.NativeDeviceDescriptor Describe(NativeInputDevice device)
     {
         InputDeviceInfo info = device.Info;
-        bool isXInput = info.driverType == InputDeviceDriverType.XInput;
-        bool isDirectInputOrHid = info.driverType == InputDeviceDriverType.DirectInput
-            || info.driverType == InputDeviceDriverType.HID;
+        bool isPrimaryDriver = IsPrimaryDriver(info.driverType);
+        bool isLegacyDriver = IsLegacyDriver(info.driverType);
 
         bool matchedOnlyByLastResort = false;
-        if (isDirectInputOrHid && NativeDeviceProfileField?.GetValue(device) is InputDeviceProfile profile)
+        if (isLegacyDriver && NativeDeviceProfileField?.GetValue(device) is InputDeviceProfile profile)
         {
             matchedOnlyByLastResort = !profile.Matches(info) && profile.LastResortMatches(info);
         }
 
         return new InputDeviceFilter.NativeDeviceDescriptor(
-            isXInput: isXInput,
-            isDirectInputOrHid: isDirectInputOrHid,
+            isPrimaryDriver: isPrimaryDriver,
+            isLegacyDriver: isLegacyDriver,
             matchedOnlyByLastResort: matchedOnlyByLastResort,
             vendorId: info.vendorID,
             productId: info.productID,
@@ -183,11 +234,22 @@ internal static class InputFixes
             serialNumber: info.serialNumber);
     }
 
-    private static bool BeforeControllerEvent(InputDevice? inputDevice)
+    private static bool BeforeControllerEvent(InputHandler __instance, ref InputDevice? inputDevice)
     {
         if (inputDevice == null) return true;
-        RefreshDuplicateDevicePassivity();
-        return !inputDevice.Passive;
+        InputDevice? primary = RefreshDuplicateDevicePassivity();
+        if (!inputDevice.Passive) return true;
+
+        if (__instance.gameController == null || __instance.gameController == InputDevice.Null)
+        {
+            if (primary != null)
+            {
+                inputDevice = primary;
+                return true;
+            }
+            __instance.gameController = InputDevice.Null;
+        }
+        return false;
     }
 
     private static void AfterControllerDetached()

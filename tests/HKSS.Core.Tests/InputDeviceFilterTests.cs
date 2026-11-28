@@ -6,29 +6,30 @@ namespace HKSS.Core.Tests;
 
 public sealed class InputDeviceFilterTests
 {
-    private static InputDeviceFilter.NativeDeviceDescriptor XInput(
+    private static InputDeviceFilter.NativeDeviceDescriptor Primary(
         ushort vid = 0x045E,
         ushort pid = 0x028E,
+        bool lastResort = false,
         string? location = "usb-1",
         string? serial = "SN-001") =>
         new(
-            isXInput: true,
-            isDirectInputOrHid: false,
-            matchedOnlyByLastResort: false,
+            isPrimaryDriver: true,
+            isLegacyDriver: false,
+            matchedOnlyByLastResort: lastResort,
             vendorId: vid,
             productId: pid,
             location: location,
             serialNumber: serial);
 
-    private static InputDeviceFilter.NativeDeviceDescriptor DirectInput(
+    private static InputDeviceFilter.NativeDeviceDescriptor Legacy(
         ushort vid,
         ushort pid,
         bool lastResort = false,
         string? location = null,
         string? serial = null) =>
         new(
-            isXInput: false,
-            isDirectInputOrHid: true,
+            isPrimaryDriver: false,
+            isLegacyDriver: true,
             matchedOnlyByLastResort: lastResort,
             vendorId: vid,
             productId: pid,
@@ -36,68 +37,74 @@ public sealed class InputDeviceFilterTests
             serialNumber: serial);
 
     [Fact]
-    public void SuppressesLastResort8BitDoDirectInputWhenXInputAttached()
+    public void SuppressesLastResort8BitDoDirectInputWhenPrimaryAttached()
     {
-        var xinput = new List<InputDeviceFilter.NativeDeviceDescriptor> { XInput() };
-        var eightBitDoGhost = DirectInput(vid: 0x2DC8, pid: 0x310B, lastResort: true);
+        var primary = new List<InputDeviceFilter.NativeDeviceDescriptor> { Primary() };
+        var eightBitDoGhost = Legacy(vid: 0x2DC8, pid: 0x310B, lastResort: true);
 
-        Assert.True(InputDeviceFilter.ShouldSuppressAsXInputDuplicate(eightBitDoGhost, xinput));
+        Assert.True(InputDeviceFilter.ShouldSuppressAsPrimaryDuplicate(eightBitDoGhost, primary));
     }
 
     [Fact]
-    public void SuppressesSteamVirtualGamepadDirectInputWhenXInputAttached()
+    public void SuppressesSteamVirtualGamepadDirectInputWhenPrimaryAttached()
     {
-        var xinput = new List<InputDeviceFilter.NativeDeviceDescriptor> { XInput() };
-        var steamVirtual = DirectInput(
+        var primary = new List<InputDeviceFilter.NativeDeviceDescriptor> { Primary() };
+        var steamVirtual = Legacy(
             vid: InputDeviceFilter.ValveVendorId,
             pid: InputDeviceFilter.SteamVirtualGamepadProductId,
             lastResort: false);
 
-        Assert.True(InputDeviceFilter.ShouldSuppressAsXInputDuplicate(steamVirtual, xinput));
+        Assert.True(InputDeviceFilter.ShouldSuppressAsPrimaryDuplicate(steamVirtual, primary));
     }
 
     [Fact]
-    public void SuppressesDirectInputSharingLocationOrSerialWithXInput()
+    public void SuppressesLegacyDeviceSharingLocationSerialOrVidPidWithPrimary()
     {
-        var xinput = new List<InputDeviceFilter.NativeDeviceDescriptor>
+        var primary = new List<InputDeviceFilter.NativeDeviceDescriptor>
         {
-            XInput(location: "hid-port-3", serial: "ABC123"),
+            Primary(vid: 0x2DC8, pid: 0x310B, location: "hid-port-3", serial: "ABC123"),
         };
 
-        Assert.True(InputDeviceFilter.ShouldSuppressAsXInputDuplicate(
-            DirectInput(vid: 0x1234, pid: 0x5678, location: "HID-PORT-3"), xinput));
-        Assert.True(InputDeviceFilter.ShouldSuppressAsXInputDuplicate(
-            DirectInput(vid: 0x1234, pid: 0x5678, serial: "abc123"), xinput));
+        Assert.True(InputDeviceFilter.ShouldSuppressAsPrimaryDuplicate(
+            Legacy(vid: 0x1234, pid: 0x5678, location: "HID-PORT-3"), primary));
+        Assert.True(InputDeviceFilter.ShouldSuppressAsPrimaryDuplicate(
+            Legacy(vid: 0x1234, pid: 0x5678, serial: "abc123"), primary));
+        Assert.True(InputDeviceFilter.ShouldSuppressAsPrimaryDuplicate(
+            Legacy(vid: 0x2DC8, pid: 0x310B, location: "other", serial: "other"), primary));
     }
 
     [Fact]
-    public void KeepsDirectInputDevicesWhenNoXInputAttached()
+    public void KeepsLegacyDevicesWhenNoPrimaryAttached()
     {
         var none = new List<InputDeviceFilter.NativeDeviceDescriptor>();
-        var eightBitDo = DirectInput(vid: 0x2DC8, pid: 0x310B, lastResort: true);
-        var steamVirtual = DirectInput(
+        var eightBitDo = Legacy(vid: 0x2DC8, pid: 0x310B, lastResort: true);
+        var steamVirtual = Legacy(
             vid: InputDeviceFilter.ValveVendorId,
             pid: InputDeviceFilter.SteamVirtualGamepadProductId);
 
-        Assert.False(InputDeviceFilter.ShouldSuppressAsXInputDuplicate(eightBitDo, none));
-        Assert.False(InputDeviceFilter.ShouldSuppressAsXInputDuplicate(steamVirtual, none));
+        Assert.False(InputDeviceFilter.ShouldSuppressAsPrimaryDuplicate(eightBitDo, none));
+        Assert.False(InputDeviceFilter.ShouldSuppressAsPrimaryDuplicate(steamVirtual, none));
     }
 
     [Fact]
-    public void KeepsExactMatchedSeparateDirectInputController()
+    public void KeepsExactMatchedSeparateLegacyController()
     {
-        var xinput = new List<InputDeviceFilter.NativeDeviceDescriptor> { XInput(location: "usb-1", serial: "SN-001") };
-        var dualSense = DirectInput(vid: 0x054C, pid: 0x0CE6, lastResort: false, location: "usb-2", serial: "PS5-999");
+        var primary = new List<InputDeviceFilter.NativeDeviceDescriptor>
+        {
+            Primary(vid: 0x045E, pid: 0x028E, location: "usb-1", serial: "SN-001"),
+        };
+        var dualSense = Legacy(vid: 0x054C, pid: 0x0CE6, lastResort: false, location: "usb-2", serial: "PS5-999");
 
-        Assert.False(InputDeviceFilter.ShouldSuppressAsXInputDuplicate(dualSense, xinput));
+        Assert.False(InputDeviceFilter.ShouldSuppressAsPrimaryDuplicate(dualSense, primary));
     }
 
     [Fact]
-    public void NeverSuppressesXInputDeviceItself()
+    public void NeverSuppressesPrimaryDeviceEvenWhenMatchedByLastResort()
     {
-        var xinput = XInput();
-        var list = new List<InputDeviceFilter.NativeDeviceDescriptor> { xinput };
+        // SDLGenericNativeProfile matches SDLController devices via LastResortMatchers.
+        var sdlGeneric = Primary(vid: 0x2DC8, pid: 0x310B, lastResort: true);
+        var list = new List<InputDeviceFilter.NativeDeviceDescriptor> { sdlGeneric };
 
-        Assert.False(InputDeviceFilter.ShouldSuppressAsXInputDuplicate(xinput, list));
+        Assert.False(InputDeviceFilter.ShouldSuppressAsPrimaryDuplicate(sdlGeneric, list));
     }
 }
