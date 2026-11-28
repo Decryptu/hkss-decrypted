@@ -921,7 +921,7 @@ internal static class HkCheckMap
         {
             PlayerData? pd = PlayerData.instance;
             __state = pd != null && pd.equippedCharm_2;
-            if (pd != null)
+            if (pd != null && HkQolPatches.AutomaticCompass)
                 pd.equippedCharm_2 = true;
         }
 
@@ -930,7 +930,7 @@ internal static class HkCheckMap
         private static void PositionCompassFinalizer(bool __state)
         {
             PlayerData? pd = PlayerData.instance;
-            if (pd != null)
+            if (pd != null && HkQolPatches.AutomaticCompass)
                 pd.equippedCharm_2 = __state;
         }
 

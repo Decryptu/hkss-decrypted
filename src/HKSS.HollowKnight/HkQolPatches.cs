@@ -70,9 +70,23 @@ internal static class HkQolPatches
         }
     }
 
+    /// <summary>The seed's Geo multiplier, or 0 when the seed leaves it to the local setting.</summary>
+    internal static float SeedEnemyGeoMultiplier =>
+        HkClientHost.CurrentSlotData?.Options?.EnemyGeoMultiplier ?? 0f;
+
+    internal static bool AutomaticCompass =>
+        HkClientHost.CurrentSlotData?.Options?.AutomaticCompass ?? true;
+
+    internal static bool FasterDialogue =>
+        HkClientHost.CurrentSlotData?.Options?.FasterDialogue ?? true;
+
     internal static float EnemyGeoMultiplier
     {
-        get => _enemyGeoMultiplierCfg?.Value ?? 1f;
+        get
+        {
+            float seed = SeedEnemyGeoMultiplier;
+            return seed > 0f ? Mathf.Clamp(seed, 1f, 10f) : _enemyGeoMultiplierCfg?.Value ?? 1f;
+        }
         set
         {
             if (_enemyGeoMultiplierCfg != null)
@@ -321,7 +335,7 @@ internal static class HkQolPatches
     {
         private static bool Prefix(DialogueBox __instance, TextMeshPro? ___textMesh)
         {
-            if (___textMesh == null) return true;
+            if (!FasterDialogue || ___textMesh == null) return true;
             TMP_TextInfo? info = ___textMesh.textInfo;
             if (info != null && info.pageInfo != null && __instance.currentPage > 0 && __instance.currentPage <= info.pageCount)
             {

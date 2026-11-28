@@ -231,6 +231,8 @@ namespace SilksongRandomizer
         public bool divingBellKeyRandomization;
         public bool fasterDialogue;
         public bool fasterSilkheartAnimation;
+        public int startingRosaries;
+        public bool startingRosariesGranted;
         public string bossSoulsJson = "[]";
         public string npcSoulsJson = "[]";
         public string enemySoulsJson = "[]";
@@ -964,6 +966,7 @@ namespace SilksongRandomizer
             divingBellKeyRandomization = archipelago.DivingBellKeyRandomization;
             fasterDialogue = archipelago.FasterDialogue;
             fasterSilkheartAnimation = archipelago.FasterSilkheartAnimation;
+            startingRosaries = archipelago.StartingRosaries;
             bossSoulsJson = archipelago.BossSoulsJson;
             npcSoulsJson = archipelago.NpcSoulsJson;
             enemySoulsJson = archipelago.EnemySoulsJson;

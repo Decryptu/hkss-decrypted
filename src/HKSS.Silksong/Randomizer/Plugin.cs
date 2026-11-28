@@ -1443,9 +1443,48 @@ namespace SilksongRandomizer
             }
         }
 
+        private void TryGrantStartingRosaries(SaveState saveState)
+        {
+            if (saveState == null ||
+                saveState.startingRosariesGranted ||
+                saveState.startingRosaries <= 0)
+            {
+                return;
+            }
+
+            PlayerData playerData = PlayerData.instance;
+            HeroController hero = HeroController.instance;
+            if (playerData == null ||
+                playerData.HasStoredMemoryState ||
+                hero == null ||
+                !IsReceivedItemGameplayReady(playerData, hero))
+            {
+                return;
+            }
+
+            try
+            {
+                ItemGrants.GrantRosaries(saveState.startingRosaries);
+                saveState.startingRosariesGranted = true;
+                Log.LogInfo(
+                    "[RANDOMIZER] Granted starting Rosaries: " +
+                    saveState.startingRosaries
+                );
+            }
+            catch (Exception ex)
+            {
+                nextItemRetryTime = Time.unscaledTime + 1f;
+                Log.LogError(
+                    "[RANDOMIZER] Failed to grant the starting Rosaries; " +
+                    "they will be retried: " + ex
+                );
+            }
+        }
+
         private void TryBootstrapStartWithMaps(SaveState saveState)
         {
             TryApplyStartFullyMapped(saveState);
+            TryGrantStartingRosaries(saveState);
             if (saveState == null ||
                 !saveState.NeedsStartWithMapsBootstrap())
             {

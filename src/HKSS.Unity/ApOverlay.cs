@@ -518,20 +518,26 @@ internal sealed partial class ApOverlay : MonoBehaviour
             HKSS.HollowKnight.HkQolPatches.SkipBossIntros = skipBossIntros;
 
         GUILayout.Space(4f);
-        GUILayout.Label($"Enemy Geo Multiplier: {HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier:0.#}x", _labelStyle);
-        GUILayout.BeginHorizontal();
-        foreach (float mult in HKSS.HollowKnight.HkQolPatches.GeoMultiplierSteps)
+        bool seedGeoMultiplier = HKSS.HollowKnight.HkQolPatches.SeedEnemyGeoMultiplier > 0f;
+        GUILayout.Label(
+            $"Enemy Geo Multiplier: {HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier:0.#}x" + (seedGeoMultiplier ? " (set by the seed)" : ""),
+            _labelStyle);
+        if (!seedGeoMultiplier)
         {
-            bool selected = Mathf.Approximately(HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier, mult);
-            Color prev = GUI.backgroundColor;
-            if (selected) GUI.backgroundColor = UiTheme.AccentColor();
-            if (GUILayout.Button($"{mult:0.#}x", GUILayout.Height(24f)))
+            GUILayout.BeginHorizontal();
+            foreach (float mult in HKSS.HollowKnight.HkQolPatches.GeoMultiplierSteps)
             {
-                HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier = mult;
+                bool selected = Mathf.Approximately(HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier, mult);
+                Color prev = GUI.backgroundColor;
+                if (selected) GUI.backgroundColor = UiTheme.AccentColor();
+                if (GUILayout.Button($"{mult:0.#}x", GUILayout.Height(24f)))
+                {
+                    HKSS.HollowKnight.HkQolPatches.EnemyGeoMultiplier = mult;
+                }
+                GUI.backgroundColor = prev;
             }
-            GUI.backgroundColor = prev;
+            GUILayout.EndHorizontal();
         }
-        GUILayout.EndHorizontal();
 #elif SILKSONG
         GUILayout.Label("Quality of Life", _sectionStyle);
         GUILayout.Label("Silksong link & currency options are configured in your Archipelago YAML / save settings.", _labelStyle);

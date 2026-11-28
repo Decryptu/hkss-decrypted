@@ -105,6 +105,12 @@ public sealed class HkSlotOptions
     public bool RandomizeBreakableWalls { get; set; }
     public bool RandomizeGrass { get; set; }
     public bool StartWithFullMaps { get; set; }
+    // Seeds generated before these options existed keep the earlier always-on behaviour.
+    public bool AutomaticCompass { get; set; } = true;
+    public bool FasterDialogue { get; set; } = true;
+    // 0 means the seed does not set it; the local QoL setting applies instead.
+    public float EnemyGeoMultiplier { get; set; }
+    public bool EarlyDash { get; set; }
     public bool Slopeballs { get; set; }
     public bool RemoveSpellUpgrades { get; set; }
     public bool RandomizeElevatorPass { get; set; }

@@ -266,6 +266,7 @@ namespace SilksongRandomizer
         public bool DivingBellKeyRandomization { get; private set; }
         public bool FasterDialogue { get; private set; }
         public bool FasterSilkheartAnimation { get; private set; }
+        public int StartingRosaries { get; private set; }
         public string BossSoulsJson { get; private set; } = "[]";
         public string NpcSoulsJson { get; private set; } = "[]";
         public string EnemySoulsJson { get; private set; } = "[]";
@@ -904,6 +905,9 @@ namespace SilksongRandomizer
                 );
                 FasterSilkheartAnimation =
                     GetFasterSilkheartAnimation(successful);
+                StartingRosaries = successful.SlotData.ContainsKey("starting_rosaries")
+                    ? GetIntegerSlotData(successful, "starting_rosaries", 0, 1000)
+                    : 0;
                 if (successful.SlotData.ContainsKey("boss_souls") &&
                     GetBooleanSlotData(successful, "boss_souls") &&
                     !successful.SlotData.ContainsKey("boss_soul_bosses"))
@@ -3552,6 +3556,7 @@ namespace SilksongRandomizer
             DivingBellKeyRandomization = false;
             FasterDialogue = false;
             FasterSilkheartAnimation = false;
+            StartingRosaries = 0;
             BossSoulsJson = "[]";
             NpcSoulsJson = "[]";
             EnemySoulsJson = "[]";

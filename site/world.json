@@ -2,7 +2,7 @@
   "game": "Hollow Knight x Silksong",
   "version": "0.1.29",
   "minimumArchipelago": "0.6.8",
-  "archiveSha256": "94384c7beb5ccbe17004e29b90f1a60154814ae1ddf6e9d624ac1ee0238be22f",
+  "archiveSha256": "86d54494fc3e69dfda5b1234dee959eef22c73a128a19b0e6dbf756d3e0bef92",
   "routes": {
     "HK": [
       [
@@ -513,6 +513,102 @@
           "help": "Start with every area map unlocked and every room already revealed in both games.\n\nIn Hollow Knight, unlocks the map panel, Quill, all area maps, and reveals every room on the\nmap from the start without needing to buy maps from Cornifer or Iselda.\nIn Silksong, enables both Start With Maps and Start Fully Mapped.\n\nOff by default (when off, Silksong still respects its own map start options).",
           "kind": "toggle",
           "default": false
+        },
+        "combo_automatic_compass": {
+          "label": "Automatic Compass",
+          "help": "Always show the player's position on the map in both games, without finding or equipping a compass.\n\nper_game: use each game's own option.\noff: the Wayward Compass (Hallownest) and Compass (Pharloom) work as in the base games.\non: always show the Knight and Hornet on the map.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "enemy_currency_multiplier": {
+          "label": "Enemy Currency Multiplier",
+          "help": "Multiply the Geo (Hallownest) and Rosaries (Pharloom) dropped by defeated enemies.\n\nper_game: use each game's own option.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "x1",
+            "x1_5",
+            "x2",
+            "x3",
+            "x5",
+            "x10"
+          ],
+          "aliases": [],
+          "numbers": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        },
+        "combo_faster_dialogue": {
+          "label": "Faster Dialogue",
+          "help": "Show each page of ordinary NPC dialogue at once in both games, without skipping conversations.\n\nper_game: use each game's own option.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "early_dash": {
+          "label": "Early Dash / Sprint",
+          "help": "Place the dash early in both games when skills are randomized.\n\nper_game: use each game's own option.\non: place Mothwing Cloak (Hallownest) and Swift Step (Pharloom) in early locations of this world.\nWith directional splits, both halves are placed early. With Cross-Game Items, the shared item is.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "starting_currency": {
+          "label": "Starting Currency",
+          "help": "Geo (Hallownest) and Rosaries (Pharloom) you start the run with.\n\nper_game (-1) uses each game's own option.",
+          "kind": "range",
+          "default": -1,
+          "min": -1,
+          "max": 1000,
+          "names": {
+            "per_game": -1
+          }
         }
       }
     },
@@ -1358,6 +1454,47 @@
           "help": "Adds non-randomized locations to the location pool, which allows syncing\nof location state with co-op or automatic collection via collect.\n\nNote: This will increase the number of location checks required to purchase\nhints to the total maximum.",
           "kind": "toggle",
           "default": false
+        },
+        "AutomaticCompass": {
+          "label": "Automatic Compass",
+          "help": "Always show the Knight on the map without equipping the Wayward Compass.",
+          "kind": "toggle",
+          "default": true
+        },
+        "EnemyGeoMultiplier": {
+          "label": "Enemy Geo Multiplier",
+          "help": "Multiply Geo dropped by defeated enemies only.",
+          "kind": "choice",
+          "default": "x1",
+          "choices": [
+            "x1",
+            "x1_5",
+            "x2",
+            "x3",
+            "x5",
+            "x10"
+          ],
+          "aliases": [],
+          "numbers": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "FasterDialogue": {
+          "label": "Faster Dialogue",
+          "help": "Show each page of ordinary NPC dialogue at once, without skipping conversations.",
+          "kind": "toggle",
+          "default": true
+        },
+        "EarlyDash": {
+          "label": "Early Dash",
+          "help": "Place Mothwing Cloak early when skills are randomized.\n\nWith Split Mothwing Cloak, both directions are placed early.",
+          "kind": "toggle",
+          "default": false
         }
       }
     },
@@ -2145,6 +2282,15 @@
           "help": "Add one check per Silksong room that contains cuttable grass.\n\nCutting any grass in a room sends that room's grass check.",
           "kind": "toggle",
           "default": false
+        },
+        "starting_rosaries": {
+          "label": "Starting Rosaries",
+          "help": "Rosaries you start the run with in Pharloom.",
+          "kind": "range",
+          "default": 0,
+          "min": 0,
+          "max": 1000,
+          "names": {}
         }
       }
     },

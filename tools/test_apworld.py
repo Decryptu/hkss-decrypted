@@ -233,6 +233,18 @@ def _run_cases(
                             assert COMBO_BLOCK_START <= it.code <= COMBO_BLOCK_END, it
                         else:
                             raise AssertionError(f"Unprefixed real item: {it.name}")
+                own_item_names = {
+                    l.item.name for l in mw.get_locations() if l.item and l.item.player == p
+                }
+                for early in (mw.early_items[p], mw.local_early_items[p]):
+                    missing = [name for name in early if name not in own_item_names]
+                    assert not missing, f"Early items not in the pool: {missing}"
+                    if w.has_hk and w.has_silksong and not w._early_items_released:
+                        in_pharloom = [
+                            l.name for l in mw.get_locations(p)
+                            if l.item and l.item.player == p and l.item.name in early and l.name.startswith("SS ")
+                        ]
+                        assert not in_pharloom, f"Early items placed in Pharloom: {in_pharloom}"
                 if label == "solo_both_unified_shuffles":
                     hk_sd = sd["hollow_knight"]
                     ss_sd = sd["silksong"]
@@ -295,6 +307,11 @@ def _run_cases(
                         raise AssertionError("Start With Full Maps must be off by default")
                     if sd["hollow_knight"]["options"].get("StartWithFullMaps") != 0:
                         raise AssertionError("HK StartWithFullMaps must be 0 by default")
+                    hk_opts = sd["hollow_knight"]["options"]
+                    assert hk_opts["AutomaticCompass"] == 1 and hk_opts["FasterDialogue"] == 1, hk_opts
+                    assert hk_opts["EnemyGeoMultiplier"] == 1.0 and hk_opts["EarlyDash"] == 0, hk_opts
+                    assert sd["silksong"]["starting_rosaries"] == 0
+                    assert "SS Swift Step" in mw.local_early_items[p], dict(mw.local_early_items[p])
                 if label == "solo_both_cross_game_items":
                     if sd.get("double_steel_soul") is not True:
                         raise AssertionError("Double Steel Soul must be True when enabled")
@@ -306,6 +323,14 @@ def _run_cases(
                         raise AssertionError("Silksong start_with_maps must be True when start_with_full_maps is enabled")
                     if sd["silksong"].get("start_fully_mapped") is not True:
                         raise AssertionError("Silksong start_fully_mapped must be True when start_with_full_maps is enabled")
+                    hk_opts = sd["hollow_knight"]["options"]
+                    ss_sd = sd["silksong"]
+                    assert hk_opts["AutomaticCompass"] == 0 and ss_sd["automatic_compass"] is False
+                    assert hk_opts["FasterDialogue"] == 0 and ss_sd["faster_dialogue"] is False
+                    assert hk_opts["EnemyGeoMultiplier"] == 3.0 and ss_sd["enemy_rosary_multiplier"] == "x3"
+                    assert hk_opts["StartingGeo"] == 250 and ss_sd["starting_rosaries"] == 250
+                    assert hk_opts["EarlyDash"] == 1 and ss_sd["early_sprint"] is True
+                    assert dict(mw.local_early_items[p]).get("Shared Dash") == 1, dict(mw.local_early_items[p])
                     from BaseClasses import CollectionState
 
                     shared_names = {entry["name"] for entry in sd["cross_game_items"]}
@@ -485,6 +510,11 @@ CASES: list[tuple[str, dict[str, str]]] = [
             "  cross_game_items: true\n"
             "  double_steel_soul: true\n"
             "  start_with_full_maps: true\n"
+            "  combo_automatic_compass: off\n"
+            "  combo_faster_dialogue: off\n"
+            "  enemy_currency_multiplier: x3\n"
+            "  early_dash: on\n"
+            "  starting_currency: 250\n"
             "  cross_game_seals: 2\n"
             "  shuffle_entrances: within_areas\n"
         )
@@ -654,6 +684,8 @@ def main() -> None:
         help="Cases to generate at once, each in its own process (default: half the cores, at most 8).",
     )
     args = parser.parse_args()
+    # Case output can hold characters the Windows console code page cannot encode.
+    sys.stdout.reconfigure(errors="replace")
     labels = [label for label, _ in CASES]
     if args.only:
         wanted = [name for name in args.only.split(",") if name]

@@ -12,7 +12,7 @@ from dataclasses import fields, make_dataclass
 from typing import get_type_hints
 
 import Options as _Options
-from Options import Choice, DeathLink, OptionGroup, PerGameCommonOptions, Range, Toggle
+from Options import Choice, DeathLink, DefaultOnToggle, NamedRange, OptionGroup, PerGameCommonOptions, Range, Toggle
 
 from .hk.Options import hollow_knight_options
 from .silksong import options as _ss_options_mod
@@ -297,6 +297,123 @@ class StartWithFullMaps(Toggle):
     default = False
 
 
+class ComboAutomaticCompass(Choice):
+    """Always show the player's position on the map in both games, without finding or equipping a compass.
+
+    per_game: use each game's own option.
+    off: the Wayward Compass (Hallownest) and Compass (Pharloom) work as in the base games.
+    on: always show the Knight and Hornet on the map.
+    """
+
+    display_name = "Automatic Compass"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class EnemyCurrencyMultiplier(Choice):
+    """Multiply the Geo (Hallownest) and Rosaries (Pharloom) dropped by defeated enemies.
+
+    per_game: use each game's own option.
+    """
+
+    display_name = "Enemy Currency Multiplier"
+    option_per_game = 0
+    option_x1 = 1
+    option_x1_5 = 2
+    option_x2 = 3
+    option_x3 = 4
+    option_x5 = 5
+    option_x10 = 6
+    default = 0
+
+
+class ComboFasterDialogue(Choice):
+    """Show each page of ordinary NPC dialogue at once in both games, without skipping conversations.
+
+    per_game: use each game's own option.
+    """
+
+    display_name = "Faster Dialogue"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class EarlyDash(Choice):
+    """Place the dash early in both games when skills are randomized.
+
+    per_game: use each game's own option.
+    on: place Mothwing Cloak (Hallownest) and Swift Step (Pharloom) in early locations of this world.
+    With directional splits, both halves are placed early. With Cross-Game Items, the shared item is.
+    """
+
+    display_name = "Early Dash / Sprint"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class StartingCurrency(NamedRange):
+    """Geo (Hallownest) and Rosaries (Pharloom) you start the run with.
+
+    per_game (-1) uses each game's own option.
+    """
+
+    display_name = "Starting Currency"
+    range_start = -1
+    range_end = 1000
+    default = -1
+    special_range_names = {"per_game": -1}
+
+
+class HkAutomaticCompass(DefaultOnToggle):
+    """Always show the Knight on the map without equipping the Wayward Compass."""
+
+    display_name = "Automatic Compass"
+
+
+class HkEnemyGeoMultiplier(Choice):
+    """Multiply Geo dropped by defeated enemies only."""
+
+    display_name = "Enemy Geo Multiplier"
+    option_x1 = 0
+    option_x1_5 = 1
+    option_x2 = 2
+    option_x3 = 3
+    option_x5 = 4
+    option_x10 = 5
+    default = option_x1
+
+
+class HkFasterDialogue(DefaultOnToggle):
+    """Show each page of ordinary NPC dialogue at once, without skipping conversations."""
+
+    display_name = "Faster Dialogue"
+
+
+class HkEarlyDash(Toggle):
+    """Place Mothwing Cloak early when skills are randomized.
+
+    With Split Mothwing Cloak, both directions are placed early.
+    """
+
+    display_name = "Early Dash"
+    default = False
+
+
+class StartingRosaries(Range):
+    """Rosaries you start the run with in Pharloom."""
+
+    display_name = "Starting Rosaries"
+    range_start = 0
+    range_end = 1000
+    default = 0
+
+
 _COMMON_FIELD_NAMES = {f.name for f in fields(PerGameCommonOptions)}
 
 _shared_fields = [
@@ -316,12 +433,21 @@ _shared_fields = [
     ("cross_game_items", CrossGameItems),
     ("double_steel_soul", DoubleSteelSoul),
     ("start_with_full_maps", StartWithFullMaps),
+    ("combo_automatic_compass", ComboAutomaticCompass),
+    ("enemy_currency_multiplier", EnemyCurrencyMultiplier),
+    ("combo_faster_dialogue", ComboFasterDialogue),
+    ("early_dash", EarlyDash),
+    ("starting_currency", StartingCurrency),
 ]
 
 _hk_extra_fields = [
     ("RandomizeLevers", RandomizeLevers),
     ("RandomizeBreakableWalls", RandomizeBreakableWalls),
     ("RandomizeGrass", RandomizeGrass),
+    ("AutomaticCompass", HkAutomaticCompass),
+    ("EnemyGeoMultiplier", HkEnemyGeoMultiplier),
+    ("FasterDialogue", HkFasterDialogue),
+    ("EarlyDash", HkEarlyDash),
 ]
 
 _hk_fields = [
@@ -336,6 +462,7 @@ _ss_extra_fields = [
     ("lever_randomization", LeverRandomization),
     ("breakable_wall_randomization", BreakableWallRandomization),
     ("grass_randomization", GrassRandomization),
+    ("starting_rosaries", StartingRosaries),
 ]
 
 _ss_fields = [
@@ -372,6 +499,11 @@ def _build_option_groups() -> list[OptionGroup]:
                 CrossGameItems,
                 DoubleSteelSoul,
                 StartWithFullMaps,
+                ComboAutomaticCompass,
+                EnemyCurrencyMultiplier,
+                ComboFasterDialogue,
+                EarlyDash,
+                StartingCurrency,
             ],
         ),
         OptionGroup(

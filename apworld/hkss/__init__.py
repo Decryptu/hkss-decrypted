@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import pkgutil
 from typing import Any, ClassVar, Union
 
@@ -44,7 +45,11 @@ from .ids import (
     strip_ss_prefix,
 )
 from .options import (
+    ComboAutomaticCompass,
+    ComboFasterDialogue,
     ComboGoal,
+    EarlyDash,
+    EnemyCurrencyMultiplier,
     Games,
     HKSSOptions,
     ShuffleBreakableWalls,
@@ -174,6 +179,9 @@ _ALL_ITEMS = _build_item_name_to_id()
 _ALL_LOCATIONS = _build_location_name_to_id()
 
 
+HK_GEO_MULTIPLIERS = (1.0, 1.5, 2.0, 3.0, 5.0, 10.0)
+
+
 class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
     """Combo randomizer for Hollow Knight and Hollow Knight: Silksong."""
 
@@ -203,6 +211,8 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         self._cross_game_items: list[CrossGameItemSpec] = []
         self._extra_hk_entries: list[dict[str, Any]] = []
         self._extra_ss_entries: list[tuple[dict[str, Any], list[str]]] = []
+        self._early_rule_active = False
+        self._early_items_released = False
 
     @property
     def has_hk(self) -> bool:
@@ -265,6 +275,30 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             opts.start_with_maps.value = 1
             opts.start_fully_mapped.value = 1
 
+        if opts.combo_automatic_compass.value != ComboAutomaticCompass.option_per_game:
+            on = int(opts.combo_automatic_compass.value == ComboAutomaticCompass.option_on)
+            opts.AutomaticCompass.value = on
+            opts.automatic_compass.value = on
+
+        if opts.enemy_currency_multiplier.value != EnemyCurrencyMultiplier.option_per_game:
+            step = opts.enemy_currency_multiplier.value - EnemyCurrencyMultiplier.option_x1
+            opts.EnemyGeoMultiplier.value = step
+            opts.enemy_rosary_multiplier.value = step
+
+        if opts.combo_faster_dialogue.value != ComboFasterDialogue.option_per_game:
+            on = int(opts.combo_faster_dialogue.value == ComboFasterDialogue.option_on)
+            opts.FasterDialogue.value = on
+            opts.faster_dialogue.value = on
+
+        if opts.early_dash.value != EarlyDash.option_per_game:
+            on = int(opts.early_dash.value == EarlyDash.option_on)
+            opts.EarlyDash.value = on
+            opts.early_sprint.value = on
+
+        if opts.starting_currency.value >= 0:
+            opts.StartingGeo.value = opts.starting_currency.value
+            opts.starting_rosaries.value = opts.starting_currency.value
+
         ent = opts.shuffle_entrances.value
         if ent == ShuffleEntrances.option_off:
             opts.entrance_randomization.value = EntranceRandomization.option_off
@@ -292,6 +326,80 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             self.hk.generate_early()
         if self.has_silksong:
             SilksongWorld.generate_early(self)
+        if self.has_hk:
+            self._add_hk_early_dash()
+
+    def _add_hk_early_dash(self) -> None:
+        if not (self.options.EarlyDash.value and self.options.RandomizeSkills.value):
+            return
+        early = self.multiworld.local_early_items[self.player]
+        if self.options.SplitMothwingCloak.value:
+            names = ("Left_Mothwing_Cloak", "Right_Mothwing_Cloak")
+        else:
+            names = ("Mothwing_Cloak",)
+        for name in names:
+            full = hk_name(name)
+            early[full] = early.get(full, 0) + 1
+
+    def _remap_early_items(self) -> None:
+        """Points this player's early items at the names actually in the pool.
+
+        The Silksong world registers unprefixed names, and Cross-Game Items may have merged an
+        early item into a shared one. Archipelago ignores names that match no pool item.
+        """
+        pool_names = {item.name for item in self.multiworld.itempool if item.player == self.player}
+        shared: dict[str, str] = {}
+        for spec in self._cross_game_items:
+            shared[hk_name(spec.hk_item)] = spec.name
+            shared[ss_name(spec.ss_item)] = spec.name
+
+        def resolve(name: str) -> str:
+            candidates = [name]
+            if not name.startswith((HK_PREFIX, SS_PREFIX)):
+                candidates += [ss_name(name), hk_name(name)]
+            for candidate in candidates:
+                if candidate in pool_names:
+                    return candidate
+            for candidate in candidates:
+                if candidate in shared:
+                    return shared[candidate]
+            return name
+
+        for early in (self.multiworld.early_items[self.player], self.multiworld.local_early_items[self.player]):
+            remapped: dict[str, int] = {}
+            for name, count in early.items():
+                target = resolve(name)
+                if target in CROSS_GAME_ITEMS_BY_NAME:
+                    # One shared item stands in for both games' early requests.
+                    remapped[target] = max(remapped.get(target, 0), count)
+                else:
+                    remapped[target] = remapped.get(target, 0) + count
+            early.clear()
+            early.update(remapped)
+
+    def _keep_early_items_in_hallownest(self) -> None:
+        """Runs start in Hallownest, so its opening checks are the earliest in the combo.
+
+        Silksong's opening checks are few and its own opening fill needs them, so early items
+        placed there can leave it no room (for example a Wormways start with full entrances).
+        """
+        if not (self.has_hk and self.has_silksong):
+            return
+        early_names = frozenset(self.multiworld.early_items[self.player]) | frozenset(
+            self.multiworld.local_early_items[self.player]
+        )
+        if not early_names:
+            return
+        player = self.player
+        self._early_rule_active = True
+
+        def allowed(item: Item, _names=early_names, _player=player) -> bool:
+            return not self._early_rule_active or item.player != _player or item.name not in _names
+
+        for location in self.get_locations():
+            if location.address is not None and location.name.startswith(SS_PREFIX):
+                old = location.item_rule
+                location.item_rule = lambda item, _old=old: allowed(item) and _old(item)
 
     def create_regions(self) -> None:
         if self.has_hk:
@@ -307,6 +415,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             SilksongWorld.create_items(self)
         create_extra_filler_items(self, len(self._extra_hk_entries), len(self._extra_ss_entries))
         self._cross_game_items = merge_cross_game_items(self)
+        self._remap_early_items()
 
     def create_item(self, name: str, *args, **kwargs) -> Item:
         if name in CROSS_GAME_ITEMS_BY_NAME:
@@ -371,6 +480,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
         self._refresh_completion_rule()
         self._seals = choose_seals(self, self.options.cross_game_seals.value)
         apply_hk_seals(self, self._seals)
+        self._keep_early_items_in_hallownest()
 
     def _enable_silk_supply(self, supply) -> None:
         self._silk_supply = supply
@@ -536,8 +646,45 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             self._silk_supply.reached(state, region)
 
     def fill_hook(self, progitempool, usefulitempool, filleritempool, fill_locations):
-        if self.has_silksong:
+        if not self.has_silksong:
+            return
+        from Fill import FillError
+
+        try:
             SilksongWorld.fill_hook(self, progitempool, usefulitempool, filleritempool, fill_locations)
+        except FillError:
+            # Early items are locked into opening checks before this fill. In a tight opening
+            # they can leave it stuck, so release them and fill again without the early rule.
+            released = self._release_early_items()
+            if not released:
+                raise
+            logging.warning(
+                "%s: early items left no room in the opening; placing %s normally.",
+                self.player_name, ", ".join(item.name for item, _ in released),
+            )
+            self._early_items_released = True
+            for item, location in released:
+                progitempool.append(item)
+                fill_locations.append(location)
+            SilksongWorld.fill_hook(self, progitempool, usefulitempool, filleritempool, fill_locations)
+
+    def _release_early_items(self) -> list[tuple[Item, Any]]:
+        early_names = set(self.multiworld.early_items[self.player]) | set(
+            self.multiworld.local_early_items[self.player]
+        )
+        self._early_rule_active = False
+        released = []
+        for location in self.multiworld.get_filled_locations():
+            item = location.item
+            if (
+                location.locked and location.address is not None
+                and item.player == self.player and item.advancement and item.name in early_names
+            ):
+                location.item = None
+                location.locked = False
+                item.location = None
+                released.append((item, location))
+        return released
 
     def _connect_hk_entrances(self) -> None:
         if not (self.has_hk and self._hk_entrance_scope):
@@ -668,6 +815,10 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             hk_data["options"]["RandomizeBreakableWalls"] = int(bool(self.options.RandomizeBreakableWalls.value))
             hk_data["options"]["RandomizeGrass"] = int(bool(self.options.RandomizeGrass.value))
             hk_data["options"]["StartWithFullMaps"] = int(bool(self.options.start_with_full_maps.value))
+            hk_data["options"]["AutomaticCompass"] = int(bool(self.options.AutomaticCompass.value))
+            hk_data["options"]["EnemyGeoMultiplier"] = HK_GEO_MULTIPLIERS[self.options.EnemyGeoMultiplier.value]
+            hk_data["options"]["FasterDialogue"] = int(bool(self.options.FasterDialogue.value))
+            hk_data["options"]["EarlyDash"] = int(bool(self.options.EarlyDash.value))
             if self._hk_entrance_pairs:
                 hk_data["entrance_pairs"] = dict(self._hk_entrance_pairs)
                 hk_data["options"]["EntranceRandoType"] = self._hk_entrance_rando_type
@@ -677,6 +828,7 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             ss_data["lever_randomization"] = bool(self.options.lever_randomization.value)
             ss_data["breakable_wall_randomization"] = bool(self.options.breakable_wall_randomization.value)
             ss_data["grass_randomization"] = bool(self.options.grass_randomization.value)
+            ss_data["starting_rosaries"] = int(self.options.starting_rosaries.value)
             if self._extra_ss_entries:
                 ss_data["requirements"].update(export_ss_extra_requirements(self._extra_ss_entries))
         return {
