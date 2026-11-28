@@ -8,10 +8,13 @@ import logging
 import os
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
+import time
 import types
 import zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -382,7 +385,14 @@ def _run_cases(
                     assert hk_in_ss > 0 and ss_in_hk > 0, (hk_in_ss, ss_in_hk)
             print(f"PASS {label} (players={mw.players}, items={len(mw.get_items())}, locs={len(mw.get_locations())})")
 
-    run_case("solo_hollow_knight_only", {
+    for label, yamls in CASES:
+        run_case(label, yamls)
+
+
+
+# Each case is one generation: (label, {player file: yaml}).
+CASES: list[tuple[str, dict[str, str]]] = [
+    ("solo_hollow_knight_only", {
         "Knight.yaml": (
             "name: Knight\n"
             "game: Hollow Knight x Silksong\n"
@@ -398,24 +408,24 @@ def _run_cases(
             "  GrubfatherRewardSlots: 8\n"
             "  IseldaShopSlots: 8\n"
         )
-    })
-    run_case("solo_silksong_only", {
+    }),
+    ("solo_silksong_only", {
         "Hornet.yaml": (
             "name: Hornet\n"
             "game: Hollow Knight x Silksong\n"
             "Hollow Knight x Silksong:\n"
             "  games: silksong_only\n"
         )
-    })
-    run_case("solo_both", {
+    }),
+    ("solo_both", {
         "Combo.yaml": (
             "name: Combo\n"
             "game: Hollow Knight x Silksong\n"
             "Hollow Knight x Silksong:\n"
             "  games: both\n"
         )
-    })
-    run_case("solo_both_either", {
+    }),
+    ("solo_both_either", {
         "ComboEither.yaml": (
             "name: ComboEither\n"
             "game: Hollow Knight x Silksong\n"
@@ -423,8 +433,8 @@ def _run_cases(
             "  games: both\n"
             "  combo_goal: either\n"
         )
-    })
-    run_case("solo_both_vanilla_ss_skills", {
+    }),
+    ("solo_both_vanilla_ss_skills", {
         "ComboVanillaSSSkills.yaml": (
             "name: ComboVanillaSSSkills\n"
             "game: Hollow Knight x Silksong\n"
@@ -432,8 +442,8 @@ def _run_cases(
             "  games: both\n"
             "  skill_randomization: vanilla\n"
         )
-    })
-    run_case("solo_both_unified_shuffles", {
+    }),
+    ("solo_both_unified_shuffles", {
         "ComboUnified.yaml": (
             "name: ComboUnified\n"
             "game: Hollow Knight x Silksong\n"
@@ -446,8 +456,8 @@ def _run_cases(
             "  shuffle_journal_entries: on\n"
             "  shuffle_lore_tablets: on\n"
         )
-    })
-    run_case("solo_both_unified_entrances_full", {
+    }),
+    ("solo_both_unified_entrances_full", {
         "ComboEntrancesFull.yaml": (
             "name: ComboEntrancesFull\n"
             "game: Hollow Knight x Silksong\n"
@@ -455,8 +465,8 @@ def _run_cases(
             "  games: both\n"
             "  shuffle_entrances: full\n"
         )
-    })
-    run_case("solo_both_seals", {
+    }),
+    ("solo_both_seals", {
         "ComboSeals.yaml": (
             "name: ComboSeals\n"
             "game: Hollow Knight x Silksong\n"
@@ -465,8 +475,8 @@ def _run_cases(
             "  cross_game_seals: 2\n"
             "  shuffle_entrances: within_areas\n"
         )
-    })
-    run_case("solo_both_cross_game_items", {
+    }),
+    ("solo_both_cross_game_items", {
         "ComboSharedItems.yaml": (
             "name: ComboSharedItems\n"
             "game: Hollow Knight x Silksong\n"
@@ -478,8 +488,8 @@ def _run_cases(
             "  cross_game_seals: 2\n"
             "  shuffle_entrances: within_areas\n"
         )
-    })
-    run_case("solo_both_cross_game_items_split", {
+    }),
+    ("solo_both_cross_game_items_split", {
         "ComboSharedSplit.yaml": (
             "name: ComboSharedSplit\n"
             "game: Hollow Knight x Silksong\n"
@@ -493,8 +503,8 @@ def _run_cases(
             "  directional_cling_grip: true\n"
             "  swim_ability_rando: true\n"
         )
-    })
-    run_case("solo_both_hk_alt_start", {
+    }),
+    ("solo_both_hk_alt_start", {
         "ComboAltStartGreenpath.yaml": (
             "name: ComboAltStartGreenpath\n"
             "game: Hollow Knight x Silksong\n"
@@ -504,8 +514,8 @@ def _run_cases(
             "  cross_game_seals: 2\n"
             "  shuffle_entrances: within_areas\n"
         )
-    })
-    run_case("solo_both_hk_alt_start_edge", {
+    }),
+    ("solo_both_hk_alt_start_edge", {
         "ComboAltStartEdge.yaml": (
             "name: ComboAltStartEdge\n"
             "game: Hollow Knight x Silksong\n"
@@ -515,8 +525,8 @@ def _run_cases(
             "  cross_game_seals: 4\n"
             "  shuffle_entrances: full\n"
         )
-    })
-    run_case("solo_both_ss_alt_start", {
+    }),
+    ("solo_both_ss_alt_start", {
         "ComboSsAltStart.yaml": (
             "name: ComboSsAltStart\n"
             "game: Hollow Knight x Silksong\n"
@@ -525,8 +535,8 @@ def _run_cases(
             "  starting_location: bellhart\n"
             "  cross_game_seals: 2\n"
         )
-    })
-    run_case("solo_both_ss_alt_start_entrances", {
+    }),
+    ("solo_both_ss_alt_start_entrances", {
         "ComboSsAltStartEr.yaml": (
             "name: ComboSsAltStartEr\n"
             "game: Hollow Knight x Silksong\n"
@@ -537,8 +547,8 @@ def _run_cases(
             "  cross_game_seals: 2\n"
             "  shuffle_entrances: full\n"
         )
-    })
-    run_case("solo_both_extra_checks", {
+    }),
+    ("solo_both_extra_checks", {
         "ComboExtraChecks.yaml": (
             "name: ComboExtraChecks\n"
             "game: Hollow Knight x Silksong\n"
@@ -551,8 +561,8 @@ def _run_cases(
             "  WhitePalace: include\n"
             "  cross_game_seals: 2\n"
         )
-    })
-    run_case("solo_both_extra_checks_act2", {
+    }),
+    ("solo_both_extra_checks_act2", {
         "ComboExtraChecksAct2.yaml": (
             "name: ComboExtraChecksAct2\n"
             "game: Hollow Knight x Silksong\n"
@@ -563,8 +573,8 @@ def _run_cases(
             "  shuffle_breakable_walls: on\n"
             "  shuffle_grass: on\n"
         )
-    })
-    run_case("multiworld_4p", {
+    }),
+    ("multiworld_4p", {
         "P1_Both.yaml": (
             "name: P1_Both\n"
             "game: Hollow Knight x Silksong\n"
@@ -588,7 +598,49 @@ def _run_cases(
             "game: Hollow Knight\n"
             "Hollow Knight: {}\n"
         ),
-    })
+    }),
+]
+
+
+# Slowest cases start first so the parallel run ends sooner.
+SLOW_CASES = (
+    "solo_both_hk_alt_start",
+    "solo_both_seals",
+    "solo_both_cross_game_items",
+    "solo_both_ss_alt_start_entrances",
+    "solo_both_hk_alt_start_edge",
+    "solo_both_unified_entrances_full",
+)
+
+
+def run_parallel(labels: list[str], args: argparse.Namespace) -> None:
+    """Run each case in its own process; Archipelago's global state rules out threads."""
+    labels = sorted(labels, key=lambda label: SLOW_CASES.index(label) if label in SLOW_CASES else len(SLOW_CASES))
+    env = dict(os.environ, HKSS_TEST_CASE_ONLY="1")
+    env.pop("HKSS_TEST_ONLY", None)
+
+    def run(label: str) -> tuple[str, int, str, float]:
+        start = time.monotonic()
+        cmd = [
+            sys.executable, str(Path(__file__).resolve()),
+            "--ap-dir", str(args.ap_dir), "--apworld", str(args.apworld),
+            "--seed", str(args.seed), "--only", label, "--jobs", "1",
+        ]
+        proc = subprocess.run(cmd, env=env, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        return label, proc.returncode, proc.stdout + proc.stderr, time.monotonic() - start
+
+    failed = []
+    with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+        for future in as_completed([pool.submit(run, label) for label in labels]):
+            label, code, output, seconds = future.result()
+            if code == 0:
+                line = next((l for l in output.splitlines() if l.startswith(f"PASS {label}")), f"PASS {label}")
+                print(f"{line} [{seconds:.0f}s]", flush=True)
+            else:
+                failed.append(label)
+                print(f"FAIL {label} (exit {code})\n{output}", flush=True)
+    if failed:
+        raise SystemExit(f"{len(failed)} case(s) failed: {', '.join(failed)}")
 
 
 def main() -> None:
@@ -597,13 +649,26 @@ def main() -> None:
     parser.add_argument("--apworld", type=Path, default=DEFAULT_APWORLD)
     parser.add_argument("--seed", type=int, default=12345)
     parser.add_argument("--only", default="", help="Comma-separated case labels to run (default: all).")
+    parser.add_argument(
+        "--jobs", type=int, default=min(8, max(1, (os.cpu_count() or 2) // 2)),
+        help="Cases to generate at once, each in its own process (default: half the cores, at most 8).",
+    )
     args = parser.parse_args()
+    labels = [label for label, _ in CASES]
     if args.only:
-        os.environ["HKSS_TEST_ONLY"] = args.only
+        wanted = [name for name in args.only.split(",") if name]
+        unknown = sorted(set(wanted) - set(labels))
+        assert not unknown, f"Unknown case(s): {', '.join(unknown)}"
+        labels = [label for label in labels if label in wanted]
+        os.environ["HKSS_TEST_ONLY"] = ",".join(labels)
 
-    check_id_space_mirror()
-    check_apworld_archive(args.apworld)
-    run_generation_suite(args.ap_dir, args.apworld, args.seed)
+    if not os.environ.get("HKSS_TEST_CASE_ONLY"):
+        check_id_space_mirror()
+        check_apworld_archive(args.apworld)
+    if args.jobs > 1 and len(labels) > 1:
+        run_parallel(labels, args)
+    else:
+        run_generation_suite(args.ap_dir, args.apworld, args.seed)
 
 
 if __name__ == "__main__":
