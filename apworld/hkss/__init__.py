@@ -57,6 +57,7 @@ from .options import (
     ShuffleEntrances,
     ShuffleGrass,
     ShuffleGrubsAndFleas,
+    ShuffleHeal,
     ShuffleJournalEntries,
     ShuffleLevers,
     ShuffleLoreTablets,
@@ -66,6 +67,7 @@ from .options import (
 from .silksong import SilksongWorld
 from .silksong.items import PROGRESSIVE_SWIFT_STEP_ITEM
 from .silksong.options import (
+    BindRandomization,
     EntranceRandomization,
     EntranceRandomizationScope,
     GlobalRandomization,
@@ -222,6 +224,54 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
     def has_silksong(self) -> bool:
         return self.options.games.value != Games.option_hollow_knight_only
 
+    def _apply_unified_pools(self) -> None:
+        """Sets both games' pool options from the unified per_game/off/on pool toggles."""
+        opts = self.options
+
+        def unified(option) -> bool | None:
+            """None for per_game (0), else whether the pool is on (2)."""
+            return None if option.value == 0 else option.value == 2
+
+        def set_hk(names: tuple[str, ...], on: bool) -> None:
+            for name in names:
+                getattr(opts, name).value = int(on)
+
+        def set_ss(names: tuple[str, ...], on: bool) -> None:
+            val = GlobalRandomization.option_true if on else GlobalRandomization.option_false
+            for name in names:
+                getattr(opts, name).value = val
+
+        pools = (
+            (opts.shuffle_maps, ("RandomizeMaps",), ("map_randomization",)),
+            (opts.shuffle_fast_travel, ("RandomizeStags",), ("bellway_randomization", "ventrica_randomization")),
+            (
+                opts.shuffle_masks_and_vessels,
+                ("RandomizeMaskShards", "RandomizeVesselFragments"),
+                ("mask_shard_randomization", "spool_fragment_randomization"),
+            ),
+            (opts.shuffle_relics, ("RandomizeRelics",), ("relic_randomization",)),
+            (opts.shuffle_skills, ("RandomizeSkills",), ("skill_randomization", "silk_skill_randomization")),
+        )
+        for option, hk_names, ss_names in pools:
+            on = unified(option)
+            if on is not None:
+                set_hk(hk_names, on)
+                set_ss(ss_names, on)
+
+        heal = opts.shuffle_heal.value
+        if heal != ShuffleHeal.option_per_game:
+            opts.RandomizeFocus.value = int(heal != ShuffleHeal.option_off)
+            opts.bind_randomization.value = {
+                ShuffleHeal.option_off: BindRandomization.option_vanilla,
+                ShuffleHeal.option_on: BindRandomization.option_shared,
+                ShuffleHeal.option_per_crest: BindRandomization.option_per_crest,
+            }[heal]
+
+        swim = unified(opts.shuffle_swim)
+        if swim is not None:
+            opts.RandomizeSwim.value = int(swim)
+            opts.swim_ability_rando.value = int(swim)
+
     def _apply_unified_shuffles(self) -> None:
         opts = self.options
 
@@ -270,6 +320,8 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             on = opts.shuffle_grass.value == ShuffleGrass.option_on
             opts.RandomizeGrass.value = int(on)
             opts.grass_randomization.value = int(on)
+
+        self._apply_unified_pools()
 
         if opts.start_with_full_maps.value:
             opts.start_with_maps.value = 1

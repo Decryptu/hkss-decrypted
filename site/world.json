@@ -2,7 +2,7 @@
   "game": "Hollow Knight x Silksong",
   "version": "0.1.30",
   "minimumArchipelago": "0.6.8",
-  "archiveSha256": "17bf79c8c1d2abb41b6c0eec449e9d334a8fb5fc6d3ff3f2eba1bddd8caa8d55",
+  "archiveSha256": "9b1c847d2573d6b7e00d60bb0d12189706dca50c4f84782e895caf5c6a312ee4",
   "routes": {
     "HK": [
       [
@@ -470,6 +470,148 @@
         "shuffle_grass": {
           "label": "Shuffle Grass",
           "help": "Unified randomization for Grass in both games.\n\nper_game: use each game's individual grass option.\noff: keep grass as normal scenery.\non: cutting grass in a grass-bearing room sends a check from the shared item pool.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "shuffle_maps": {
+          "label": "Shuffle Maps",
+          "help": "Unified randomization for area maps in both games.\n\nper_game: use each game's individual option.\noff: keep Hallownest maps (Cornifer, Iselda) and Pharloom maps (Shakra) vanilla.\non: randomize the maps of both games into the shared item pool.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "shuffle_fast_travel": {
+          "label": "Shuffle Fast Travel",
+          "help": "Unified randomization for fast travel in both games.\n\nper_game: use each game's individual options.\noff: keep Stag Stations, Bellways, and Ventricas vanilla.\non: randomize Stag Stations (Hallownest), Bellways and Ventricas (Pharloom) into the shared item pool.\n\nSilksong cannot keep both Bellways and skills vanilla: with Shuffle Skills off, leave this on.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "shuffle_masks_and_vessels": {
+          "label": "Shuffle Masks & Vessels/Spools",
+          "help": "Unified randomization for health and resource upgrades in both games.\n\nper_game: use each game's individual options.\noff: keep Mask Shards, Vessel Fragments, and Spool Fragments vanilla.\non: randomize Mask Shards and Vessel Fragments (Hallownest), and Mask Shards and Spool Fragments\n(Pharloom) into the shared item pool.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "shuffle_relics": {
+          "label": "Shuffle Relics",
+          "help": "Unified randomization for Relics in both games.\n\nper_game: use each game's individual option.\noff: keep Hallownest relics (Wanderer's Journals, Seals, Idols, Eggs) and Pharloom relics vanilla.\non: randomize the relics of both games into the shared item pool.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "shuffle_skills": {
+          "label": "Shuffle Skills",
+          "help": "Unified randomization for skills in both games.\n\nper_game: use each game's individual options.\noff: keep skills vanilla.\non: randomize Hollow Knight skills (movement, spells, nail arts, Dream Nail), and Silksong\ntraversal skills and Silk Skills into the shared item pool.\n\nSilksong cannot keep both skills and Bellways vanilla: with Shuffle Fast Travel off, leave this on.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "shuffle_heal": {
+          "label": "Shuffle Heal (Focus/Bind)",
+          "help": "Unified randomization for healing in both games.\n\nper_game: use each game's individual options.\noff: Focus (Hallownest) and Bind (Pharloom) work from the start.\non: remove Focus and one shared Bind, and randomize them into the shared item pool.\nper_crest: like on, but Silksong adds one Bind item for each crest.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on",
+            "per_crest"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        "shuffle_swim": {
+          "label": "Shuffle Swim",
+          "help": "Unified randomization for swimming in both games.\n\nper_game: use each game's individual options.\noff: both the Knight and Hornet can swim from the start.\non: remove the ability to swim in both games and randomize it into the shared item pool.\nWith Cross-Game Items, both become one Shared Swim.",
           "kind": "choice",
           "default": "per_game",
           "choices": [

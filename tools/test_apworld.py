@@ -260,6 +260,34 @@ def _run_cases(
                     assert ss_sd["entrance_randomization"] == "coupled"
                     assert ss_sd["entrance_randomization_scope"] == "interiors"
                     assert len(ss_sd.get("entrance_pairs") or {}) > 0
+                if label in ("solo_both_unified_pools_on", "solo_both_unified_pools_off"):
+                    on = label.endswith("_on")
+                    hk_opts = sd["hollow_knight"]["options"]
+                    ss_sd = sd["silksong"]
+                    # Silksong cannot generate with both skills and Bellways vanilla, so the off case
+                    # leaves fast travel per game.
+                    travel = ("RandomizeStags", "bellway_randomization", "ventrica_randomization")
+                    for name in (
+                        "RandomizeMaps", "RandomizeStags", "RandomizeMaskShards", "RandomizeVesselFragments",
+                        "RandomizeRelics", "RandomizeSkills", "RandomizeFocus", "RandomizeSwim",
+                    ):
+                        assert hk_opts[name] == int(on or name in travel), (name, hk_opts[name])
+                    for name in (
+                        "map_randomization", "bellway_randomization", "ventrica_randomization",
+                        "mask_shard_randomization", "spool_fragment_randomization", "relic_randomization",
+                        "skill_randomization", "silk_skill_randomization",
+                    ):
+                        expected = "anywhere" if on or name in travel else "vanilla"
+                        assert ss_sd[name] == expected, (name, ss_sd[name])
+                    assert ss_sd["bind_randomization"] == ("per_crest" if on else "vanilla"), ss_sd["bind_randomization"]
+                    assert ss_sd["swim_ability_rando"] is on, ss_sd["swim_ability_rando"]
+                    shuffled = {
+                        l.item.name for l in mw.get_locations()
+                        if l.address is not None and l.item and l.item.player == p
+                    }
+                    for name in ("HK Focus", "HK King's_Idol", "HK Crossroads_Map", "HK Mask_Shard", "Shared Swim"):
+                        assert (name in shuffled) == on, (name, on)
+                    assert "HK Swim" not in shuffled and "SS Swim" not in shuffled, "Swim must only appear as Shared Swim"
                 if label == "solo_both_unified_entrances_full":
                     hk_sd = sd["hollow_knight"]
                     ss_sd = sd["silksong"]
@@ -480,6 +508,37 @@ CASES: list[tuple[str, dict[str, str]]] = [
             "  shuffle_grubs_and_fleas: on\n"
             "  shuffle_journal_entries: on\n"
             "  shuffle_lore_tablets: on\n"
+        )
+    }),
+    ("solo_both_unified_pools_on", {
+        "ComboPoolsOn.yaml": (
+            "name: ComboPoolsOn\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  cross_game_items: true\n"
+            "  shuffle_maps: on\n"
+            "  shuffle_fast_travel: on\n"
+            "  shuffle_masks_and_vessels: on\n"
+            "  shuffle_relics: on\n"
+            "  shuffle_skills: on\n"
+            "  shuffle_heal: per_crest\n"
+            "  shuffle_swim: on\n"
+        )
+    }),
+    ("solo_both_unified_pools_off", {
+        "ComboPoolsOff.yaml": (
+            "name: ComboPoolsOff\n"
+            "game: Hollow Knight x Silksong\n"
+            "Hollow Knight x Silksong:\n"
+            "  games: both\n"
+            "  cross_game_items: true\n"
+            "  shuffle_maps: off\n"
+            "  shuffle_masks_and_vessels: off\n"
+            "  shuffle_relics: off\n"
+            "  shuffle_skills: off\n"
+            "  shuffle_heal: off\n"
+            "  shuffle_swim: off\n"
         )
     }),
     ("solo_both_unified_entrances_full", {

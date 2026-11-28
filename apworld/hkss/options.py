@@ -177,6 +177,120 @@ class ShuffleGrass(Choice):
     default = 0
 
 
+class ShuffleMaps(Choice):
+    """Unified randomization for area maps in both games.
+
+    per_game: use each game's individual option.
+    off: keep Hallownest maps (Cornifer, Iselda) and Pharloom maps (Shakra) vanilla.
+    on: randomize the maps of both games into the shared item pool.
+    """
+
+    display_name = "Shuffle Maps"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ShuffleFastTravel(Choice):
+    """Unified randomization for fast travel in both games.
+
+    per_game: use each game's individual options.
+    off: keep Stag Stations, Bellways, and Ventricas vanilla.
+    on: randomize Stag Stations (Hallownest), Bellways and Ventricas (Pharloom) into the shared item pool.
+
+    Silksong cannot keep both Bellways and skills vanilla: with Shuffle Skills off, leave this on.
+    """
+
+    display_name = "Shuffle Fast Travel"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ShuffleMasksAndVessels(Choice):
+    """Unified randomization for health and resource upgrades in both games.
+
+    per_game: use each game's individual options.
+    off: keep Mask Shards, Vessel Fragments, and Spool Fragments vanilla.
+    on: randomize Mask Shards and Vessel Fragments (Hallownest), and Mask Shards and Spool Fragments
+    (Pharloom) into the shared item pool.
+    """
+
+    display_name = "Shuffle Masks & Vessels/Spools"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ShuffleRelics(Choice):
+    """Unified randomization for Relics in both games.
+
+    per_game: use each game's individual option.
+    off: keep Hallownest relics (Wanderer's Journals, Seals, Idols, Eggs) and Pharloom relics vanilla.
+    on: randomize the relics of both games into the shared item pool.
+    """
+
+    display_name = "Shuffle Relics"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ShuffleSkills(Choice):
+    """Unified randomization for skills in both games.
+
+    per_game: use each game's individual options.
+    off: keep skills vanilla.
+    on: randomize Hollow Knight skills (movement, spells, nail arts, Dream Nail), and Silksong
+    traversal skills and Silk Skills into the shared item pool.
+
+    Silksong cannot keep both skills and Bellways vanilla: with Shuffle Fast Travel off, leave this on.
+    """
+
+    display_name = "Shuffle Skills"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ShuffleHeal(Choice):
+    """Unified randomization for healing in both games.
+
+    per_game: use each game's individual options.
+    off: Focus (Hallownest) and Bind (Pharloom) work from the start.
+    on: remove Focus and one shared Bind, and randomize them into the shared item pool.
+    per_crest: like on, but Silksong adds one Bind item for each crest.
+    """
+
+    display_name = "Shuffle Heal (Focus/Bind)"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    option_per_crest = 3
+    default = 0
+
+
+class ShuffleSwim(Choice):
+    """Unified randomization for swimming in both games.
+
+    per_game: use each game's individual options.
+    off: both the Knight and Hornet can swim from the start.
+    on: remove the ability to swim in both games and randomize it into the shared item pool.
+    With Cross-Game Items, both become one Shared Swim.
+    """
+
+    display_name = "Shuffle Swim"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
 class RandomizeLevers(Toggle):
     """Add Hollow Knight levers as checks in the shared item pool.
 
@@ -429,6 +543,13 @@ _shared_fields = [
     ("shuffle_levers", ShuffleLevers),
     ("shuffle_breakable_walls", ShuffleBreakableWalls),
     ("shuffle_grass", ShuffleGrass),
+    ("shuffle_maps", ShuffleMaps),
+    ("shuffle_fast_travel", ShuffleFastTravel),
+    ("shuffle_masks_and_vessels", ShuffleMasksAndVessels),
+    ("shuffle_relics", ShuffleRelics),
+    ("shuffle_skills", ShuffleSkills),
+    ("shuffle_heal", ShuffleHeal),
+    ("shuffle_swim", ShuffleSwim),
     ("cross_game_seals", CrossGameSeals),
     ("cross_game_items", CrossGameItems),
     ("double_steel_soul", DoubleSteelSoul),
@@ -495,6 +616,13 @@ def _build_option_groups() -> list[OptionGroup]:
                 ShuffleLevers,
                 ShuffleBreakableWalls,
                 ShuffleGrass,
+                ShuffleMaps,
+                ShuffleFastTravel,
+                ShuffleMasksAndVessels,
+                ShuffleRelics,
+                ShuffleSkills,
+                ShuffleHeal,
+                ShuffleSwim,
                 CrossGameSeals,
                 CrossGameItems,
                 DoubleSteelSoul,
