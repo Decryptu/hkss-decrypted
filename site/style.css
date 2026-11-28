@@ -36,12 +36,15 @@ svg { width: 1em; height: 1em; }
 .bar a { color: var(--dim); text-decoration: none; transition: color .2s; }
 .bar a:hover { color: var(--ink); }
 .brand { color: var(--ink) !important; }
-.foot { justify-content: center; color: #85848a; font-size: .78rem; padding-block: 3rem 2rem; text-align: center; }
+.bar [aria-current="page"] { color: var(--soul); }
+.foot { flex-direction: column; justify-content: center; gap: .6rem; color: #85848a; font-size: .78rem; padding-block: 3rem 2rem; text-align: center; }
+.foot p { margin: 0; text-transform: none; letter-spacing: .06em; }
 
 main { width: min(46rem, 100% - 2rem); margin-inline: auto; }
-h1, h2, h3, .eyebrow, .phase b, .tag { font-family: var(--display); }
+h1, h2, h3 { font-family: var(--display); }
 
-.title-screen { text-align: center; padding-block: clamp(1.5rem, 6vw, 4rem) 4.5rem; }
+.title-screen { text-align: center; padding-block: clamp(1.5rem, 6vw, 4rem) 2rem; }
+.req { color: var(--dim); font-size: .95rem; max-width: 42ch; margin: 2.5rem auto 0; }
 .crest { width: clamp(8rem, 24vw, 12rem); height: auto; filter: drop-shadow(0 0 1.75rem #a9c8f026) drop-shadow(0 0 2.5rem #d0463c1a); }
 h1 { font-weight: 400; font-size: clamp(3rem, 11vw, 6.5rem); line-height: .95; letter-spacing: .03em; margin: .75rem 0 0; text-transform: uppercase; color: #fbf8f3; text-shadow: -.12em 0 .9em #6f9fe03a, .12em 0 .9em #ff6a4a2e, 0 0 .35em #ffffff30; }
 h1 small { display: block; font-size: .28em; letter-spacing: .32em; margin: 0 0 .35em .32em; color: var(--ink); text-shadow: none; }
@@ -66,40 +69,18 @@ h1 small .x { color: var(--dim); margin-inline: .25em; }
 .menu a:hover .cur.r, .menu a:focus-visible .cur.r { opacity: 1; transform: translate(.7rem, -50%) scaleX(-1); }
 .menu.small a { font-size: 1rem; }
 
-.panel { position: relative; padding-block: 3.5rem; }
-.panel::before { content: ""; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, var(--void) 30%, #7a2a24 70%, transparent); }
 h2 { font-weight: 400; text-transform: uppercase; letter-spacing: .22em; font-size: 1.35rem; text-align: center; margin: 0; padding-left: .22em; }
-.panel > p { color: var(--dim); text-align: center; margin: 0 auto 1.5rem; max-width: 46ch; }
 
-/* Two kingdoms: one card per game, each in its own colour. */
-.kingdoms { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .8rem; margin-top: 1.5rem; }
+/* Kingdom cards (item map): one per game, each in its own colour. */
 .kingdom { padding: 1.1rem 1.2rem 1.2rem; border: 1px solid var(--line); background: #ffffff05; }
 .kingdom h3 { margin: 0 0 .1rem; font-weight: 400; letter-spacing: .14em; text-transform: uppercase; font-size: 1.05rem; }
-.kingdom .eyebrow { margin: 0 0 .6rem; font-size: .78rem; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); }
 .kingdom p { margin: 0; color: var(--dim); font-size: 1rem; }
 .kingdom.hk { border-color: #2b4f8699; background: linear-gradient(180deg, #2b4f861c, transparent 70%); }
 .kingdom.hk h3 { color: var(--soul); }
 .kingdom.ss { border-color: #a8281a99; background: linear-gradient(180deg, #a8281a1c, transparent 70%); }
 .kingdom.ss h3 { color: #f0928a; }
 
-/* Journey: numbered steps with half-blue, half-red diamond markers. */
-.journey { list-style: none; padding: 0; margin: 2rem 0 0; counter-reset: s; }
-.journey li { counter-increment: s; display: grid; grid-template-columns: 2rem 1fr; gap: .75rem; padding: .9rem 0; border-bottom: 1px solid #23252c; }
-.journey li::before { content: ""; width: .8rem; height: .8rem; margin: .45rem 0 0 .2rem; border: 1px solid var(--soul); transform: rotate(45deg); background: linear-gradient(135deg, var(--void) 50%, #8a2a22 50%); }
-.journey b { display: block; font-weight: 400; }
-.journey b::before { content: counter(s) ". "; color: var(--soul); }
-.journey span { color: var(--dim); font-size: 1rem; }
 code { font-family: ui-monospace, Consolas, monospace; font-size: .85em; color: var(--ink); background: #ffffff0d; padding: .05em .35em; }
-
-/* Phases: a rail fading from soul blue to silk red. */
-.phases { list-style: none; padding: 0; margin: 2rem 0 0; position: relative; }
-.phases::before { content: ""; position: absolute; left: .55rem; top: .6rem; bottom: .6rem; width: 1px; background: linear-gradient(180deg, var(--soul), var(--red)); opacity: .55; }
-.phase { position: relative; padding: .55rem 0 .55rem 2.2rem; }
-.phase::before { content: ""; position: absolute; left: .2rem; top: 1.05rem; width: .7rem; height: .7rem; transform: rotate(45deg); border: 1px solid var(--dim); background: var(--bg); }
-.phase.now::before { border-color: var(--soul); background: var(--soul); box-shadow: 0 0 .6rem #a9c8f0aa; }
-.phase b { font-weight: 400; letter-spacing: .06em; }
-.phase span { display: block; color: var(--dim); font-size: .98rem; }
-.phase .tag, .tag { display: inline-block; margin-left: .5rem; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--soul); border: 1px solid #a9c8f066; padding: 0 .4rem; vertical-align: .15em; }
 
 @media (max-width: 36rem) {
   .bar { flex-direction: column; gap: .5rem; }
@@ -107,5 +88,3 @@ code { font-family: ui-monospace, Consolas, monospace; font-size: .85em; color: 
   .menu .cur { width: 1.2rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
-.phase.done::before { border-color: var(--soul); background: #a9c8f055; }
-.journey code { font-size: .92em; color: #fff; }

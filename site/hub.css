@@ -12,7 +12,6 @@
   margin: 1.3rem auto 0;
   background: linear-gradient(90deg, transparent, var(--soul), var(--red), transparent);
 }
-.bar [aria-current="page"] { color: var(--soul); }
 .hub-main [hidden] { display: none !important; }
 [data-load-error]:empty { display: none; }
 [data-load-error] { color: #f0928a; text-align: center; }
