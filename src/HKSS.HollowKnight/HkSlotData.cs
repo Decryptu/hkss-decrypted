@@ -111,6 +111,10 @@ public sealed class HkSlotOptions
     // 0 means the seed does not set it; the local QoL setting applies instead.
     public float EnemyGeoMultiplier { get; set; }
     public bool EarlyDash { get; set; }
+    // null means the seed does not set the link; the local setting applies instead.
+    public bool? SoulLink { get; set; }
+    public bool? GeoLink { get; set; }
+    public bool? KnockbackLink { get; set; }
     public bool Slopeballs { get; set; }
     public bool RemoveSpellUpgrades { get; set; }
     public bool RandomizeElevatorPass { get; set; }

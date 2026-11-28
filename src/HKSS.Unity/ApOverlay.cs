@@ -452,23 +452,42 @@ internal sealed partial class ApOverlay : MonoBehaviour
         }
     }
 
+#if HOLLOW_KNIGHT
+    private void DrawLinkToggle(string label, bool enabled, bool setBySeed, Action<bool> set)
+    {
+        if (setBySeed)
+        {
+            GUILayout.Label($"{label}: {(enabled ? "on" : "off")} (set by the seed)", _labelStyle);
+            return;
+        }
+
+        bool next = GUILayout.Toggle(enabled, label);
+        if (next != enabled)
+            set(next);
+    }
+#endif
+
     private void DrawLinksAndQolTab()
     {
         _qolScroll = GUILayout.BeginScrollView(_qolScroll);
 
 #if HOLLOW_KNIGHT
         GUILayout.Label("Archipelago Links & Gifting", _sectionStyle);
-        bool soulLink = GUILayout.Toggle(HKSS.HollowKnight.HkLinksManager.SoulLinkEnabled, "SoulLink (share base 99 Soul)");
-        if (soulLink != HKSS.HollowKnight.HkLinksManager.SoulLinkEnabled)
-            HKSS.HollowKnight.HkLinksManager.SoulLinkEnabled = soulLink;
-
-        bool geoLink = GUILayout.Toggle(HKSS.HollowKnight.HkLinksManager.GeoLinkEnabled, "GeoLink (share Geo with team)");
-        if (geoLink != HKSS.HollowKnight.HkLinksManager.GeoLinkEnabled)
-            HKSS.HollowKnight.HkLinksManager.GeoLinkEnabled = geoLink;
-
-        bool kbLink = GUILayout.Toggle(HKSS.HollowKnight.HkLinksManager.KnockbackLinkEnabled, "KnockbackLink (cross-game recoil)");
-        if (kbLink != HKSS.HollowKnight.HkLinksManager.KnockbackLinkEnabled)
-            HKSS.HollowKnight.HkLinksManager.KnockbackLinkEnabled = kbLink;
+        DrawLinkToggle(
+            "SoulLink (share base 99 Soul)",
+            HKSS.HollowKnight.HkLinksManager.SoulLinkEnabled,
+            HKSS.HollowKnight.HkLinksManager.SoulLinkSetBySeed,
+            on => HKSS.HollowKnight.HkLinksManager.SoulLinkEnabled = on);
+        DrawLinkToggle(
+            "GeoLink (share Geo with team)",
+            HKSS.HollowKnight.HkLinksManager.GeoLinkEnabled,
+            HKSS.HollowKnight.HkLinksManager.GeoLinkSetBySeed,
+            on => HKSS.HollowKnight.HkLinksManager.GeoLinkEnabled = on);
+        DrawLinkToggle(
+            "KnockbackLink (cross-game recoil)",
+            HKSS.HollowKnight.HkLinksManager.KnockbackLinkEnabled,
+            HKSS.HollowKnight.HkLinksManager.KnockbackLinkSetBySeed,
+            on => HKSS.HollowKnight.HkLinksManager.KnockbackLinkEnabled = on);
 
         bool gifting = GUILayout.Toggle(HKSS.HollowKnight.HkGiftingModule.IsEnabled, "Gifting (open AP GiftBox)");
         if (gifting != HKSS.HollowKnight.HkGiftingModule.IsEnabled)

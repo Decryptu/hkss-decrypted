@@ -471,6 +471,48 @@ class EarlyDash(Choice):
     default = 0
 
 
+class CurrencyLink(Choice):
+    """Share currency with other players on your team who turn on the same link.
+
+    per_game: use each game's own option.
+    on: share Geo (GeoLink, Hallownest) and loose Rosaries (Rosary Link, Pharloom).
+    Shell Shards keep their own Silksong option.
+    """
+
+    display_name = "Currency Link"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ResourceLink(Choice):
+    """Share the base heal resource with other players on your team who turn on the same link.
+
+    per_game: use each game's own option.
+    on: share the base Soul vessel (SoulLink, Hallownest) and the base Spool's Silk (Silk Link, Pharloom).
+    """
+
+    display_name = "Resource Link"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
+class ComboKnockbackLink(Choice):
+    """Share hit knockback with other players who turn on Knockback Link, in either game.
+
+    per_game: use each game's own option.
+    """
+
+    display_name = "Knockback Link"
+    option_per_game = 0
+    option_off = 1
+    option_on = 2
+    default = 0
+
+
 class StartingCurrency(NamedRange):
     """Geo (Hallownest) and Rosaries (Pharloom) you start the run with.
 
@@ -519,6 +561,33 @@ class HkEarlyDash(Toggle):
     default = False
 
 
+class HkSoulLink(Toggle):
+    """Share the base Soul vessel with other players on your team who turn on SoulLink.
+
+    Soul Vessels stay local. A cracked vessel after death caps what you can hold.
+    """
+
+    display_name = "SoulLink"
+    default = False
+
+
+class HkGeoLink(Toggle):
+    """Share Geo with other players on your team who turn on GeoLink.
+
+    Geo carried by your shade leaves the shared pool until you recover it.
+    """
+
+    display_name = "GeoLink"
+    default = False
+
+
+class HkKnockbackLink(Toggle):
+    """Share hit knockback with other players who turn on Knockback Link."""
+
+    display_name = "Knockback Link"
+    default = False
+
+
 class StartingRosaries(Range):
     """Rosaries you start the run with in Pharloom."""
 
@@ -559,6 +628,9 @@ _shared_fields = [
     ("combo_faster_dialogue", ComboFasterDialogue),
     ("early_dash", EarlyDash),
     ("starting_currency", StartingCurrency),
+    ("currency_link", CurrencyLink),
+    ("resource_link", ResourceLink),
+    ("combo_knockback_link", ComboKnockbackLink),
 ]
 
 _hk_extra_fields = [
@@ -569,6 +641,9 @@ _hk_extra_fields = [
     ("EnemyGeoMultiplier", HkEnemyGeoMultiplier),
     ("FasterDialogue", HkFasterDialogue),
     ("EarlyDash", HkEarlyDash),
+    ("SoulLink", HkSoulLink),
+    ("GeoLink", HkGeoLink),
+    ("KnockbackLink", HkKnockbackLink),
 ]
 
 _hk_fields = [
@@ -632,6 +707,9 @@ def _build_option_groups() -> list[OptionGroup]:
                 ComboFasterDialogue,
                 EarlyDash,
                 StartingCurrency,
+                CurrencyLink,
+                ResourceLink,
+                ComboKnockbackLink,
             ],
         ),
         OptionGroup(

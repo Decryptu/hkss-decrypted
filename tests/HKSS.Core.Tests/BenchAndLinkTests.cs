@@ -74,6 +74,10 @@ public sealed class BenchAndLinkTests
     {
         Assert.Equal(99, LinkMath.ComputePredictedPool(90, 25, 0, LinkMath.HkBaseSoulCapacity));
         Assert.Equal(0, LinkMath.ComputePredictedPool(10, -50, 0, LinkMath.HkBaseSoulCapacity));
+        Assert.Equal(66, LinkMath.ComputeLocalTarget(99, 0, LinkMath.HkBaseSoulCapacity, 66));
+        Assert.Equal(40, LinkMath.ComputeLocalTarget(50, -10, LinkMath.HkBaseSoulCapacity, 66));
+        Assert.Equal(0, LinkMath.ComputeLocalTarget(10, -50, LinkMath.HkBaseSoulCapacity, 66));
+        Assert.Equal(99, LinkMath.ComputeLocalTarget(120, 0, LinkMath.HkBaseSoulCapacity, 500));
 
         var data = new Dictionary<string, JToken>
         {

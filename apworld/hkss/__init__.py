@@ -347,6 +347,16 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             opts.EarlyDash.value = on
             opts.early_sprint.value = on
 
+        for option, hk_name, ss_name in (
+            (opts.currency_link, "GeoLink", "rosary_link"),
+            (opts.resource_link, "SoulLink", "silk_link"),
+            (opts.combo_knockback_link, "KnockbackLink", "knockback_link"),
+        ):
+            if option.value != 0:
+                on = int(option.value == 2)
+                getattr(opts, hk_name).value = on
+                getattr(opts, ss_name).value = on
+
         if opts.starting_currency.value >= 0:
             opts.StartingGeo.value = opts.starting_currency.value
             opts.starting_rosaries.value = opts.starting_currency.value
@@ -871,6 +881,9 @@ class HKSSWorld(SilksongWorld, CachedRuleBuilderWorld):
             hk_data["options"]["EnemyGeoMultiplier"] = HK_GEO_MULTIPLIERS[self.options.EnemyGeoMultiplier.value]
             hk_data["options"]["FasterDialogue"] = int(bool(self.options.FasterDialogue.value))
             hk_data["options"]["EarlyDash"] = int(bool(self.options.EarlyDash.value))
+            hk_data["options"]["SoulLink"] = int(bool(self.options.SoulLink.value))
+            hk_data["options"]["GeoLink"] = int(bool(self.options.GeoLink.value))
+            hk_data["options"]["KnockbackLink"] = int(bool(self.options.KnockbackLink.value))
             if self._hk_entrance_pairs:
                 hk_data["entrance_pairs"] = dict(self._hk_entrance_pairs)
                 hk_data["options"]["EntranceRandoType"] = self._hk_entrance_rando_type

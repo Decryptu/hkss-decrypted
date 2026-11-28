@@ -24,6 +24,13 @@ public static class LinkMath
     public static int ComputePredictedPool(int authoritative, int pendingDelta, int min, int max) =>
         Clamp(authoritative + pendingDelta, min, max);
 
+    /// <summary>
+    /// The value one player's game should show: the predicted shared pool, limited by what that
+    /// player can hold locally (for example a cracked Soul vessel).
+    /// </summary>
+    public static int ComputeLocalTarget(int authoritative, int pendingDelta, int poolMax, int localCap) =>
+        Clamp(ComputePredictedPool(authoritative, pendingDelta, 0, poolMax), 0, Math.Max(0, Math.Min(poolMax, localCap)));
+
     public static bool TryNormalizeDirection(double x, double y, out float nx, out float ny)
     {
         nx = 0f;

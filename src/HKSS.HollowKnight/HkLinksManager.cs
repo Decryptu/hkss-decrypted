@@ -34,11 +34,19 @@ internal sealed class HkLinksManager : MonoBehaviour
     private static ConfigEntry<bool>? _geoLinkCfg;
     private static ConfigEntry<bool>? _knockbackLinkCfg;
 
+    // A seed that sets a link decides it; older seeds fall back to the local setting.
+    private static HkSlotOptions? SeedOptions => HkClientHost.CurrentSlotData?.Options;
+
+    internal static bool SoulLinkSetBySeed => SeedOptions?.SoulLink.HasValue ?? false;
+    internal static bool GeoLinkSetBySeed => SeedOptions?.GeoLink.HasValue ?? false;
+    internal static bool KnockbackLinkSetBySeed => SeedOptions?.KnockbackLink.HasValue ?? false;
+
     internal static bool SoulLinkEnabled
     {
-        get => _soulLinkCfg?.Value ?? false;
+        get => SeedOptions?.SoulLink ?? _soulLinkCfg?.Value ?? false;
         set
         {
+            if (SoulLinkSetBySeed) return;
             if (_soulLinkCfg != null) _soulLinkCfg.Value = value;
             Instance?.Reconfigure();
         }
@@ -46,9 +54,10 @@ internal sealed class HkLinksManager : MonoBehaviour
 
     internal static bool GeoLinkEnabled
     {
-        get => _geoLinkCfg?.Value ?? false;
+        get => SeedOptions?.GeoLink ?? _geoLinkCfg?.Value ?? false;
         set
         {
+            if (GeoLinkSetBySeed) return;
             if (_geoLinkCfg != null) _geoLinkCfg.Value = value;
             Instance?.Reconfigure();
         }
@@ -56,9 +65,10 @@ internal sealed class HkLinksManager : MonoBehaviour
 
     internal static bool KnockbackLinkEnabled
     {
-        get => _knockbackLinkCfg?.Value ?? false;
+        get => SeedOptions?.KnockbackLink ?? _knockbackLinkCfg?.Value ?? false;
         set
         {
+            if (KnockbackLinkSetBySeed) return;
             if (_knockbackLinkCfg != null) _knockbackLinkCfg.Value = value;
             Instance?.Reconfigure();
         }
@@ -266,17 +276,21 @@ internal sealed class HkLinksManager : MonoBehaviour
             _geo.LastObserved = pd.geo;
         }
 
-        if (_soul.Active)
-            UpdatePool(_soul, pd.MPCharge, target => ApplySoul(hc, pd, target));
+        if (_soul.Active && !hc.cState.dead)
+            UpdatePool(_soul, pd.MPCharge, LocalSoulCap(pd), target => ApplySoul(hc, pd, target), () => pd.MPCharge);
 
         if (_geo.Active && !hc.cState.dead)
-            UpdatePool(_geo, pd.geo, target => ApplyGeo(hc, pd, target));
+            UpdatePool(_geo, pd.geo, _geo.MaxValue, target => ApplyGeo(hc, pd, target), () => pd.geo);
 
         if (_knockbackActive)
             UpdateKnockback(gm, hc, pd);
     }
 
-    private void UpdatePool(PoolState pool, int currentLocal, Action<int> applyToGame)
+    // The shared pool holds up to 99 Soul, but a cracked vessel after death holds less.
+    private static int LocalSoulCap(PlayerData pd) =>
+        LinkMath.Clamp(pd.maxMP, 0, LinkMath.HkBaseSoulCapacity);
+
+    private void UpdatePool(PoolState pool, int currentLocal, int localCap, Action<int> applyToGame, Func<int> readLocal)
     {
         ArchipelagoSession? session;
         int gen;
@@ -311,14 +325,15 @@ internal sealed class HkLinksManager : MonoBehaviour
             SendPoolDelta(session, pool, gen, localDelta);
         }
 
-        int target = LinkMath.ComputePredictedPool(pool.Authoritative, pool.PendingDelta, 0, pool.MaxValue);
+        int target = LinkMath.ComputeLocalTarget(pool.Authoritative, pool.PendingDelta, pool.MaxValue, localCap);
         if (target != currentLocal)
         {
             _applyingRemote = true;
             try
             {
                 applyToGame(target);
-                pool.LastObserved = target;
+                // Record what the game actually holds so a capped apply is never sent back as a loss.
+                pool.LastObserved = readLocal();
             }
             finally
             {

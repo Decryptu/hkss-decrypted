@@ -285,6 +285,8 @@ internal sealed class HkClientHost : MonoBehaviour
                 CurrentSlotData = connectedSlot;
                 TryWriteSlotDataCache(connectedSlot);
                 HkCheckMap.MarkDirty();
+                // The links read their seed options from this slot data, so reconfigure once it is set.
+                HkLinksManager.Instance?.Reconfigure();
             }
 
             if (!_icActive)

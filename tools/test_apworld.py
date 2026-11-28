@@ -288,6 +288,11 @@ def _run_cases(
                     for name in ("HK Focus", "HK King's_Idol", "HK Crossroads_Map", "HK Mask_Shard", "Shared Swim"):
                         assert (name in shuffled) == on, (name, on)
                     assert "HK Swim" not in shuffled and "SS Swim" not in shuffled, "Swim must only appear as Shared Swim"
+                    for name in ("GeoLink", "SoulLink", "KnockbackLink"):
+                        assert hk_opts[name] == int(on), (name, hk_opts[name])
+                    for name in ("rosary_link", "silk_link", "knockback_link"):
+                        assert ss_sd[name] is on, (name, ss_sd[name])
+                    assert ss_sd["shell_shard_link"] is False, "Shell Shard Link keeps its own option"
                 if label == "solo_both_unified_entrances_full":
                     hk_sd = sd["hollow_knight"]
                     ss_sd = sd["silksong"]
@@ -524,6 +529,9 @@ CASES: list[tuple[str, dict[str, str]]] = [
             "  shuffle_skills: on\n"
             "  shuffle_heal: per_crest\n"
             "  shuffle_swim: on\n"
+            "  currency_link: on\n"
+            "  resource_link: on\n"
+            "  combo_knockback_link: on\n"
         )
     }),
     ("solo_both_unified_pools_off", {
@@ -539,6 +547,9 @@ CASES: list[tuple[str, dict[str, str]]] = [
             "  shuffle_skills: off\n"
             "  shuffle_heal: off\n"
             "  shuffle_swim: off\n"
+            "  currency_link: off\n"
+            "  resource_link: off\n"
+            "  combo_knockback_link: off\n"
         )
     }),
     ("solo_both_unified_entrances_full", {

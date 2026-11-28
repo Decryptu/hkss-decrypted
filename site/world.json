@@ -2,7 +2,7 @@
   "game": "Hollow Knight x Silksong",
   "version": "0.1.30",
   "minimumArchipelago": "0.6.8",
-  "archiveSha256": "9b1c847d2573d6b7e00d60bb0d12189706dca50c4f84782e895caf5c6a312ee4",
+  "archiveSha256": "64da00d6b23c6c0559919787c27c76546c721b1405490d36ae07a3ac629b3c94",
   "routes": {
     "HK": [
       [
@@ -751,6 +751,66 @@
           "names": {
             "per_game": -1
           }
+        },
+        "currency_link": {
+          "label": "Currency Link",
+          "help": "Share currency with other players on your team who turn on the same link.\n\nper_game: use each game's own option.\non: share Geo (GeoLink, Hallownest) and loose Rosaries (Rosary Link, Pharloom).\nShell Shards keep their own Silksong option.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "resource_link": {
+          "label": "Resource Link",
+          "help": "Share the base heal resource with other players on your team who turn on the same link.\n\nper_game: use each game's own option.\non: share the base Soul vessel (SoulLink, Hallownest) and the base Spool's Silk (Silk Link, Pharloom).",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
+        },
+        "combo_knockback_link": {
+          "label": "Knockback Link",
+          "help": "Share hit knockback with other players who turn on Knockback Link, in either game.\n\nper_game: use each game's own option.",
+          "kind": "choice",
+          "default": "per_game",
+          "choices": [
+            "per_game",
+            "off",
+            "on"
+          ],
+          "aliases": [
+            "false",
+            "true"
+          ],
+          "numbers": [
+            0,
+            1,
+            2
+          ]
         }
       }
     },
@@ -1635,6 +1695,24 @@
         "EarlyDash": {
           "label": "Early Dash",
           "help": "Place Mothwing Cloak early when skills are randomized.\n\nWith Split Mothwing Cloak, both directions are placed early.",
+          "kind": "toggle",
+          "default": false
+        },
+        "SoulLink": {
+          "label": "SoulLink",
+          "help": "Share the base Soul vessel with other players on your team who turn on SoulLink.\n\nSoul Vessels stay local. A cracked vessel after death caps what you can hold.",
+          "kind": "toggle",
+          "default": false
+        },
+        "GeoLink": {
+          "label": "GeoLink",
+          "help": "Share Geo with other players on your team who turn on GeoLink.\n\nGeo carried by your shade leaves the shared pool until you recover it.",
+          "kind": "toggle",
+          "default": false
+        },
+        "KnockbackLink": {
+          "label": "Knockback Link",
+          "help": "Share hit knockback with other players who turn on Knockback Link.",
           "kind": "toggle",
           "default": false
         }
